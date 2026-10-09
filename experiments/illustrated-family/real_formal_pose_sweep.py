@@ -37,6 +37,17 @@ scene.render.resolution_percentage=100
 scene.render.image_settings.file_format="PNG"
 scene.render.image_settings.color_mode="RGBA"
 scene.render.film_transparent=True
+# Isolated proof scenes were saved BEFORE quick_preview's UI-thumbnail ink
+# convergence. Apply the same certified size-aware Freestyle policy here;
+# otherwise reopening the saved .blend produces black, unusable outlines.
+height=scene.render.resolution_y*scene.render.resolution_percentage/100
+for layer in scene.view_layers:
+    for strokes in layer.freestyle_settings.linesets:
+        strokes.linestyle.thickness *= height/4320
+if scene.compositing_node_group is not None:
+    for node in scene.compositing_node_group.nodes:
+        if node.type=="DILATEERODE":
+            node.inputs["Size"].default_value=max(1,round(node.inputs["Size"].default_value*height/2160))
 
 frames=(27,100,220,338,450,560,700,815,891,980)
 wrist_names=[n for n in ("wrist.L","wrist.R") if n in rig.pose.bones]
