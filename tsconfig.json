@@ -42,6 +42,8 @@
     "hyperframes",
     "tmp",
     ".next/dev/types",
-    "engines"
+    "engines",
+    "engine_sources",
+    "assets"
   ]
 }
