@@ -2,7 +2,7 @@ name: V1 formal presenters ten-pose original action QA
 on:
   push:
     branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-formal-gesture-sweep.yml']
+    paths: ['.github/workflows/illustrated-formal-gesture-sweep.yml', 'experiments/illustrated-family/real_formal_pose_sweep.py']
 permissions:
   contents: write
   actions: read
