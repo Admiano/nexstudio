@@ -24,12 +24,18 @@ Usage:
 """
 import argparse
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NODE = str(Path.home() / '.nvm/versions/node/v24.19.0/bin/node')
+# Node may live anywhere: explicit override first, then PATH, then the
+# known dev-machine nvm location.
+NODE = (os.environ.get('NODE_BIN')
+        or shutil.which('node')
+        or str(Path.home() / '.nvm/versions/node/v24.19.0/bin/node'))
 
 BLANK_MAX_MS = 400          # grain/dot-grid floor keeps "rest" frames alive; blank = dead pixels
 BLANK_STD = 1.5

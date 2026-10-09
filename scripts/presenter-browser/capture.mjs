@@ -2,7 +2,7 @@ import {chromium} from '../../node_modules/playwright-core/index.mjs';
 import {writeFileSync,mkdirSync} from 'fs';
 const [,,url,first,last,out,workers='4']=process.argv;mkdirSync(out,{recursive:true});
 const frames=[];for(let f=+first;f<=+last;f++)frames.push(f);
-const chrome=process.env.CHROME_BIN||`${process.env.HOME}/.local/bin/google-chrome`;
+const chrome=process.env.CHROME_BIN||process.env.CHROME_PATH||`${process.env.HOME}/.local/bin/google-chrome`;
 const t0=Date.now();
 await Promise.all([...Array(Math.max(1,+workers))].map(async(_,w)=>{
  const b=await chromium.launch({executablePath:chrome,args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
