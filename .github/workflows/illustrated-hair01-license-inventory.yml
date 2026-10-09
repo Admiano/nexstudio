@@ -1,0 +1,86 @@
+name: V1 enumerate all Hair01 individual licenses and fitted mesh candidates
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-hair01-license-inventory.yml']
+permissions:
+  contents: write
+jobs:
+  hair01-license-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docs/illustrated-family
+          persist-credentials: true
+      - name: Retrieve immutable upstream archive and audit every mhclo individually
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 2 -o /tmp/hair01_cc0.zip https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+          echo '49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9  /tmp/hair01_cc0.zip' | sha256sum -c -
+          mkdir -p docs/illustrated-family/hair-inventory
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile,json,hashlib,re
+          archive=Path('/tmp/hair01_cc0.zip')
+          items=[]
+          with zipfile.ZipFile(archive) as zip:
+            assert zip.testzip() is None
+            names=set(zip.namelist())
+            for p in sorted(names):
+              if not p.endswith('.mhclo'):continue
+              head=zip.read(p).decode('utf-8','replace').splitlines()[:36]
+              header='\n'.join(head)
+              lines=[x.strip() for x in head if x.strip().startswith('#')]
+              lic=next((x for x in lines if 'license' in x.lower()),'')
+              if not lic and any('CC0' in x.upper() for x in lines):
+                lic=next(x for x in lines if 'CC0' in x.upper())
+              if 'CC0' in lic.upper():status='CC0_INDIVIDUAL_HEADER'
+              elif 'AGPL' in lic.upper():status='AGPL_NOT_CC0'
+              else:status='UNKNOWN_EXCLUDE'
+              parent=p.rsplit('/',1)[0]
+              obj=next((x.split(None,1)[1] for x in head if x.startswith('obj_file ')),None)
+              scale={x.split()[0]:x for x in head if x.startswith(('x_scale ','y_scale ','z_scale ','l_shear_'))}
+              related_obj=(parent+'/'+obj) if obj else None
+              size=zip.getinfo(related_obj).file_size if related_obj in names else None
+              it={'name':p.rsplit('/',1)[-1][:-6],'directory':parent,
+                  'mhclo':p,'sourceLicense':lic,'licenseStatus':status,
+                  'headerComments':lines[:5], 'scaleKeys':sorted(scale),
+                  'hasOBJ':related_obj in names, 'objSizeBytes':size,
+                  'mhcloBytes':zip.getinfo(p).file_size}
+              items.append(it)
+          count={k:sum(x['licenseStatus']==k for x in items) for k in ('CC0_INDIVIDUAL_HEADER','AGPL_NOT_CC0','UNKNOWN_EXCLUDE')}
+          out={'kind':'EXACT_SOURCE_FILE_LICENSING_NOT_COLLECTION_LEVEL',
+               'zipSha256':'49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9',
+               'count':count, 'total':len(items),'assets':items}
+          path=Path('docs/illustrated-family/hair-inventory/Hair01_PER_ASSET_LICENSE_AND_SCALE.json')
+          path.write_text(json.dumps(out,indent=2)+'\n')
+          print('HAIR_ASSET_AUDIT_COUNTS',count,'TOTAL',len(items))
+          print('CC0_CANDIDATES',json.dumps([{'name':x['name'],'scaleKeys':x['scaleKeys'],'objBytes':x['objSizeBytes']} for x in items if x['licenseStatus']=='CC0_INDIVIDUAL_HEADER'],indent=2))
+          assert len(items)>5 and count['CC0_INDIVIDUAL_HEADER']>=2
+          PY
+      - name: Commit objective per-file license index
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-inventory/
+          git commit -m 'audit(character): Hair01 individual license headers and MakeHuman scale compatibility'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Hair01_Individual_MHClO_Licenses
+          path: docs/illustrated-family/hair-inventory/Hair01_PER_ASSET_LICENSE_AND_SCALE.json
+          retention-days: 14
+          if-no-files-found: warn
