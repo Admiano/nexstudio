@@ -1,8 +1,5 @@
 name: V1 illustrated family proof
 on:
-  push:
-    branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-family-proof.yml', 'scripts/illustrated-family/**']
   workflow_dispatch:
 permissions:
   contents: read
