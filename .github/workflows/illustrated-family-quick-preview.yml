@@ -2,7 +2,7 @@ name: V1 illustrated quick real preview
 on:
   push:
     branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-family-quick-preview.yml']
+    paths: ['.github/workflows/illustrated-family-quick-preview.yml', 'scripts/illustrated-family-preview/**']
 permissions:
   contents: write
 jobs:
