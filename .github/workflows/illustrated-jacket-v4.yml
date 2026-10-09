@@ -1,0 +1,83 @@
+name: V1 tailored jacket V4 full silhouette and pose proof
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-jacket-v4.yml']
+permissions:
+  contents: write
+jobs:
+  jacket:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+          persist-credentials: true
+      - name: Verify Blender 5.2 and install graphics libraries
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6 zstd
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Save geometry proof and render same-camera front and three-quarter
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/jacket-v4
+          for gender in FEMALE MALE; do
+            src="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.blend"
+            scene="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.decoded.blend"
+            zstd -q -d -c "$src" > "$scene"
+            test "$(head -c 7 "$scene")" = BLENDER
+            lower=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            "$BLENDER_BIN" -b "$scene" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/jacket_hook_v4.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/jacket_pose_qa_v4.py \
+              -- "$lower" "proofs/jacket-v4/$lower-jacket-front.png"
+            test -s "proofs/jacket-v4/$lower-jacket-front.png"
+            test -s "proofs/jacket-v4/$lower-jacket-threeq.png"
+            test -s "proofs/jacket-v4/$lower-jacket-front.blend"
+            test -s "proofs/jacket-v4/$lower-jacket-pose-338.png"
+            test -s "proofs/jacket-v4/$lower-jacket-pose-891.png"
+            test -s "proofs/jacket-v4/$lower-jacket-front-pose-qa.json"
+          done
+      - name: Publish truthful JPEG-free PNG preview evidence
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/jacket-v4
+          cp proofs/jacket-v4/*.png docs/illustrated-family/jacket-v4/
+          cp proofs/jacket-v4/*.json docs/illustrated-family/jacket-v4/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/jacket-v4/
+          git diff --cached --quiet && exit 0
+          git commit -m 'proof(character): unapproved real Blender jacket-v4 garment comparisons'
+          # A separate proof job may commit while Blender is rendering.
+          # Rebase the isolated proof commit against the latest working branch.
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then
+              echo "PREVIEW_PUBLICATION_OK"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PREVIEW_PUBLICATION_FAILED" >&2
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-jacket-v4-editable-scenes-and-stills
+          path: proofs/jacket-v4
+          retention-days: 14
+          if-no-files-found: warn
