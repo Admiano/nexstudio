@@ -13,8 +13,9 @@ base=Path(render_path).resolve();base.parent.mkdir(parents=True,exist_ok=True)
 asset=Path(asset_path).resolve()
 if not asset.is_file():raise RuntimeError("SELECTED_LICENSED_HAIR_NOT_FOUND")
 head="\n".join(asset.read_text(errors="replace").splitlines()[:45]).lower()
-allowed=("license cc0" in head or
-         (asset.parent.name=="cortu_short_messy_hair" and
+import re
+allowed=(bool(re.search(r"(?m)^#\\s*license\\s*:?[\\s]+cc0\\s*$",head)) or
+         (asset.parent.name.startswith("cortu_") and
           "# cortu johnstone - cc0" in head))
 if not allowed:
     raise RuntimeError("DONOR_HAIR_WITHOUT_INDIVIDUAL_CC0_DECLARATION:"+asset.name)
