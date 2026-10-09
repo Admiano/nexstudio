@@ -1,0 +1,7 @@
+{
+  "style": "papercraft",
+  "chassis": {"id": "gen_casual30"},
+  "look": {"conceptImage": "assets/gen/concept_fullbody.png"},
+  "framing": "full-body",
+  "output": {"path": "/tmp/plate_fullbody.png", "width": 720, "height": 1100, "samples": 48}
+}

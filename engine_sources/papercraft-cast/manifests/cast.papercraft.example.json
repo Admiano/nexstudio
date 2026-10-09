@@ -1,0 +1,7 @@
+{
+  "style": "papercraft",
+  "chassis": {"id": "rain"},
+  "look": {"skinTone": "kraft-mid", "hairColor": "dark-brown"},
+  "framing": "bust",
+  "output": {"path": "/tmp/plate_rain.png", "width": 720, "height": 900, "samples": 64}
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cast Papercraft Spec V1",
+  "description": "What a cast-queue entry carries to request a papercraft plate. Consumed by scripts/papercraft_cast.py.",
+  "type": "object",
+  "required": ["style", "chassis", "output"],
+  "properties": {
+    "style": {"const": "papercraft"},
+    "chassis": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "key in manifests/papercraft-facets.json chassis table"
+        },
+        "decimate": {"type": "number", "default": null,
+          "description": "override facet density (0-1 COLLAPSE ratio); null = chassis default"}
+      }
+    },
+    "look": {
+      "type": "object",
+      "properties": {
+        "skinTone": {"enum": ["kraft-light", "kraft-mid", "kraft-dark"]},
+        "wardrobePalette": {"enum": ["cream-casual", "khaki-uniform", "navy-street"]},
+        "hairColor": {"enum": ["navy", "dark-brown", "blonde", "black"]},
+        "paletteOverrides": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+          "description": "material-name fragment -> [r,g,b] tint, merged over the script's palette"
+        }
+      }
+    },
+    "framing": {"enum": ["bust"], "default": "bust"},
+    "output": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {
+        "path": {"type": "string"},
+        "width": {"type": "integer", "default": 720},
+        "height": {"type": "integer", "default": 900},
+        "samples": {"type": "integer", "default": 64}
+      }
+    }
+  }
+}
