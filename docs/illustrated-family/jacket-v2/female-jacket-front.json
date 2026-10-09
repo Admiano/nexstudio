@@ -1,0 +1,17 @@
+{
+  "gender": "female",
+  "source": "Host.mindfront_f_dress_11",
+  "coat": "NEX_V1_TAILORED_JACKET_FEMALE",
+  "coat_faces": 765,
+  "source_unchanged": true,
+  "source_visible": true,
+  "armature_modifiers": 1,
+  "new_lapel_objects": [
+    "NEX_JACKET_LAPEL_female-1",
+    "NEX_JACKET_LAPEL_female1"
+  ],
+  "status": "UNAPPROVED_REQUIRES_RENDER_FIT_DEFORMATION_QA",
+  "source_license": "MakeHuman garment, retain source credits",
+  "proof_scene": "female-jacket-front.blend",
+  "blender": "5.2.0 LTS"
+}
