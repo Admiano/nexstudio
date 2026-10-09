@@ -1,0 +1,38 @@
+name: V1 CC0 alternate hair donor integrity audit
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-hair01-donor-audit.yml']
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Download official MakeHuman CC0 hair pack and validate archive entries
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 2 -o /tmp/hair01_cc0.zip https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+          unzip -tq /tmp/hair01_cc0.zip
+          sha256sum /tmp/hair01_cc0.zip | tee hair01_sha256.txt
+          unzip -Z1 /tmp/hair01_cc0.zip | grep -E '(rehmanpolanski_hair_bun_brown|cortu_short_messy_hair|toigo_blunt_bob_with_bangs)' | tee hair01_selected_paths.txt
+          test -s hair01_selected_paths.txt
+          while IFS= read -r path; do
+            case "$path" in
+              *.mhclo)
+                echo "===== $path ====="
+                unzip -p /tmp/hair01_cc0.zip "$path" | head -n 36 | grep -iE '^#.*(author|license)|^((x|y|z)_scale|l_shear_|obj_file)' || true
+                ;;
+            esac
+          done < hair01_selected_paths.txt | tee hair01_selected_headers.txt
+          test "$(grep -c 'license CC0' hair01_selected_headers.txt)" -ge 2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v1-real-hair01-cc0-donor-validation
+          path: |
+            hair01_sha256.txt
+            hair01_selected_paths.txt
+            hair01_selected_headers.txt
+          retention-days: 14
