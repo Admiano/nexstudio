@@ -2,7 +2,7 @@ name: V1 illustrated wardrobe geometry experiments
 on:
   push:
     branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-family-wardrobe.yml']
+    paths: ['.github/workflows/illustrated-family-wardrobe.yml', 'experiments/illustrated-family/**']
 permissions:
   contents: write
 jobs:
