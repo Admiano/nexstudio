@@ -9,7 +9,7 @@
     {
       "frame": 27,
       "render": "frame_0027.png",
-      "bytes": 161700,
+      "bytes": 178816,
       "wristWorld": {
         "wrist.L": [
           -0.25089,
@@ -26,7 +26,7 @@
     {
       "frame": 100,
       "render": "frame_0100.png",
-      "bytes": 165260,
+      "bytes": 182528,
       "wristWorld": {
         "wrist.L": [
           -0.17778,
@@ -43,7 +43,7 @@
     {
       "frame": 220,
       "render": "frame_0220.png",
-      "bytes": 163989,
+      "bytes": 181638,
       "wristWorld": {
         "wrist.L": [
           -0.18946,
@@ -60,7 +60,7 @@
     {
       "frame": 338,
       "render": "frame_0338.png",
-      "bytes": 163374,
+      "bytes": 180385,
       "wristWorld": {
         "wrist.L": [
           -0.17513,
@@ -77,7 +77,7 @@
     {
       "frame": 450,
       "render": "frame_0450.png",
-      "bytes": 165407,
+      "bytes": 183694,
       "wristWorld": {
         "wrist.L": [
           -0.16413,
@@ -94,7 +94,7 @@
     {
       "frame": 560,
       "render": "frame_0560.png",
-      "bytes": 163132,
+      "bytes": 179941,
       "wristWorld": {
         "wrist.L": [
           -0.17613,
@@ -111,7 +111,7 @@
     {
       "frame": 700,
       "render": "frame_0700.png",
-      "bytes": 165195,
+      "bytes": 182552,
       "wristWorld": {
         "wrist.L": [
           -0.18608,
@@ -128,7 +128,7 @@
     {
       "frame": 815,
       "render": "frame_0815.png",
-      "bytes": 165254,
+      "bytes": 182494,
       "wristWorld": {
         "wrist.L": [
           -0.17421,
@@ -145,7 +145,7 @@
     {
       "frame": 891,
       "render": "frame_0891.png",
-      "bytes": 162695,
+      "bytes": 180362,
       "wristWorld": {
         "wrist.L": [
           -0.17388,
@@ -162,7 +162,7 @@
     {
       "frame": 980,
       "render": "frame_0980.png",
-      "bytes": 163312,
+      "bytes": 179566,
       "wristWorld": {
         "wrist.L": [
           -0.17689,
