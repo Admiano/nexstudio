@@ -1,0 +1,118 @@
+name: V1 formal cast complete reproducible six-variant bank
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-six-build-bank.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-all-six:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/illustrated-family
+            scripts/illustrated-family-preview
+            experiments/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/scripts
+      - name: Certified Blender 5.2.0, Zstandard and graphics support
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Reconstruct EVERY option from immutable character and licensed donor geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/formal-bank
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            echo "::group::Rebuild actual canonical character: $variant"
+            python scripts/illustrated-family/build_formal_cast.py \
+              --variant "$variant" \
+              --blender "$BLENDER_BIN" \
+              --archive-cache "$RUNNER_TEMP/certified-donors" \
+              --output-dir "proofs/formal-bank/$variant" \
+              > "proofs/formal-bank/$variant.build.stdout.log"
+            test -s "proofs/formal-bank/$variant/$variant-front.blend"
+            test -s "proofs/formal-bank/$variant/$variant-pose-891.png"
+            echo "::endgroup::"
+          done
+      - name: Independent manifest and all-file SHA256 verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          b=Path('proofs/formal-bank')
+          expected=('female-double-breasted','female-statement','male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket')
+          manifest={'kind':'NEX_V1_FORMAL_CAST_REAL_BLENDER_BANK',
+                    'source':'unchanged original MakeHuman V1 character scenes',
+                    'releaseStatus':'EXPERIMENTAL_UNAPPROVED',
+                    'builder':'scripts/illustrated-family/build_formal_cast.py',
+                    'variants':[]}
+          for variant in expected:
+            f=b/variant/'build_provenance.json'
+            v=json.loads(f.read_text())
+            assert v['variant']==variant
+            assert v['blenderVersion'].startswith('Blender 5.2.0')
+            assert v['outputStatus']=='REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION'
+            assert len(v['files'])==5
+            seen={x['name'] for x in v['files']}
+            expected_files={variant+x for x in ('-front.blend','-front.png','-threeq.png','-pose-338.png','-pose-891.png')}
+            assert seen==expected_files, (variant,seen^expected_files)
+            for entry in v['files']:
+              p=f.parent/entry['name']
+              assert p.is_file() and p.stat().st_size==entry['bytes'] and entry['bytes']>4096
+              h=hashlib.sha256()
+              with p.open('rb') as stream:
+                for chunk in iter(lambda:stream.read(1048576),b''):h.update(chunk)
+              assert h.hexdigest()==entry['sha256'],p
+              if p.suffix=='.png':assert p.open('rb').read(8)==b'\x89PNG\r\n\x1a\n'
+              if p.suffix=='.blend':assert p.open('rb').read(7)==b'BLENDER'
+            manifest['variants'].append(v)
+          assert len(manifest['variants'])==6
+          (b/'BANK_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print('SIX_REAL_SCENES_VALIDATED_ALL_SHA256',len(manifest['variants']))
+          PY
+      - name: Publish independent actual Blender preview PNGs and bank inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/formal-bank
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            mkdir -p "docs/illustrated-family/formal-bank/$variant"
+            cp "proofs/formal-bank/$variant/"*.png "docs/illustrated-family/formal-bank/$variant/"
+            cp "proofs/formal-bank/$variant/build_provenance.json" "docs/illustrated-family/formal-bank/$variant/"
+          done
+          cp proofs/formal-bank/BANK_MANIFEST.json docs/illustrated-family/formal-bank/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/formal-bank/
+          git commit -m "proof(character): independently rebuilt six editable formal outfits from V1 authority"
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NEX_V1_SIX_FORMAL_EDITABLE_BLEND_BANK
+          path: proofs/formal-bank
+          retention-days: 14
+          compression-level: 2
+          if-no-files-found: warn
