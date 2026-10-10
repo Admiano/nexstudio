@@ -128,6 +128,107 @@
       "poster": "/style-previews/deck.jpg",
       "mood": "focused",
       "sfx": "soft"
+    },
+    {
+      "id": "newscast",
+      "name": "Newscast",
+      "tagline": "Numbered-section data-news reel — charts, tables, vs-cards, giant section type",
+      "finish": "EDITORIAL_FLAT",
+      "reveal": "WORD_CASCADE",
+      "show": "NEWSREEL",
+      "palette": {
+        "ink": "#181b21",
+        "paper": "#fbfaf7",
+        "accent": "#ffe14d"
+      },
+      "asset_family": "colour_icons",
+      "captions": "none",
+      "preview": "/style-previews/newscast.mp4",
+      "poster": "/style-previews/newscast.jpg",
+      "mood": "driving",
+      "sfx": "bold",
+      "variants": [
+        {
+          "id": "neon",
+          "name": "Neon",
+          "tagline": "Electric purples, mints and inks",
+          "palette": {"ink": "#181b21", "paper": "#fbfaf7", "accent": "#ffe14d"},
+          "shades": [
+            {"bg": "#7b4dff", "on": "#ffffff", "accent": "#ffe14d"},
+            {"bg": "#9fe8c0", "on": "#12261a", "accent": "#e2442f"},
+            {"bg": "#23262e", "on": "#f2f2f0", "accent": "#8f7bff"},
+            {"bg": "#ff9fc6", "on": "#2a1020", "accent": "#20242c"},
+            {"bg": "#f4f1ea", "on": "#17181c", "accent": "#e2442f"},
+            {"bg": "#ff5c38", "on": "#1c0804", "accent": "#ffd400"},
+            {"bg": "#4de3ff", "on": "#06252e", "accent": "#f72585"},
+            {"bg": "#ffc24b", "on": "#2e1a00", "accent": "#7b4dff"}
+          ]
+        },
+        {
+          "id": "candy",
+          "name": "Candy",
+          "tagline": "Pinks, corals and cream",
+          "palette": {"ink": "#181b21", "paper": "#fbfaf7", "accent": "#ff5e8a"},
+          "shades": [
+            {"bg": "#ff5e8a", "on": "#fff7f9", "accent": "#ffd400"},
+            {"bg": "#ffd6e8", "on": "#39111f", "accent": "#ff3d6e"},
+            {"bg": "#ff8a5c", "on": "#2a1208", "accent": "#fff1d6"},
+            {"bg": "#fff0c9", "on": "#3a2408", "accent": "#ff5e8a"},
+            {"bg": "#c76bff", "on": "#2a0f3e", "accent": "#ffe14d"},
+            {"bg": "#ffb3c1", "on": "#3d1220", "accent": "#20242c"},
+            {"bg": "#f9f4ec", "on": "#1d1a16", "accent": "#ff5e8a"},
+            {"bg": "#8ef0e4", "on": "#07302a", "accent": "#ff5e8a"}
+          ]
+        },
+        {
+          "id": "forest",
+          "name": "Forest",
+          "tagline": "Greens, moss and warm paper",
+          "palette": {"ink": "#181b21", "paper": "#fbfaf7", "accent": "#ffd24d"},
+          "shades": [
+            {"bg": "#1f6f4a", "on": "#f4f7ec", "accent": "#ffd24d"},
+            {"bg": "#a8d5a2", "on": "#12250f", "accent": "#e2574c"},
+            {"bg": "#3e4c2a", "on": "#f2f1e3", "accent": "#ffb340"},
+            {"bg": "#e8dcc0", "on": "#2a2413", "accent": "#1f6f4a"},
+            {"bg": "#14503f", "on": "#e8f4ea", "accent": "#ffd24d"},
+            {"bg": "#7ec850", "on": "#0f2305", "accent": "#ff5e4c"},
+            {"bg": "#262c1e", "on": "#eef0dd", "accent": "#8ecf5c"},
+            {"bg": "#f4efe0", "on": "#1d2415", "accent": "#c8452f"}
+          ]
+        },
+        {
+          "id": "ocean",
+          "name": "Ocean",
+          "tagline": "Blues, teals and sea-sand",
+          "palette": {"ink": "#181b21", "paper": "#fbfaf7", "accent": "#4de3ff"},
+          "shades": [
+            {"bg": "#0e5ed7", "on": "#eef6ff", "accent": "#ffd24d"},
+            {"bg": "#9fd8f0", "on": "#0a2438", "accent": "#ff5e4c"},
+            {"bg": "#11203a", "on": "#e8f1f8", "accent": "#4de3ff"},
+            {"bg": "#e9e2cf", "on": "#12202f", "accent": "#0e5ed7"},
+            {"bg": "#18b6a8", "on": "#06241f", "accent": "#ffe14d"},
+            {"bg": "#5271ff", "on": "#0a1030", "accent": "#b6f35c"},
+            {"bg": "#123a5c", "on": "#e9f4fa", "accent": "#ffb340"},
+            {"bg": "#f4f1ea", "on": "#0f1a24", "accent": "#e2442f"}
+          ]
+        },
+        {
+          "id": "ember",
+          "name": "Ember",
+          "tagline": "Oranges, embers and dark roast",
+          "palette": {"ink": "#181b21", "paper": "#fbfaf7", "accent": "#ff8a3c"},
+          "shades": [
+            {"bg": "#c8431f", "on": "#fff3e8", "accent": "#ffd24d"},
+            {"bg": "#ff8a3c", "on": "#331204", "accent": "#23262e"},
+            {"bg": "#3a1f14", "on": "#f7ead8", "accent": "#ff8a3c"},
+            {"bg": "#f0d9b8", "on": "#2e1608", "accent": "#c8431f"},
+            {"bg": "#8f1f2e", "on": "#ffe9dd", "accent": "#ffb340"},
+            {"bg": "#ffbe3d", "on": "#331a00", "accent": "#8f1f2e"},
+            {"bg": "#2a1a12", "on": "#f5e9d6", "accent": "#ff6b4a"},
+            {"bg": "#e2603c", "on": "#2a0e04", "accent": "#ffe14d"}
+          ]
+        }
+      ]
     }
   ],
   "entity_bank": {

@@ -68,6 +68,44 @@ def style_of(arg):
 
 
 # ---------- VO ----------
+def _espeak_synth(text, out_wav, speed=1.0):
+    """Free local fallback when the neural TTS stack isn't installed — espeak-ng
+    voice at a brisk news pace. Returns duration in seconds."""
+    wpm = max(120, int(175 * float(speed or 1.0)))
+    subprocess.run(["espeak-ng", "-v", "en-us", "-s", str(wpm), "-w", str(out_wav), text], check=True)
+    probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=nw=1:nk=1", str(out_wav)],
+                           capture_output=True, text=True, check=True)
+    return float(probe.stdout.strip() or 1.0)
+
+
+def _fake_align(wav_dur_s, text, out_json):
+    """Deterministic word schedule (~330ms/word, +700ms after sentence end) stretched
+    to fit the real wav — clause grouping and beat timing stay sane without whisper."""
+    words = []
+    t = 0.0
+    for tok in text.split():
+        w = re.sub(r"[^\w$%&.,!?'\"-]", "", tok)
+        if not w:
+            continue
+        dur = 0.33
+        words.append({"text": w, "start_ms": round(t * 1000), "end_ms": round((t + dur) * 1000)})
+        t += dur + (0.70 if re.search(r"[.!?]$", tok) else 0.06)
+    if words and t > wav_dur_s > 0:
+        scale = (wav_dur_s - 0.05) / t
+        for w in words:
+            w["start_ms"] = round(w["start_ms"] * scale)
+            w["end_ms"] = max(w["start_ms"] + 60, round(w["end_ms"] * scale))
+    out_json.write_text(json.dumps({"words": words}, indent=1))
+
+
+def _wav_dur_s(p):
+    probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=nw=1:nk=1", str(p)],
+                           capture_output=True, text=True, check=True)
+    return float(probe.stdout.strip() or 1.0)
+
+
 def make_voice(args, fixture_dir):
     out_wav, out_mp3, out_ali = fixture_dir / "voice.wav", fixture_dir / "voice.mp3", fixture_dir / "alignment.json"
     if args.voice_file:
@@ -79,7 +117,11 @@ def make_voice(args, fixture_dir):
         out_wav = norm
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav), "-b:a", "160k", str(out_mp3)], check=True)
         log(f"aligning uploaded voice {src.name} ...")
-        align(out_wav, out_ali)
+        try:
+            align(out_wav, out_ali)
+        except Exception as e:
+            log(f"whisper alignment unavailable ({e}) — using even word schedule")
+            _fake_align(_wav_dur_s(out_wav), "", out_ali)
     else:
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip() and getattr(args, "brief", None):
@@ -92,14 +134,22 @@ def make_voice(args, fixture_dir):
             sys.exit("need --script/--script-file/--brief or --voice-file")
         from write_script import normalize_tickers
         text = normalize_tickers(text.strip())  # 'SOL' -> 'Solana' for TTS+captions
-        dur = synth(text.strip(), args.voice, out_wav, speed=float(args.speed or 1.0))
+        try:
+            dur = synth(text.strip(), args.voice, out_wav, speed=float(args.speed or 1.0))
+        except Exception as exc:
+            log(f"voice synth failed ({exc}); falling back to espeak")
+            dur = _espeak_synth(text.strip(), out_wav, speed=float(args.speed or 1.0))
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
                         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
         out_wav = norm
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav), "-b:a", "160k", str(out_mp3)], check=True)
         log(f"synthesized {dur:.1f}s of VO ({args.voice}), aligning ...")
-        align(out_wav, out_ali)
+        try:
+            align(out_wav, out_ali)
+        except Exception as e:
+            log(f"whisper alignment unavailable ({e}) — using even word schedule")
+            _fake_align(dur, text.strip(), out_ali)
     return json.loads(out_ali.read_text())["words"]
 
 
@@ -452,6 +502,19 @@ def build_treatment(args, style, words, media_files, film_id):
     glyph = style.get("glyph", "TILE")
     link_style = style.get("link_style")
     groups = chunk_beats(words)
+    if style.get("show") == "NEWSREEL":
+        media_library = []
+        for mi, p in enumerate(media_files):
+            p = Path(p)
+            kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
+            entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
+            wh = probe_dims(p, kind)
+            if wh:
+                entry["width"], entry["height"] = wh
+                if kind == "VIDEO":
+                    entry["duration_s"] = probe_dur(p)
+            media_library.append(entry)
+        return _newscast_treatment(args, style, words, groups, media_library, film_id)
     beats, used_kw, fallback_n, prev_keys = [], set(), 0, set()
     carry_id = carry_key = None
     fam = style["asset_family"]
@@ -708,6 +771,240 @@ def build_treatment(args, style, words, media_files, film_id):
     }
 
 
+# ---------------- newscast: the numbered-section data-news reel ----------------
+
+_NUM_RE = re.compile(r"(\d[\d,.]*\s*(?:%|percent|x|k|m|b|bn|gb|tb|ms|s|x\b)?)|([\$\u20ac\u00a3]\s?\d[\d,.]*)", re.I)
+_VS_RE = re.compile(r"\b(vs\.?|versus|than|compare[sd]?|against|better|faster|cheaper)\b", re.I)
+_SEQ_RE = re.compile(r"\b(first|then|next|finally|step|stage|phase|process|pipeline|before|after)\b", re.I)
+_DATE_RE = re.compile(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*\d{0,2}|\b(19|20)\d{2}\b|\bmonday|tuesday|wednesday|thursday|friday|saturday|sunday\b", re.I)
+_GENERIC_SECTIONS = ["SETUP", "DETAILS", "NUMBERS", "COMPARE", "ROLE", "PROOF", "VERDICT"]
+
+
+def _nc_section(g, picked, used_names, bi, last):
+    """Name a beat's section from its own content first, the bank key second, and a
+    rotating generic last. Names dedupe against sections already used — adjacent
+    repeats are fine but a section word should never re-surface non-adjacently."""
+    text = " ".join(w["text"] for w in g).upper()
+    if bi == 0:
+        cand = "THE DROP" if _NUM_RE.search(text) else None
+    elif last:
+        cand = "VERDICT"
+    elif _VS_RE.search(text):
+        cand = "HEAD TO HEAD"
+    elif _DATE_RE.search(text):
+        cand = "TIMELINE"
+    elif _NUM_RE.search(text):
+        cand = "THE NUMBERS"
+    elif _SEQ_RE.search(text):
+        cand = "HOW IT WORKS"
+    else:
+        cand = None
+    cands = [c for c in [cand] if c]
+    cands += [((ent.get("bank_key") or "").replace("-", " ").upper())[:14] for ent, _a in picked]
+    cands += _GENERIC_SECTIONS[bi % len(_GENERIC_SECTIONS):] + _GENERIC_SECTIONS[:bi % len(_GENERIC_SECTIONS)]
+    for c in cands:
+        c = re.sub(r"[^A-Z0-9+&%$ ]", "", c).strip()[:14]
+        if c and c not in used_names:
+            used_names.add(c)
+            return c
+    return f"PART {bi + 1}"
+
+
+def _nc_numbers(g):
+    """Numbers with a short label carved from the words just before them."""
+    out = []
+    words = [w["text"] for w in g]
+    joined = " ".join(words)
+    for m in _NUM_RE.finditer(joined):
+        raw = m.group(0).strip()
+        num_txt = raw.replace(",", "")
+        mm = re.match(r"([\$\u20ac\u00a3]?)\s*(\d[\d.]*)(%|percent|x|k|m|b|bn|gb|tb|ms|s)?", num_txt, re.I)
+        if not mm:
+            continue
+        pre, digits, suf = mm.group(1) or "", mm.group(2), (mm.group(3) or "").lower()
+        try:
+            val = float(digits)
+        except ValueError:
+            continue
+        mult = {"k": 1e3, "m": 1e6, "b": 1e9, "bn": 1e9}.get(suf, 1)
+        # Label = the thing measured. Prefer up to 2 words AFTER the number
+        # ('13 inch tablet' → 'inch tablet'), else the words just before it.
+        after = " ".join(joined[m.end():].split()[:2]).strip(" ,.;:!?")
+        before = " ".join(words[max(0, len(joined[:m.start()].split()) - 2):len(joined[:m.start()].split())]).strip(" ,.;:!?")
+        label = after or before
+        out.append({"label": (label or "figure")[:14], "value": val * mult,
+                    "value_text": f"{pre}{digits}{('%' if suf in ('%', 'percent') else suf.upper())}"})
+    return out[:8]
+
+
+def _nc_sides(text):
+    """Two contender names carved from a comparison sentence — the words either
+    side of the pivot, or the phrases after each 'than'/'versus'."""
+    m = re.search(r"\b(vs\.?|versus|against|than)\b", text, re.I)
+    if not m:
+        return None
+    left = " ".join(text[:m.start()].split()[-3:]).strip(" ,.;:!?") or "OURS"
+    left = re.sub(r"^(it|he|she|they|we|this|that|these|those)\s+(is|are|was|were|has|have|gets?|feels?|runs?|comes?)\s+", "", left, flags=re.I).strip() or left
+    left = re.sub(r"^(faster|slower|lighter|heavier|bigger|smaller|better|worse|cheaper|pricier|longer|shorter|stronger|weaker|brighter|darker|newer|older|cleaner|smarter|quicker|easier|harder)\b\s*", "", left, flags=re.I).strip() or "OURS"
+    right_parts = re.findall(r"\b(?:than|versus|vs\.?|against|over)\b\s+([^,.;]+?)(?=\s+(?:than|versus|vs\.?|against|and|but)\b|[,.;]|$)", text, re.I)
+    right = (right_parts[0] if right_parts else " ".join(text[m.end():].split()[:3])).strip(" ,.;:!?") or "THEIRS"
+    return left, right
+
+
+def _nc_segments(text):
+    """Step/event labels split on sequence markers and punctuation."""
+    parts = re.split(r",|;|\.|\bthen\b|\bnext\b|\bfinally\b|\bfirst\b", text, flags=re.I)
+    return [p.strip(" ,.;:!?") for p in parts if len(p.strip()) > 1][:5]
+
+
+def _nc_widget(bi, g, narration, picked, last):
+    """One hero widget entity per beat — the content decides which. Returns
+    (entity, program_ops) or None for a plain hero-text beat."""
+    text = narration
+    nums = _nc_numbers(g)
+    anchor = g[min(2, len(g) - 1)]["text"]
+    mid = g[len(g) // 2]["text"]
+    end = g[-1]["text"]
+    sides = _nc_sides(text) if _VS_RE.search(text) else None
+    if sides:
+        if len(picked) >= 2:
+            a, c = picked[0][0], picked[1][0]
+            left = a.get("phrase") or a.get("bank_key") or sides[0]
+            right = c.get("phrase") or c.get("bank_key") or sides[1]
+        else:
+            left, right = sides
+        return ({"id": "w1", "kind": "evidence", "glyph": "VS_CARDS", "size": "hero",
+                 "params": {"cards": [{"title": left, "mark": left}, {"title": right, "mark": right}]}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 720}])
+    if len(nums) >= 2:
+        series = [{"label": n2["label"], "value": n2["value"], "value_text": n2["value_text"]} for n2 in nums]
+        if series:
+            series[0]["tone"] = "accent"
+        return ({"id": "w1", "kind": "evidence", "glyph": "DATA_BARS", "size": "hero",
+                 "params": {"series": series}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 800}])
+    if _DATE_RE.search(text):
+        evs = ([{"label": (ent.get("phrase") or ent.get("bank_key") or "step"), "sub": ""} for ent, _a in picked[:4]]
+               if len(picked) >= 2 else
+               [{"label": s2[:16], "sub": ""} for s2 in _nc_segments(text)][:5])
+        if len(evs) >= 2:
+            return ({"id": "w1", "kind": "evidence", "glyph": "TIMELINE", "size": "hero", "params": {"events": evs}},
+                    [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                     {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    if _SEQ_RE.search(text):
+        steps = ([str(ent.get("phrase") or ent.get("bank_key") or "step") for ent, _a in picked[:5]]
+                 if len(picked) >= 2 else
+                 [" ".join(s2.split()[:3]) for s2 in _nc_segments(text)][:5])
+        if len(steps) >= 2:
+            return ({"id": "w1", "kind": "evidence", "glyph": "FLOW_STEPS", "size": "hero", "params": {"steps": steps}},
+                    [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                     {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 760}])
+    if len(nums) == 1:
+        n0 = nums[0]
+        mm = re.match(r"([\$\u20ac\u00a3]?)\s*(\d[\d.]*)(.*)", n0["value_text"])
+        pre, digits, suf = (mm.group(1) or ""), mm.group(2), (mm.group(3) or "") if mm else ("", n0["value_text"], "")
+        return ({"id": "w1", "kind": "evidence", "glyph": "COUNTER", "size": "hero",
+                 "params": {"count": round(n0["value"], 2), "prefix": pre, "suffix": suf, "caption": n0["label"]}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 400},
+                 {"op": "COUNT", "target": "w1", "at": {"word": mid}, "duration_ms": 900}])
+    if len(picked) >= 3 and bi % 2 == 1:
+        cells = [{"name": str(ent.get("phrase") or ent.get("bank_key") or "item"), "sub": "", "concept": ent.get("bank_key") or ""} for ent, _a in picked[:6]]
+        return ({"id": "w1", "kind": "evidence", "glyph": "LOGO_GRID", "size": "hero", "params": {"cells": cells, "cols": 3 if len(cells) > 4 else 2}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    if len(picked) >= 2 and bi % 3 == 2:
+        rows = [[str(ent.get("phrase") or ent.get("bank_key") or "item"), str(i + 1)] for i, (ent, _a) in enumerate(picked[:4])]
+        return ({"id": "w1", "kind": "evidence", "glyph": "DATA_TABLE", "size": "hero",
+                 "params": {"header": ["item", "rank"], "rows": rows, "highlight": 0}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    if bi == 0 or len(picked) < 2:
+        return ({"id": "w1", "kind": "object", "glyph": "SQUIGGLE", "size": "minor",
+                 "params": {"waves": 3}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 620}])
+    return None
+
+
+def _newscast_treatment(args, style, words, groups, media_library, film_id):
+    """Keyword-path authorer for the NEWSREEL show grammar: one hero widget per beat,
+    a section name per beat, the rotating shade family, and the masthead subject."""
+    fam = style["asset_family"]
+    fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
+    ctx = None
+    if _SEMANTIC:
+        _ev = _sem_embed(" ".join(w["text"] for w in words))
+        if _ev is not None:
+            ctx = _ev[0]
+    beats, used_kw, used_sections, fallback_n = [], set(), set(), 0
+    n = len(groups)
+    for bi, g in enumerate(groups):
+        bid = f"b{bi + 1:02d}"
+        narration = clean(" ".join(w["text"] for w in g))
+        picked = pick_entities(g, fam_key, used_kw, ctx, max_n=5)
+        if not picked:
+            fe = fallback_entity(fam_key, fallback_n, question="?" in narration)
+            if fe:
+                picked = [(fe, g[0]["text"])]
+                fallback_n += 1
+        for ent, _a in picked:
+            if ent.get("bank_key"):
+                used_kw.add(ent["bank_key"])
+        widget = _nc_widget(bi, g, narration, picked, bi == n - 1)
+        entities = []
+        program = []
+        if widget:
+            ent, program = widget
+            entities.append(ent)
+        # Hero words up top, widget below — the show's reading order.
+        units = display_units(g, set())
+        btype = "HOOK" if bi == 0 else ("PAYOFF" if bi == n - 1 else "PROOF")
+        gph = (entities[0]["glyph"] if entities else "") if widget else ""
+        pattern = ("PAYOFF_LOCKUP" if bi == n - 1 else
+                   {"VS_CARDS": "CONTRAST_RECONFIGURATION",
+                    "FLOW_STEPS": "PROCESS_RAIL", "TIMELINE": "SEQUENTIAL_SUPPORT_LIST",
+                    "DATA_BARS": "HERO_TO_EVIDENCE_HANDOFF", "DATA_TABLE": "HERO_TO_EVIDENCE_HANDOFF",
+                    "COUNTER": "EVIDENCE_PERSISTENCE_CARRIER", "LOGO_GRID": "EVIDENCE_PERSISTENCE_CARRIER",
+                    "PROGRESS": "EVIDENCE_PERSISTENCE_CARRIER", "MAGNIFY": "OBJECT_LED_TRANSITION"}.get(gph, "PROGRESSIVE_HERO_BUILD"))
+        beats.append({
+            "beat_id": bid,
+            "beat_type": btype,
+            "pattern": pattern,
+            "dominant_layer": "HYBRID" if widget else "TEXT",
+            "section": _nc_section(g, picked, used_sections, bi, bi == n - 1),
+            "narration": narration,
+            "energy": 0.6 if bi == 0 else (0.8 if bi == n - 1 else 0.7),
+            "complexity": 0.45,
+            "display_units": units,
+            **({"illustration": {"form": "OBJECT_STAGE", "entities": entities, "program": program}} if widget else {}),
+        })
+    subject = (getattr(args, "subject", None) or "").strip() or _nc_subject(words)
+    return {
+        "schema": "NexStudioEditorialTreatmentV2",
+        "film_id": film_id,
+        "note": f"auto-authored by make_reel.py (style={style['id']}, show=NEWSREEL)",
+        "aspects": args.aspects.split(","),
+        "fps": 30,
+        "brand": {**style["palette"], "finish": style["finish"]},
+        "typography": {"reveal": style["reveal"], "tonal_ink": 0.42, "min_visual_share": 0.55},
+        "voice": {"source": "MASTER", "audio_path": "voice.mp3", "alignment_path": "alignment.json", "head_pad_ms": 350},
+        "media_library": media_library,
+        "show": {"format": "NEWSREEL", "subject": subject.upper()[:32],
+                 "shades": style.get("shades") or style["palette"]},
+        "beats": beats,
+        "mood": "driving",
+        "sfx": "bold",
+    }
+
+
+def _nc_subject(words):
+    """Masthead word: the first noun-ish capital content words of the film."""
+    txt = " ".join(w["text"] for w in words[:14])
+    names = [t for t in re.findall(r"[A-Za-z][A-Za-z0-9.+-]*", txt) if len(t) > 2 and word_key(t) not in STOPWORDS]
+    return " ".join(names[:2]).upper() if names else "THE STORY"
+
+
 def probe_dims(p, kind):
     r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
                         "-show_entries", "stream=width,height", "-of", "csv=p=0", str(p)],
@@ -770,6 +1067,7 @@ def main():
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
+    ap.add_argument("--subject", default=None, help="masthead subject for show styles (e.g. 'ORBIT DESK')")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")
     ap.add_argument("--fixture-voice", help="fixture dir already containing voice.mp3+alignment.json (with --treatment)")
     ap.add_argument("--no-poster", action="store_true")

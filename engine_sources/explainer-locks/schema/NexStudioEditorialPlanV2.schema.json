@@ -1452,7 +1452,16 @@
                             "TILE",
                             "CHIP",
                             "BADGE",
-                            "COUNTER"
+                            "COUNTER",
+                            "DATA_BARS",
+                            "DATA_TABLE",
+                            "TIMELINE",
+                            "VS_CARDS",
+                            "LOGO_GRID",
+                            "FLOW_STEPS",
+                            "PROGRESS",
+                            "SQUIGGLE",
+                            "MAGNIFY"
                           ]
                         },
                         "size": {
@@ -2126,6 +2135,58 @@
               }
             ]
           },
+          "show": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "idx",
+                  "name"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chrome": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ink": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "accent": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "bg": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "ink",
+                  "accent",
+                  "bg"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "transition": {
             "type": "object",
             "properties": {
@@ -2341,6 +2402,130 @@
       "enum": [
         "burned",
         "kinetic"
+      ]
+    },
+    "show": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "minLength": 1
+            },
+            "subject": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "idx",
+                  "name"
+                ]
+              }
+            },
+            "bands": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "w": {
+                      "type": "number"
+                    },
+                    "h": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "w",
+                    "h"
+                  ]
+                },
+                "footer": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "w": {
+                      "type": "number"
+                    },
+                    "h": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "w",
+                    "h"
+                  ]
+                },
+                "inner": {
+                  "type": "object",
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "w": {
+                      "type": "number"
+                    },
+                    "h": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "w",
+                    "h"
+                  ]
+                }
+              },
+              "required": [
+                "header",
+                "footer",
+                "inner"
+              ]
+            }
+          },
+          "required": [
+            "format",
+            "subject",
+            "sections",
+            "bands"
+          ]
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "gate": {
