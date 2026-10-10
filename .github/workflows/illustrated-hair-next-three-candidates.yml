@@ -2,7 +2,7 @@ name: V1 verified CC0 alternative hairstyle geometry comparison
 on:
   push:
     branches: [work/illustrated-family-expansion-v1]
-    paths: ['.github/workflows/illustrated-hair-next-three-candidates.yml']
+    paths: ['.github/workflows/illustrated-hair-next-three-candidates.yml', 'experiments/illustrated-family/hair_cc0_rig_trial.py']
 permissions:
   contents: write
   actions: read
