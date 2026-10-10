@@ -1,0 +1,43 @@
+{
+  "schema": "nexstudio.illustrated.v1.composable-original-character-proof/1",
+  "outfit": "male-jacket-tie",
+  "gender": "male",
+  "hair": "faydaen_hair_1",
+  "hairDonorSourceSha256": "4b0739ab8cd217d90a5f6ee45954e15198ef09623278b7651fc5ea55978a61c3",
+  "hairSourceLicense": "# license: CC0",
+  "hairColor": "#7A848D",
+  "nativeFaceMorph": 0,
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "originalRig": "Host.rig",
+  "sourceBuilder": "scripts/illustrated-family/build_formal_cast.py",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "originalPerformanceActionsReplaced": false,
+  "productionStatus": "COMPOSABLE_EDITABLE_REAL_BLENDER_TRIAL_NOT_INTEGRATED",
+  "files": [
+    {
+      "name": "male_jacket_tie__faydaen_hair_1__face0__7A848D-front.png",
+      "bytes": 179008,
+      "sha256": "9db1a4a83dd6f6eaf197143633560514cffc12f6f9f00931dfeac5a9d961fe7f"
+    },
+    {
+      "name": "male_jacket_tie__faydaen_hair_1__face0__7A848D-front.blend",
+      "bytes": 18030988,
+      "sha256": "7c2a6ff4bc14c87cf04be106f9da29f58235813a8fbaab2b25fcde17c4487567"
+    },
+    {
+      "name": "male_jacket_tie__faydaen_hair_1__face0__7A848D-threeq.png",
+      "bytes": 180008,
+      "sha256": "f0d7bba4188574ce48c0d61fc25b93c5dcd879d842e5ef4ee2ec818285fa3af1"
+    },
+    {
+      "name": "male_jacket_tie__faydaen_hair_1__face0__7A848D-pose-338.png",
+      "bytes": 179915,
+      "sha256": "9889b1c9d34a0666737f5fedfb44a41e2de0a2332ae623a384c8da8fb2ed672c"
+    },
+    {
+      "name": "male_jacket_tie__faydaen_hair_1__face0__7A848D-pose-891.png",
+      "bytes": 179645,
+      "sha256": "a813e849eb43fac1394a230a8d1d94531655e84eb9e5829fba7561b90a32134f"
+    }
+  ]
+}

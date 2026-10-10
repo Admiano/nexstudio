@@ -1,0 +1,43 @@
+{
+  "schema": "nexstudio.illustrated.v1.composable-original-character-proof/1",
+  "outfit": "male-navy-classic",
+  "gender": "male",
+  "hair": "original",
+  "hairDonorSourceSha256": null,
+  "hairSourceLicense": null,
+  "hairColor": null,
+  "nativeFaceMorph": 2,
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "originalRig": "Host.rig",
+  "sourceBuilder": "scripts/illustrated-family/build_formal_cast.py",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "originalPerformanceActionsReplaced": false,
+  "productionStatus": "COMPOSABLE_EDITABLE_REAL_BLENDER_TRIAL_NOT_INTEGRATED",
+  "files": [
+    {
+      "name": "male_navy_classic__original__face2__SOURCE-front.png",
+      "bytes": 180005,
+      "sha256": "8111b3710c458928b01d6cf8f1aef14ccf008e67580a1235116de91d63804421"
+    },
+    {
+      "name": "male_navy_classic__original__face2__SOURCE-front.blend",
+      "bytes": 20052584,
+      "sha256": "1da076ec3a363c62c3e5627b1c175697387f1ab09571b815f492263d634e20f8"
+    },
+    {
+      "name": "male_navy_classic__original__face2__SOURCE-threeq.png",
+      "bytes": 181696,
+      "sha256": "a9f299761ce6c93646dbbe9d300639607a923efb4ca74afcfb239e4bd0c14645"
+    },
+    {
+      "name": "male_navy_classic__original__face2__SOURCE-pose-338.png",
+      "bytes": 182457,
+      "sha256": "4562fc712852aecf70780dbfc2c8682f5a241e6bea8d21ebfec13c9f0433e115"
+    },
+    {
+      "name": "male_navy_classic__original__face2__SOURCE-pose-891.png",
+      "bytes": 181783,
+      "sha256": "d1b861c4cab9f88c06390d720dea5ddd73ceb47d93983437bfa43141b845dc11"
+    }
+  ]
+}
