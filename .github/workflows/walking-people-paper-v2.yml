@@ -1,0 +1,49 @@
+name: Walking People Faceted Paper V2 Evidence
+on:
+  push:
+    branches:
+      - feat/papercraft-walking-people-audit-20261010
+    paths:
+      - ".github/workflows/walking-people-paper-v2.yml"
+      - "engine_sources/papercraft-cast/scripts/walking_people_paper_study_v2.py"
+  workflow_dispatch:
+jobs:
+  real-fbx-faceted-render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 27
+    permissions:
+      contents: read
+    env:
+      WALKING_PAPER_V2_OUTPUT: walking-paper-v2-proof
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - name: Checkout actual FBX plus texture atlases and study script
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/papercraft-cast/assets/walking-people-pack
+            engine_sources/papercraft-cast/scripts/walking_people_paper_study_v2.py
+          sparse-checkout-cone-mode: false
+      - name: Install Blender dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri libegl1 libxrender1 libxi6 libxkbcommon0 libglu1-mesa
+      - name: Install Blender 5.2 LTS
+        run: |
+          curl -fL --retry 3 --retry-delay 4 https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o /tmp/b52.tar.xz
+          mkdir -p /tmp/blender-runtime
+          tar -xf /tmp/b52.tar.xz -C /tmp/blender-runtime
+      - name: Render real source as two faceting experiments, no raw assets exported
+        run: |
+          xvfb-run -a /tmp/blender-runtime/blender-5.2.0-linux-x64/blender -b -noaudio -t 4 --python engine_sources/papercraft-cast/scripts/walking_people_paper_study_v2.py
+      - name: Export evidence PNGs and JSON only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-real-fbx-paper-v2-proof
+          path: |
+            walking-paper-v2-proof/*.png
+            walking-paper-v2-proof/PAPER_V2_AUDIT.json
+          if-no-files-found: warn
+          retention-days: 14
