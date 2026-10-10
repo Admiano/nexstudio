@@ -91,7 +91,7 @@ def render(cam,center,size,tag):
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.fbx(filepath=str(SOURCE),use_anim=True)
 originals=list(bpy.context.scene.objects)
-meshes=[o for o in originals if o.type=='MESH']
+meshes=[o for o in originals if o.type=='MESH' and not o.name.lower().startswith('plane')]
 armatures=[o for o in originals if o.type=='ARMATURE']
 if not meshes:raise RuntimeError('No mesh objects imported from original FBX')
 images=[]
@@ -102,6 +102,26 @@ for image in bpy.data.images:
         if target in textures:
             image.filepath=str(textures[target]);image.reload()
     images.append({'name':image.name,'file_name':Path(image.filepath.replace('\\','/')).name,'loaded':bool(image.has_data)})
+# Reconnect atlased FBX materials; FBX import references missing texture_0.png.
+# Mapping is explicitly provisional until the rendered clothing atlas is checked.
+atlas_assignments={}
+for idx,ob in enumerate(meshes):
+    atlas=TEX/('gihapeopletex%d.jpg'%(idx+1))
+    if not atlas.exists():continue
+    image=bpy.data.images.load(str(atlas),check_existing=True)
+    atlas_assignments[ob.name]=atlas.name
+    for slot in ob.material_slots:
+        if not slot.material:continue
+        material=slot.material.copy();slot.material=material
+        material.use_nodes=True
+        ns=material.node_tree.nodes
+        tex_nodes=[n for n in ns if n.type=='TEX_IMAGE']
+        if tex_nodes:
+            for node in tex_nodes:node.image=image
+        else:
+            node=ns.new('ShaderNodeTexImage');node.image=image
+            surface=next((n for n in ns if n.type=='BSDF_PRINCIPLED'),None)
+            if surface:material.node_tree.links.new(node.outputs['Color'],surface.inputs['Base Color'])
 source_min,source_max=bounds(meshes)
 cam,center,size=camera_and_lights(source_min,source_max)
 source_pngs=render(cam,center,size,'SOURCE')
@@ -124,6 +144,23 @@ for ob in meshes:
     clones.append(c)
 show_paper(originals,clones,True)
 paper_pngs=render(cam,center,size,'PAPER_TEST')
+# First close-up character test. Keep this limited to one female and one male
+# until texture correspondence and proportions have been reviewed.
+closeup_pngs=[]
+for selected in [next((o for o in meshes if o.name=='woman1'),None),next((o for o in meshes if o.name=='man1'),None)]:
+    if not selected:continue
+    m,M=bounds([selected]); c=(m+M)*.5; z=max((M-m).z,.01)
+    cam.data.ortho_scale=z*1.17
+    for o in originals:o.hide_render=True
+    for o in clones:o.hide_render=True
+    selected.hide_render=False
+    closeup_pngs+=render(cam,c,z,'SOURCE_'+selected.name.upper())
+    selected.hide_render=True
+    cp=next(x for x in clones if x.name=='PAPER_CANDIDATE_'+selected.name)
+    cp.hide_render=False
+    closeup_pngs+=render(cam,c,z,'PAPER_'+selected.name.upper())
+    cp.hide_render=True
+
 report={
   'source_fbx':'WalkingPeoplepack2024.fbx',
   'source_github_branch':'devin/1791589734-walking-people-pack',
@@ -133,9 +170,11 @@ report={
   'mesh_info':[{'name':o.name,'vertices':len(o.data.vertices),'faces':len(o.data.polygons)} for o in meshes],
   'armatures':[{'name':o.name,'bones':len(o.data.bones)} for o in armatures],
   'found_textures':[p.name for p in textures.values()],
+  'atlas_assignments_provisional':atlas_assignments,
   'import_images':images,
-  'render_files':source_pngs+paper_pngs,
+  'render_files':source_pngs+paper_pngs+closeup_pngs,
   'source_modified':False,
+  'source_has_floor_excluded':True,
   'rig_test':'NOT TESTED',
   'character_partition':'NOT CERTIFIED: object count does not necessarily equal character count',
   'visual_gate':'UNAPPROVED: human review required',
