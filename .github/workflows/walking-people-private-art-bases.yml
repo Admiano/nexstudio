@@ -1,0 +1,49 @@
+name: Walking People Private Editable Art Bases
+on:
+  push:
+    branches:
+      - feat/papercraft-walking-people-audit-20261010
+    paths:
+      - ".github/workflows/walking-people-private-art-bases.yml"
+      - "engine_sources/papercraft-cast/scripts/walking_people_private_art_bases.py"
+  workflow_dispatch:
+jobs:
+  private-editable-art-bases:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    permissions:
+      contents: read
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      WALKING_INTERNAL_OUTPUT: walking-people-internal-review
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/papercraft-cast/assets/walking-people-pack
+            engine_sources/papercraft-cast/scripts/walking_people_private_art_bases.py
+          sparse-checkout-cone-mode: false
+      - name: Install Blender dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri libegl1 libxrender1 libxi6 libxkbcommon0 libglu1-mesa
+      - name: Install Blender 5.2
+        run: |
+          curl -fL --retry 3 https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o /tmp/blender.tar.xz
+          mkdir -p /tmp/b52
+          tar -xf /tmp/blender.tar.xz -C /tmp/b52
+      - name: Build and reopen temporary private reduced-density scenes
+        run: |
+          xvfb-run -a /tmp/b52/blender-5.2.0-linux-x64/blender -b -noaudio -t 4 --python engine_sources/papercraft-cast/scripts/walking_people_private_art_bases.py
+      - name: Temporary private working-file exchange only (1 day)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-private-art-bases-temporary
+          path: |
+            walking-people-internal-review/*.blend
+            walking-people-internal-review/*.png
+            walking-people-internal-review/*.json
+          if-no-files-found: warn
+          retention-days: 1
