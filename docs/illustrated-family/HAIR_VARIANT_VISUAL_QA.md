@@ -38,3 +38,18 @@ These are all separately rendered by Blender, not generated concept art. They us
 
 No approved presets are altered. Do not silently promote the rejected cloud or short messy male hairstyle as selectable alternatives.
 
+
+## 2026-10-10 curated Hair01 geometry cache and further tested hairstyles
+
+The upstream 217 MB nominal Hair01 CC0 archive was reduced to a geometry-only, 11-asset curated proof artifact using each individual source file's explicit CC0 metadata. [Provenance and SHA-256 manifest](hair-inventory/Hair01_CURATED_GEOMETRY_MANIFEST.json). This cache deliberately excludes 10 AGPL-3 and 4 other/unclear hair donors.
+
+**All of the following were actually rig-fitted and Blender-rendered in front, three-quarter, and original pose 338/891.**
+
+| Donor | 3/4 proof | Visual review |
+|---|---|---|
+| `toigo_curled_under_bob` (female) | [See Blender image](hair-expanded-2/toigo_curled_under_bob/female-hair-front-head-threeq.png) | **Promising, not approved.** Rounded jaw-length silhouette; thick exposed forehead/hairline ring requires polish |
+| `toigo_inverted_bob_with_bangs` (female) | [See Blender image](hair-expanded-2/toigo_inverted_bob_with_bangs/female-hair-front-head-threeq.png) | **Candidate, not approved.** Eyes stay visible, but rounded hair masses need illustration detail |
+| `cortu_shaggy_green_hair` (male) | [See Blender image](hair-expanded-2/cortu_shaggy_green_hair/male-hair-front-head-threeq.png) | **Reject.** Large locks obscure both eyes and part of face |
+| `cortu_straight_bangs` (male) | [See Blender image](hair-expanded-2/cortu_straight_bangs/male-hair-front-head-threeq.png) | **Reject.** Bangs obscure the top of both eyes, unsuitable for a camera-facing host |
+
+**Reversible hairstyle selection tested successfully:** The same original-rig female scene can show the original `Host.hair_culturalibre_hair_01` or the fitted inverted bob. The same male V1 source can show original `Host.hair_elvs_maxwell_hair` or fitted Faydaen hair. Both choices retain original and alternate meshes, 163 rig bones and 34 body morph keys. The switch script is [`experiments/illustrated-family/switch_hair_trial.py`](../../experiments/illustrated-family/switch_hair_trial.py); review [real original/alternate renders](hair-switch-proof/). This is a **Blender prototype switch, not the deployed NexStudio customization UI**.
