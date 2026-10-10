@@ -1,0 +1,95 @@
+name: V1 integrated one-scene outfit hair color face compositor test
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-composite-character-builder.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  original-rig-composed-variant:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/illustrated-family
+            scripts/illustrated-family-preview
+            experiments/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py
+            engine_sources/makehuman-lineart/scripts
+            docs/illustrated-family/hair-inventory
+      - name: Install verified Blender and load pinned 11-donor CC0 hair source cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          mkdir -p donors/hair01
+          gh run download 38009389161 --repo Admiano/nexstudio \
+            --name NEX_V1_CURATED_HAIR01_ELEVEN_CC0_MESHES --dir donors/hair01
+          test -s donors/hair01/hair/toigo_inverted_bob/toigo_inverted_bob.mhclo
+      - name: Rebuild canonical female source and compose actual outfit hair color face morph
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/composed-v1
+          python scripts/illustrated-family/build_character_variant.py \
+            --outfit female-statement \
+            --hair toigo_inverted_bob \
+            --color '#343034' \
+            --face 1 \
+            --hair-root donors/hair01 \
+            --blender "$BLENDER_BIN" \
+            --archive-cache "$RUNNER_TEMP/cc0-archives" \
+            --output-dir proofs/composed-v1 \
+            | tee original-v1-compositor-run.txt
+          test "$(find proofs/composed-v1 -name '*.blend' | wc -l)" -eq 1
+          test "$(find proofs/composed-v1 -name '*-front.png' | wc -l)" -eq 1
+          test "$(find proofs/composed-v1 -name '*-threeq.png' | wc -l)" -eq 1
+          test "$(find proofs/composed-v1 -name '*-pose-891.png' | wc -l)" -eq 1
+          test "$(find proofs/composed-v1 -name 'character-composition-provenance.json' | wc -l)" -eq 1
+      - name: Independently reopen final combined saved Blender character and verify real rig and source options
+        shell: bash
+        run: |
+          set -euo pipefail
+          f="$(find proofs/composed-v1 -name '*.blend' -print -quit)"
+          "$BLENDER_BIN" -b "$f" -t 2 --python-exit-code 1 \
+            --python-expr 'import bpy; rig=bpy.data.objects["Host.rig"]; body=bpy.data.objects["Host.body"]; assert len(rig.data.bones)==163; assert len(body.data.shape_keys.key_blocks)==34; assert "NEX_V1_CC0_FORMAL_SUIT_FEMALE" in bpy.data.objects; hair=[o for o in bpy.data.objects if o.name.startswith("NEX_V1_CC0_HAIR_") and not o.hide_render]; assert len(hair)==1 and hair[0].data.materials[0].name.startswith("NEX_V1_CC0_ALTERNATE_HAIR_COLOR_"); print("VERIFIED_REOPENED_ORIGINAL_V1_OUTFIT_HAIR_COLOR_AND_FACE_OPTIONS")'
+      - name: Publish only original Blender image previews and provenance JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/composed-character-proofs
+          find proofs/composed-v1 -name '*.png' -exec cp {} docs/illustrated-family/composed-character-proofs/ \;
+          find proofs/composed-v1 -name '*.json' -exec cp {} docs/illustrated-family/composed-character-proofs/ \;
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/composed-character-proofs/
+          git commit -m 'proof(character): real V1 single editable avatar scene composed from genuine 3D outfit + licensed hair + color + native face morph'
+          for attempt in 1 2 3 4; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NEX_V1_SINGLE_COMPOSABLE_EDITABLE_CHARACTER_PROOF
+          path: |
+            proofs/composed-v1/
+            original-v1-compositor-run.txt
+          retention-days: 14
+          if-no-files-found: warn
