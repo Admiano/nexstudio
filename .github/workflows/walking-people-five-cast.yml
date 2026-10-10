@@ -38,6 +38,6 @@ jobs:
           name: walking-people-five-cast-source-proof
           path: |
             walking-people-five-cast-preview/*.png
-            walking-people-five-cast-preview/WALKING_PACK_FAST_AUDIT.json
+            walking-people-five-cast-preview/*.json
           if-no-files-found: warn
           retention-days: 14
