@@ -60,3 +60,27 @@ These are still **experimental V1 clothing presets**, not a production deploymen
 ## Source provenance
 
 Official source records: [suits01](../SUITS01_DONOR_PROVENANCE.md) and `experiments/illustrated-family/formal-wardrobe-trial-manifest.json`. Donor author Margaret Toigo (MRT), CC0 as recorded in each donor `.mhclo`. This CC0 license applies to donor clothes and flats only, **not** automatically to the original character scenes.
+
+## Tested from-scratch outfit + hair + color + face compositor (new)
+
+The experimental [build_character_variant.py](../../../scripts/illustrated-family/build_character_variant.py) now composes separate verified customization components into **one original-rig saved Blender character scene**. Example:
+
+```bash
+python scripts/illustrated-family/build_character_variant.py \\
+  --outfit female-statement --hair toigo_inverted_bob \\
+  --color '#343034' --face 1 \\
+  --hair-root /path/to/verified/hair01-cache \\
+  --blender /path/to/verified/blender-5.2.0/blender \\
+  --archive-cache /tmp/cc0-original-donor-cache \\
+  --output-dir /tmp/nexstudio-v1-composite
+```
+
+`--hair-root` points to the extracted, individually hashed [curated CC0 geometry](../hair-inventory/Hair01_CURATED_GEOMETRY_MANIFEST.json) (folder holding `hair/<asset>/<asset>.mhclo` and `.obj`). `--hair original` does not require that package. Use `--list` for supported outfits and gender-specific approved-for-*testing* hair sources.
+
+**Verified:** This exact female combination rebuilt real original formalwear, fitted the inverted bob, applied charcoal on a copied original line-art material, applied the native face morph, saved one editable `.blend`, rendered front / 3/4 / original pose 338 / pose 891 and independently reopened the resulting Blender scene. The original 163 bone Host rig and 34 body facial morph keys remained intact.
+
+- [Individual true Blender combined-character preview PNGs](../composed-character-proofs/)
+- [Strict source/asset SHA provenance](../composed-character-proofs/character-composition-provenance.json)
+- [Editable built scene + proofs (temporary GitHub Actions artifact)](https://github.com/Admiano/nexstudio/actions/runs/38010623944/artifacts/11653211274)
+
+This is a **command-line experimental builder, not the NexStudio production character editor**. Successful composition is not collision, lip-sync, full 2-person podcast, or new-identity acceptance.
