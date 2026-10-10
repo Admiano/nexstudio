@@ -18,6 +18,12 @@ jobs:
       WALKING_PROOF_OUTPUT: walking-people-five-cast-preview
     steps:
       - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/papercraft-cast/assets/walking-people-pack
+            engine_sources/papercraft-cast/scripts/walking_people_5cast_review.py
+          sparse-checkout-cone-mode: false
       - name: Install Blender runtime prerequisites
         run: |
           sudo apt-get update -qq
