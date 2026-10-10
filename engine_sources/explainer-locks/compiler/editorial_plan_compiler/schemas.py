@@ -113,7 +113,14 @@ def treatment_schema() -> Dict[str, Any]:
         'features': {'type': 'object', 'additionalProperties': _unit()},
         'min_duration_ms': MS,
         'cut': _enum(c.CUT_MODES),
+        'section': NULLABLE_STR,
     }, ['beat_id', 'beat_type', 'pattern'], additionalProperties=False)
+    shade = _obj({'bg': {'type': 'string', 'pattern': '^#[0-9a-fA-F]{6}$'},
+                  'on': {'type': 'string', 'pattern': '^#[0-9a-fA-F]{6}$'},
+                  'accent': {'anyOf': [{'type': 'string', 'pattern': '^#[0-9a-fA-F]{6}$'}, {'type': 'null'}]}}, ['bg', 'on'])
+    show = _obj({'format': _enum(c.SHOW_FORMATS), 'subject': _str(),
+                 'shades': {'type': 'array', 'items': shade, 'minItems': c.SHOW_SHADE_RANGE[0], 'maxItems': c.SHOW_SHADE_RANGE[1]}},
+                ['format', 'subject', 'shades'])
     asset = _obj({
         'asset_id': _str(),
         'kind': _enum(c.MEDIA_KINDS),
@@ -148,6 +155,7 @@ def treatment_schema() -> Dict[str, Any]:
             'typography': _obj({'reveal': _enum(c.REVEAL_MODES), 'tonal_ink': _unit(), 'min_visual_share': _unit()}, []),
             'voice': voice,
             'mood': _enum(c.FILM_MOODS),
+            'show': {'anyOf': [show, {'type': 'null'}]},
             'note': {'type': 'string'},
         }, ['schema', 'film_id', 'beats']),
     }
@@ -301,8 +309,14 @@ def plan_schema() -> Dict[str, Any]:
         'composition': _strip(native_aspect_schema()), 'typography': typography, 'ensemble': ensemble,
         'media': {'anyOf': [media, {'type': 'null'}]}, 'figure': {'anyOf': [figure, {'type': 'null'}]}, 'data': {'anyOf': [data, {'type': 'null'}]},
         'illustration': {'anyOf': [illustration, {'type': 'null'}]},
+        'show': {'anyOf': [_obj({'idx': {'type': 'integer'}, 'name': _str()}, ['idx', 'name']), {'type': 'null'}]},
+        'chrome': {'anyOf': [_obj({'ink': _str(), 'accent': _str(), 'bg': _str()}, ['ink', 'accent', 'bg']), {'type': 'null'}]},
         'transition': transition, 'sound': _strip(sound_events_schema()), 'gate': gate,
     }, ['beat_id', 'beat_type', 'pattern', 'dominant_layer', 'start_ms', 'duration_ms', 'composition', 'typography', 'ensemble', 'illustration', 'transition', 'sound', 'gate'])
+    show_plan = _obj({'format': _str(), 'subject': _str(),
+                      'sections': {'type': 'array', 'items': _obj({'idx': {'type': 'integer'}, 'name': _str()}, ['idx', 'name'])},
+                      'bands': _obj({'header': BOX, 'footer': BOX, 'inner': BOX}, ['header', 'footer', 'inner'])},
+                     ['format', 'subject', 'sections', 'bands'])
     segment = _obj({'beat_id': _str(), 'source': _enum(('RECORDED', 'ROUTE', 'FIXTURE', 'MASTER')), 'audio_path': _str(), 'sha256': SHA, 'start_ms': MS, 'duration_ms': MS,
                     'evidence': {'type': 'object'}}, ['beat_id', 'source', 'audio_path', 'sha256', 'start_ms', 'duration_ms'])
     caption = _obj({'beat_id': _str(), 'text': _str(), 'start_ms': MS, 'end_ms': MS}, ['beat_id', 'text', 'start_ms', 'end_ms'])
@@ -340,6 +354,7 @@ def plan_schema() -> Dict[str, Any]:
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},
             'captions_policy': _enum(('burned', 'kinetic')),
+            'show': {'anyOf': [show_plan, {'type': 'null'}]},
             'gate': gate, 'provenance': provenance,
         }, ['schema', 'compiler', 'film_id', 'aspect', 'fps', 'canvas', 'output', 'brand', 'typography', 'fonts', 'duration_ms', 'voice', 'music', 'beats', 'captions', 'gate', 'provenance']),
     }

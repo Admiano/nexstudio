@@ -89,7 +89,9 @@
           "enum": [
             "EDITORIAL_FLAT",
             "PAPER",
-            "PRODUCT_COLLAGE"
+            "PRODUCT_COLLAGE",
+            "CENTER_DECK",
+            "FLOAT_FIELD"
           ]
         }
       },
@@ -1453,7 +1455,16 @@
                             "TILE",
                             "CHIP",
                             "BADGE",
-                            "COUNTER"
+                            "COUNTER",
+                            "DATA_BARS",
+                            "DATA_TABLE",
+                            "TIMELINE",
+                            "VS_CARDS",
+                            "LOGO_GRID",
+                            "FLOW_STEPS",
+                            "PROGRESS",
+                            "SQUIGGLE",
+                            "MAGNIFY"
                           ]
                         },
                         "size": {
@@ -2313,6 +2324,61 @@
                 "type": "null"
               }
             ]
+          },
+          "show": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "idx",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chrome": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "ink": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "accent": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "bg": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "ink",
+                  "accent",
+                  "bg"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -2332,6 +2398,57 @@
         ]
       },
       "minItems": 1
+    },
+    "show": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "minLength": 1
+            },
+            "subject": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "idx": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "idx",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "bands": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "format",
+            "subject",
+            "sections",
+            "bands"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "captions": {
       "type": "array",

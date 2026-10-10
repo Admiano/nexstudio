@@ -672,6 +672,18 @@
         }, parent);
         break;
       }
+      case 'grid': {
+        // Blueprint cross-grid: the newscast field's faint engineering paper.
+        const spacing = Math.max(22, Math.min(W, H) * (spec.spacing_frac || 0.058));
+        const tone = rgbaOf(spec.tone || brand.ink, spec.opacity != null ? spec.opacity : 0.16);
+        node = el('div', {
+          position: 'absolute', left: px(b.x), top: px(b.y), width: px(b.w), height: px(b.h),
+          backgroundImage: `repeating-linear-gradient(to right, transparent 0, transparent ${f2(spacing - 1)}px, ${tone} ${f2(spacing)}px),` +
+                           `repeating-linear-gradient(to bottom, transparent 0, transparent ${f2(spacing - 1)}px, ${tone} ${f2(spacing)}px)`,
+          backgroundSize: `${f2(spacing)}px ${f2(spacing)}px`,
+        }, parent);
+        break;
+      }
       case 'spotlight': {
         const cx = b.x + b.w / 2, cy = b.y + b.h * 0.62;
         node = el('div', {
@@ -1066,7 +1078,7 @@
     const bg = beat.composition.background || {};
     const brand = plan.brand;
     const atmo = plan.atmosphere || {};
-    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: atmo.field || brand.paper }, beatRoot);
+    const layer = el('div', { position: 'absolute', inset: '0', zIndex: '1', background: bg.base || atmo.field || brand.paper }, beatRoot);
     const layers = (Array.isArray(bg.layers) ? bg.layers : []).map((spec, i) => buildBgLayer(spec, plan, layer, i, assetUrl)).filter((l) => l.node);
     // Book-mode sky: when the authored diorama leaves the page's upper region bare, a tall washed
     // band drops from the page top to the first horizon — every spread reads as a full painted
@@ -1841,6 +1853,7 @@
     return n;
   }
   const f2 = (v) => Math.round(v * 100) / 100;
+  const f3 = (v) => Math.round(v * 1000) / 1000;
   const centre = (b) => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
 
   function roundRectPath(b, r) {
@@ -4143,6 +4156,316 @@
         node.strike = strikeFor(b);
         break;
       }
+      // ------------------------------------------------------------------
+      // Show widgets: the data-news vocabulary. Each is a light card the
+      // field sits behind (the film's own paper), typeset inside with a dark
+      // face, while everything drawn straight on the field takes the shade's
+      // own ink. GROW reveals the payload in staggered springs; DRAW brings
+      // the card itself up as one body.
+      // ------------------------------------------------------------------
+      case 'DATA_BARS': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.035) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        const series = (params.series || []).slice(0, 8), n = Math.max(1, series.length);
+        const pad = Math.min(b.w, b.h) * 0.09, labelH = b.h * 0.115;
+        const plot = { x: b.x + pad, y: b.y + pad * 1.1, w: b.w - pad * 2, h: b.h - pad * 2 - labelH };
+        const base = plot.y + plot.h, maxV = Math.max(1e-9, ...series.map((s) => Math.abs(Number(s.value) || 0)));
+        svgEl('path', { d: `M${f2(plot.x - pad * 0.3)} ${f2(base)} L${f2(plot.x + plot.w + pad * 0.3)} ${f2(base)}`, stroke: cardFg, 'stroke-width': sw * 0.42, 'stroke-opacity': 0.5 }, body);
+        const bw = Math.min(plot.h * 0.52, (plot.w - plot.w * 0.05 * (n - 1)) / n), gap = (plot.w - bw * n) / Math.max(1, n - 1);
+        const bars = [], caps = [], names = [];
+        const fsV = Math.min(plot.h * 0.15, b.w / (n * 3.6)), fsL = labelH * 0.66;
+        series.forEach((s, i) => {
+          const x = plot.x + i * (bw + gap), h = Math.max(plot.h * 0.05, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
+          const pop = s.tone === 'accent';
+          const bar = svgEl('path', { d: roundRectPath({ x, y: base - h, w: bw, h }, Math.min(bw * 0.14, 7)) + 'Z', fill: pop ? accent : cardFg, 'fill-opacity': pop ? 1 : 0.82 }, body);
+          bar.style.transformOrigin = `${f2(x + bw / 2)}px ${f2(base)}px`;
+          const cap = svgEl('text', { x: f2(x + bw / 2), y: f2(base - h - fsV * 0.45), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fsV), fill: pop ? accent : cardFg, 'font-variant-numeric': 'tabular-nums' }, body);
+          cap.textContent = s.value_text ? String(s.value_text) : (params.unit ? `${params.unit}${s.value}` : String(s.value));
+          const nm = svgEl('text', { x: f2(x + bw / 2), y: f2(base + fsL * 1.25), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fsL), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.66 }, body);
+          nm.textContent = String(s.label).slice(0, 14);
+          bars.push(bar); caps.push(cap); names.push(nm);
+        });
+        node.extra.setGrow = (k) => {
+          bars.forEach((bar, i) => {
+            const kk = clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
+            bar.style.transform = `scaleY(${f3(Math.max(0.001, EASE.settle(kk)))})`;
+            caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1)) : '0');
+            names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1)));
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'DATA_TABLE': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        const header = (params.header || []).map(String), rows = (params.rows || []).slice(0, 6);
+        const cols = Math.max(1, Math.max(header.length, ...rows.map((r) => r.length)));
+        const pad = Math.min(b.w, b.h) * 0.07, tbl = { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 };
+        const nR = rows.length + (header.length ? 1 : 0), rh = tbl.h / Math.max(1, nR);
+        const fs = Math.min(rh * 0.42, tbl.w / (cols * 7.2));
+        const hi = params.highlight == null ? -1 : params.highlight;
+        const rowEls = [];
+        const emitRow = (cells, i, isHead) => {
+          const ry = tbl.y + i * rh, g2 = svgEl('g', {}, body);
+          if (i === hi) svgEl('path', { d: roundRectPath({ x: tbl.x - pad * 0.4, y: ry + rh * 0.08, w: tbl.w + pad * 0.8, h: rh * 0.84 }, rh * 0.2) + 'Z', fill: accent, 'fill-opacity': 0.2 }, g2);
+          for (let c = 0; c < cols; c++) {
+            const t = svgEl('text', { x: f2(tbl.x + (c === 0 ? 0 : (tbl.w / cols) * c)), y: f2(ry + rh * 0.5), 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-size': f2(fs), 'font-weight': isHead ? '700' : (i === hi ? '700' : '500'), fill: cardFg, 'fill-opacity': isHead ? 0.95 : 0.8, 'text-anchor': c === 0 ? 'start' : 'middle', dx: c === 0 ? 0 : f2(tbl.w / cols / 2) }, g2);
+            t.textContent = cells[c] == null ? '' : String(cells[c]);
+          }
+          if (isHead) svgEl('path', { d: `M${f2(tbl.x)} ${f2(ry + rh)} L${f2(tbl.x + tbl.w)} ${f2(ry + rh)}`, stroke: cardFg, 'stroke-width': sw * 0.36, 'stroke-opacity': 0.5 }, g2);
+          else if (i < nR - 1) svgEl('path', { d: `M${f2(tbl.x)} ${f2(ry + rh)} L${f2(tbl.x + tbl.w)} ${f2(ry + rh)}`, stroke: cardFg, 'stroke-width': 1, 'stroke-opacity': 0.16 }, g2);
+          rowEls.push(g2);
+        };
+        if (header.length) emitRow(header, 0, true);
+        rows.forEach((r, i) => emitRow(r, i + (header.length ? 1 : 0), false));
+        node.extra.setGrow = (k) => {
+          rowEls.forEach((g2, i) => {
+            const kk = clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
+            g2.setAttribute('opacity', f3(kk));
+            g2.setAttribute('transform', `translate(0 ${f2((1 - EASE.settle(kk)) * rh * 0.55)})`);
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'TIMELINE': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        const evs = (params.events || []).slice(0, 6), n = Math.max(1, evs.length);
+        const horiz = params.axis === 'v' ? false : params.axis === 'h' ? true : b.w >= b.h;
+        const pad = Math.min(b.w, b.h) * 0.12;
+        const spine = horiz ? { x: b.x + pad, y: b.y + b.h / 2, len: b.w - pad * 2 } : { x: b.x + b.w / 2, y: b.y + pad, len: b.h - pad * 2 };
+        const spineP = svgEl('path', { d: horiz ? `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x + spine.len)} ${f2(spine.y)}` : `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x)} ${f2(spine.y + spine.len)}`, stroke: cardFg, 'stroke-width': sw * 0.45, 'stroke-opacity': 0.55, 'stroke-linecap': 'round' }, body);
+        const items = [];
+        const fs = Math.min(b.w, b.h) * 0.085;
+        evs.forEach((ev, i) => {
+          const u = n === 1 ? 0.5 : i / (n - 1);
+          const sx = horiz ? spine.x + u * spine.len : spine.x, sy = horiz ? spine.y : spine.y + u * spine.len;
+          const side = i % 2 ? 1 : -1, tick = Math.min(b.w, b.h) * 0.055;
+          const g2 = svgEl('g', {}, body);
+          svgEl('path', { d: horiz ? `M${f2(sx)} ${f2(sy)} L${f2(sx)} ${f2(sy + side * tick)}` : `M${f2(sx)} ${f2(sy)} L${f2(sx + side * tick)} ${f2(sy)}`, stroke: cardFg, 'stroke-width': sw * 0.4, 'stroke-opacity': 0.6 }, g2);
+          svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(Math.min(b.w, b.h) * 0.026), fill: i === n - 1 ? accent : face, stroke: cardFg, 'stroke-width': sw * 0.4 }, g2);
+          const lx = horiz ? sx : sx + side * (tick + fs * 0.6), ly = horiz ? sy + side * (tick + fs * 1.2) : sy;
+          const anch = horiz ? 'middle' : (side > 0 ? 'start' : 'end');
+          const t1 = svgEl('text', { x: f2(lx), y: f2(ly), 'text-anchor': anch, 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
+          t1.textContent = String(ev.label).slice(0, 16);
+          if (ev.sub) {
+            const t2 = svgEl('text', { x: f2(lx), y: f2(ly + (horiz ? side * fs * 1.3 : fs * 1.15)), 'text-anchor': anch, 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-size': f2(fs * 0.72), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.62 }, g2);
+            t2.textContent = String(ev.sub).slice(0, 20);
+          }
+          items.push(g2);
+        });
+        const dots = items;
+        node.extra.setGrow = (k) => {
+          dots.forEach((g2, i) => {
+            const kk = clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
+            g2.setAttribute('opacity', f3(kk));
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'VS_CARDS': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        const cards = (params.cards || []).slice(0, 2);
+        const gap = b.w * 0.085, cw = (b.w - gap) / 2;
+        const parts = [];
+        cards.forEach((cd, i) => {
+          const cb = { x: b.x + i * (cw + gap), y: b.y, w: cw, h: b.h };
+          const g2 = svgEl('g', {}, body);
+          const card = svgEl('path', { d: roundRectPath(cb, Math.min(cb.w, cb.h) * 0.06) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.55, 'stroke-opacity': 0.24 }, g2);
+          const markS = Math.min(cb.w, cb.h) * 0.42;
+          const mb = { x: cb.x + (cb.w - markS) / 2, y: cb.y + cb.h * 0.12, w: markS, h: markS };
+          svgEl('path', { d: roundRectPath(mb, markS * 0.2) + 'Z', fill: i === 0 ? accent : cardFg, 'fill-opacity': i === 0 ? 1 : 0.85 }, g2);
+          wordMark(node, g2, mb, String(cd.mark || cd.title || ''), 'monogram', i === 0 ? cardFg : face, plan);
+          const fsT = Math.min(cb.h * 0.17, cb.w / 6.4);
+          const t = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.66), 'text-anchor': 'middle', 'font-family': plan.fonts.families.display, 'font-weight': '800', 'font-size': f2(fsT), fill: cardFg, 'letter-spacing': '-0.02em' }, g2);
+          t.textContent = String(cd.title).slice(0, 14);
+          if (cd.sub) {
+            const s = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.84), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fsT * 0.62), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.66 }, g2);
+            s.textContent = String(cd.sub).slice(0, 22);
+          }
+          parts.push({ g: g2, fromX: (i === 0 ? -1 : 1) * b.w * 0.06 });
+        });
+        const vs = String(params.vs || 'vs'), vr = Math.min(b.h * 0.34, gap * 0.62);
+        const vg = svgEl('g', {}, body);
+        svgEl('circle', { cx: f2(b.x + b.w / 2), cy: f2(b.y + b.h / 2), r: f2(vr), fill: cardFg }, vg);
+        const vt = svgEl('text', { x: f2(b.x + b.w / 2), y: f2(b.y + b.h / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.display, 'font-weight': '900', 'font-size': f2(vr * 0.8), fill: face, 'font-style': 'italic' }, vg);
+        vt.textContent = vs;
+        node.extra.setGrow = (k) => {
+          parts.forEach((p, i) => {
+            const kk = clamp((k - i * 0.28) * 2.4, 0, 1), e = EASE.settle(kk);
+            p.g.setAttribute('transform', `translate(${f2(p.fromX * (1 - e))} 0) scale(${f3(Math.max(0.001, e))})`);
+            p.g.setAttribute('opacity', f3(kk));
+            p.g.style.transformOrigin = `${f2(b.x + (i + 0.5) * b.w * 0.46)}px ${f2(b.y + b.h / 2)}px`;
+          });
+          const vk = clamp((k - 0.3) * 2.8, 0, 1), e = EASE.settle(vk);
+          vg.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
+          vg.setAttribute('opacity', f3(vk));
+          vg.style.transformOrigin = `${f2(b.x + b.w / 2)}px ${f2(b.y + b.h / 2)}px`;
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'LOGO_GRID': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        const cells = (params.cells || []).slice(0, 9), n = Math.max(1, cells.length);
+        const cols = Math.min(params.cols || Math.ceil(Math.sqrt(n)), 3), rowsN = Math.ceil(n / cols);
+        const gap = Math.min(b.w, b.h) * 0.05;
+        const cw = (b.w - gap * (cols - 1)) / cols, ch = (b.h - gap * (rowsN - 1)) / rowsN;
+        const cellEls = [];
+        cells.forEach((cell, i) => {
+          const cx = b.x + (i % cols) * (cw + gap), cy = b.y + Math.floor(i / cols) * (ch + gap);
+          const g2 = svgEl('g', {}, body);
+          svgEl('path', { d: roundRectPath({ x: cx, y: cy, w: cw, h: ch }, Math.min(cw, ch) * 0.08) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.45, 'stroke-opacity': 0.2 }, g2);
+          const markS = Math.min(cw, ch) * (cell.sub ? 0.42 : 0.5);
+          const mb = { x: cx + (cw - markS) / 2, y: cy + ch * (cell.sub ? 0.1 : 0.14), w: markS, h: markS };
+          wordMark(node, g2, mb, String(cell.name || ''), 'monogram', cardFg, plan);
+          const fs = Math.min(ch * 0.17, cw / 7.5);
+          const t = svgEl('text', { x: f2(cx + cw / 2), y: f2(cy + ch * (cell.sub ? 0.68 : 0.78)), 'text-anchor': 'middle', 'font-family': plan.fonts.families.display, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
+          t.textContent = String(cell.name).slice(0, 12);
+          if (cell.sub) {
+            const s = svgEl('text', { x: f2(cx + cw / 2), y: f2(cy + ch * 0.86), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fs * 0.7), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.6 }, g2);
+            s.textContent = String(cell.sub).slice(0, 18);
+          }
+          cellEls.push({ g: g2, cx: cx + cw / 2, cy: cy + ch / 2 });
+        });
+        node.extra.setGrow = (k) => {
+          cellEls.forEach((c2, i) => {
+            const kk = clamp((k - i * (0.5 / n)) * (n * 1.35), 0, 1), e = EASE.settle(kk);
+            c2.g.setAttribute('opacity', f3(kk));
+            c2.g.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
+            c2.g.style.transformOrigin = `${f2(c2.cx)}px ${f2(c2.cy)}px`;
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'FLOW_STEPS': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        const steps = (params.steps || []).slice(0, 5), n = Math.max(1, steps.length);
+        const horiz = b.w >= b.h * (n * 0.62);
+        const gap = Math.min(b.w, b.h) * (horiz ? 0.09 : 0.08);
+        const sw2 = horiz ? (b.w - gap * (n - 1)) / n : b.w, sh = horiz ? b.h : (b.h - gap * (n - 1)) / n;
+        const parts = [];
+        steps.forEach((s, i) => {
+          const sb = horiz ? { x: b.x + i * (sw2 + gap), y: b.y + (b.h - sh) / 2, w: sw2, h: sh }
+                           : { x: b.x + (b.w - sw2) / 2, y: b.y + i * (sh + gap), w: sw2, h: sh };
+          const g2 = svgEl('g', {}, body);
+          const last = i === n - 1;
+          svgEl('path', { d: roundRectPath(sb, Math.min(sb.w, sb.h) * 0.24) + 'Z', fill: last ? accent : face, stroke: ink, 'stroke-width': sw * 0.45, 'stroke-opacity': last ? 0 : 0.22 }, g2);
+          const sText = (s && typeof s === 'object') ? (s.label || '') : String(s);
+          const fs = Math.min(sh * 0.4, sw2 / Math.max(4, sText.length) * 1.55);
+          const t = svgEl('text', { x: f2(sb.x + sw2 / 2), y: f2(sb.y + sh / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
+          t.textContent = sText.slice(0, 18);
+          parts.push({ g: g2, i, cx: sb.x + sw2 / 2, cy: sb.y + sh / 2 });
+          if (i < n - 1) {
+            const m = horiz
+              ? [[sb.x + sw2 + gap * 0.18, sb.y + sh / 2], [sb.x + sw2 + gap * 0.82, sb.y + sh / 2]]
+              : [[sb.x + sw2 / 2, sb.y + sh + gap * 0.18], [sb.x + sw2 / 2, sb.y + sh + gap * 0.82]];
+            const ap = svgEl('path', { d: polyPath(m) + (horiz ? `M${f2(m[0][0] + (m[1][0] - m[0][0]) * 0.5)} ${f2(m[0][1] - sh * 0.14)} L${f2(m[1][0])} ${f2(m[1][1])} L${f2(m[0][0] + (m[1][0] - m[0][0]) * 0.5)} ${f2(m[0][1] + sh * 0.14)}` : `M${f2(m[0][0] - sw2 * 0.14)} ${f2(m[0][1] + (m[1][1] - m[0][1]) * 0.5)} L${f2(m[1][0])} ${f2(m[1][1])} L${f2(m[0][0] + sw2 * 0.14)} ${f2(m[0][1] + (m[1][1] - m[0][1]) * 0.5)}`), stroke: ink, 'stroke-width': sw * 0.55, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, body);
+            parts.push({ arrow: drawable(ap, polyLength(m) * 1.7), i });
+          }
+        });
+        node.extra.setGrow = (k) => {
+          parts.forEach((p) => {
+            if (p.g) {
+              const kk = clamp((k - p.i * (0.55 / n)) * (n * 1.4), 0, 1), e = EASE.settle(kk);
+              p.g.setAttribute('opacity', f3(kk));
+              p.g.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
+              p.g.style.transformOrigin = `${f2(p.cx)}px ${f2(p.cy)}px`;
+            } else {
+              const kk = clamp((k - (p.i + 0.55) * (0.55 / n)) * (n * 1.4), 0, 1);
+              p.arrow.set(kk);
+            }
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'PROGRESS': {
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.1) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        const pad = Math.min(b.w, b.h) * 0.16, labelFs = b.h * 0.4;
+        const track = { x: b.x + pad, y: b.y + b.h * 0.62, w: b.w - pad * 2, h: b.h * 0.22 };
+        svgEl('path', { d: roundRectPath(track, track.h / 2) + 'Z', fill: cardFg, 'fill-opacity': 0.14 }, body);
+        const lvl = clamp(Number(params.level) || 0, 0, 1);
+        const fill = svgEl('path', { d: roundRectPath({ ...track, w: Math.max(track.h, track.w * lvl) }, track.h / 2) + 'Z', fill: accent }, body);
+        fill.style.transformOrigin = `${f2(track.x)}px ${f2(track.y + track.h / 2)}px`;
+        const lT = svgEl('text', { x: f2(track.x), y: f2(b.y + pad + labelFs * 0.8), 'font-family': plan.fonts.families.data, 'font-size': f2(labelFs), 'font-weight': '700', fill: cardFg }, body);
+        lT.textContent = params.left ? String(params.left) : '';
+        const rT = svgEl('text', { x: f2(track.x + track.w), y: f2(b.y + pad + labelFs * 0.8), 'text-anchor': 'end', 'font-family': plan.fonts.families.data, 'font-size': f2(labelFs), 'font-weight': '700', fill: accent }, body);
+        rT.textContent = params.right ? String(params.right) : `${Math.round(lvl * 100)}%`;
+        node.extra.setGrow = (k) => { fill.style.transform = `scaleX(${f3(Math.max(0.001, EASE.settle(clamp(k * 1.15, 0, 1))))})`; };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'SQUIGGLE': {
+        // Field marks only — no card: short bold zigzags flicked across the box, one after another.
+        const waves = Math.max(2, Math.min(4, params.waves || 3));
+        const tr = (seedHash(String(ent.id)) % 977) / 977;
+        for (let i = 0; i < waves; i++) {
+          const wy = b.y + b.h * (0.2 + 0.6 * ((i + 0.3 + tr * 0.4) / waves));
+          const amp = b.h * (0.09 + 0.05 * ((tr + i / waves) % 1)), wSeg = b.w * (0.55 + 0.35 * ((tr * (i + 1.7)) % 1));
+          const x0 = b.x + (b.w - wSeg) * (i % 2 ? 0.82 : 0.0) * (0.4 + tr * 0.3);
+          const pts = [];
+          const segs = 6;
+          for (let sIdx = 0; sIdx <= segs; sIdx++) pts.push([x0 + (wSeg / segs) * sIdx, wy + (sIdx % 2 ? -amp : amp)]);
+          const p = svgEl('path', { d: polyPath(pts), stroke: i === waves - 1 ? accent : ink, 'stroke-width': sw * 1.15, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-opacity': i === waves - 1 ? 1 : 0.8 }, g);
+          node.outline.push(drawable(p, polyLength(pts)));
+        }
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'MAGNIFY': {
+        // Loupe gag: a lens disc glides over a line of text set in the card face,
+        // and what passes under it renders at zoom inside the clip.
+        const body = chassisBody(node, g);
+        const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.05) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        node.extra.shadow = { el: body, oy: b.h * 0.06, blur: b.h * 0.12, alpha: 0.24 };
+        const zoom = clamp(Number(params.zoom) || 1.8, 1.2, 3);
+        const R = Math.min(b.w, b.h) * 0.26, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const fs = Math.min(b.h * 0.24, b.w / Math.max(6, String(params.text || '').length) * 1.4);
+        const t = svgEl('text', { x: f2(cx), y: f2(cy), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, body);
+        t.textContent = String(params.text || '').slice(0, 40);
+        const clipId = `em2mg-${String(ent.id).replace(/[^a-zA-Z0-9]/g, '')}`;
+        const clip = svgEl('clipPath', { id: clipId }, opts.fx.defs);
+        svgEl('circle', { cx: 0, cy: 0, r: f2(R * 0.92) }, clip);
+        const lens = svgEl('g', {}, g);
+        const lIn = svgEl('g', {}, lens);
+        svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: face, 'fill-opacity': 0.94 }, lens);
+        const t2 = svgEl('text', { x: 0, y: 0, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs * zoom), fill: accent, 'clip-path': `url(#${clipId})` }, lIn);
+        t2.textContent = t.textContent;
+        svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: 'none', stroke: ink, 'stroke-width': sw * 0.7 }, lens);
+        svgEl('path', { d: `M${f2(R * 0.7)} ${f2(R * 0.7)} L${f2(R * 1.42)} ${f2(R * 1.42)}`, stroke: ink, 'stroke-width': sw * 1.1, 'stroke-linecap': 'round' }, lens);
+        node.extra.magLens = lens;
+        node.extra.magInner = lIn;
+        node.extra.magR = R;
+        node.extra.magCenter = { x: cx, y: cy };
+        node.extra.magClip = clip.firstElementChild;
+        node.extra.setGrow = (k) => {
+          // The loupe sweeps left to right inside the card; the magnified copy recentres under it.
+          const lx = b.x + b.w * (0.24 + 0.52 * EASE.inOutCubic(clamp(k, 0, 1))), ly = cy;
+          lens.setAttribute('transform', `translate(${f2(lx)} ${f2(ly)})`);
+          t2.setAttribute('x', f2((cx - lx) * zoom));
+          node.extra.magClip.setAttribute('cx', 0); node.extra.magClip.setAttribute('cy', 0);
+        };
+        node.extra.setGrow(0.15);
+        node.strike = strikeFor(b);
+        break;
+      }
       default:
         throw new Error(`EditorialRuntime: unsupported glyph ${ent.glyph} (${ent.id})`);
     }
@@ -5026,12 +5349,15 @@
     const fxSvg = svgEl('svg', { width: 0, height: 0, 'aria-hidden': 'true' }, outer);
     Object.assign(fxSvg.style, { position: 'absolute', width: '0', height: '0', overflow: 'hidden' });
     const fx = { defs: svgEl('defs', {}, fxSvg), scope: `em2fx-b${beatIndex}` };
-    const bg = buildBackground(beat, plan, root, opts.assetUrl);
-    const media = beat.media ? buildMedia(beat.media, plan, root, opts.assetUrl) : null;
+    // Show grammar: a beat inside a numbered-section show draws its whole set in the
+    // section shade's own ink/accent — the per-beat brand override is `bplan`.
+    const bplan = beat.chrome ? { ...plan, brand: { ...plan.brand, ink: beat.chrome.ink, accent: beat.chrome.accent } } : plan;
+    const bg = buildBackground(beat, bplan, root, opts.assetUrl);
+    const media = beat.media ? buildMedia(beat.media, bplan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
-    const figure = beat.figure ? buildFigure(beat.figure, plan, root, opts, beat) : null;
-    const data = beat.data ? buildData(beat.data, plan, root) : null;
-    const illustration = beat.illustration ? buildIllustration(beat.illustration, plan, root, { ...opts, fx }) : null;
+    const figure = beat.figure ? buildFigure(beat.figure, bplan, root, opts, beat) : null;
+    const data = beat.data ? buildData(beat.data, bplan, root) : null;
+    const illustration = beat.illustration ? buildIllustration(beat.illustration, bplan, root, { ...opts, fx }) : null;
     // All typography lives in one layer so book mode can demote the whole lockup at once.
     const textHost = el('div', { position: 'absolute', inset: '0', zIndex: '40', pointerEvents: 'none' }, root);
     // Picture-book captioning: the page's art is the hero — the spread prints its own words,
@@ -5039,7 +5365,7 @@
     // plate child that can paint over the illustration).
     const texts = plan.book === 'paperbook'
       ? []
-      : beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, plan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+      : beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, bplan, textHost), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
     if (plan.book && plan.book !== 'paperbook' && texts.length) {
       const pr = bookPageRect(plan);
       const caps = texts.filter((t) => { const hero = t.block.role === 'hero'; if (hero) t.wrap.style.display = 'none'; return !hero; });
@@ -5296,6 +5622,68 @@
   // gouache illustration panel beneath — and once a page is read its leaf turns
   // at the spine, printed face and all. Two beats read per spread: left then right.
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // Show chrome: the numbered-section show's two persistent bands. The header
+  // reads `NN SECTION` left, subject right, under a hairline; the footer carries
+  // the giant outlined section word. Both flip on the hard cut and the new
+  // section lands with a small settle pop. Everything is a pure function of
+  // (beat, lt) — no state but `cur`, the last-painted section index.
+  // ---------------------------------------------------------------------------
+  function buildShowChrome(stage, plan) {
+    const show = plan.show;
+    if (!show) return null;
+    const bands = show.bands, hB = bands.header, fB = bands.footer;
+    const display = plan.fonts.families.display, data = plan.fonts.families.data;
+    const root = el('div', { position: 'absolute', inset: '0', zIndex: '62', pointerEvents: 'none' }, stage);
+    const fs = Math.max(10, hB.h * 0.52);
+    const row = el('div', { position: 'absolute', left: px(hB.x), top: px(hB.y), width: px(hB.w), height: px(hB.h), display: 'flex', alignItems: 'center', fontFamily: `"${data}"` }, root);
+    const idxEl = el('div', { fontSize: px(fs), fontWeight: '800', letterSpacing: '0.06em', marginRight: px(fs * 0.7), flexShrink: '0', whiteSpace: 'nowrap' }, row);
+    const nameEl = el('div', { fontSize: px(fs), fontWeight: '800', letterSpacing: '0.1em', fontFamily: `"${display}"`, whiteSpace: 'nowrap', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis' }, row);
+    const subEl = el('div', { marginLeft: 'auto', fontSize: px(fs * 0.92), fontWeight: '600', letterSpacing: '0.08em', flexShrink: '0', whiteSpace: 'nowrap', paddingLeft: px(fs) }, row);
+    subEl.textContent = show.subject;
+    const hair = el('div', { position: 'absolute', left: px(hB.x), top: px(hB.y + hB.h + hB.h * 0.14), width: px(hB.w), height: px(Math.max(1.2, hB.h * 0.045)) }, root);
+    const hair2 = el('div', { position: 'absolute', left: px(fB.x), top: px(fB.y - fB.h * 0.1), width: px(fB.w), height: px(Math.max(1.2, hB.h * 0.045)) }, root);
+    const wordEl = el('div', {
+      position: 'absolute', left: px(fB.x), top: px(fB.y), width: px(fB.w), height: px(fB.h),
+      fontFamily: `"${display}"`, fontWeight: '900', fontSize: px(fB.h * 0.94), lineHeight: '0.92', letterSpacing: '-0.03em',
+      textAlign: 'center', whiteSpace: 'nowrap', transformOrigin: '50% 50%', willChange: 'transform',
+    }, root);
+    let cur = -1;
+    const setBeat = (beat, lt) => {
+      const s = beat.show;
+      if (!s) { root.style.display = 'none'; return; }
+      root.style.display = '';
+      const ink = (beat.chrome && beat.chrome.ink) || plan.brand.ink;
+      const accent = (beat.chrome && beat.chrome.accent) || ink;
+      if (s.idx !== cur) {
+        cur = s.idx;
+        idxEl.textContent = String(s.idx + 1).padStart(2, '0');
+        nameEl.textContent = s.name;
+        wordEl.textContent = s.name;
+        // Fit the giant footer word inside the band — condensed caps ~0.64em advance.
+        wordEl.style.fontSize = `${f2(Math.min(fB.h * 0.76, fB.w * 0.98 / Math.max(3.5, s.name.length * 0.64)))}px`;
+      }
+      idxEl.style.color = nameEl.style.color = ink;
+      nameEl.style.maxWidth = '64%';
+      nameEl.style.overflow = 'hidden';
+      nameEl.style.textOverflow = 'ellipsis';
+      subEl.style.marginLeft = 'auto';
+      subEl.style.color = ink;
+      subEl.style.opacity = '0.82';
+      hair.style.background = hair2.style.background = ink;
+      hair.style.opacity = hair2.style.opacity = '0.55';
+      wordEl.style.color = 'transparent';
+      wordEl.style.webkitTextStroke = `${f2(Math.max(1.6, fB.h * 0.024))}px ${accent}`;
+      // The swap pop: name slides down into place, the giant word lands on a settle.
+      const p = EASE.outCubic(clamp(lt / 360, 0, 1));
+      nameEl.style.transform = `translateY(${f2((1 - p) * fs * 0.8)}px)`;
+      const sp = EASE.settle(clamp(lt / 460, 0, 1));
+      wordEl.style.transform = `scale(${f3(0.94 + 0.06 * sp)})`;
+      wordEl.style.opacity = f3(0.4 + 0.6 * p);
+    };
+    return { root, setBeat };
+  }
+
   const PAPERBOOK = (plan) => Boolean(plan && plan.book === 'paperbook');
   const PB_SERIF = '"EB Garamond","Iowan Old Style","Liberation Serif","DejaVu Serif",Georgia,serif';
   // The hand face: children's-book lettering with per-glyph alternates baked into
@@ -6126,6 +6514,7 @@
       }, bookGroup);
     }
     const beats = plan.beats.map((b, i) => buildBeat(b, plan, beatHost, opts, i === plan.beats.length - 1, i));
+    const showChrome = buildShowChrome(stage, plan);
     let spread = null;
     if (paperbook) {
       spread = buildPaperbook(bookGroup._tilt, plan, beats, opts);
@@ -6328,6 +6717,7 @@
       const kOut = overlapIdx >= 0 ? prog(lt, tr.start_ms, tr.end_ms) : 0;
       applyBeat(bn, lt, stageFade, bn.preRoll, plan);
       applyCamera(bn, lt, kOut, null, plan, bn.preRoll);
+      if (showChrome) showChrome.setBeat(bn.beat, lt);
       if (overlapIdx >= 0) {
         const nb = beats[overlapIdx];
         applyBeat(nb, lt - tr.start_ms, 1, 0, plan);

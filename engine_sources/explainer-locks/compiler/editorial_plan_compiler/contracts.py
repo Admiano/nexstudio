@@ -29,7 +29,8 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
-          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER')
+          'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER',
+          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY')
 # Housings whose only job is to carry a mark; staged without one they read as generated filler.
 CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 # Housings whose label is set inside the body, so a word alone is content.
@@ -91,6 +92,15 @@ MOTION_PROFILES = {
 CAMERA_MOVES = ('push_through', 'pull_back', 'drift', 'dissolve', 'cut')
 CUT_MODES = ('hard',)
 DATA_KINDS = ('STAT', 'COMPARISON', 'SEQUENCE')
+# Show grammar: a film can declare itself a numbered-section show (today: the sectioned
+# data-news reel). `show.format` is the grammar name; `show.subject` is the film's on-screen
+# masthead; `show.shades` is the authored rotating field palette — every beat draws one of the
+# family's shade swatches, so the film's colour is context, not a cap.
+SHOW_FORMATS = ('NEWSREEL',)
+SHOW_SECTION_MAX_CHARS = 14
+SHOW_SHADE_RANGE = (4, 14)
+SECTION_WORD_RE = re.compile(r'^[A-Z0-9][A-Z0-9+&%$ ]{0,13}$')
+SHOW_HEX_RE = re.compile(r'^#[0-9a-fA-F]{6}$')
 # Entity labels are nouns, not captions: no leading article, at most three words, and never a
 # restatement of a display unit already set in type on the same beat.
 LABEL_MAX_WORDS = 3
@@ -266,6 +276,104 @@ class IllustrationEntity:
             for k in ('prefix', 'suffix', 'caption'):
                 if k in params:
                     params[k] = str(params[k])[:24]
+        if glyph == 'DATA_BARS':
+            series = params.get('series')
+            _need(isinstance(series, list) and 2 <= len(series) <= 8, 'DATA_BARS_SERIES', f'{eid}: DATA_BARS needs 2-8 series entries', beat_id)
+            seen = set()
+            out = []
+            for i, s in enumerate(series):
+                _need(isinstance(s, dict), 'DATA_BARS_SERIES', f'{eid}: series[{i}] must be an object', beat_id)
+                label = ' '.join(str(s.get('label') or '').split())[:24]
+                _need(bool(label), 'DATA_BARS_LABEL', f'{eid}: series[{i}] needs a label', beat_id)
+                _need(label not in seen, 'DATA_BARS_LABEL_DUP', f'{eid}: duplicate label {label}', beat_id)
+                seen.add(label)
+                try:
+                    value = float(s.get('value'))
+                except (TypeError, ValueError):
+                    _need(False, 'DATA_BARS_VALUE', f'{eid}: series[{i}] value must be a number', beat_id)
+                    value = 0.0
+                _need(value >= 0, 'DATA_BARS_VALUE', f'{eid}: series[{i}] value must be >= 0', beat_id)
+                out.append({'label': label, 'value': value,
+                            **({'value_text': ' '.join(str(s['value_text']).split())[:16]} if s.get('value_text') else {}),
+                            **({'tone': str(s['tone'])} if str(s.get('tone') or '') in ('ink', 'accent', 'paper') else {})})
+            _need(any(s['value'] > 0 for s in out), 'DATA_BARS_ALL_ZERO', f'{eid}: at least one series value must be > 0', beat_id)
+            params['series'] = out
+            if params.get('unit') is not None:
+                params['unit'] = str(params['unit'])[:8]
+        if glyph == 'DATA_TABLE':
+            rows = params.get('rows')
+            _need(isinstance(rows, list) and 2 <= len(rows) <= 6, 'DATA_TABLE_ROWS', f'{eid}: DATA_TABLE needs 2-6 rows', beat_id)
+            header = params.get('header')
+            if header is not None:
+                _need(isinstance(header, list), 'DATA_TABLE_HEADER', f'{eid}: header must be a list of cells', beat_id)
+                header = [' '.join(str(h).split())[:20] for h in header][:6]
+                params['header'] = header
+            ncols = len(header) if header else max(len(r) if isinstance(r, list) else 0 for r in rows)
+            _need(2 <= ncols <= 4, 'DATA_TABLE_COLS', f'{eid}: DATA_TABLE needs 2-4 columns', beat_id)
+            out_rows = []
+            for r in rows:
+                _need(isinstance(r, list), 'DATA_TABLE_ROW', f'{eid}: each row must be a list of cells', beat_id)
+                cells = [' '.join(str(c).split())[:20] for c in r][:ncols]
+                cells += [''] * (ncols - len(cells))
+                out_rows.append(cells)
+            params['rows'] = out_rows
+            if params.get('highlight') is not None:
+                hi = int(params['highlight'])
+                _need(0 <= hi < len(out_rows), 'DATA_TABLE_HIGHLIGHT', f'{eid}: highlight row out of range', beat_id)
+                params['highlight'] = hi
+            if header is not None:
+                _need(len(header) == ncols, 'DATA_TABLE_HEADER', f'{eid}: header must match column count', beat_id)
+        if glyph == 'TIMELINE':
+            events = params.get('events')
+            _need(isinstance(events, list) and 2 <= len(events) <= 6, 'TIMELINE_EVENTS', f'{eid}: TIMELINE needs 2-6 events', beat_id)
+            params['events'] = [{'label': ' '.join(str(e.get('label') or '').split())[:24],
+                                 'sub': ' '.join(str(e.get('sub') or '').split())[:24]}
+                                for e in events if isinstance(e, dict)]
+            _need(len(params['events']) >= 2 and all(e['label'] for e in params['events']), 'TIMELINE_LABEL',
+                  f'{eid}: every event needs a label', beat_id)
+            axis = str(params.get('axis') or 'auto')
+            _need(axis in ('auto', 'h', 'v'), 'TIMELINE_AXIS', axis, beat_id)
+            params['axis'] = axis
+        if glyph == 'VS_CARDS':
+            cards = params.get('cards')
+            _need(isinstance(cards, list) and len(cards) == 2, 'VS_CARDS_TWO', f'{eid}: VS_CARDS needs exactly 2 cards', beat_id)
+            out_cards = []
+            for i, c in enumerate(cards):
+                _need(isinstance(c, dict), 'VS_CARDS_CARD', f'{eid}: card {i} must be an object', beat_id)
+                title = ' '.join(str(c.get('title') or '').split())[:24]
+                _need(bool(title), 'VS_CARDS_TITLE', f'{eid}: card {i} needs a title', beat_id)
+                out_cards.append({'title': title,
+                                  'sub': ' '.join(str(c.get('sub') or '').split())[:32],
+                                  'mark': (' '.join(str(c.get('mark')).split())[:24] if c.get('mark') else None)})
+            params['cards'] = out_cards
+            params['vs'] = (' '.join(str(params.get('vs') or 'vs').split())[:8] or 'vs')
+        if glyph == 'LOGO_GRID':
+            cells = params.get('cells')
+            _need(isinstance(cells, list) and 2 <= len(cells) <= 9, 'LOGO_GRID_CELLS', f'{eid}: LOGO_GRID needs 2-9 cells', beat_id)
+            out_cells = []
+            for c in cells:
+                _need(isinstance(c, dict), 'LOGO_GRID_CELL', f'{eid}: each cell must be an object', beat_id)
+                name = ' '.join(str(c.get('name') or '').split())[:20]
+                _need(bool(name), 'LOGO_GRID_NAME', f'{eid}: every cell needs a name', beat_id)
+                out_cells.append({'name': name,
+                                  'sub': (' '.join(str(c.get('sub')).split())[:20] if c.get('sub') else None),
+                                  'concept': (' '.join(str(c.get('concept')).split())[:40] if c.get('concept') else None),
+                                  'asset_ref': (str(c.get('asset_ref') or '').strip() or None)})
+            params['cells'] = out_cells
+        if glyph == 'FLOW_STEPS':
+            steps = params.get('steps')
+            _need(isinstance(steps, list) and 2 <= len(steps) <= 5, 'FLOW_STEPS_N', f'{eid}: FLOW_STEPS needs 2-5 steps', beat_id)
+            params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
+                               for s in steps]
+            _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
+        if glyph == 'PROGRESS':
+            _need('level' in params, 'PROGRESS_WITHOUT_LEVEL', f'{eid}: PROGRESS needs params.level (0..1)', beat_id)
+        if glyph == 'SQUIGGLE':
+            params['waves'] = max(2, min(4, int(params.get('waves') or 3)))
+        if glyph == 'MAGNIFY':
+            _need(isinstance(params.get('text'), str) and params['text'].strip(), 'MAGNIFY_TEXT', f'{eid}: MAGNIFY needs params.text', beat_id)
+            params['text'] = ' '.join(params['text'].split())[:60]
+            params['zoom'] = max(1.2, min(3.0, float(params.get('zoom') or 1.6)))
         if 'tone' in params:
             _need(str(params['tone']) in ('light', 'dark'), 'TONE_UNKNOWN', f"{eid}:{params['tone']}", beat_id)
         return cls(eid, kind, glyph, size, label, asset_ref, media_ref, params, concept)
@@ -480,6 +588,7 @@ class BeatTreatment:
     features: Dict[str, float] = field(default_factory=dict)
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
+    section: Optional[str] = None  # show grammar: numbered-section name this beat plays under
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -522,8 +631,13 @@ class BeatTreatment:
         cut = str(d['cut']) if d.get('cut') else None
         if cut is not None:
             _need(cut in CUT_MODES, 'CUT_MODE_UNKNOWN', cut, bid)
+        section = None
+        sec = d.get('section')
+        if sec is not None:
+            section = ' '.join(str(sec).split()).upper()[:SHOW_SECTION_MAX_CHARS]
+            _need(bool(SECTION_WORD_RE.match(section)), 'SHOW_SECTION_INVALID', f'{section!r}: 1-{SHOW_SECTION_MAX_CHARS} chars, uppercase word', bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, section)
 
     @property
     def has_visual(self) -> bool:
@@ -577,6 +691,7 @@ class FilmTreatment:
     typography: TypographyMode = field(default_factory=TypographyMode)
     mood: Optional[str] = None
     sfx: Optional[str] = None
+    show: Optional[Dict[str, Any]] = None  # {format, subject, shades[]} when this film is a numbered-section show
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -631,9 +746,35 @@ class FilmTreatment:
         sfx = (str(d.get('sfx') or '').strip().lower() or None)
         if sfx is not None:
             _need(sfx in SFX_PROFILES, 'SFX_PROFILE_UNKNOWN', sfx)
+        show = None
+        show_d = d.get('show')
+        if show_d is not None:
+            _need(isinstance(show_d, dict), 'SHOW_INVALID', 'show must be an object')
+            fmt = str(show_d.get('format') or '').upper()
+            _need(fmt in SHOW_FORMATS, 'SHOW_FORMAT_UNKNOWN', fmt)
+            subject = ' '.join(str(show_d.get('subject') or '').split()).upper()[:32]
+            _need(bool(subject), 'SHOW_SUBJECT_MISSING', 'show needs a subject (the masthead word)')
+            shades = show_d.get('shades') or []
+            _need(isinstance(shades, list) and SHOW_SHADE_RANGE[0] <= len(shades) <= SHOW_SHADE_RANGE[1],
+                  'SHOW_SHADES', f'show needs {SHOW_SHADE_RANGE[0]}-{SHOW_SHADE_RANGE[1]} shade swatches')
+            out_shades = []
+            for i, s in enumerate(shades):
+                _need(isinstance(s, dict), 'SHOW_SHADE', f'shade {i} must be an object')
+                bg = str(s.get('bg') or '')
+                on = str(s.get('on') or '')
+                _need(bool(SHOW_HEX_RE.match(bg)) and bool(SHOW_HEX_RE.match(on)), 'SHOW_SHADE_HEX', f'shade {i}: bg/on need #hex')
+                accent = str(s.get('accent') or '')
+                _need(not accent or bool(SHOW_HEX_RE.match(accent)), 'SHOW_SHADE_HEX', f'shade {i}: accent must be #hex')
+                out_shades.append({'bg': bg.lower(), 'on': on.lower(), 'accent': accent.lower() or None})
+            _need(len({s['bg'] for s in out_shades}) == len(out_shades), 'SHOW_SHADE_DUP', 'shade backgrounds must be distinct')
+            sectioned = [b for b in beats if b.section]
+            _need(bool(sectioned) and len({b.section for b in sectioned}) >= 2,
+                  'SHOW_WITHOUT_SECTIONS', 'a show needs every beat assigned a section, with at least two distinct section names')
+            _need(len(sectioned) == len(beats), 'SHOW_WITHOUT_SECTIONS', 'a show needs every beat assigned a section')
+            show = {'format': fmt, 'subject': subject, 'shades': out_shades}
         spoken = [b for b in beats if b.dominant_layer != 'QUIET']
         if spoken:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show)

@@ -172,6 +172,8 @@ def _explainer(j: Path, spec: dict, params: dict, family: dict) -> tuple[list[st
         argv += ["--script", params.get("script", ""), "--voice", params.get("voice", "andrew")]
     if params.get("media"):
         argv += ["--media", *params["media"]]
+    if params.get("subject"):
+        argv += ["--subject", str(params["subject"])]
     return argv, engine, {}
 
 

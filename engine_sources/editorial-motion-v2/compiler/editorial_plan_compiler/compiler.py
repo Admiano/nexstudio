@@ -35,6 +35,7 @@ from .evidence import PhotoEvidence
 from .lexicon import AssetFinder, NounLexicon, Resolution
 from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
+from .show import bands as show_bands, remap_zone, resolve as resolve_show
 from .sound import MIX, SoundLibrary, bind_beat_ambience, bind_beat_sound, bind_film_music, community_surface, library_root, story_event
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
 from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
@@ -542,14 +543,22 @@ def _fonts() -> Dict[str, Any]:
 
 class BeatCompiler:
     def __init__(self, film: FilmTreatment, aspect: str, lib: Optional[SoundLibrary], media: Optional[Dict[str, NormalisedMedia]] = None,
-                 stagger_ms: Optional[int] = None):
+                 stagger_ms: Optional[int] = None, show_map: Optional[Dict[str, Any]] = None):
         self.film = film
         self.aspect = aspect
         self.lib = lib
         self.media_files: Dict[str, NormalisedMedia] = media or {}
+        self.show_map = show_map
         self.W, self.H = native.ASPECTS[aspect]['size']
         sx, sy, sx2, sy2 = native.ASPECTS[aspect]['safe']
-        self.safe = _box(sx, sy, sx2 - sx, sy2 - sy)
+        self.outer_safe = _box(sx, sy, sx2 - sx, sy2 - sy)
+        self.safe = self.outer_safe
+        self.bands = None
+        if show_map is not None:
+            # The show's chrome owns the top and bottom margins; every authored zone is
+            # compressed into the inner band between them so content never meets the chrome.
+            self.bands = show_bands(aspect)
+            self.safe = dict(self.bands['inner'])
         # Evidence and figures may use the field beyond the caption-safe text frame, but never clip the canvas.
         self.frame = _box(24, 24, self.W - 48, self.H - 48)
         self.hero_max_lines = native.ASPECTS[aspect]['hero_max_lines']
@@ -1045,6 +1054,9 @@ class BeatCompiler:
         failures: List[str] = []
         warnings: List[str] = []
         comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
+        if self.show_map is not None:
+            comp['text_zone'] = remap_zone(comp['text_zone'], self.outer_safe, self.bands['inner'])
+            comp['visual_zone'] = remap_zone(comp['visual_zone'], self.outer_safe, self.bands['inner'])
         if b.illustration is not None and not (b.illustration.carry_from and b.illustration.carry_from in self.illustrations):
             _rebalance(comp, self._text_share(b))
         if self.carried_illustration and b.illustration is None:
@@ -1296,7 +1308,7 @@ class BeatCompiler:
             firsts += [figure['enter_ms']]
         if firsts and min(firsts) > LEAD_IN_MS + 420:
             warnings.append(f'EMPTY_LEAD:{min(firsts)}ms')
-        return {
+        beat_plan = {
             'beat_id': b.beat_id, 'beat_type': b.beat_type, 'pattern': b.pattern, 'dominant_layer': b.dominant_layer, 'shot_role': shot_role,
             'start_ms': beat_offset_ms, 'duration_ms': clock.duration_ms, 'energy': b.energy,
             'narration': b.narration, 'words': [{'text': w.text, 'start_ms': w.start_ms, 'end_ms': w.end_ms} for w in clock.words],
@@ -1312,6 +1324,20 @@ class BeatCompiler:
             'media': media, 'figure': figure, 'data': data, 'illustration': illustration, 'transition': transition, 'sound': sound, 'page': b.page,
             'gate': {'status': 'FAIL' if failures else 'PASS', 'failures': failures, 'warnings': sorted(set(warnings))},
         }
+        if self.show_map is not None:
+            rec = self.show_map['beats'][b.beat_id]
+            shade = rec['shade']
+            beat_plan['show'] = {'idx': rec['idx'], 'name': rec['name']}
+            beat_plan['chrome'] = {'ink': shade['on'], 'accent': shade['accent'] or self.film.brand.accent or '#ffffff', 'bg': shade['bg']}
+            if beat_plan.get('illustration'):
+                # The section's accent owns every state-change pop inside this beat's illustration.
+                beat_plan['illustration']['accent'] = beat_plan['chrome']['accent']
+            beat_plan['composition']['background']['base'] = shade['bg']
+            # The blueprint field: the section's saturated field over a faint square grid.
+            beat_plan['composition']['background']['layers'].insert(0, {
+                'kind': 'grid', 'bbox': {'x': 0, 'y': 0, 'w': self.W, 'h': self.H},
+                'opacity': 0.16, 'spacing_frac': 0.058, 'tone': shade['on']})
+        return beat_plan
 
 
 def _film_pack(film: FilmTreatment, registry: IllustrationRegistry) -> Optional[str]:
@@ -2260,8 +2286,9 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
     music = bind_film_music(film.film_id, film.mood, total_ms, sum(b.energy for b in spoken) / len(spoken))
     profile = MOTION_PROFILES[film.brand.finish]
     stagger_ms, subdivision = groove_stagger(profile['stagger_ms'], music.get('bpm'))
+    show_map = resolve_show(film)
     for aspect in film.aspects:
-        bc = BeatCompiler(film, aspect, lib, normalised, stagger_ms=stagger_ms)
+        bc = BeatCompiler(film, aspect, lib, normalised, stagger_ms=stagger_ms, show_map=show_map)
         beats = [bc.compile(b, c, o, i) for i, (b, c, o) in enumerate(zip(film.beats, clocks, offsets))]
         W, H = native.ASPECTS[aspect]['size']
         # The field is dressed once the content is placed: the bloom follows each beat's hero from the
@@ -2308,8 +2335,11 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'motif': ({'corner': film.world.motif['corner'], 'concept': film.world.motif['concept'], 'via': film.world.motif.get('via'),
                        'asset': film.world.motif.get('asset'), 'photo': film.world.motif.get('photo'), 'word': film.world.motif.get('word')}
                       if film.world and film.world.motif else None),
-            'beats': beats, 'captions': _captions(beats),
-            'captions_policy': 'kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned',
+            'beats': beats, 'captions': [] if show_map is not None else _captions(beats),
+            'captions_policy': 'none' if show_map is not None else ('kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned'),
+            'show': ({'format': show_map['format'], 'subject': show_map['subject'],
+                      'sections': [{'idx': i, 'name': n} for i, n in enumerate(show_map['sections'])],
+                      'bands': show_bands(aspect)} if show_map is not None else None),
             'gate': {'status': 'FAIL' if fails else 'PASS', 'failures': fails},
             'provenance': {
                 'treatment_sha256': treatment_sha, 'creative_authority': 'NEXMIND_P8', 'compiler_role': 'DETERMINISTIC_PLAN_COMPILER', 'renderer_role': 'EXECUTION_ONLY',
