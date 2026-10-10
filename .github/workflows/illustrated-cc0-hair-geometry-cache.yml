@@ -1,0 +1,85 @@
+name: V1 compact CC0 hair geometry-only donor cache
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-cc0-hair-geometry-cache.yml']
+permissions:
+  contents: write
+jobs:
+  curate-donors:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            docs/illustrated-family/hair-inventory
+      - name: Verify official archive and extract only individually CC0 hair geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 2 -o /tmp/hair01.zip https://files2.makehumancommunity.org/asset_packs/hair01/hair01_cc0.zip
+          echo '49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9  /tmp/hair01.zip' | sha256sum -c -
+          mkdir -p proofs/hair01-cc0-geometry
+          python - <<'PY'
+          import json,zipfile,hashlib,re
+          from pathlib import Path
+          audit=json.loads(Path('docs/illustrated-family/hair-inventory/Hair01_PER_ASSET_LICENSE_AND_SCALE.json').read_text())
+          assert audit['zipSha256']=='49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9'
+          assets=[a for a in audit['assets'] if a['licenseStatus']=='CC0_INDIVIDUAL_HEADER']
+          assert len(assets)==11,(len(assets),audit['count'])
+          out=Path('proofs/hair01-cc0-geometry')
+          records=[]
+          with zipfile.ZipFile('/tmp/hair01.zip') as z:
+            for a in assets:
+              mp=a['mhclo'];donor=a['name']
+              assert mp.startswith('hair/') and mp.endswith('.mhclo')
+              src=z.read(mp)
+              head=src[:4096].decode('utf8','replace')
+              assert bool(re.search(r'(?m)^\s*#\s*license\s*:?\s*cc0\s*$',head,re.I)) or ('# Cortu Johnstone - CC0' in head)
+              m=re.search(r'(?m)^obj_file\s+([^\r\n]+)',head)
+              assert m,mp
+              obj=m.group(1).strip()
+              assert '/' not in obj and '\\' not in obj and obj.endswith('.obj')
+              op=mp.rsplit('/',1)[0]+'/'+obj
+              obj_data=z.read(op)
+              assert len(obj_data)>5000,(op,len(obj_data))
+              for path,data in ((mp,src),(op,obj_data)):
+                target=out/path;target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(data)
+              records.append({'id':donor,'mhcloPath':mp,'objPath':op,
+                'sourceMhcloSha256':hashlib.sha256(src).hexdigest(),
+                'sourceObjSha256':hashlib.sha256(obj_data).hexdigest(),
+                'bytes':len(src)+len(obj_data),'sourceLicense':a['sourceLicense']})
+          manifest={'schema':'NEXSTUDIO_V1_PER_ASSET_CC0_HAIR_GEOMETRY_CACHE',
+            'archiveSHA256':audit['zipSha256'],'format':'MakeHuman MHClO plus source OBJ only',
+            'excludes':['AGPL donors','non-CC0 hair donors','source textures and other unsupported materials'],
+            'productionStatus':'UNAPPROVED_GEOMETRY_ONLY','assets':records}
+          (out/'GEOMETRY_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          dest=Path('docs/illustrated-family/hair-inventory/Hair01_CURATED_GEOMETRY_MANIFEST.json')
+          dest.write_text(json.dumps(manifest,indent=2)+'\n')
+          print('ELEVEN_INDIVIDUALLY_VERIFIED_CC0_HAIR_SOURCE_MESHES',len(records),sum(x['bytes'] for x in records))
+          PY
+      - name: Commit reproducible donor data provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-inventory/Hair01_CURATED_GEOMETRY_MANIFEST.json
+          git commit -m "audit(character): eleven individually licensed CC0 hair source meshes and hashes"
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEX_V1_CURATED_HAIR01_ELEVEN_CC0_MESHES
+          path: proofs/hair01-cc0-geometry/
+          retention-days: 14
+          compression-level: 2
+          if-no-files-found: error
