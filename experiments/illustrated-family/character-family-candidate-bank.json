@@ -1,0 +1,98 @@
+{
+  "schema": "nexstudio.v1.illustrated.character-family-candidate-bank/1",
+  "branch": "work/illustrated-family-expansion-v1",
+  "version": "2026-10-10",
+  "productionStatus": "EXPERIMENTAL_ONLY_NOT_MERGED",
+  "authority": {
+    "rig": "Host.rig",
+    "rigBones": 163,
+    "bodyShapeKeys": 34,
+    "originalPerformanceActions": "preserved",
+    "approvedCanonicalCharacters": "female and male original V1"
+  },
+  "sourceChecks": {
+    "suitsManifest": "docs/illustrated-family/formal-bank/BANK_MANIFEST.json",
+    "hairArchiveSha256": "49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9",
+    "individuallyPermittedHairAssets": "docs/illustrated-family/hair-inventory/Hair01_CURATED_GEOMETRY_MANIFEST.json"
+  },
+  "candidates": [
+    {
+      "id": "female-inverted-bob",
+      "gender": "female",
+      "outfit": "female-statement",
+      "sourceDonor": "toigo_inverted_bob",
+      "preview": "docs/illustrated-family/hair-next-candidates/toigo_inverted_bob/female-hair-front-head-threeq.png",
+      "face": "ORIGINAL_V1",
+      "visualReview": "PROMISING_NOT_APPROVED",
+      "issues": [
+        "Lower neck hairlock sharp; check shoulder and turning"
+      ],
+      "tested": [
+        "real Blender front headshot",
+        "three-quarter headshot",
+        "pose 338",
+        "pose 891"
+      ],
+      "production": false
+    },
+    {
+      "id": "female-bob-curved-v2",
+      "gender": "female",
+      "outfit": "female-double-breasted",
+      "sourceDonor": "toigo_blunt_bob_with_bangs",
+      "preview": "docs/illustrated-family/hair-curved-v2-previews/female-hair-front-head-threeq.png",
+      "face": "ORIGINAL_V1",
+      "visualReview": "CANDIDATE_NOT_APPROVED",
+      "issues": [
+        "Still smooth helmet-like material; curved art strokes only partial finish"
+      ],
+      "production": false
+    },
+    {
+      "id": "male-faydaen",
+      "gender": "male",
+      "outfit": "male-jacket-tie",
+      "sourceDonor": "faydaen_hair_1",
+      "preview": "docs/illustrated-family/hair-next-candidates/faydaen_hair_1/male-hair-front-head-threeq.png",
+      "face": "ORIGINAL_V1",
+      "visualReview": "PERSONALITY_STYLE_CANDIDATE_NOT_APPROVED",
+      "issues": [
+        "Raised rear hair/long side locks not short clean presenter style"
+      ],
+      "production": false
+    },
+    {
+      "id": "male-cortu-cloud",
+      "gender": "male",
+      "outfit": "male-navy-classic",
+      "sourceDonor": "cortu_strawberry_cloud_hair",
+      "preview": "docs/illustrated-family/hair-next-candidates/cortu_strawberry_cloud_hair/male-hair-front-head-threeq.png",
+      "visualReview": "REJECT",
+      "issues": [
+        "Oversized shoulder mass",
+        "neckline silhouette unfinished"
+      ],
+      "production": false
+    },
+    {
+      "id": "male-cortu-messy",
+      "gender": "male",
+      "outfit": "male-jacket-tie",
+      "sourceDonor": "cortu_short_messy_hair",
+      "preview": "docs/illustrated-family/hair-trial-previews/male-hair-front-head-threeq.png",
+      "visualReview": "REJECT",
+      "issues": [
+        "Fringe obstructs eye/nose"
+      ],
+      "production": false
+    }
+  ],
+  "releaseGates": [
+    "review 3/4, front, head and full-body actual Blender frames",
+    "test original face blinking and visemes",
+    "test full animation and chair/podcast contact collisions",
+    "verify licensing individually per donor",
+    "do not replace or remove approved V1 performance library or identity assets",
+    "ship only visibly differentiated styles"
+  ]
+}
