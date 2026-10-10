@@ -1,0 +1,103 @@
+name: V1 four more CC0 hair family options on original rig
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-four-cc0-hair-variations.yml', 'experiments/illustrated-family/hair_cc0_rig_trial.py']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  real-hair-options:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/scripts
+      - name: Fetch original-rig canonical suited character proofs and permitted donor meshes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          mkdir -p original/cc0-bank
+          gh run download 38004823946 --repo Admiano/nexstudio \
+             --name NEX_V1_LEAN_SIX_EDITABLE_FORMAL_SCENES --dir original/cc0-bank
+          mkdir -p donors/hair01
+          gh run download 38009389161 --repo Admiano/nexstudio \
+             --name NEX_V1_CURATED_HAIR01_ELEVEN_CC0_MESHES --dir donors/hair01
+          test -s donors/hair01/GEOMETRY_MANIFEST.json
+          test "$(find donors/hair01/hair -name '*.mhclo' | wc -l)" -eq 11
+      - name: Render actual original 3D characters with four distinct source-verified hair shapes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/hair-expanded-2
+          for selected in \
+            male:cortu_shaggy_green_hair:male-jacket-tie \
+            male:cortu_straight_bangs:male-navy-classic \
+            female:toigo_curled_under_bob:female-double-breasted \
+            female:toigo_inverted_bob_with_bangs:female-statement; do
+            gender="${selected%%:*}"
+            remainder="${selected#*:}"
+            donor="${remainder%%:*}"
+            variant="${remainder#*:}"
+            input="original/cc0-bank/$variant/$variant-front.blend"
+            asset="donors/hair01/hair/$donor/$donor.mhclo"
+            test -s "$input"
+            test -s "$asset"
+            output="proofs/hair-expanded-2/$donor/$gender-hair-front.png"
+            mkdir -p "proofs/hair-expanded-2/$donor"
+            "$BLENDER_BIN" -b "$input" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/hair_cc0_rig_trial.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/hair_headshot.py \
+              --python experiments/illustrated-family/donor_suit_pose_qa.py \
+              -- "$gender" "$output" "$asset"
+            for suffix in front threeq front-head-front front-head-threeq pose-338 pose-891; do
+              test -s "proofs/hair-expanded-2/$donor/$gender-hair-$suffix.png"
+            done
+            test -s "proofs/hair-expanded-2/$donor/$gender-hair-front.blend"
+            echo "ALTERNATIVE_LICENSED_HAIR_PROOF:$donor:$gender"
+          done
+      - name: Publish real actual cast hairstyle side-by-side evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/hair-expanded-2
+          for dir in proofs/hair-expanded-2/*; do
+            donor="${dir##*/}"
+            mkdir -p "docs/illustrated-family/hair-expanded-2/$donor"
+            cp "$dir"/*.png "docs/illustrated-family/hair-expanded-2/$donor/"
+            cp "$dir"/*.json "docs/illustrated-family/hair-expanded-2/$donor/"
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-expanded-2/
+          git commit -m 'proof(character): actual rigged V1 new licensed CC0 hair designs, no generated visual substitution'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-four-additional-cc0-hair-variations
+          path: proofs/hair-expanded-2/
+          retention-days: 14
+          if-no-files-found: warn
