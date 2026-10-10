@@ -16,6 +16,7 @@ jobs:
     env:
       WALKING_PROOF_OUTPUT: walking-people-preview
       LIBGL_ALWAYS_SOFTWARE: "1"
+      NEX_FAST_PREVIEW: "1"
     steps:
       - name: Checkout exact five-person source
         uses: actions/checkout@v4
