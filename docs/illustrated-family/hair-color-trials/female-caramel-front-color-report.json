@@ -1,0 +1,13 @@
+{
+  "gender": "female",
+  "fittedHair": "NEX_V1_CC0_HAIR_toigo_inverted_bob",
+  "originalStillExists": "Host.hair_culturalibre_hair_01",
+  "alternateMaterial": "NEX_V1_CC0_ALTERNATE_HAIR_COLOR_B88358",
+  "originalMaterial": "LINEART_HAIR_PAPER",
+  "colorHex": "#B88358",
+  "sourceRigPreserved": true,
+  "boneCount": 163,
+  "faceKeys": 34,
+  "sourceMaterialCopiedNotEdited": true,
+  "productionStatus": "EXPERIMENTAL_COLOR_PALETTE_ONLY_VISUAL_QA_REQUIRED"
+}

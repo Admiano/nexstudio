@@ -1,0 +1,13 @@
+{
+  "gender": "male",
+  "fittedHair": "NEX_V1_CC0_HAIR_faydaen_hair_1",
+  "originalStillExists": "Host.hair_elvs_maxwell_hair",
+  "alternateMaterial": "NEX_V1_CC0_ALTERNATE_HAIR_COLOR_7A848D",
+  "originalMaterial": "LINEART_HAIR_PAPER",
+  "colorHex": "#7A848D",
+  "sourceRigPreserved": true,
+  "boneCount": 163,
+  "faceKeys": 34,
+  "sourceMaterialCopiedNotEdited": true,
+  "productionStatus": "EXPERIMENTAL_COLOR_PALETTE_ONLY_VISUAL_QA_REQUIRED"
+}
