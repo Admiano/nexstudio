@@ -1,0 +1,43 @@
+name: Walking People Five Cast Source Review
+on:
+  push:
+    branches:
+      - feat/papercraft-walking-people-audit-20261010
+    paths:
+      - ".github/workflows/walking-people-five-cast.yml"
+      - "engine_sources/papercraft-cast/scripts/walking_people_5cast_review.py"
+  workflow_dispatch:
+jobs:
+  fast-source-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      WALKING_PROOF_OUTPUT: walking-people-five-cast-preview
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender runtime prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri libegl1 libxrender1 libxi6 libxkbcommon0 libglu1-mesa
+      - name: Restore Blender 5.2
+        run: |
+          curl -fL --retry 3 https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o /tmp/blender.tar.xz
+          mkdir -p /tmp/blender-runtime
+          tar -xf /tmp/blender.tar.xz -C /tmp/blender-runtime
+      - name: Import exact FBX; render source-only proof
+        run: |
+          mkdir -p "$WALKING_PROOF_OUTPUT"
+          xvfb-run -a /tmp/blender-runtime/blender-5.2.0-linux-x64/blender -b -noaudio -t 2 --python engine_sources/papercraft-cast/scripts/walking_people_5cast_review.py
+      - name: Upload PNG + JSON only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-five-cast-source-proof
+          path: |
+            walking-people-five-cast-preview/*.png
+            walking-people-five-cast-preview/WALKING_PACK_FAST_AUDIT.json
+          if-no-files-found: warn
+          retention-days: 14
