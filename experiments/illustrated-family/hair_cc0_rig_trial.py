@@ -14,7 +14,7 @@ asset=Path(asset_path).resolve()
 if not asset.is_file():raise RuntimeError("SELECTED_LICENSED_HAIR_NOT_FOUND")
 head="\n".join(asset.read_text(errors="replace").splitlines()[:45]).lower()
 import re
-allowed=(bool(re.search(r"(?m)^#\s*license\s*:?[\s]+cc0\s*$",head)) or
+allowed=(bool(re.search(r"(?m)^\\s*#\\s*license\\s*:?\\s*cc0\\s*$",head)) or
          (asset.parent.name.startswith("cortu_") and
           "# cortu johnstone - cc0" in head))
 if not allowed:
