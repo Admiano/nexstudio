@@ -80,3 +80,13 @@ Two original-native face morphs for each gender really altered geometry (7.6–1
 **Bottom line:** Six genuine formal outfits, tested rigged hair replacement, four hair color trials, native face morphs, licensed donor extraction and original-motion proofs have been built. **The standalone new-character family and production editor integration are not finished.**
 
 [Canonical release-gates record](RELEASE_GATES.md).
+
+## 5. Verified from-scratch combined character builder (new)
+
+Rather than keeping separate baked characters for every clothing/hair/color choice, a single command-line builder now combines the **original V1 female or male rig**, one of the six formal outfits, an individually permitted hairstyle (or original), a copied hair color, and an optional inherited native face-morph setting. The original character data remains read-only.
+
+The first [combined female Blender proof](composed-character-proofs/) was certified end to end: female statement suit + licensed inverted bob + charcoal `#343034` + native face morph 1. The final 21.3 MB saved scene reopened successfully with the original 163-bone rig/34 body shape keys and composed source objects. [Source and hashes](composed-character-proofs/character-composition-provenance.json); [download editable scene (temporary artifact)](https://github.com/Admiano/nexstudio/actions/runs/38010623944/artifacts/11653211274); [CLI source](../../scripts/illustrated-family/build_character_variant.py).
+
+![Actual real Blender combined character](composed-character-proofs/female_statement__toigo_inverted_bob__face1__343034-threeq.png)
+
+The builder is **not connected to the V1 UI or production renderer**. Native face adjustments do not yet provide adequately distinct new cast identities; one successful combined scene does not establish full outfit/face/gesture combination certification.
