@@ -52,8 +52,12 @@ def camera_and_lights(mn,mx):
     scene.collection.objects.link(cam)
     camd.type='ORTHO';camd.ortho_scale=size*1.24
     scene.camera=cam
-    scene.render.engine='BLENDER_EEVEE'
-    scene.render.resolution_x=640;scene.render.resolution_y=720
+    scene.render.engine='BLENDER_WORKBENCH' if os.getenv('NEX_FAST_PREVIEW') else 'BLENDER_EEVEE'
+    if os.getenv('NEX_FAST_PREVIEW'):
+        scene.display.shading.light='STUDIO'
+        scene.display.shading.color_type='MATERIAL'
+        scene.display.shading.show_cavity=True
+    scene.render.resolution_x=440 if os.getenv('NEX_FAST_PREVIEW') else 640;scene.render.resolution_y=540 if os.getenv('NEX_FAST_PREVIEW') else 720
     scene.render.resolution_percentage=100
     scene.render.image_settings.file_format='PNG'
     world=bpy.data.worlds.new('Warm studio') if not scene.world else scene.world
