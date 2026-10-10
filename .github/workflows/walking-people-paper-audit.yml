@@ -19,6 +19,12 @@ jobs:
     steps:
       - name: Checkout exact five-person source
         uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/papercraft-cast/assets/walking-people-pack
+            engine_sources/papercraft-cast/scripts/render_walking_people_proof.py
+          sparse-checkout-cone-mode: false
       - name: Restore Blender runtime prerequisites
         run: |
           sudo apt-get update -qq
