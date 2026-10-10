@@ -24,3 +24,17 @@ The male test must never be auto-installed as a new user-facing option simply be
 ## Next experiment
 
 A Blender-only surface measured ink-strand trial for the female bob is in `experiments/illustrated-family/bob_surface_strands_trial.py`, tested by `.github/workflows/illustrated-bob-authored-strands.yml`. It may be rejected if the actual rendering looks worse.
+
+## 2026-10-10 verified real Blender follow-up
+
+These are all separately rendered by Blender, not generated concept art. They use the immutable original rigs and the validated licensed donor meshes.
+
+| Donor | Real preview | Actual visual finding | Release status |
+|---|---|---|---|
+| `toigo_inverted_bob` (female) | [Three-quarter](hair-next-candidates/toigo_inverted_bob/female-hair-front-head-threeq.png) · [Presenter gesture](hair-next-candidates/toigo_inverted_bob/female-hair-pose-891.png) | Best new silhouette: visible eyes and brows, asymmetrical shape, clear haircut identity. Lower neck lock has an overly sharp extension; inspect shoulder/head rotations | **PROMISING, NOT APPROVED** |
+| `faydaen_hair_1` (male) | [Three-quarter](hair-next-candidates/faydaen_hair_1/male-hair-front-head-threeq.png) · [Presenter gesture](hair-next-candidates/faydaen_hair_1/male-hair-pose-891.png) | Eyes visible. Raised rear hair and side locks read as an expressive/character-specific long hairstyle, not a clean short professional cut | **OPTIONAL STYLE CANDIDATE, NOT APPROVED** |
+| `cortu_strawberry_cloud_hair` (male) | [Three-quarter](hair-next-candidates/cortu_strawberry_cloud_hair/male-hair-front-head-threeq.png) | Oversized neck/shoulder mass, uneven hard edges, reduced illustrated elegance | **REJECT** |
+| `toigo_blunt_bob_with_bangs` 3D curved strand second pass (female) | [Three-quarter](hair-curved-v2-previews/female-hair-front-head-threeq.png) · [Front](hair-curved-v2-previews/female-hair-front-head-front.png) | More natural and subtler strokes than the earlier straight-line pass, but surface still feels smooth and somewhat helmet-like | **CONTINUE ART DIRECTION; NOT APPROVED** |
+
+No approved presets are altered. Do not silently promote the rejected cloud or short messy male hairstyle as selectable alternatives.
+
