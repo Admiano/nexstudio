@@ -6,7 +6,10 @@ the canonical hidden original. No mesh or original animation edits.
 import bpy,sys,json,math
 from pathlib import Path
 args=sys.argv[sys.argv.index("--")+1:]
-gender,outfile,hexcode=args[:3]
+gender,outfile=args[:2]
+# Standalone swatch trials pass a color as argument 3; the combined character
+# builder passes [gender, output, certified_source_mhclo, color] instead.
+hexcode=args[3] if len(args)>=4 else args[2]
 assert gender in ("female","male")
 assert len(hexcode)==7 and hexcode.startswith("#") and all(ch in "0123456789abcdefABCDEF" for ch in hexcode[1:])
 hair=[x for x in bpy.data.objects if x.type=="MESH" and x.name.startswith("NEX_V1_CC0_HAIR_") and not x.hide_render]
