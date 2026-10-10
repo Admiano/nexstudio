@@ -13,11 +13,11 @@ OUT=Path(os.getenv('WALKING_INTERNAL_OUTPUT','walking-people-internal-review'))
 OUT.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.fbx(filepath=str(FBX),use_anim=False)
-donors={o.name:o for o in bpy.context.scene.objects if o.type=='MESH' and o.name in ('man1','woman1')}
+donors={o.name:o for o in bpy.context.scene.objects if o.type=='MESH' and o.name in ('man1','woman2')}
 assert len(donors)==2,list(donors)
 stats=[]
 copies=[]
-for ix,name in enumerate(('man1','woman1')):
+for ix,name in enumerate(('man1','woman2')):
     source=donors[name]
     copy=source.copy(); copy.data=source.data.copy()
     bpy.context.scene.collection.objects.link(copy)
@@ -37,7 +37,7 @@ for ix,name in enumerate(('man1','woman1')):
     # on upstream GitHub branch, not in this internal editable study file.
     copy.data.materials.clear()
     mat=bpy.data.materials.new('PRIVATE_NeutralPaper_'+name)
-    mat.diffuse_color=(.69,.55,.40,1) if name=='woman1' else (.72,.66,.55,1)
+    mat.diffuse_color=(.69,.55,.40,1) if name=='woman2' else (.72,.66,.55,1)
     mat.use_nodes=True
     bsdf=mat.node_tree.nodes.get('Principled BSDF')
     if bsdf:
