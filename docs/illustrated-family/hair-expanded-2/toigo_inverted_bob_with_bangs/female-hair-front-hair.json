@@ -1,0 +1,13 @@
+{
+  "gender": "female",
+  "donor": "toigo_inverted_bob_with_bangs",
+  "originalHair": "Host.hair_culturalibre_hair_01",
+  "originalHiddenInDisposableScene": true,
+  "originalRig": "Host.rig",
+  "sourceMHClOVertexCount": 2670,
+  "faces": 2498,
+  "headSkinning": true,
+  "originalBodyShapeKeys": 34,
+  "suitRetained": true,
+  "status": "UNAPPROVED_CC0_HAIR_NEUTRAL_AND_GESTURE_VISUAL_REVIEW_REQUIRED"
+}

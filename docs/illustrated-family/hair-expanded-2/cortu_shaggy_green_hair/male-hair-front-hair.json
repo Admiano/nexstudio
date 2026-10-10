@@ -1,0 +1,13 @@
+{
+  "gender": "male",
+  "donor": "cortu_shaggy_green_hair",
+  "originalHair": "Host.hair_elvs_maxwell_hair",
+  "originalHiddenInDisposableScene": true,
+  "originalRig": "Host.rig",
+  "sourceMHClOVertexCount": 968,
+  "faces": 642,
+  "headSkinning": true,
+  "originalBodyShapeKeys": 34,
+  "suitRetained": true,
+  "status": "UNAPPROVED_CC0_HAIR_NEUTRAL_AND_GESTURE_VISUAL_REVIEW_REQUIRED"
+}
