@@ -78,6 +78,8 @@ def render(cam,center,size,tag):
       'FRONT': Vector((0,-1,.1)),
       'THREE_QUARTER':Vector((1,-1,.25)),
       'PROFILE':Vector((1,0,.25))}
+    if os.getenv('NEX_TEXTURE_QA'):
+        angles={'THREE_QUARTER':Vector((1,-1,.25))}
     rendered=[]
     for name,d in angles.items():
         cam.location=center+d.normalized()*size*2.8
@@ -115,16 +117,18 @@ for idx,ob in enumerate(meshes):
         material=slot.material.copy();slot.material=material
         material.use_nodes=True
         ns=material.node_tree.nodes
-        tex_nodes=[n for n in ns if n.type=='TEX_IMAGE']
-        if tex_nodes:
-            for node in tex_nodes:node.image=image
-        else:
-            node=ns.new('ShaderNodeTexImage');node.image=image
-            surface=next((n for n in ns if n.type=='BSDF_PRINCIPLED'),None)
-            if surface:material.node_tree.links.new(node.outputs['Color'],surface.inputs['Base Color'])
+        ns.clear()
+        links=material.node_tree.links
+        output_node=ns.new('ShaderNodeOutputMaterial')
+        surface=ns.new('ShaderNodeBsdfPrincipled')
+        surface.inputs['Roughness'].default_value=.70
+        texnode=ns.new('ShaderNodeTexImage')
+        texnode.image=image
+        links.new(texnode.outputs['Color'],surface.inputs['Base Color'])
+        links.new(surface.outputs['BSDF'],output_node.inputs['Surface'])
 source_min,source_max=bounds(meshes)
 cam,center,size=camera_and_lights(source_min,source_max)
-source_pngs=render(cam,center,size,'SOURCE')
+source_pngs=[] if os.getenv('NEX_TEXTURE_QA') else render(cam,center,size,'SOURCE')
 clones=[]
 for ob in meshes:
     c=ob.copy();c.data=ob.data.copy();c.name='PAPER_CANDIDATE_'+ob.name
@@ -143,7 +147,7 @@ for ob in meshes:
         if slot.material:slot.material=colorize_paper(slot.material)
     clones.append(c)
 show_paper(originals,clones,True)
-paper_pngs=render(cam,center,size,'PAPER_TEST')
+paper_pngs=[] if os.getenv('NEX_TEXTURE_QA') else render(cam,center,size,'PAPER_TEST')
 # First close-up character test. Keep this limited to one female and one male
 # until texture correspondence and proportions have been reviewed.
 closeup_pngs=[]
@@ -171,6 +175,7 @@ report={
   'armatures':[{'name':o.name,'bones':len(o.data.bones)} for o in armatures],
   'found_textures':[p.name for p in textures.values()],
   'atlas_assignments_provisional':atlas_assignments,
+  'atlas_files_loaded':[{'name':im.name,'loaded':bool(im.has_data),'size_px':list(im.size)} for im in bpy.data.images if im.name.lower().startswith('gihapeopletex')],
   'import_images':images,
   'render_files':source_pngs+paper_pngs+closeup_pngs,
   'source_modified':False,
