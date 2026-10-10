@@ -56,7 +56,7 @@ jobs:
               -- "$gender" "$output" "#$hex"
             test -s "proofs/hair-colors/$gender-$label-front.png"
             test -s "proofs/hair-colors/$gender-$label-threeq.png"
-            test -s "proofs/hair-colors/$gender-$label-head-threeq.png"
+            test -s "proofs/hair-colors/$gender-$label-front-head-threeq.png"
             test -s "proofs/hair-colors/$gender-$label-front.blend"
             echo "ACTUAL_HAIR_COLOR_SWATCH:$gender:$label"
           done
