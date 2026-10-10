@@ -1,0 +1,87 @@
+name: V1 actual Blender licensed hair-color choices
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-hair-colors-real.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  material-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+      - name: Read actual original 3D CC0 hair and approved V1 rig, not screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download 38008949312 --repo Admiano/nexstudio \
+            --name v1-three-individual-cc0-hair-candidate-scenes --dir input
+          test -s input/toigo_inverted_bob/female-hair-front.blend
+          test -s input/faydaen_hair_1/male-hair-front.blend
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Apply distinct original illustration materials to isolated hair meshes and render
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/hair-colors
+          for selected in \
+            female:charcoal:343034:toigo_inverted_bob \
+            female:caramel:B88358:toigo_inverted_bob \
+            male:black:25212A:faydaen_hair_1 \
+            male:silver:7A848D:faydaen_hair_1; do
+            IFS=: read -r gender label hex donor <<< "$selected"
+            input="input/$donor/$gender-hair-front.blend"
+            output="proofs/hair-colors/$gender-$label-front.png"
+            "$BLENDER_BIN" -b "$input" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/cc0_hair_color_trial.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/hair_headshot.py \
+              -- "$gender" "$output" "#$hex"
+            test -s "proofs/hair-colors/$gender-$label-front.png"
+            test -s "proofs/hair-colors/$gender-$label-threeq.png"
+            test -s "proofs/hair-colors/$gender-$label-head-threeq.png"
+            test -s "proofs/hair-colors/$gender-$label-front.blend"
+            echo "ACTUAL_HAIR_COLOR_SWATCH:$gender:$label"
+          done
+      - name: Publish real Blender hair-color customization reference images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/hair-color-trials
+          cp proofs/hair-colors/*.png docs/illustrated-family/hair-color-trials/
+          cp proofs/hair-colors/*.json docs/illustrated-family/hair-color-trials/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-color-trials
+          git commit -m 'proof(character): hair color variants with copied true LINEART_HAIR_PAPER on original rigs'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: V1_ACTUAL_ILLUSTRATED_HAIR_COLOR_SWATCH_SCENES
+          path: proofs/hair-colors
+          retention-days: 14
+          if-no-files-found: warn
