@@ -1,0 +1,54 @@
+name: Walking People papercraft visual audit
+on:
+  push:
+    branches:
+      - feat/papercraft-walking-people-audit-20261010
+    paths:
+      - ".github/workflows/walking-people-paper-audit.yml"
+      - "engine_sources/papercraft-cast/scripts/render_walking_people_proof.py"
+  workflow_dispatch:
+jobs:
+  render-source-and-paper:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      WALKING_PROOF_OUTPUT: walking-people-preview
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - name: Checkout exact five-person source
+        uses: actions/checkout@v4
+      - name: Restore Blender runtime prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb libgl1-mesa-dri libegl1 libxrender1 libxi6 libxkbcommon0 libglu1-mesa
+      - name: Install Blender 5.2.0 LTS
+        run: |
+          curl -fL --retry 3 --retry-delay 5 \
+            https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz \
+            -o /tmp/blender.tar.xz
+          mkdir -p /tmp/blender-runtime
+          tar -xf /tmp/blender.tar.xz -C /tmp/blender-runtime
+          /tmp/blender-runtime/blender-5.2.0-linux-x64/blender -b -noaudio \
+            --python-expr "import bpy;print('Blender version:',bpy.app.version_string)"
+      - name: Verify FBX provenance (no binary redistribution)
+        run: |
+          test -s engine_sources/papercraft-cast/assets/walking-people-pack/WalkingPeoplepack2024.fbx
+          sha256sum engine_sources/papercraft-cast/assets/walking-people-pack/WalkingPeoplepack2024.fbx
+      - name: Blender source import, paper geometry and renders
+        run: |
+          mkdir -p "$WALKING_PROOF_OUTPUT"
+          xvfb-run -a /tmp/blender-runtime/blender-5.2.0-linux-x64/blender \
+            -b -noaudio -t 4 \
+            --python engine_sources/papercraft-cast/scripts/render_walking_people_proof.py
+      - name: Upload render-only proofs (no .fbx, textures, or .blend)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-paper-proof
+          path: |
+            walking-people-preview/*.png
+            walking-people-preview/WALKING_PACK_AUDIT.json
+          if-no-files-found: warn
+          retention-days: 14
