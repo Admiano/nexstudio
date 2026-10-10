@@ -1,0 +1,112 @@
+{
+  "schema": "NEXSTUDIO_V1_PER_ASSET_CC0_HAIR_GEOMETRY_CACHE",
+  "archiveSHA256": "49445d69848a313ec41a9970f6a0fe4bcf925c9f1c6ef40a76f119c2e07940c9",
+  "format": "MakeHuman MHClO plus source OBJ only",
+  "excludes": [
+    "AGPL donors",
+    "non-CC0 hair donors",
+    "source textures and other unsupported materials"
+  ],
+  "productionStatus": "UNAPPROVED_GEOMETRY_ONLY",
+  "assets": [
+    {
+      "id": "cortu_shaggy_green_hair",
+      "mhcloPath": "hair/cortu_shaggy_green_hair/cortu_shaggy_green_hair.mhclo",
+      "objPath": "hair/cortu_shaggy_green_hair/shaggy_green.obj",
+      "sourceMhcloSha256": "38c021053137d4dff2e02b5e216700f5e7162ae2a3fa0f9fa8efccd85bab899f",
+      "sourceObjSha256": "0f28f6e6c02826779ab447be90ae9c03e7ba8c20e77f3b49bb91a9266662d234",
+      "bytes": 126520,
+      "sourceLicense": "# Cortu Johnstone - CC0"
+    },
+    {
+      "id": "cortu_short_messy_hair",
+      "mhcloPath": "hair/cortu_short_messy_hair/cortu_short_messy_hair.mhclo",
+      "objPath": "hair/cortu_short_messy_hair/short_messy.obj",
+      "sourceMhcloSha256": "868ae0221ba97b23c3c5d1d1c5757e6fd01ddad4a2992affffb6fd7880e3cda7",
+      "sourceObjSha256": "d6dd3d11d44424e8dcd63d98b15763f1c3bb754be8eb02a527ec5f04724a54b1",
+      "bytes": 108461,
+      "sourceLicense": "# Cortu Johnstone - CC0"
+    },
+    {
+      "id": "cortu_straight_bangs",
+      "mhcloPath": "hair/cortu_straight_bangs/cortu_straight_bangs.mhclo",
+      "objPath": "hair/cortu_straight_bangs/straight_bangs.obj",
+      "sourceMhcloSha256": "64ad5941c9380d507a6cd7c8c8f42a348f36f116b1fc5ccebd4f72e5e279ccda",
+      "sourceObjSha256": "947428e271fa06c74bf5cb635e7779a37ac7e38c00313235473429b34d744287",
+      "bytes": 110865,
+      "sourceLicense": "# Cortu Johnstone - CC0"
+    },
+    {
+      "id": "cortu_strawberry_cloud_hair",
+      "mhcloPath": "hair/cortu_strawberry_cloud_hair/cortu_strawberry_cloud_hair.mhclo",
+      "objPath": "hair/cortu_strawberry_cloud_hair/strawberry_cloud.obj",
+      "sourceMhcloSha256": "1e621daaa55ef9ee0f7e71561d1ac50ca88b7a2b3d61b62004af9a97813d4d55",
+      "sourceObjSha256": "f7ba38267df948580f200d0b3018bd22b37005682a1a3b69cf6cb1b238cadf33",
+      "bytes": 61756,
+      "sourceLicense": "# Cortu Johnstone - CC0"
+    },
+    {
+      "id": "faydaen_hair_1",
+      "mhcloPath": "hair/faydaen_hair_1/faydaen_hair_1.mhclo",
+      "objPath": "hair/faydaen_hair_1/hair1.obj",
+      "sourceMhcloSha256": "4b0739ab8cd217d90a5f6ee45954e15198ef09623278b7651fc5ea55978a61c3",
+      "sourceObjSha256": "4c04ebeb99a4414a7e25f6ef1342bab715094b7b691f6b4ddf369f7620ed25f1",
+      "bytes": 80755,
+      "sourceLicense": "# license: CC0"
+    },
+    {
+      "id": "toigo_blunt_bob",
+      "mhcloPath": "hair/toigo_blunt_bob/toigo_blunt_bob.mhclo",
+      "objPath": "hair/toigo_blunt_bob/bob_blunt.obj",
+      "sourceMhcloSha256": "252f6b2edbc9f1568b85ff7f367709f5c328110023573df35720a4c84879f4e1",
+      "sourceObjSha256": "e77b50e03ed0957fa596cc6d388cade25629c8650f734b16b581a1b51bbf11ff",
+      "bytes": 220795,
+      "sourceLicense": "# license CC0"
+    },
+    {
+      "id": "toigo_blunt_bob_with_bangs",
+      "mhcloPath": "hair/toigo_blunt_bob_with_bangs/toigo_blunt_bob_with_bangs.mhclo",
+      "objPath": "hair/toigo_blunt_bob_with_bangs/bob_blunt_bangs.obj",
+      "sourceMhcloSha256": "a10c85fea05740d19fbdb378169052ed0a857281753b5d286080c7a8720fee50",
+      "sourceObjSha256": "88429d8919a9bf30bdf3ace3a0f18751561e02ef67c8fc839c57a610fa49dfe4",
+      "bytes": 391684,
+      "sourceLicense": "# license CC0"
+    },
+    {
+      "id": "toigo_curled_under_bob",
+      "mhcloPath": "hair/toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+      "objPath": "hair/toigo_curled_under_bob/bob_curled_under.obj",
+      "sourceMhcloSha256": "725bf6f11fbea1ec2f461a52ed73774df195180c3e113716fbbc00639d81e78a",
+      "sourceObjSha256": "0d57c1689f5972a405c3e251151fba9ab0ffbff7e19c2da8056c16d0929b7841",
+      "bytes": 213728,
+      "sourceLicense": "# license CC0"
+    },
+    {
+      "id": "toigo_curled_under_bob_with_bangs",
+      "mhcloPath": "hair/toigo_curled_under_bob_with_bangs/toigo_curled_under_bob_with_bangs.mhclo",
+      "objPath": "hair/toigo_curled_under_bob_with_bangs/bob_curled_under_bangs.obj",
+      "sourceMhcloSha256": "ec629512656e225686074514d806ba307fe331028960b42e093a25d77b83e523",
+      "sourceObjSha256": "5a94e7d3d979410ccb5df2bda9d9ccdee2dad396033ed478a41091a781994533",
+      "bytes": 386103,
+      "sourceLicense": "# license CC0"
+    },
+    {
+      "id": "toigo_inverted_bob",
+      "mhcloPath": "hair/toigo_inverted_bob/toigo_inverted_bob.mhclo",
+      "objPath": "hair/toigo_inverted_bob/bob_inverted.obj",
+      "sourceMhcloSha256": "af32890eb389dd536afcb8f6cd5cbf1f57fd42be6a7c1ab2bcb56e0b383473c5",
+      "sourceObjSha256": "a6b7c685b8558b9983cb8a883ebacf0272a238931ca20482671fe5da64a31c10",
+      "bytes": 220830,
+      "sourceLicense": "# license CC0"
+    },
+    {
+      "id": "toigo_inverted_bob_with_bangs",
+      "mhcloPath": "hair/toigo_inverted_bob_with_bangs/toigo_inverted_bob_with_bangs.mhclo",
+      "objPath": "hair/toigo_inverted_bob_with_bangs/bob_inverted_bangs.obj",
+      "sourceMhcloSha256": "0621b98b006dd135801caff2c5abdc2fd1f7603ed4319ba75b4d6ffe164b6e83",
+      "sourceObjSha256": "ed11cc0e72c5bd99525e8c90c83d09381e19315d1564eb4a1e58ab85fdef6613",
+      "bytes": 390243,
+      "sourceLicense": "# license CC0"
+    }
+  ]
+}
