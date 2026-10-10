@@ -1,0 +1,15 @@
+{
+  "gender": "female",
+  "active": "NEX_V1_CC0_HAIR_toigo_inverted_bob",
+  "mode": "alternate",
+  "retainedOriginal": "Host.hair_culturalibre_hair_01",
+  "retainedTrial": "NEX_V1_CC0_HAIR_toigo_inverted_bob",
+  "originalVertices": 3138,
+  "trialVertices": 1509,
+  "originalRig": "Host.rig",
+  "rigBones": 163,
+  "bodyMorphKeys": 34,
+  "sceneAuthority": "isolated experimental V1 saved scene",
+  "originalMotionActionsUnchanged": true,
+  "status": "PASS_REVERSIBLE_HAIR_MESH_SWITCH_UNAPPROVED_VISUAL_TRIAL"
+}

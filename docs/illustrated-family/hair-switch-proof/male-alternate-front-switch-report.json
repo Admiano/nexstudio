@@ -1,0 +1,15 @@
+{
+  "gender": "male",
+  "active": "NEX_V1_CC0_HAIR_faydaen_hair_1",
+  "mode": "alternate",
+  "retainedOriginal": "Host.hair_elvs_maxwell_hair",
+  "retainedTrial": "NEX_V1_CC0_HAIR_faydaen_hair_1",
+  "originalVertices": 765,
+  "trialVertices": 541,
+  "originalRig": "Host.rig",
+  "rigBones": 163,
+  "bodyMorphKeys": 34,
+  "sceneAuthority": "isolated experimental V1 saved scene",
+  "originalMotionActionsUnchanged": true,
+  "status": "PASS_REVERSIBLE_HAIR_MESH_SWITCH_UNAPPROVED_VISUAL_TRIAL"
+}
