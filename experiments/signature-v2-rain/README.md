@@ -34,7 +34,7 @@ Last technical checkpoint: 2026-10-10 (local working runtime).
 ## Local packaged artifacts (from review checkpoint)
 
 - `NEXSTUDIO_RAIN_V2_REV09_CHARACTER_CHECKPOINT_20261010.zip` — verified portable Rev09 Blender scene, scripts and QA, ZIP CRC passed.
-- `NEXSTUDIO_RAIN_V2_REV10_MODULAR_20261010.zip` — planned deliverable for the four module collections and three material/outfit preview renders.
+- `NEXSTUDIO_RAIN_V2_REV10_MODULAR_20261010.zip` — verified deliverable: 17 ZIP entries, 21,078,617 bytes, ZIP CRC passed; four modular collections and three real Blender renders. SHA-256: `34a5bc60a47da4aa1288a356b55a9fb3483a11d3215cf654852750408f61b277`.
 - `Rain_v3.2_original_scene_and_textures.zip` — source and textures from original `main` tree.
 
 Note: binary Blender checkpoint ZIPs are delivered as ChatGPT workspace files and **are not committed to this GitHub branch**. This experimental branch contains provenance/docs/export workflow, not a production character asset. V1 and paper character assets remain untouched.
