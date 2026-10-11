@@ -314,17 +314,17 @@ class IllustrationEntity:
             out = []
             for i, s in enumerate(series):
                 _need(isinstance(s, dict), 'DATA_BARS_SERIES', f'{eid}: series[{i}] must be an object', beat_id)
-                label = ' '.join(str(s.get('label') or '').split())[:24]
-                _need(bool(label), 'DATA_BARS_LABEL', f'{eid}: series[{i}] needs a label', beat_id)
-                _need(label not in seen, 'DATA_BARS_LABEL_DUP', f'{eid}: duplicate label {label}', beat_id)
-                seen.add(label)
+                slabel = ' '.join(str(s.get('label') or '').split())[:24]
+                _need(bool(slabel), 'DATA_BARS_LABEL', f'{eid}: series[{i}] needs a label', beat_id)
+                _need(slabel not in seen, 'DATA_BARS_LABEL_DUP', f'{eid}: duplicate label {slabel}', beat_id)
+                seen.add(slabel)
                 try:
                     value = float(s.get('value'))
                 except (TypeError, ValueError):
                     _need(False, 'DATA_BARS_VALUE', f'{eid}: series[{i}] value must be a number', beat_id)
                     value = 0.0
                 _need(value >= 0, 'DATA_BARS_VALUE', f'{eid}: series[{i}] value must be >= 0', beat_id)
-                out.append({'label': label, 'value': value,
+                out.append({'label': slabel, 'value': value,
                             **({'value_text': ' '.join(str(s['value_text']).split())[:16]} if s.get('value_text') else {}),
                             **({'tone': str(s['tone'])} if str(s.get('tone') or '') in ('ink', 'accent', 'paper') else {})})
             _need(any(s['value'] > 0 for s in out), 'DATA_BARS_ALL_ZERO', f'{eid}: at least one series value must be > 0', beat_id)

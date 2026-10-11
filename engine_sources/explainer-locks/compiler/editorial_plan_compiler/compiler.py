@@ -654,6 +654,10 @@ class BeatCompiler:
             return None, []
         src = self.illustrations.get(il.carry_from) if il.carry_from else None
         plan, failures = self.solver.compile(il, comp['visual_zone'], clock, b.beat_id, src)
+        if self.show_map is not None:
+            # The collage register's synthesized confirmation ring reads as a stray circle on the
+            # flat show field — the section cut IS the confirmation.
+            plan['ops'] = [o for o in plan.get('ops', []) if not (o.get('op') == 'EMIT' and o.get('synthesized'))]
         self.illustrations[b.beat_id] = plan
         self.carried_illustration = plan if il.persist_to else None
         return plan, failures
@@ -672,6 +676,15 @@ class BeatCompiler:
             # to the source beat would starve this beat's text split.
             if self.film.brand.finish != 'FLOAT_FIELD':
                 comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+        if self.show_map is not None and b.illustration is not None:
+            _SHOW_WIDGETS = {'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY'}
+            if {e.glyph for e in b.illustration.entities} & _SHOW_WIDGETS:
+                inner = self.bands['inner']
+                vz = comp['visual_zone']
+                nx = max(inner['x'], vz['x'] - vz['w'] * 0.08)
+                nx2 = min(inner['x'] + inner['w'], vz['x'] + vz['w'] * 1.08)
+                nb = inner['y'] + inner['h']
+                comp['visual_zone'] = {'x': nx, 'y': vz['y'], 'w': nx2 - nx, 'h': max(vz['h'], (nb - vz['y']) * 0.72)}
         object_present = bool(b.media or b.figure or b.data or b.illustration or self.carried_media or self.carried_illustration)
         if object_present:
             comp['text_zone'] = _carve(comp['text_zone'], comp['visual_zone'])
@@ -888,7 +901,7 @@ class BeatCompiler:
                       'finish': self.film.brand.finish}
         if self.show_map is not None:
             background['base'] = comp.get('background_base')
-            background['layers'].insert(0, {'kind': 'grid', 'bbox': {'x': 0, 'y': 0, 'w': self.W, 'h': self.H}, 'tone': chrome['ink']})
+            background['layers'] = [{'kind': 'grid', 'bbox': {'x': 0, 'y': 0, 'w': self.W, 'h': self.H}, 'tone': chrome['ink']}]
         return {
             'beat_id': b.beat_id, 'beat_type': b.beat_type, 'pattern': b.pattern, 'dominant_layer': b.dominant_layer, 'shot_role': shot_role,
             'start_ms': beat_offset_ms, 'duration_ms': clock.duration_ms, 'energy': b.energy,
@@ -1201,7 +1214,9 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         for bt in beats:
             atmo_layers = beat_atmosphere(film.film_id, bt, (W, H), bc.safe, prev_bloom, atmosphere)
             prev_bloom = next(L['at'] for L in atmo_layers if L['kind'] == 'bloom')
-            bt['composition']['background']['layers'] += atmo_layers
+            if show_map is None:
+                # Flat show field: the rotating shade + grid IS the field — no bloom/depth blobs.
+                bt['composition']['background']['layers'] += atmo_layers
         phase = fit_phase(music, beats)
         aspect_music = {**music, 'start_offset_ms': phase['start_offset_ms'],
                         'groove': {**phase, 'stagger_ms': stagger_ms, 'stagger_subdivision': subdivision, 'authored_stagger_ms': profile['stagger_ms']}}

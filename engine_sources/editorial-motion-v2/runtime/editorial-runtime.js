@@ -3873,7 +3873,7 @@
         if (params.count && il.ops.some((o) => o.op === 'COUNT' && o.target === ent.id)) {
           node.extra.countMax = Math.max(1, params.count);
           node.extra.countSuffix = params.suffix ? String(params.suffix) : '';
-          const digits = (Math.round(params.count).toLocaleString('en-US') + node.extra.countSuffix).length;
+          const digits = ((params.sep === false ? String(Math.round(params.count)) : Math.round(params.count).toLocaleString('en-US')) + node.extra.countSuffix).length;
           node.extra.countText = svgEl('text', {
             x: f2(c.x), y: f2(c.y + sw * 1.4), 'text-anchor': 'middle', 'font-size': f2(Math.min(R * 0.72, (R * 1.7) / Math.max(1, digits * 0.6))),
             'font-family': plan.fonts.families.data, 'font-weight': '600', fill: ink, 'font-variant-numeric': 'tabular-nums', 'fill-opacity': 0,
@@ -4073,11 +4073,12 @@
         const caption = params.caption ? String(params.caption) : '';
         const max = Math.max(1, Number(params.count) || 1);
         const pre = params.prefix ? String(params.prefix) : '', suf = params.suffix ? String(params.suffix) : '';
-        const full = pre + Math.round(max).toLocaleString('en-US') + suf;
+        const full = pre + (params.sep === false ? String(Math.round(max)) : Math.round(max).toLocaleString('en-US')) + suf;
         const fs = Math.min(b.h * (caption ? 0.42 : 0.5), (b.w * 0.86) / Math.max(1, full.length * 0.6));
         const cy = caption ? b.y + b.h * 0.5 : b.y + b.h * 0.5 + fs * 0.36;
         node.extra.countMax = max;
         node.extra.countPrefix = pre;
+        node.extra.countSep = params.sep;
         node.extra.countSuffix = suf;
         node.extra.countText = svgEl('text', {
           x: f2(b.x + b.w / 2), y: f2(cy), 'text-anchor': 'middle', 'font-size': f2(fs), 'font-family': plan.fonts.families.data,
@@ -4173,18 +4174,20 @@
         const plot = { x: b.x + pad, y: b.y + pad * 1.1, w: b.w - pad * 2, h: b.h - pad * 2 - labelH };
         const base = plot.y + plot.h, maxV = Math.max(1e-9, ...series.map((s) => Math.abs(Number(s.value) || 0)));
         svgEl('path', { d: `M${f2(plot.x - pad * 0.3)} ${f2(base)} L${f2(plot.x + plot.w + pad * 0.3)} ${f2(base)}`, stroke: cardFg, 'stroke-width': sw * 0.42, 'stroke-opacity': 0.5 }, body);
-        const bw = Math.min(plot.h * 0.52, (plot.w - plot.w * 0.05 * (n - 1)) / n), gap = (plot.w - bw * n) / Math.max(1, n - 1);
+        const bw = Math.min(plot.h * 0.62, (plot.w - plot.w * 0.05 * (n - 1)) / n), gap = (plot.w - bw * n) / Math.max(1, n - 1);
         const bars = [], caps = [], names = [];
-        const fsV = Math.min(plot.h * 0.15, b.w / (n * 3.6)), fsL = labelH * 0.66;
+        const maxLbl = Math.max(4, ...series.map((s) => String(s.label || '').slice(0, 16).length));
+        const fsV = Math.min(plot.h * 0.2, b.w / (n * 2.9)), fsL = Math.min(labelH * 0.8, bw * 0.24, ((plot.w / n) * 0.92) / (maxLbl * 0.55));
         series.forEach((s, i) => {
-          const x = plot.x + i * (bw + gap), h = Math.max(plot.h * 0.05, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
+          const x = plot.x + i * (bw + gap), h = Math.max(plot.h * 0.11, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
           const pop = s.tone === 'accent';
-          const bar = svgEl('path', { d: roundRectPath({ x, y: base - h, w: bw, h }, Math.min(bw * 0.14, 7)) + 'Z', fill: pop ? accent : cardFg, 'fill-opacity': pop ? 1 : 0.82 }, body);
+          const bar = svgEl('path', { d: roundRectPath({ x, y: base - h, w: bw, h }, Math.min(bw * 0.14, 7)) + 'Z', fill: pop ? accent : cardFg, 'fill-opacity': 1 }, body);
           bar.style.transformOrigin = `${f2(x + bw / 2)}px ${f2(base)}px`;
-          const cap = svgEl('text', { x: f2(x + bw / 2), y: f2(base - h - fsV * 0.45), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fsV), fill: pop ? accent : cardFg, 'font-variant-numeric': 'tabular-nums' }, body);
+          const cap = svgEl('text', { x: f2(x + bw / 2), y: f2(Math.max(b.y + fsV * 0.8, base - h - fsV * 0.45)), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fsV), fill: pop ? accent : cardFg, 'font-variant-numeric': 'tabular-nums' }, body);
           cap.textContent = s.value_text ? String(s.value_text) : (params.unit ? `${params.unit}${s.value}` : String(s.value));
+          const lbl = String(s.label).slice(0, 16);
           const nm = svgEl('text', { x: f2(x + bw / 2), y: f2(base + fsL * 1.25), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fsL), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.66 }, body);
-          nm.textContent = String(s.label).slice(0, 14);
+          nm.textContent = lbl;
           bars.push(bar); caps.push(cap); names.push(nm);
         });
         node.extra.setGrow = (k) => {
@@ -5143,7 +5146,7 @@
       }
       if (gl.extra.countText) {
         const c = propAt(node, 'count', lt).v;
-        gl.extra.countText.textContent = (gl.extra.countPrefix || '') + Math.round(c * gl.extra.countMax).toLocaleString('en-US') + (gl.extra.countSuffix || '');
+        gl.extra.countText.textContent = (gl.extra.countPrefix || '') + (gl.extra.countSep === false ? String(Math.round(c * gl.extra.countMax)) : Math.round(c * gl.extra.countMax).toLocaleString('en-US')) + (gl.extra.countSuffix || '');
         gl.extra.countText.setAttribute('fill-opacity', (c > 0 ? Math.min(1, c * 4) : 0).toFixed(4));
         if (gl.extra.growK !== undefined) {
           const topY = node.bb.y + node.bb.h - Math.max(ill.sw, gl.extra.growK * node.bb.h);
@@ -5635,10 +5638,12 @@
     const bands = show.bands, hB = bands.header, fB = bands.footer;
     const display = plan.fonts.families.display, data = plan.fonts.families.data;
     const root = el('div', { position: 'absolute', inset: '0', zIndex: '62', pointerEvents: 'none' }, stage);
-    const fs = Math.max(10, hB.h * 0.52);
+    const maxSecLen = Math.max(6, ...(show.sections || []).map((s2) => String(s2.name || '').length));
+    const subjLen = Math.max(4, String(show.subject || '').length);
+    const fs = Math.max(10, Math.min(hB.h * 0.52, (hB.w * 0.94) / ((2.2 + maxSecLen + subjLen) * 0.8)));
     const row = el('div', { position: 'absolute', left: px(hB.x), top: px(hB.y), width: px(hB.w), height: px(hB.h), display: 'flex', alignItems: 'center', fontFamily: `"${data}"` }, root);
     const idxEl = el('div', { fontSize: px(fs), fontWeight: '800', letterSpacing: '0.06em', marginRight: px(fs * 0.7), flexShrink: '0', whiteSpace: 'nowrap' }, row);
-    const nameEl = el('div', { fontSize: px(fs), fontWeight: '800', letterSpacing: '0.1em', fontFamily: `"${display}"`, whiteSpace: 'nowrap', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis' }, row);
+    const nameEl = el('div', { fontSize: px(fs), fontWeight: '800', letterSpacing: '0.06em', fontFamily: `"${display}"`, whiteSpace: 'nowrap', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis' }, row);
     const subEl = el('div', { marginLeft: 'auto', fontSize: px(fs * 0.92), fontWeight: '600', letterSpacing: '0.08em', flexShrink: '0', whiteSpace: 'nowrap', paddingLeft: px(fs) }, row);
     subEl.textContent = show.subject;
     const hair = el('div', { position: 'absolute', left: px(hB.x), top: px(hB.y + hB.h + hB.h * 0.14), width: px(hB.w), height: px(Math.max(1.2, hB.h * 0.045)) }, root);
@@ -5664,7 +5669,7 @@
         wordEl.style.fontSize = `${f2(Math.min(fB.h * 0.76, fB.w * 0.98 / Math.max(3.5, s.name.length * 0.64)))}px`;
       }
       idxEl.style.color = nameEl.style.color = ink;
-      nameEl.style.maxWidth = '64%';
+      nameEl.style.maxWidth = '74%';
       nameEl.style.overflow = 'hidden';
       nameEl.style.textOverflow = 'ellipsis';
       subEl.style.marginLeft = 'auto';
