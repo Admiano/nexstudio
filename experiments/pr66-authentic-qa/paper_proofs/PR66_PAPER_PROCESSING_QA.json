@@ -1,0 +1,36 @@
+{
+  "project": "NexStudio authentic Hunyuan PR66 paper pass",
+  "processed_mesh_objects": [
+    {
+      "name": "geometry_0",
+      "vertices": 303592,
+      "faces": 2731,
+      "vertex_colors": [
+        "paperCol"
+      ]
+    },
+    {
+      "name": "geometry_0.001",
+      "vertices": 309,
+      "faces": 505,
+      "vertex_colors": [
+        "paperCol"
+      ]
+    },
+    {
+      "name": "Plane",
+      "vertices": 4,
+      "faces": 1,
+      "vertex_colors": []
+    },
+    {
+      "name": "Plane.001",
+      "vertices": 4,
+      "faces": 1,
+      "vertex_colors": []
+    }
+  ],
+  "source_renderer": "render_gen_fullbody.py (unaltered PR66 recipe)",
+  "decimation_ratio": 0.03,
+  "created_by": "Blender 5.2.0 Cycles from source handoff"
+}
