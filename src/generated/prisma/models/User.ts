@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  planProductionsUsed: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  planProductionsUsed: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -29,6 +39,11 @@ export type UserMinAggregateOutputType = {
   email: string | null
   displayName: string | null
   avatarUrl: string | null
+  plan: string | null
+  planStatus: string | null
+  planRenewsAt: Date | null
+  planProductionsUsed: number | null
+  planCycleStart: Date | null
   privacyStatus: string | null
   deletionRequestedAt: Date | null
   deletedAt: Date | null
@@ -41,6 +56,11 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   displayName: string | null
   avatarUrl: string | null
+  plan: string | null
+  planStatus: string | null
+  planRenewsAt: Date | null
+  planProductionsUsed: number | null
+  planCycleStart: Date | null
   privacyStatus: string | null
   deletionRequestedAt: Date | null
   deletedAt: Date | null
@@ -53,6 +73,11 @@ export type UserCountAggregateOutputType = {
   email: number
   displayName: number
   avatarUrl: number
+  plan: number
+  planStatus: number
+  planRenewsAt: number
+  planProductionsUsed: number
+  planCycleStart: number
   settings: number
   privacyStatus: number
   deletionRequestedAt: number
@@ -63,11 +88,24 @@ export type UserCountAggregateOutputType = {
 }
 
 
+export type UserAvgAggregateInputType = {
+  planProductionsUsed?: true
+}
+
+export type UserSumAggregateInputType = {
+  planProductionsUsed?: true
+}
+
 export type UserMinAggregateInputType = {
   id?: true
   email?: true
   displayName?: true
   avatarUrl?: true
+  plan?: true
+  planStatus?: true
+  planRenewsAt?: true
+  planProductionsUsed?: true
+  planCycleStart?: true
   privacyStatus?: true
   deletionRequestedAt?: true
   deletedAt?: true
@@ -80,6 +118,11 @@ export type UserMaxAggregateInputType = {
   email?: true
   displayName?: true
   avatarUrl?: true
+  plan?: true
+  planStatus?: true
+  planRenewsAt?: true
+  planProductionsUsed?: true
+  planCycleStart?: true
   privacyStatus?: true
   deletionRequestedAt?: true
   deletedAt?: true
@@ -92,6 +135,11 @@ export type UserCountAggregateInputType = {
   email?: true
   displayName?: true
   avatarUrl?: true
+  plan?: true
+  planStatus?: true
+  planRenewsAt?: true
+  planProductionsUsed?: true
+  planCycleStart?: true
   settings?: true
   privacyStatus?: true
   deletionRequestedAt?: true
@@ -139,6 +187,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -169,6 +229,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -178,6 +240,11 @@ export type UserGroupByOutputType = {
   email: string | null
   displayName: string | null
   avatarUrl: string | null
+  plan: string
+  planStatus: string
+  planRenewsAt: Date | null
+  planProductionsUsed: number
+  planCycleStart: Date | null
   settings: runtime.JsonValue
   privacyStatus: string
   deletionRequestedAt: Date | null
@@ -185,6 +252,8 @@ export type UserGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -212,6 +281,11 @@ export type UserWhereInput = {
   email?: Prisma.StringNullableFilter<"User"> | string | null
   displayName?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  plan?: Prisma.StringFilter<"User"> | string
+  planStatus?: Prisma.StringFilter<"User"> | string
+  planRenewsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  planProductionsUsed?: Prisma.IntFilter<"User"> | number
+  planCycleStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   settings?: Prisma.JsonFilter<"User">
   privacyStatus?: Prisma.StringFilter<"User"> | string
   deletionRequestedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -247,6 +321,11 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  planStatus?: Prisma.SortOrder
+  planRenewsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  planProductionsUsed?: Prisma.SortOrder
+  planCycleStart?: Prisma.SortOrderInput | Prisma.SortOrder
   settings?: Prisma.SortOrder
   privacyStatus?: Prisma.SortOrder
   deletionRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -285,6 +364,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   displayName?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  plan?: Prisma.StringFilter<"User"> | string
+  planStatus?: Prisma.StringFilter<"User"> | string
+  planRenewsAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  planProductionsUsed?: Prisma.IntFilter<"User"> | number
+  planCycleStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   settings?: Prisma.JsonFilter<"User">
   privacyStatus?: Prisma.StringFilter<"User"> | string
   deletionRequestedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -320,6 +404,11 @@ export type UserOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  planStatus?: Prisma.SortOrder
+  planRenewsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  planProductionsUsed?: Prisma.SortOrder
+  planCycleStart?: Prisma.SortOrderInput | Prisma.SortOrder
   settings?: Prisma.SortOrder
   privacyStatus?: Prisma.SortOrder
   deletionRequestedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,8 +416,10 @@ export type UserOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -339,6 +430,11 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   displayName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  plan?: Prisma.StringWithAggregatesFilter<"User"> | string
+  planStatus?: Prisma.StringWithAggregatesFilter<"User"> | string
+  planRenewsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  planProductionsUsed?: Prisma.IntWithAggregatesFilter<"User"> | number
+  planCycleStart?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   settings?: Prisma.JsonWithAggregatesFilter<"User">
   privacyStatus?: Prisma.StringWithAggregatesFilter<"User"> | string
   deletionRequestedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -352,6 +448,11 @@ export type UserCreateInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -387,6 +488,11 @@ export type UserUncheckedCreateInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -422,6 +528,11 @@ export type UserUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -457,6 +568,11 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -492,6 +608,11 @@ export type UserCreateManyInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -505,6 +626,11 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -518,6 +644,11 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -531,6 +662,11 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  planStatus?: Prisma.SortOrder
+  planRenewsAt?: Prisma.SortOrder
+  planProductionsUsed?: Prisma.SortOrder
+  planCycleStart?: Prisma.SortOrder
   settings?: Prisma.SortOrder
   privacyStatus?: Prisma.SortOrder
   deletionRequestedAt?: Prisma.SortOrder
@@ -539,11 +675,20 @@ export type UserCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type UserAvgOrderByAggregateInput = {
+  planProductionsUsed?: Prisma.SortOrder
+}
+
 export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  planStatus?: Prisma.SortOrder
+  planRenewsAt?: Prisma.SortOrder
+  planProductionsUsed?: Prisma.SortOrder
+  planCycleStart?: Prisma.SortOrder
   privacyStatus?: Prisma.SortOrder
   deletionRequestedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -556,11 +701,20 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  planStatus?: Prisma.SortOrder
+  planRenewsAt?: Prisma.SortOrder
+  planProductionsUsed?: Prisma.SortOrder
+  planCycleStart?: Prisma.SortOrder
   privacyStatus?: Prisma.SortOrder
   deletionRequestedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  planProductionsUsed?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -583,6 +737,14 @@ export type NullableStringFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -908,6 +1070,11 @@ export type UserCreateWithoutSessionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -942,6 +1109,11 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -992,6 +1164,11 @@ export type UserUpdateWithoutSessionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1026,6 +1203,11 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1060,6 +1242,11 @@ export type UserCreateWithoutAuthChallengesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1094,6 +1281,11 @@ export type UserUncheckedCreateWithoutAuthChallengesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1144,6 +1336,11 @@ export type UserUpdateWithoutAuthChallengesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1178,6 +1375,11 @@ export type UserUncheckedUpdateWithoutAuthChallengesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1212,6 +1414,11 @@ export type UserCreateWithoutAuthIdentitiesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1246,6 +1453,11 @@ export type UserUncheckedCreateWithoutAuthIdentitiesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1296,6 +1508,11 @@ export type UserUpdateWithoutAuthIdentitiesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1330,6 +1547,11 @@ export type UserUncheckedUpdateWithoutAuthIdentitiesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1364,6 +1586,11 @@ export type UserCreateWithoutDraftsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1398,6 +1625,11 @@ export type UserUncheckedCreateWithoutDraftsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1448,6 +1680,11 @@ export type UserUpdateWithoutDraftsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1482,6 +1719,11 @@ export type UserUncheckedUpdateWithoutDraftsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1516,6 +1758,11 @@ export type UserCreateWithoutProductionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1550,6 +1797,11 @@ export type UserUncheckedCreateWithoutProductionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1600,6 +1852,11 @@ export type UserUpdateWithoutProductionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1634,6 +1891,11 @@ export type UserUncheckedUpdateWithoutProductionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1668,6 +1930,11 @@ export type UserCreateWithoutSourcesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1702,6 +1969,11 @@ export type UserUncheckedCreateWithoutSourcesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1752,6 +2024,11 @@ export type UserUpdateWithoutSourcesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1786,6 +2063,11 @@ export type UserUncheckedUpdateWithoutSourcesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1820,6 +2102,11 @@ export type UserCreateWithoutStudioCreditAccountInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1854,6 +2141,11 @@ export type UserUncheckedCreateWithoutStudioCreditAccountInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -1904,6 +2196,11 @@ export type UserUpdateWithoutStudioCreditAccountInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1938,6 +2235,11 @@ export type UserUncheckedUpdateWithoutStudioCreditAccountInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1972,6 +2274,11 @@ export type UserCreateWithoutStudioPurchaseQuotesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2006,6 +2313,11 @@ export type UserUncheckedCreateWithoutStudioPurchaseQuotesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2056,6 +2368,11 @@ export type UserUpdateWithoutStudioPurchaseQuotesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2090,6 +2407,11 @@ export type UserUncheckedUpdateWithoutStudioPurchaseQuotesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2124,6 +2446,11 @@ export type UserCreateWithoutStudioLedgerEntriesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2158,6 +2485,11 @@ export type UserUncheckedCreateWithoutStudioLedgerEntriesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2208,6 +2540,11 @@ export type UserUpdateWithoutStudioLedgerEntriesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2242,6 +2579,11 @@ export type UserUncheckedUpdateWithoutStudioLedgerEntriesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2276,6 +2618,11 @@ export type UserCreateWithoutStudioPlanPreviewEntitlementInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2310,6 +2657,11 @@ export type UserUncheckedCreateWithoutStudioPlanPreviewEntitlementInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2360,6 +2712,11 @@ export type UserUpdateWithoutStudioPlanPreviewEntitlementInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2394,6 +2751,11 @@ export type UserUncheckedUpdateWithoutStudioPlanPreviewEntitlementInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2428,6 +2790,11 @@ export type UserCreateWithoutStudioPlanPreviewRequestsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2462,6 +2829,11 @@ export type UserUncheckedCreateWithoutStudioPlanPreviewRequestsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2512,6 +2884,11 @@ export type UserUpdateWithoutStudioPlanPreviewRequestsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2546,6 +2923,11 @@ export type UserUncheckedUpdateWithoutStudioPlanPreviewRequestsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2580,6 +2962,11 @@ export type UserCreateWithoutStudioProductionEntitlementsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2614,6 +3001,11 @@ export type UserUncheckedCreateWithoutStudioProductionEntitlementsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2664,6 +3056,11 @@ export type UserUpdateWithoutStudioProductionEntitlementsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2698,6 +3095,11 @@ export type UserUncheckedUpdateWithoutStudioProductionEntitlementsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2732,6 +3134,11 @@ export type UserCreateWithoutStudioWelcomeRedemptionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2766,6 +3173,11 @@ export type UserUncheckedCreateWithoutStudioWelcomeRedemptionsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2816,6 +3228,11 @@ export type UserUpdateWithoutStudioWelcomeRedemptionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2850,6 +3267,11 @@ export type UserUncheckedUpdateWithoutStudioWelcomeRedemptionsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2884,6 +3306,11 @@ export type UserCreateWithoutStudioFundingIntentsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2918,6 +3345,11 @@ export type UserUncheckedCreateWithoutStudioFundingIntentsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -2968,6 +3400,11 @@ export type UserUpdateWithoutStudioFundingIntentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3002,6 +3439,11 @@ export type UserUncheckedUpdateWithoutStudioFundingIntentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3036,6 +3478,11 @@ export type UserCreateWithoutStudioBrandsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3070,6 +3517,11 @@ export type UserUncheckedCreateWithoutStudioBrandsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3120,6 +3572,11 @@ export type UserUpdateWithoutStudioBrandsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3154,6 +3611,11 @@ export type UserUncheckedUpdateWithoutStudioBrandsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3188,6 +3650,11 @@ export type UserCreateWithoutStudioCastMembersInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3222,6 +3689,11 @@ export type UserUncheckedCreateWithoutStudioCastMembersInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3272,6 +3744,11 @@ export type UserUpdateWithoutStudioCastMembersInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3306,6 +3783,11 @@ export type UserUncheckedUpdateWithoutStudioCastMembersInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3340,6 +3822,11 @@ export type UserCreateWithoutStudioSeriesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3374,6 +3861,11 @@ export type UserUncheckedCreateWithoutStudioSeriesInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3424,6 +3916,11 @@ export type UserUpdateWithoutStudioSeriesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3458,6 +3955,11 @@ export type UserUncheckedUpdateWithoutStudioSeriesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3492,6 +3994,11 @@ export type UserCreateWithoutStudioMemoryItemsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3526,6 +4033,11 @@ export type UserUncheckedCreateWithoutStudioMemoryItemsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3576,6 +4088,11 @@ export type UserUpdateWithoutStudioMemoryItemsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3610,6 +4127,11 @@ export type UserUncheckedUpdateWithoutStudioMemoryItemsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3644,6 +4166,11 @@ export type UserCreateWithoutStudioNotificationsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3678,6 +4205,11 @@ export type UserUncheckedCreateWithoutStudioNotificationsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3728,6 +4260,11 @@ export type UserUpdateWithoutStudioNotificationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3762,6 +4299,11 @@ export type UserUncheckedUpdateWithoutStudioNotificationsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3796,6 +4338,11 @@ export type UserCreateWithoutAssetDeliveryTicketsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3830,6 +4377,11 @@ export type UserUncheckedCreateWithoutAssetDeliveryTicketsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3880,6 +4432,11 @@ export type UserUpdateWithoutAssetDeliveryTicketsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3914,6 +4471,11 @@ export type UserUncheckedUpdateWithoutAssetDeliveryTicketsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3948,6 +4510,11 @@ export type UserCreateWithoutAccountDataRequestsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -3982,6 +4549,11 @@ export type UserUncheckedCreateWithoutAccountDataRequestsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -4032,6 +4604,11 @@ export type UserUpdateWithoutAccountDataRequestsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4066,6 +4643,11 @@ export type UserUncheckedUpdateWithoutAccountDataRequestsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4100,6 +4682,11 @@ export type UserCreateWithoutAuditEventsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -4134,6 +4721,11 @@ export type UserUncheckedCreateWithoutAuditEventsInput = {
   email?: string | null
   displayName?: string | null
   avatarUrl?: string | null
+  plan?: string
+  planStatus?: string
+  planRenewsAt?: Date | string | null
+  planProductionsUsed?: number
+  planCycleStart?: Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: string
   deletionRequestedAt?: Date | string | null
@@ -4184,6 +4776,11 @@ export type UserUpdateWithoutAuditEventsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4218,6 +4815,11 @@ export type UserUncheckedUpdateWithoutAuditEventsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  planStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  planRenewsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  planProductionsUsed?: Prisma.IntFieldUpdateOperationsInput | number
+  planCycleStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   settings?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   privacyStatus?: Prisma.StringFieldUpdateOperationsInput | string
   deletionRequestedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4454,6 +5056,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   displayName?: boolean
   avatarUrl?: boolean
+  plan?: boolean
+  planStatus?: boolean
+  planRenewsAt?: boolean
+  planProductionsUsed?: boolean
+  planCycleStart?: boolean
   settings?: boolean
   privacyStatus?: boolean
   deletionRequestedAt?: boolean
@@ -4490,6 +5097,11 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   displayName?: boolean
   avatarUrl?: boolean
+  plan?: boolean
+  planStatus?: boolean
+  planRenewsAt?: boolean
+  planProductionsUsed?: boolean
+  planCycleStart?: boolean
   settings?: boolean
   privacyStatus?: boolean
   deletionRequestedAt?: boolean
@@ -4503,6 +5115,11 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   displayName?: boolean
   avatarUrl?: boolean
+  plan?: boolean
+  planStatus?: boolean
+  planRenewsAt?: boolean
+  planProductionsUsed?: boolean
+  planCycleStart?: boolean
   settings?: boolean
   privacyStatus?: boolean
   deletionRequestedAt?: boolean
@@ -4516,6 +5133,11 @@ export type UserSelectScalar = {
   email?: boolean
   displayName?: boolean
   avatarUrl?: boolean
+  plan?: boolean
+  planStatus?: boolean
+  planRenewsAt?: boolean
+  planProductionsUsed?: boolean
+  planCycleStart?: boolean
   settings?: boolean
   privacyStatus?: boolean
   deletionRequestedAt?: boolean
@@ -4524,7 +5146,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "displayName" | "avatarUrl" | "settings" | "privacyStatus" | "deletionRequestedAt" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "displayName" | "avatarUrl" | "plan" | "planStatus" | "planRenewsAt" | "planProductionsUsed" | "planCycleStart" | "settings" | "privacyStatus" | "deletionRequestedAt" | "deletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   authChallenges?: boolean | Prisma.User$authChallengesArgs<ExtArgs>
@@ -4584,6 +5206,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string | null
     displayName: string | null
     avatarUrl: string | null
+    plan: string
+    planStatus: string
+    planRenewsAt: Date | null
+    planProductionsUsed: number
+    planCycleStart: Date | null
     settings: runtime.JsonValue
     privacyStatus: string
     deletionRequestedAt: Date | null
@@ -5039,6 +5666,11 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly displayName: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
+  readonly plan: Prisma.FieldRef<"User", 'String'>
+  readonly planStatus: Prisma.FieldRef<"User", 'String'>
+  readonly planRenewsAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly planProductionsUsed: Prisma.FieldRef<"User", 'Int'>
+  readonly planCycleStart: Prisma.FieldRef<"User", 'DateTime'>
   readonly settings: Prisma.FieldRef<"User", 'Json'>
   readonly privacyStatus: Prisma.FieldRef<"User", 'String'>
   readonly deletionRequestedAt: Prisma.FieldRef<"User", 'DateTime'>
