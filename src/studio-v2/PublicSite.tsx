@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ensureNxPresence } from "./nx-presence";
 
 const FAMILY_ART: Record<string, ReactNode> = {
@@ -55,6 +55,170 @@ const FAMILY_ART: Record<string, ReactNode> = {
   ),
 };
 
+function WorkClip({ src, poster, label }: { src: string; poster: string; label: string }) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    const node = videoRef.current;
+    if (!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!("IntersectionObserver" in window)) { void node.play().catch(() => undefined); return; }
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry?.isIntersecting && entry.intersectionRatio >= 0.3) void node.play().catch(() => undefined);
+      else node.pause();
+    }, { threshold: [0, 0.3, 0.7] });
+    io.observe(node);
+    return () => { io.disconnect(); node.pause(); };
+  }, []);
+  return (
+    <video ref={videoRef} className="pw-work-clip" muted loop playsInline preload="metadata" poster={poster} aria-label={label}>
+      <source src={src} type="video/mp4" />
+    </video>
+  );
+}
+
+const OPTION_RAIL: Array<{ slot: string; name: string; img: string; tile: string }> = [
+  { slot: "Hair", name: "Braids", img: "/home/opts/base.png", tile: "/cast/options/v21/male/hair/braids.webp" },
+  { slot: "Wardrobe", name: "Tee", img: "/home/opts/base.png", tile: "/cast/options/v21/male/top/o2.webp" },
+  { slot: "Face", name: "Two", img: "/home/opts/m-face1.png", tile: "/cast/options/v21/male/face/1.webp" },
+  { slot: "Hair", name: "Quiff", img: "/home/opts/m-quiff.png", tile: "/cast/options/v21/male/hair/quiff.webp" },
+  { slot: "Bottom", name: "Jeans", img: "/home/opts/base.png", tile: "/cast/options/v21/male/bottom/classic-jeans.webp" },
+  { slot: "Hair", name: "Swept", img: "/home/opts/m-swept.png", tile: "/cast/options/v21/male/hair/swept.webp" },
+  { slot: "Wardrobe", name: "Oxford", img: "/home/opts/m-oxford.png", tile: "/cast/options/v21/male/top/o3.webp" },
+  { slot: "Face", name: "Three", img: "/home/opts/m-face2.png", tile: "/cast/options/v21/male/face/2.webp" },
+  { slot: "Bottom", name: "Chinos", img: "/home/opts/m-chinos.png", tile: "/cast/options/v21/male/bottom/chinos.webp" },
+  { slot: "Wardrobe", name: "Knit", img: "/home/opts/m-knit.png", tile: "/cast/options/v21/male/top/o4.webp" },
+];
+
+const WATCH_SVG = (
+  <svg viewBox="0 0 120 120" aria-hidden="true" className="pw-ad-product">
+    <circle cx="60" cy="60" r="44" fill="#10100f" />
+    <circle cx="60" cy="60" r="38" fill="none" stroke="#c8a24a" strokeWidth="1.6" />
+    <circle cx="60" cy="60" r="34" fill="#1c1b19" />
+    {[...Array(12)].map((_, i) => { const a = (i * 30 * Math.PI) / 180; const x1 = 60 + Math.sin(a) * 29, y1 = 60 - Math.cos(a) * 29, x2 = 60 + Math.sin(a) * 33, y2 = 60 - Math.cos(a) * 33; return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#e8dcc0" strokeWidth={i % 3 === 0 ? 2 : 1} />; })}
+    <line x1="60" y1="60" x2="60" y2="38" stroke="#e8dcc0" strokeWidth="2.6" strokeLinecap="round" />
+    <line x1="60" y1="60" x2="76" y2="66" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round" />
+    <line x1="60" y1="62" x2="50" y2="82" stroke="#c8a24a" strokeWidth="1.4" strokeLinecap="round" />
+    <circle cx="60" cy="60" r="3" fill="#c8a24a" />
+    <rect x="102" y="56" width="6" height="9" rx="1.6" fill="#c8a24a" />
+  </svg>
+);
+
+function PresenterScene() {
+  const [phase, setPhase] = useState<0 | 1 | 2>(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setPhase(1); return; }
+    const seq: Array<[0 | 1 | 2, number]> = [[0, 3600], [1, 3000], [0, 900], [2, 4300]];
+    let step = 0, timer = 0;
+    const tick = () => {
+      const [next, duration] = seq[step % seq.length];
+      setPhase(next);
+      timer = window.setTimeout(tick, duration);
+      step += 1;
+    };
+    tick();
+    return () => window.clearTimeout(timer);
+  }, []);
+  return (<>
+    <div className={`pw-scene${phase === 2 ? " is-squeezed" : ""}`} aria-label="A presenter in the studio as a lower third and a squeeze-back ad appear">
+      <div className="pw-sq-band" aria-hidden="true">
+        <i className="pw-sq-seam-v" /><i className="pw-sq-seam-h" />
+        <div className="pw-sq-side">
+          {WATCH_SVG}
+          <b className="pw-ad-brand">AURELLE</b>
+          <span className="pw-ad-line">The Meridian. A quiet kind of punctual.</span>
+          <span className="pw-ad-cta">Shop the collection<i>→</i></span>
+        </div>
+        <div className="pw-sq-promo">
+          <span className="pw-ad-tag">sponsored</span>
+          <span className="pw-promo-copy"><i>AURELLE</i><b>The Meridian · aurelle.co</b></span>
+        </div>
+      </div>
+      <div className="pw-scene-frame">
+        <video className="pw-scene-video" src="/home/cast-host.mp4?v=2" autoPlay muted loop playsInline preload="auto" aria-label="Daniel, a NexStudio presenter, speaking in the studio" />
+        <div className={`pw-scene-voice${phase === 0 ? " on" : ""}`} aria-hidden="true"><i /><i /><i /><i /></div>
+        <div className={`pw-lt${phase === 1 ? " on" : ""}`} aria-hidden="true">
+          <i className="pw-lt-bar" />
+          <div className="pw-lt-plate">
+            <span>host · nexstudio</span>
+            <b>Daniel Cole</b>
+          </div>
+          <div className="pw-lt-slot"><i>presented with a brand here</i></div>
+        </div>
+      </div>
+    </div>
+    <div className="pw-cast-stages" aria-hidden="true">
+      <span className={phase === 0 ? "on" : ""}><i>01</i>speaking</span>
+      <span className={phase === 1 ? "on" : ""}><i>02</i>lower third</span>
+      <span className={phase === 2 ? "on" : ""}><i>03</i>squeeze-back</span>
+    </div>
+  </>);
+}
+
+function PartsScene() {
+  const N = OPTION_RAIL.length;
+  const [raw, setRaw] = useState(0);
+  const [jump, setJump] = useState(false);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => {
+      setRaw((r) => {
+        if (r >= 2 * N) { setJump(true); return 0; }
+        return r + 1;
+      });
+    }, 2200);
+    return () => window.clearInterval(id);
+  }, [N]);
+  useEffect(() => { if (jump) { const t = window.setTimeout(() => setJump(false), 700); return () => window.clearTimeout(t); } }, [jump]);
+  const pos = raw % N;
+  const cur = OPTION_RAIL[pos];
+  return (
+    <div className="pw-conf" aria-label="A presenter being assembled from swappable parts">
+      <div className="pw-conf-host">
+        {OPTION_RAIL.map((o, i) => (
+          <img key={o.name + o.slot} className={i === pos ? "on" : ""} src={o.img} alt={`${o.name} ${o.slot.toLowerCase()} on the presenter`} loading="lazy" />
+        ))}
+        <span className="pw-conf-name">Daniel</span>
+        <span className="pw-conf-cur"><i>{cur.slot}</i><b>{cur.name}</b></span>
+      </div>
+      <div className="pw-rail" aria-hidden="true">
+        <div className={`pw-rail-track${jump ? " jump" : ""}`} style={{ transform: `translateY(calc(${-raw} * var(--rail-item)))` }}>
+          {[...OPTION_RAIL, ...OPTION_RAIL, ...OPTION_RAIL].map((o, i) => (
+            <div key={i} className={`pw-rail-item${i === raw ? " live" : ""}`}>
+              <img src={o.tile} alt="" loading="lazy" />
+              <div><b>{o.slot}</b><span>{o.name}</span></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CastScene() {
+  const [speaker, setSpeaker] = useState<0 | 1>(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setSpeaker((s) => (s === 0 ? 1 : 0)), 3800);
+    return () => window.clearInterval(id);
+  }, []);
+  return (
+    <div className="pw-cast-scene" aria-label="Two presenters handing the same scene to each other">
+      <div className="pw-cast-frame">
+        <img className={speaker === 0 ? "on" : ""} src="/cast/default-female-v20.webp" alt="Maya, a NexStudio presenter" />
+        <img className={speaker === 1 ? "on" : ""} src="/cast/default-male-v20.webp" alt="Daniel, a NexStudio presenter" />
+        <div className="pw-cast-voice" aria-hidden="true"><i /><i /><i /><i /></div>
+      </div>
+      <div className="pw-cast-take">
+        <span className={`pw-cast-who ${speaker === 0 ? "on" : ""}`}>Maya</span>
+        <span className={`pw-cast-who ${speaker === 1 ? "on" : ""}`}>Daniel</span>
+        <p>“…and instead of waiting two days, it settles in seconds.”</p>
+        <span className="pw-cast-note">Same take. Different presenter, mid-sentence if you want.</span>
+      </div>
+    </div>
+  );
+}
+
 const RECOMP_LAYERS = <><i className="rc-rule a" /><i className="rc-rule b faint" /><i className="rc-mass" /><i className="rc-signal" /></>;
 const GHOST_LAYERS = <><i className="build-pencil" /><span className="build-ghost-lines"><i /><i /></span></>;
 
@@ -107,7 +271,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
           <div className="pw-hero-main pw-reveal in">
             <div className="pw-kicker"><i /> Creative production, directed by NexMind</div>
             <h1>From brief to <em>finished video.</em></h1>
-            <p className="pw-hero-copy">Tell NexMind what you want. Approve the direction. NexStudio makes it, lets you revise it, then download or publish. No pile of tools gets in the way.</p>
+            <p className="pw-hero-copy">Tell NexMind what you want. Approve the direction. NexStudio makes it, lets you revise it, then download or publish. No editor. No timeline. Just the film you asked for.</p>
             <div className="pw-hero-actions"><button className="pw-solid" onClick={() => document.getElementById("pwBrief")?.focus()}>Make a video →</button><button className="pw-ghost" onClick={() => document.getElementById("make")?.scrollIntoView({ behavior: "smooth" })}>See what it makes</button></div>
             <div className="pw-small-proof"><span>Direction before production</span><span>Card + USDC credits</span><span>Download or publish</span></div>
           </div>
@@ -152,6 +316,15 @@ export function PublicSite({ authed }: { authed: boolean }) {
             </div>
           </div>
         </section>
+        <section className="pw-section" id="work">
+          <div className="pw-wrap">
+            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Drawn for you</div></div><div><h2>From intent to video in one prompt.</h2><p>Say “explain Solana in a minute” and the answer gets drawn out on the board, line by line. Not a wall of text. Someone sketching it out for you while they talk.</p></div></div>
+            <div className="pw-work-stage pw-reveal">
+              <WorkClip src="/home/board.mp4" poster="/home/board.jpg" label="A Solana explainer drawn live on a whiteboard" />
+              <div className="pw-work-cap"><span className="pw-work-chip">Whiteboard · Explainer</span><span>One line in. A minute of film out.</span></div>
+            </div>
+          </div>
+        </section>
         <section aria-label="Native production intelligence" className="pw-section" id="proof">
           <div className="pw-wrap">
             <div className="pw-proof-grid">
@@ -163,6 +336,22 @@ export function PublicSite({ authed }: { authed: boolean }) {
                 <div className="pw-proof-visual"><div className="build-artboard" aria-hidden="true"><div className="build-ghost g1">{GHOST_LAYERS}</div><div className="build-ghost g2">{GHOST_LAYERS}</div><div className="build-ghost g3">{GHOST_LAYERS}</div><div className="build-work"><div className="build-preview"><i className="bp-line" /><i className="bp-mass" /><i className="bp-signal" /></div><div className="build-meta"><div className="build-meta-top"><span>Same work</span><b>V3 · Ready</b></div><div className="build-meta-signal"><i /><i /><i /></div><div className="build-lineage"><span>V1</span><i /><em /><span>V2</span><i /><em /><span>V3</span><i /></div></div></div></div></div>
                 <div className="pw-proof-copy"><span className="pw-proof-label">Production, not editing</span><h3>You direct. NexStudio builds.</h3><p>You approve the creative direction, then review the result. Revisions go back through NexMind instead of forcing you into a timeline editor.</p></div>
               </article>
+            </div>
+          </div>
+        </section>
+        <section className="pw-section" id="cast">
+          <div className="pw-wrap">
+            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Your cast</div></div><div><h2>Characters that stay in character.</h2><p>Every presenter is put together from parts: face, hair, wardrobe, voice. They can hand a scene to each other, carry a lower third, or make room for a squeeze-back, and nothing about the film blinks. Build one once and they show up in every film, still recognizably yours.</p></div></div>
+            <div className="pw-cast-bento">
+              <div className="pw-cast-tile pw-cast-main pw-reveal">
+                <PresenterScene />
+                <div className="pw-cast-cap"><span className="pw-work-chip">In scene</span><span>Lower thirds and squeeze-backs are the moments in a film that can work for you.</span></div>
+              </div>
+              <div className="pw-cast-tile pw-cast-swap pw-reveal" data-delay="1"><CastScene /></div>
+              <div className="pw-cast-tile pw-cast-parts pw-reveal" data-delay="2">
+                <span className="pw-cast-parts-label">Every presenter is parts you can change</span>
+                <PartsScene />
+              </div>
             </div>
           </div>
         </section>
