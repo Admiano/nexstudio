@@ -131,3 +131,5 @@ The artwork remains prototype-level. Do not merge or publicly release as a finis
 - Primary remaining blockers: high-end facial identity, non-rigid hairstyle with proper groom, authentic upper coat-to-sleeve seams and lapels, broader arm gesture and cloth collisions, blink/lip sync, NexStudio app integration. The new long sleeves improve fit but still have visible seams.
 
 No merge to NexStudio V1 and no changes to original Rain files.
+
+- **Rev37 exploratory lapel smoothing REJECTED**: applying Catmull–Clark smoothing to the original three-panel lapel surfaces rounded them into unsupported floating flaps. The Rev36 independently tailored sleeve and collar checkpoint remains the preferred candidate; no Rev37 replacement/merge was made. Correct next step is constructing actual garment-connected lapel surfaces, not applying smoothing alone.
