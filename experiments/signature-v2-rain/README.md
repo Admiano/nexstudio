@@ -68,3 +68,19 @@ Checkpoint in ChatGPT workspace: `NEXSTUDIO_RAIN_V2_REV19_CHARACTER_PROGRESS_CHE
 - The last checkpoint ZIP, **`NEXSTUDIO_RAIN_V2_REV24_RIG_GROOM_CHECKPOINT_20261012.zip`**, is delivered to the user via the ChatGPT working file environment. **36,921,790 bytes**, **38 entries**, ZIP CRC test passed. SHA-256: `5812ced6a4ee63f5c514eeacd9bf0b5f6c928ceee37b92e03373b43e36653513`. The ZIP and binary `.blend` are **not committed here**.
 
 **Remaining art and production blockers:** Rain's distinctive face still looks like Rain, hair is rigidly head-following and lacks professional groom/secondary motion, coat shoulder and sleeve/cuff tailoring remains flawed, full speaking/presenter animations and garment collision tests absent. Embedded CloudRig scripts were skipped by Blender's safe startup mode; external engine integration not attempted. This branch remains isolated; do not merge into V1.
+
+
+## 2026-10-12 — facial / hair art iteration (Rev25–Rev29)
+
+**STATUS: Rev27 preferred experimental face / light-groom scene; Rev29 remains unapproved smaller-eye alternative.** These are genuine Blender 5.2 editable derivative scenes, not AI-generated reference renders, and are not production-ready.
+
+- Rev25 attempted continuous five-ring sleeve taper: **rejected** after native 3/4 render showed awkward cuff transition and persistent hard shoulder.
+- Rev26 applied controlled jaw/cheekbone/nose/chin and brow changes to original Rain facial topology: 3,815 vertices changed, max magnitude 0.00921 m, applied same per-vertex displacement to all 25 shape keys.
+- Rev27 removed twelve heavy face-framing sheets, retaining eight groups of real strand-based groom mesh. Exported 41,904 shape-key delta components from Rev24 and Rev27: maximum difference **1×10^-7 m**. This checks morph offset preservation, NOT functional lip-sync or driver execution. Actual 12° FK-Head local-Z head-pose test with all eight retained groups passed and rendered; no hair secondary physics.
+- Rev28 diagnostic renders disabled coat shell, sleeves and lapels independently and confirmed that much of the pointed shoulder originates in the **coat body shell**. A 172-vertex smoothed top-shell adjustment was **rejected** because it introduced visual defects without solving the silhouette.
+- Rev29 eye-region and eyeball/lashes/cornea reshaping candidate was saved independently. Real front and 3/4 face renders produced. A test assigning the original `EyelidsClose.L/R` shape keys to 1.0 did NOT visually demonstrate a blink; the candidate is NOT promoted to the preferred scene pending rig-level control tests.
+- Independent Blender 5.2 reopen audits passed for both Rev27 and Rev29: **2,166 rig bones, 25 head shape keys, 6,395 face vertices, four wardrobe collections, four packed image textures, zero missing external bitmap files**, eight edited head-parented groom groups.
+- New downloadable checkpoint ZIP: **`NEXSTUDIO_RAIN_V2_REV29_ART_FACIAL_CANDIDATES_CHECKPOINT_20261012.zip`**, **67,730,363 bytes**, 56 ZIP entries, full CRC test passed. SHA-256: `e908a39a340a56f3201b3bff108218c57ba8969379f84b1f5a89d862ac56588d`. Delivered as ChatGPT file (binary files **not** committed to GitHub).
+- Package also includes the independent true Blender facial comparison board and construction diagnostic board, Rev27 and Rev29 separate portable .blend scenes, scripts and test reports.
+
+**Priority remaining:** high-end facial identity and sculpted hairline, redesign coat shoulders and sleeve seams with true tailored construction, run functional eyelid/blink/lip-speech and body-gesture tests, outfit collision, exports, then NexStudio integration. Do not merge this experiment into existing V1 or original Rain source.
