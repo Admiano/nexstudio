@@ -1,0 +1,38 @@
+name: Restore untouched Walking People source bundle
+on:
+  push:
+    branches:
+      - work/walking-people-preserve-original-20261012
+    paths:
+      - .github/workflows/restore-walking-people-source-checkpoint.yml
+jobs:
+  source-checkpoint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source and preserve exact files
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC=engine_sources/papercraft-cast/assets/walking-people-pack
+          mkdir -p restored-original
+          cp "$SRC/WalkingPeoplepack2024.fbx" restored-original/
+          cp "$SRC"/gihapeopletex{1,2,3,4,5}.jpg restored-original/
+          cp "$SRC/SOURCE.md" restored-original/
+          (cd restored-original && sha256sum *.fbx *.jpg > SHA256SUMS.txt)
+          python3 - <<'PY'
+          import json,os
+          root='restored-original'
+          files=sorted(os.listdir(root))
+          print(json.dumps({f:os.path.getsize(os.path.join(root,f)) for f in files},indent=2))
+          assert os.path.getsize(os.path.join(root,'WalkingPeoplepack2024.fbx'))>60000000
+          PY
+      - name: Upload untouched source files for private character work
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-original-fbx-five-textures-20261012
+          path: restored-original/
+          compression-level: 0
+          retention-days: 14
