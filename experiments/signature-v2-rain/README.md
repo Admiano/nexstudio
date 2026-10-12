@@ -38,3 +38,20 @@ Last technical checkpoint: 2026-10-10 (local working runtime).
 - `Rain_v3.2_original_scene_and_textures.zip` — source and textures from original `main` tree.
 
 Note: binary Blender checkpoint ZIPs are delivered as ChatGPT workspace files and **are not committed to this GitHub branch**. This experimental branch contains provenance/docs/export workflow, not a production character asset. V1 and paper character assets remain untouched.
+
+
+## 2026-10-12 — Rev19 genuine Blender render checkpoint (separate from Rev10)
+
+The previous Rev13 hair panels were too geometrically rigid. Visual experiments Rev14–Rev16 were rejected: Rev14 eyebrows became occluded; Rev15 hair had flat pillars; Rev16 rounded volumes resembled horns. Rev17 replaced those with 860 physically editable strand meshes; Rev18 added 550 face-framing strands; Rev19 improved crown/groom palette and matte oxblood materials. All builds used the real **Rain v3.2 Blender scene** through the portable Rev13 checkpoint, without modifying the official source or V1 project.
+
+Rev19 QA was done in **Blender 5.2.0 LTS** on an actually reopened scene:
+- 2,166 source rig bones retained
+- 25 head shape keys retained
+- Four source modular collections retained
+- Eight new groom mesh objects; 265,760 vertices total; all eight have genuine `DEF-Head` vertex group and valid `ARMATURE` modifier
+- Four image assets packed, no missing unpacked bitmap references
+- A 12° FK-Head representative pose displaces one Rev19 hair layer **0.03355m** and Rain head **0.014629m**. The other seven new hair meshes were disabled for viewport performance; **a full dense-groom head-pose test timed out** and is NOT certified.
+
+Checkpoint in ChatGPT workspace: `NEXSTUDIO_RAIN_V2_REV19_CHARACTER_PROGRESS_CHECKPOINT_20261012.zip` (53,639,655 bytes; 38 CRC-verified ZIP entries; SHA-256 `ba80ed7ea0e56e99c13205f80c953ea76dee4ba560f15d83980e63aaec8730dd`). Contains two editable Blender scenes (Rev17 short groom and Rev19 long groom), scripts, Blender-rendered front/profile/face comparison imagery, reopening QA, the representative pose test, and checksum manifest. **The binary package is not stored in this GitHub branch**.
+
+**Not finished or ready to ship:** distinctive mature facial identity, realistic integrated hairline and natural groom, proper tailored cloth construction and arm/cuff seams, full animation and audio/lip-sync certification, and integration into NexStudio. Reject false claims that this equals target-reference quality.
