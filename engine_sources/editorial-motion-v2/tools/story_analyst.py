@@ -240,6 +240,7 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
         "registry_asset_count": len(registry_ids),
         "output_contract": {
             "film": {"thesis": "str", "motif": "str <=40 chars", "mood": "one of moods", "note": "str",
+                      "subject": "show styles only: masthead word <=32 chars, e.g. 'NOVA X1'",
                       "brand": {"ink": "#hex", "paper": "#hex", "accent": "#hex|null",
                                 "finish": "EDITORIAL_FLAT|PAPER|PRODUCT_COLLAGE"},
                       "world": {"grain": "enum", "motif": {"concept": "str<=40", "corner": "enum"}}},
@@ -249,6 +250,8 @@ def _user_payload(script: str, groups: List[List[Dict[str, Any]]], style: Dict[s
                         "visual_metaphor": "str"}],
             "beats": [{"groups": [0], "beat_type": "enum", "pattern": "enum",
                         "dominant_layer": "enum", "energy": 0.0, "complexity": 0.0,
+                        "section": "show styles only: UPPERCASE section name <=14 chars (PRICE, LAUNCH, THE RACE); every beat needs one; beats sharing a section name play under one section",
+                        
                         "display_units": [{"text": "verbatim phrase", "role": "enum",
                                             "semantic_role": "enum", "emphasis": 0.0,
                                             "stress": ["word"], "anchor_word": "word"}],
@@ -959,6 +962,9 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
                 pass
         if str(rb.get("cut") or "") == "hard":
             beat["cut"] = "hard"
+        sec = re.sub(r"[^A-Za-z0-9+&%$ ]", "", str(rb.get("section") or "").upper()).strip()[:14]
+        if sec:
+            beat["section"] = sec
         if str(rb.get("metaphor") or "").strip():
             metaphors[bid] = " ".join(str(rb["metaphor"]).split())
         beats.append(beat)
@@ -984,6 +990,13 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
             t = b["media"]["persist_to"]
             if t not in order or order.index(t) < order.index(b["beat_id"]):
                 b["media"].pop("persist_to")
+    # Show grammar: a show style guarantees every beat a section name; the analyst's
+    # own names win, remaining beats take a rotating generic.
+    if style.get("show"):
+        generic = ["SETUP", "DETAILS", "NUMBERS", "COMPARE", "PROOF", "VERDICT"]
+        for i, b in enumerate(beats):
+            if not b.get("section"):
+                b["section"] = generic[i % len(generic)]
     film = payload.get("film") if isinstance(payload.get("film"), dict) else {}
     mood = _enum(film.get("mood"), c.FILM_MOODS, None)
     note = str(film.get("note") or "").strip()
@@ -1002,6 +1015,13 @@ def conform(payload: Dict[str, Any], groups: List[List[Dict[str, Any]]],
     }
     if mood:
         treatment["mood"] = mood
+    if style.get("show"):
+        subject = re.sub(r"[^A-Za-z0-9+&%$ .-]", "", str(film.get("subject") or "").upper()).strip()[:32]
+        if not subject:
+            thesis_words = [w for w in re.findall(r"[A-Za-z][A-Za-z0-9.+-]*", str(film.get("thesis") or "")) if len(w) > 2]
+            subject = " ".join(thesis_words[:2]).upper() or "THE STORY"
+        treatment["show"] = {"format": str(style["show"]), "subject": subject,
+                             "shades": style.get("shades") or []}
     if cast:
         treatment["cast"] = cast
     # The world bible: the analyst's authored look overrides the style preset — each colour is

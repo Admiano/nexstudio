@@ -68,6 +68,44 @@ def style_of(arg):
 
 
 # ---------- VO ----------
+def _espeak_synth(text, out_wav, speed=1.0):
+    """Free local fallback when the neural TTS stack isn't installed — espeak-ng
+    voice at a brisk news pace. Returns duration in seconds."""
+    wpm = max(120, int(175 * float(speed or 1.0)))
+    subprocess.run(["espeak-ng", "-v", "en-us", "-s", str(wpm), "-w", str(out_wav), text], check=True)
+    probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=nw=1:nk=1", str(out_wav)],
+                           capture_output=True, text=True, check=True)
+    return float(probe.stdout.strip() or 1.0)
+
+
+def _fake_align(wav_dur_s, text, out_json):
+    """Deterministic word schedule (~330ms/word, +700ms after sentence end) stretched
+    to fit the real wav — clause grouping and beat timing stay sane without whisper."""
+    words = []
+    t = 0.0
+    for tok in text.split():
+        w = re.sub(r"[^\w$%&.,!?'\"-]", "", tok)
+        if not w:
+            continue
+        dur = 0.33
+        words.append({"text": w, "start_ms": round(t * 1000), "end_ms": round((t + dur) * 1000)})
+        t += dur + (0.70 if re.search(r"[.!?]$", tok) else 0.06)
+    if words and t > wav_dur_s > 0:
+        scale = (wav_dur_s - 0.05) / t
+        for w in words:
+            w["start_ms"] = round(w["start_ms"] * scale)
+            w["end_ms"] = max(w["start_ms"] + 60, round(w["end_ms"] * scale))
+    out_json.write_text(json.dumps({"words": words}, indent=1))
+
+
+def _wav_dur_s(p):
+    probe = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                            "-of", "default=nw=1:nk=1", str(p)],
+                           capture_output=True, text=True, check=True)
+    return float(probe.stdout.strip() or 1.0)
+
+
 def make_voice(args, fixture_dir):
     out_wav, out_mp3, out_ali = fixture_dir / "voice.wav", fixture_dir / "voice.mp3", fixture_dir / "alignment.json"
     if args.voice_file:
@@ -79,7 +117,11 @@ def make_voice(args, fixture_dir):
         out_wav = norm
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav), "-b:a", "160k", str(out_mp3)], check=True)
         log(f"aligning uploaded voice {src.name} ...")
-        align(out_wav, out_ali)
+        try:
+            align(out_wav, out_ali)
+        except Exception as e:
+            log(f"whisper alignment unavailable ({e}) — using even word schedule")
+            _fake_align(_wav_dur_s(out_wav), "", out_ali)
     else:
         text = args.script or (Path(args.script_file).read_text() if args.script_file else "")
         if not text.strip() and getattr(args, "brief", None):
@@ -92,14 +134,22 @@ def make_voice(args, fixture_dir):
             sys.exit("need --script/--script-file/--brief or --voice-file")
         from write_script import normalize_tickers
         text = normalize_tickers(text.strip())  # 'SOL' -> 'Solana' for TTS+captions
-        dur = synth(text.strip(), args.voice, out_wav, speed=float(args.speed or 1.0))
+        try:
+            dur = synth(text.strip(), args.voice, out_wav, speed=float(args.speed or 1.0))
+        except Exception as exc:
+            log(f"voice synth failed ({exc}); falling back to espeak")
+            dur = _espeak_synth(text.strip(), out_wav, speed=float(args.speed or 1.0))
         norm = fixture_dir / "voice_norm.wav"
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav),
                         "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", str(norm)], check=True)
         out_wav = norm
         subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(out_wav), "-b:a", "160k", str(out_mp3)], check=True)
         log(f"synthesized {dur:.1f}s of VO ({args.voice}), aligning ...")
-        align(out_wav, out_ali)
+        try:
+            align(out_wav, out_ali)
+        except Exception as e:
+            log(f"whisper alignment unavailable ({e}) — using even word schedule")
+            _fake_align(dur, text.strip(), out_ali)
     return json.loads(out_ali.read_text())["words"]
 
 
@@ -452,6 +502,19 @@ def build_treatment(args, style, words, media_files, film_id):
     glyph = style.get("glyph", "TILE")
     link_style = style.get("link_style")
     groups = chunk_beats(words)
+    if style.get("show") == "NEWSREEL":
+        media_library = []
+        for mi, p in enumerate(media_files):
+            p = Path(p)
+            kind = "VIDEO" if p.suffix.lower() in VIDEO_EXTS else "IMAGE"
+            entry = {"asset_id": f"media{mi+1}", "kind": kind, "path": f"media/{p.name}"}
+            wh = probe_dims(p, kind)
+            if wh:
+                entry["width"], entry["height"] = wh
+                if kind == "VIDEO":
+                    entry["duration_s"] = probe_dur(p)
+            media_library.append(entry)
+        return _newscast_treatment(args, style, words, groups, media_library, film_id)
     beats, used_kw, fallback_n, prev_keys = [], set(), 0, set()
     carry_id = carry_key = None
     fam = style["asset_family"]
@@ -708,6 +771,322 @@ def build_treatment(args, style, words, media_files, film_id):
     }
 
 
+# ---------------- newscast: the numbered-section data-news reel ----------------
+
+_NUM_RE = re.compile(r"(\d[\d,.]*\s*(?:(?:%|percent|x|k|m|b|bn|gb|tb|ms|s)\b)?)|([\$\u20ac\u00a3]\s?\d[\d,.]*)", re.I)
+_VS_RE = re.compile(r"\b(vs\.?|versus|head to head|against|compared to|compared with)\b", re.I)
+_PRICE_RE = re.compile(r"[\$€£]|\b(dollars?|euros?|pounds?|cents?|price[sd]?|costs?|pricing|fee|fees|usd|msrp)\b", re.I)
+_NC_STOP = {"a", "an", "the", "and", "or", "but", "of", "to", "in", "on", "for", "with", "at", "by", "is", "it", "its", "this", "that", "these", "those", "be", "are", "was", "were", "as", "if", "then", "than", "so", "no", "not", "your", "you", "we", "our", "their", "they", "he", "she", "i", "s",
+            "against", "versus", "vs", "head", "about", "into", "onto", "upon", "toward", "towards", "via", "per", "between", "during", "through", "throughout", "over", "under", "around", "across", "along", "amid", "among", "within", "without", "beyond", "behind", "beside", "inside", "outside", "off", "out", "away", "back", "ahead", "down", "up", "here", "there", "where", "when", "why", "how", "what", "who", "whom", "whose", "which", "anyone", "everyone", "someone", "anything", "everything", "something", "much", "many", "more", "most", "very", "just", "even", "still", "really", "actually", "basically", "way", "thing", "things", "stuff", "lot", "kind", "sort", "part", "new", "old", "own", "same", "other", "another", "such", "like", "yeah", "uh", "um", "gonna", "well", "now", "then", "also", "too"}
+_SEQ_RE = re.compile(r"\b(first|then|next|finally|steps?|stages?|phases?|process|pipeline|setup|install|unbox|assembly|how to)\b", re.I)
+_DATE_RE = re.compile(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*\d{0,2}|\b(19|20)\d{2}\b(?!\s*(?:watts?|hours?|percent|%|x|kb?|mb|gb|tb|ms|s|wh|kwh|volts?|hz|fps|bits?|bytes?|px|mm|cm|kg|lbs?)\b)|\bmonday|tuesday|wednesday|thursday|friday|saturday|sunday\b", re.I)
+_GENERIC_SECTIONS = ["SETUP", "DETAILS", "NUMBERS", "COMPARE", "ROLE", "PROOF", "VERDICT"]
+
+
+def _nc_section(g, picked, used_names, bi, last):
+    """Name a beat's section from its own content first, the bank key second, and a
+    rotating generic last. Names dedupe against sections already used — adjacent
+    repeats are fine but a section word should never re-surface non-adjacently."""
+    text = " ".join(w["text"] for w in g).upper()
+    if bi == 0:
+        cand = "THE DROP"
+    elif last:
+        cand = "VERDICT"
+    elif _VS_RE.search(text):
+        cand = "HEAD TO HEAD"
+    elif _PRICE_RE.search(text):
+        cand = "PRICE"
+    elif _DATE_RE.search(text):
+        cand = "TIMELINE"
+    elif _NUM_RE.search(text):
+        cand = "THE NUMBERS"
+    elif _SEQ_RE.search(text):
+        cand = "HOW IT WORKS"
+    else:
+        cand = None
+    cands = [c for c in [cand] if c]
+    cands += [((ent.get("bank_key") or "").replace("-", " ").upper())[:14] for ent, _a in picked]
+    cands += _GENERIC_SECTIONS[bi % len(_GENERIC_SECTIONS):] + _GENERIC_SECTIONS[:bi % len(_GENERIC_SECTIONS)]
+    for c in cands:
+        c = re.sub(r"[^A-Z0-9+&%$ ]", "", c).strip()[:14]
+        if c and c not in used_names:
+            used_names.add(c)
+            return c
+    return f"PART {bi + 1}"
+
+
+def _nc_numbers(g):
+    """Numbers with a short label carved from the words just before them."""
+    out = []
+    words = [w["text"] for w in g]
+    joined = " ".join(words)
+    for m in _NUM_RE.finditer(joined):
+        raw = m.group(0).strip()
+        if re.search(r"(st|nd|rd|th)\b", raw, re.I) or re.match(r"\s*(st|nd|rd|th)\b", joined[m.end():], re.I):
+            continue  # ordinals are dates and ranks, not data
+        num_txt = raw.replace(",", "")
+        mm = re.match(r"([\$\u20ac\u00a3]?)\s*(\d[\d.]*)\s*(%|percent|x|k|m|b|bn|gb|tb|ms|s)?\b", num_txt, re.I)
+        if not mm:
+            continue
+        pre, digits, suf = mm.group(1) or "", mm.group(2), (mm.group(3) or "").lower()
+        try:
+            val = float(digits)
+        except ValueError:
+            continue
+        mult = {"k": 1e3, "m": 1e6, "b": 1e9, "bn": 1e9}.get(suf, 1)
+        # Label = the thing measured: up to 2 content words after the number
+        # ('499 dollars' → 'dollars', '799 category average' → 'category average').
+        label_words = []
+        for w in joined[m.end():].split()[:4]:
+            w2 = w.strip(" ,.;:!?")
+            lw = w2.lower()
+            if lw in ("a", "an", "the", "of", "at", "in", "on", "for", "to", "by", "and", "or", "is", "was",
+                      "than", "under", "over", "out", "up", "full", "enough", "a", "it", "its", "with", "per"):
+                if label_words:
+                    break
+                continue
+            if lw.endswith("ing") or lw.endswith("ed") or not w2 or w2[0].isdigit():
+                break
+            label_words.append(w2)
+            if len(label_words) >= 2:
+                break
+        label = " ".join(label_words) or "figure"
+        if len(label) > 18:
+            label = label_words[0] if label_words else label[:18]
+        out.append({"label": label[:20], "value": val * mult, "pct": suf in ("%", "percent"),
+                    "value_text": f"{pre}{digits}{('%' if suf in ('%', 'percent') else suf.upper())}"})
+    # One axis one unit family: when plain measures and percents mix, the bars keep the measures.
+    plain = [o for o in out if not o["pct"]]
+    if len(plain) >= 2:
+        out = plain
+    for o in out:
+        o.pop("pct", None)
+    return out[:8]
+
+
+def _nc_sides(text, subject=None):
+    """Two contender names carved from a comparison sentence — the words either
+    side of the pivot, or the phrases after each versus/against marker. Bare
+    'than' sentences are verdicts, not matchups, so they never reach here."""
+    m = re.search(r"\b(vs\.?|versus|against|compared to|compared with|head to head)\b", text, re.I)
+    if not m:
+        return None
+    left = " ".join(text[:m.start()].split()[-3:]).strip(" ,.;:!?")
+    left = re.sub(r"\b(head to head|stacked up|going up|face ?off)\b", "", left, flags=re.I).strip(" ,.;:!?")
+    left = re.sub(r"^(it|he|she|they|we|this|that|these|those)\s+(is|are|was|were|has|have|gets?|feels?|runs?|comes?)\s+", "", left, flags=re.I).strip()
+    left = re.sub(r"^(faster|slower|lighter|heavier|bigger|smaller|better|worse|cheaper|pricier|longer|shorter|stronger|weaker|brighter|darker|newer|older|cleaner|smarter|quicker|easier|harder)\b\s*", "", left, flags=re.I).strip()
+    if not left:
+        left = (subject or "OURS")
+    right_m = re.search(r"\b(?:than|versus|vs\.?|against|over)\b\s+([^,.;:]+?)(?=\s+(?:than|versus|vs\.?|against|and|but|or|wins?|loses?|lost|ties?|leads?|beats?|trails?)\b|[,.;:]|$)", text, re.I)
+    right = (right_m.group(1) if right_m else " ".join(text[m.end():].split()[:3])).strip(" ,.;:!?")
+    right = re.sub(r"^(to|with)\s+", "", right, flags=re.I).strip()
+    if subject:
+        for sw_ in subject.split():
+            right = re.sub(rf"\b{re.escape(sw_)}\b", "", right, flags=re.I).strip(" ,.;:!?")
+    right = right or "THEIRS"
+    return " ".join(left.split()[:4]), " ".join(right.split()[:4])
+
+
+def _nc_segments(text):
+    """Step/event labels split on sequence markers and punctuation."""
+    parts = re.split(r",|;|\.|\bthen\b|\bnext\b|\bfinally\b|\bfirst\b", text, flags=re.I)
+    out = []
+    for p in parts:
+        if ":" in p:
+            p = p.split(":")[-1]
+        p = p.strip(" ,.;:!?")
+        if len(p) > 1:
+            out.append(p)
+    return out[:5]
+
+
+def _nc_widget(bi, g, narration, picked, last, subject=None):
+    """One hero widget entity per beat — the content decides which. Returns
+    (entity, program_ops) or None for a plain hero-text beat."""
+    text = narration
+    nums = _nc_numbers(g)
+    anchor = g[min(2, len(g) - 1)]["text"].strip(".,;:!?'\"-")
+    # Reveal op lands on the first content word after the draw word — the
+    # widget fills as soon as its clause opens, never after a dead pause.
+    mid = next((w["text"].strip(".,;:!?'\"-") for w in g[3:] if w["text"].strip(".,;:!?-'").lower() not in _NC_STOP), g[min(4, len(g) - 1)]["text"].strip(".,;:!?'\"-"))
+    end = g[-1]["text"].strip(".,;:!?'\"-")
+    sides = _nc_sides(text, subject) if _VS_RE.search(text) else None
+    if sides:
+        left, right = sides
+        return ({"id": "w1", "kind": "evidence", "glyph": "VS_CARDS", "size": "hero",
+                 "params": {"cards": [{"title": left, "mark": left}, {"title": right, "mark": right}]}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 720}])
+    if len(nums) >= 2:
+        series = [{"label": n2["label"], "value": n2["value"], "value_text": n2["value_text"]} for n2 in nums]
+        if series:
+            series[0]["tone"] = "accent"
+        return ({"id": "w1", "kind": "evidence", "glyph": "DATA_BARS", "size": "hero",
+                 "params": {"series": series}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 800}])
+    if len(_DATE_RE.findall(text)) >= 2:
+        evs = ([{"label": (ent.get("phrase") or ent.get("bank_key") or "step"), "sub": ""} for ent, _a in picked[:4]]
+               if len(picked) >= 2 else
+               [{"label": s2[:16], "sub": ""} for s2 in _nc_segments(text)][:5])
+        if len(evs) >= 2:
+            return ({"id": "w1", "kind": "evidence", "glyph": "TIMELINE", "size": "hero", "params": {"events": evs}},
+                    [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                     {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    segs = _nc_segments(text)
+    if _SEQ_RE.search(text) or len(segs) >= 3:
+        drop = {"", "one", "two", "three", "four", "five", "no", "a", "an", "the", "it", "its"}
+        def _step(s):
+            s = re.sub(r"^.*\b(?:steps?|stages?|phases?|process|how to|setup|install|assembly|stack)\b\s+", "", str(s), flags=re.I).strip()
+            s = re.sub(r"\s+(?:that|which|who|it|its|shows?|has|have|had|draw|runs?|uses?|eats?|makes?|keeps?|gives?|takes?|gets?|costs?|sells?|ships?|lasts?)\b.*$", "", s, flags=re.I).strip()
+            for _ in range(3):
+                s = re.sub(r"^(this|these|those|that|it|is|are|was|were|and|but|or|with|a|an|the)\s+", "", s, flags=re.I).strip()
+                s = re.sub(r"\s+(to|of|for|with|and|or|the|a|an|per|on|in|at|by)$", "", s, flags=re.I).strip()
+            return " ".join(s.split()[:3])
+        seg_steps = [s2 for s2 in (_step(s2) for s2 in segs) if s2.lower() not in drop][:5]
+        pick_steps = [s2 for s2 in (_step(ent.get("phrase") or ent.get("bank_key") or "") for ent, _a in picked[:5])
+                      if s2.lower() not in drop]
+        if _SEQ_RE.search(text):
+            steps = seg_steps if len(seg_steps) >= 2 else pick_steps
+        else:
+            steps = pick_steps if len(pick_steps) >= 2 else seg_steps
+        if len(steps) >= 2:
+            return ({"id": "w1", "kind": "evidence", "glyph": "FLOW_STEPS", "size": "hero", "params": {"steps": steps}},
+                    [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                     {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 760}])
+    if len(nums) == 1:
+        n0 = nums[0]
+        mm = re.match(r"([\$\u20ac\u00a3]?)\s*(\d[\d.]*)(.*)", n0["value_text"])
+        pre, digits, suf = (mm.group(1) or ""), mm.group(2), (mm.group(3) or "") if mm else ("", n0["value_text"], "")
+        return ({"id": "w1", "kind": "evidence", "glyph": "COUNTER", "size": "hero",
+                 "params": {"count": round(n0["value"], 2), "prefix": pre, "suffix": suf, "caption": n0["label"],
+                            "sep": len(digits) >= 5}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 400},
+                 {"op": "COUNT", "target": "w1", "at": {"word": mid}, "duration_ms": 900}])
+    if len(picked) >= 3 and bi % 2 == 1:
+        cells = [{"name": str(ent.get("phrase") or ent.get("bank_key") or "item"), "sub": "", "concept": ent.get("bank_key") or ""} for ent, _a in picked[:6]]
+        return ({"id": "w1", "kind": "evidence", "glyph": "LOGO_GRID", "size": "hero", "params": {"cells": cells, "cols": 3 if len(cells) > 4 else 2}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    if len(picked) >= 2 and bi % 3 == 2:
+        rows = [[str(ent.get("phrase") or ent.get("bank_key") or "item"), str(i + 1)] for i, (ent, _a) in enumerate(picked[:4])]
+        return ({"id": "w1", "kind": "evidence", "glyph": "DATA_TABLE", "size": "hero",
+                 "params": {"header": ["item", "rank"], "rows": rows, "highlight": 0}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 350},
+                 {"op": "GROW", "target": "w1", "at": {"word": mid}, "duration_ms": 700}])
+    if bi == 0 or len(picked) < 2:
+        return ({"id": "w1", "kind": "object", "glyph": "SQUIGGLE", "size": "minor",
+                 "params": {"waves": 3}},
+                [{"op": "DRAW", "target": "w1", "at": {"word": anchor}, "duration_ms": 620}])
+    return None
+
+
+def _nc_scrub_echo_labels(ent, units):
+    """Entity labels must add information, not restate the on-screen type — the compiler
+    fails ENTITY_LABEL_ECHO otherwise. A label that collides with a display-unit word
+    is dropped; the value/readout still carries the datum."""
+    echo = set()
+    for u in units:
+        for w in re.split(r"\s+", str(u.get("text") or "")):
+            echo.add(word_key(w))
+    echo.discard("")
+    def scrub(s):
+        return not s or any(word_key(w) in echo for w in str(s).split())
+    p = ent.get("params") or {}
+    # Series/row/cell/event/step labels carry the widget's content; contracts require
+    # them non-empty and do not echo-check them. Only the entity's own label and a
+    # free caption can restate on-screen type, and neither is set on show widgets.
+    if ent.get("label") and scrub(ent["label"]):
+        ent.pop("label")
+    if p.get("caption") and scrub(p["caption"]):
+        p.pop("caption")
+
+
+def _newscast_treatment(args, style, words, groups, media_library, film_id):
+    """Keyword-path authorer for the NEWSREEL show grammar: one hero widget per beat,
+    a section name per beat, the rotating shade family, and the masthead subject."""
+    fam = style["asset_family"]
+    fam_key = {"colour_icons": "colour", "mono_icons": "mono", "emoji": "emoji", "photos": "photo"}[fam]
+    ctx = None
+    if _SEMANTIC:
+        _ev = _sem_embed(" ".join(w["text"] for w in words))
+        if _ev is not None:
+            ctx = _ev[0]
+    subject = (getattr(args, "subject", None) or "").strip() or _nc_subject(words)
+    beats, used_kw, used_sections, fallback_n = [], set(), set(), 0
+    n = len(groups)
+    for bi, g in enumerate(groups):
+        bid = f"b{bi + 1:02d}"
+        narration = clean(" ".join(w["text"] for w in g))
+        picked = pick_entities(g, fam_key, used_kw, ctx, max_n=5)
+        if not picked:
+            fe = fallback_entity(fam_key, fallback_n, question="?" in narration)
+            if fe:
+                picked = [(fe, g[0]["text"])]
+                fallback_n += 1
+        for ent, _a in picked:
+            if ent.get("bank_key"):
+                used_kw.add(ent["bank_key"])
+        widget = _nc_widget(bi, g, narration, picked, bi == n - 1, subject)
+        entities = []
+        program = []
+        if widget:
+            ent, program = widget
+            entities.append(ent)
+        # Hero words up top, widget below — the show's reading order.
+        units = display_units(g, set())
+        for u in units[1:]:
+            # The punch is the hero; the rest of the sentence keeps landing as
+            # small kinetic words on their anchors — the frame never sits dead
+            # while the voice is still going.
+            u["role"] = "support"
+        if entities:
+            _nc_scrub_echo_labels(entities[0], units)
+        btype = "HOOK" if bi == 0 else ("PAYOFF" if bi == n - 1 else "PROOF")
+        gph = (entities[0]["glyph"] if entities else "") if widget else ""
+        pattern = ("PAYOFF_LOCKUP" if bi == n - 1 else
+                   {"VS_CARDS": "CONTRAST_RECONFIGURATION",
+                    "FLOW_STEPS": "PROCESS_RAIL", "TIMELINE": "SEQUENTIAL_SUPPORT_LIST",
+                    "DATA_BARS": "HERO_TO_EVIDENCE_HANDOFF", "DATA_TABLE": "HERO_TO_EVIDENCE_HANDOFF",
+                    "COUNTER": "EVIDENCE_PERSISTENCE_CARRIER", "LOGO_GRID": "EVIDENCE_PERSISTENCE_CARRIER",
+                    "PROGRESS": "EVIDENCE_PERSISTENCE_CARRIER", "MAGNIFY": "OBJECT_LED_TRANSITION"}.get(gph, "PROGRESSIVE_HERO_BUILD"))
+        beats.append({
+            "beat_id": bid,
+            "beat_type": btype,
+            "pattern": pattern,
+            "dominant_layer": "HYBRID" if widget else "TEXT",
+            "section": _nc_section(g, picked, used_sections, bi, bi == n - 1),
+            "narration": narration,
+            "energy": 0.6 if bi == 0 else (0.8 if bi == n - 1 else 0.7),
+            "complexity": 0.45,
+            "display_units": units,
+            **({"illustration": {"form": "OBJECT_STAGE", "entities": entities, "program": program}} if widget else {}),
+        })
+    return {
+        "schema": "NexStudioEditorialTreatmentV2",
+        "film_id": film_id,
+        "note": f"auto-authored by make_reel.py (style={style['id']}, show=NEWSREEL)",
+        "aspects": args.aspects.split(","),
+        "fps": 30,
+        "brand": {**style["palette"], "finish": style["finish"]},
+        "typography": {"reveal": style["reveal"], "tonal_ink": 0.42, "min_visual_share": 0.55},
+        "voice": {"source": "MASTER", "audio_path": "voice.mp3", "alignment_path": "alignment.json", "head_pad_ms": 350},
+        "media_library": media_library,
+        "show": {"format": "NEWSREEL", "subject": subject.upper()[:32],
+                 "shades": style.get("shades") or style["palette"]},
+        "beats": beats,
+        "mood": "driving",
+        "sfx": "bold",
+    }
+
+
+def _nc_subject(words):
+    """Masthead word: the first noun-ish capital content words of the film."""
+    txt = " ".join(w["text"] for w in words[:14])
+    names = [t for t in re.findall(r"[A-Za-z][A-Za-z0-9.+-]*", txt) if len(t) > 2 and word_key(t) not in STOPWORDS]
+    return " ".join(names[:2]).upper() if names else "THE STORY"
+
+
 def probe_dims(p, kind):
     r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0",
                         "-show_entries", "stream=width,height", "-of", "csv=p=0", str(p)],
@@ -770,6 +1149,7 @@ def main():
     ap.add_argument("--aspects", default="16x9,1x1,9x16")
     ap.add_argument("--out", required=True)
     ap.add_argument("--film-id")
+    ap.add_argument("--subject", default=None, help="masthead subject for show styles (e.g. 'ORBIT DESK')")
     ap.add_argument("--treatment", help="use an existing treatment.json instead of auto-authoring")
     ap.add_argument("--fixture-voice", help="fixture dir already containing voice.mp3+alignment.json (with --treatment)")
     ap.add_argument("--no-poster", action="store_true")

@@ -176,7 +176,7 @@ def _layout_blocks(motif:str,aspect:str,units:List[TextUnit],text_zone:Dict[str,
             regular=[(i,u) for i,u in hero if i!=promote]
             py=ty
             if regular:
-                for n,(i,u) in enumerate(regular):
+                for n,(i,u) in enumerate(regular[:3]):
                     h=min(th*.19, .095); add(i,u,tx,py,tw,h,.72*ar['hero_scale'],'SemiBold',False,'left','setup',20); py+=h+.012
             pu=units[promote]; ph=min(max(.115,th*.34),.22)
             add(promote,pu,tx,py,tw,ph,1.0*ar['promotion_ratio']*ar['hero_scale'],'Black',False,'left','promoted_word',30)
@@ -230,9 +230,13 @@ def _layout_blocks(motif:str,aspect:str,units:List[TextUnit],text_zone:Dict[str,
     elif motif=='COLUMN_BUILD':
         y=ty
         entries=hero+support
-        for n,(i,u) in enumerate(entries[:5]):
-            ishero=u.role=='hero'; hh=th*(.22 if ishero else .13); scale=.92 if ishero else .48
-            add(i,u,tx,y,tw,hh,scale,'Black' if ishero else 'SemiBold',u.role=='support','left','column_line',30 if ishero else 15); y+=hh+.015
+        crowded=len(entries[:5])>3
+        rows=[(i,u,th*((.22 if not crowded else .17) if u.role=='hero' else (.13 if not crowded else .11)),((.92 if not crowded else .72) if u.role=='hero' else (.48 if not crowded else .40))) for i,u in entries[:5]]
+        heights=sum(hh for _,_,hh,_ in rows); gaps=.015*max(0,len(rows)-1)
+        fac=min(1.0,(th-gaps)/max(1e-6,heights))
+        for n,(i,u,hh,scale) in enumerate(rows):
+            ishero=u.role=='hero'
+            add(i,u,tx,y,tw,hh*fac,scale,'Black' if ishero else 'SemiBold',u.role=='support','left','column_line',30 if ishero else 15); y+=hh*fac+.015
     elif motif=='REPLACEMENT_LOCKUP':
         if hero:
             i,u=hero[0]; add(i,u,tx,ty+th*.15,tw,th*.48,1.45,'Black',False,'left','replace_stage_a',30)

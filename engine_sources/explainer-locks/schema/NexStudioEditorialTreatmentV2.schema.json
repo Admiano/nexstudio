@@ -425,7 +425,16 @@
                             "TILE",
                             "CHIP",
                             "BADGE",
-                            "COUNTER"
+                            "COUNTER",
+                            "DATA_BARS",
+                            "DATA_TABLE",
+                            "TIMELINE",
+                            "VS_CARDS",
+                            "LOGO_GRID",
+                            "FLOW_STEPS",
+                            "PROGRESS",
+                            "SQUIGGLE",
+                            "MAGNIFY"
                           ]
                         },
                         "size": {
@@ -675,6 +684,12 @@
             "enum": [
               "hard"
             ]
+          },
+          "section": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -872,6 +887,66 @@
         "uplifting",
         "warm",
         "wistful"
+      ]
+    },
+    "show": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "NEWSREEL"
+              ]
+            },
+            "subject": {
+              "type": "string",
+              "minLength": 1
+            },
+            "shades": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "bg": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "on": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "accent": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "bg",
+                  "on"
+                ]
+              },
+              "minItems": 4,
+              "maxItems": 14
+            }
+          },
+          "required": [
+            "format",
+            "subject",
+            "shades"
+          ]
+        },
+        {
+          "type": "null"
+        }
       ]
     },
     "note": {

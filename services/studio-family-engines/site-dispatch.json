@@ -38,7 +38,8 @@
         "emoji": { "status": "CERTIFIED_FOR_DISPATCH" },
         "journey": { "status": "CERTIFIED_FOR_DISPATCH" },
         "collage": { "status": "CERTIFIED_FOR_DISPATCH" },
-        "dataviz": { "status": "CERTIFIED_FOR_DISPATCH" }
+        "dataviz": { "status": "CERTIFIED_FOR_DISPATCH" },
+        "newscast": { "status": "CERTIFIED_FOR_DISPATCH" }
       }
     },
     "presenter": {

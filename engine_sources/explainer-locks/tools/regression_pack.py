@@ -138,7 +138,7 @@ def main() -> int:
                 'frozen_ok': metrics['frozen_longest_ms'] <= FROZEN_RUN_MAX_MS,
                 'no_page_errors': manifest.get('page_errors') == [],
                 'music_bound': bool((manifest.get('audio') or {}).get('music')),
-                'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') == 'kinetic',
+                'captions': manifest.get('captions_burned', 0) > 0 or manifest.get('captions_policy') in ('kinetic', 'none'),
                 'native_profile': manifest.get('native_profile') is True,
             }
             loud = (manifest.get('audio') or {}).get('loudness') or {}

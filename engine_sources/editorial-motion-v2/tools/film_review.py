@@ -260,7 +260,7 @@ def _check_render(checks: List[Dict[str, Any]], reel_dir: Path, aspect: str) -> 
         _check(checks, 'true_peak', aspect, 'PASS' if okp else 'FAIL',
                f"{loud['true_peak_dbtp']}dBTP vs {loud['ceiling_dbtp']}")
     _check(checks, 'captions', aspect,
-           'PASS' if m.get('captions_burned', 0) > 0 or m.get('captions_policy') == 'kinetic' else 'FAIL',
+           'PASS' if m.get('captions_burned', 0) > 0 or m.get('captions_policy') in ('kinetic', 'none') else 'FAIL',
            f"{m.get('captions_burned', 0)} captions")
     for f in (m.get('authorship') or {}).get('findings', []):
         _check(checks, f"authorship:{f['code']}", aspect, 'FAIL',

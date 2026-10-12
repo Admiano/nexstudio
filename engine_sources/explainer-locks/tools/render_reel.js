@@ -419,7 +419,7 @@ async function main() {
   const assPath = path.join(outDir, `captions_${plan.aspect}.ass`);
   let captions = 0;
   // Collage films carry the words as on-canvas kinetic type; a caption strip would duplicate them.
-  if (!process.argv.includes('--no-captions') && plan.captions_policy !== 'kinetic') {
+  if (!process.argv.includes('--no-captions') && plan.captions_policy !== 'kinetic' && plan.captions_policy !== 'none') {
     captions = writeCaptions(plan, assPath);
     const srt = plan.captions.map((c, i) => `${i + 1}\n${ts(c.start_ms)} --> ${ts(c.end_ms)}\n${c.text}\n`).join('\n');
     fs.writeFileSync(path.join(outDir, `captions_${plan.aspect}.srt`), srt);

@@ -64,6 +64,7 @@ export async function POST(request: Request) {
   if (script && !VOICE_IDS.has(voice))
     return problem(id, 422, "VOICE_UNKNOWN", "Unknown voice", `Pick one of: ${[...VOICE_IDS].join(", ")}.`);
 
+  const subject = String(form.get("subject") ?? "").trim() || null;
   const castMemberId = String(form.get("castMemberId") ?? "").trim() || null;
 
   const aspects = String(form.get("aspects") ?? "16x9,1x1,9x16")
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
     schema: "StudioSiteEngineRequestV1", family: "explainer", subtype: style, jobId,
     params: {
       script: script || null, voice, voiceFile: voicePath,
-      aspects, duration: durationRaw || null, speed: speedRaw || null, media: mediaPaths,
+      aspects, duration: durationRaw || null, speed: speedRaw || null, media: mediaPaths, subject,
       cast: castScope && {
         productionId: castScope.productionId, castMemberId,
         specHash: castScope.specHash, subtype: style, jobId,
