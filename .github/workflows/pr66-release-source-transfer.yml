@@ -1,0 +1,30 @@
+name: PR66 original release transfer into isolated QA
+on:
+  push:
+    branches: [work/pr66-authentic-folded-mesh-qa]
+    paths: ['.github/workflows/pr66-release-source-transfer.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  handoff-transfer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download original Devin handoff from verified GitHub Release
+        run: |
+          set -euo pipefail
+          mkdir -p handoff
+          gh release download pr66-papercraft-handoff --repo Admiano/nexstudio --pattern NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip --dir handoff
+          unzip -tq handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+          test "$(stat -c%s handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip)" = 27737858
+          sha256sum handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr66-original-release-unchanged
+          path: handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+          compression-level: 0
+          retention-days: 3
