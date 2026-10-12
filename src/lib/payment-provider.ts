@@ -29,6 +29,23 @@ export async function createFundingCheckout(input:{fundingIntentId:string;userId
 }
 export async function retrieveFundingCheckout(sessionId:string){return stripeRequest<CheckoutSession>(`/v1/checkout/sessions/${encodeURIComponent(sessionId)}`);}
 
+export async function retrievePlanCheckout(sessionId:string){return retrieveFundingCheckout(sessionId);}
+
+export async function createPlanCheckout(input:{fundingIntentId:string;userId:string;tier:"CREATOR"|"PRO";planName:string;amountMinor:number;returnPath:string;idempotencyKey:string}){
+  const body=new URLSearchParams();
+  body.set("mode","subscription");body.set("client_reference_id",input.fundingIntentId);
+  body.set("success_url",`${env.appOrigin}${input.returnPath}${input.returnPath.includes("?")?"&":"?"}plan=success&session_id={CHECKOUT_SESSION_ID}`);
+  body.set("cancel_url",`${env.appOrigin}${input.returnPath}${input.returnPath.includes("?")?"&":"?"}plan=cancelled`);
+  body.set("line_items[0][price_data][currency]","usd");body.set("line_items[0][price_data][unit_amount]",String(input.amountMinor));
+  body.set("line_items[0][price_data][recurring][interval]","month");
+  body.set("line_items[0][price_data][product_data][name]",`NexStudio ${input.planName}`);
+  body.set("line_items[0][price_data][product_data][description]",`${input.planName} plan, billed monthly`);
+  body.set("line_items[0][quantity]","1");
+  body.set("metadata[funding_intent_id]",input.fundingIntentId);
+  body.set("metadata[plan]",input.tier);
+  return stripeRequest<CheckoutSession>("/v1/checkout/sessions",{method:"POST",body,idempotencyKey:input.idempotencyKey});
+}
+
 export function verifyStripeWebhook(rawBody:string,signatureHeader:string|null,toleranceSeconds=300){
   if(!stripeConfigured())throw new Error("STUDIO_PAYMENT_PROVIDER_NOT_CONFIGURED");
   if(!signatureHeader)throw new Error("PAYMENT_WEBHOOK_SIGNATURE_MISSING");

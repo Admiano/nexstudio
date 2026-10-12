@@ -13,6 +13,13 @@ export async function POST(request:Request){
     if((event.type==="checkout.session.completed"||event.type==="checkout.session.async_payment_succeeded")&&session.payment_status==="paid"){
       if(typeof session.amount_total!=="number"||!session.currency)return new Response("amount missing",{status:409});
       await settleStandaloneFundingIntent({fundingIntentId:intent.id,providerReference:session.id,amountMinor:session.amount_total,currency:session.currency});
+      if(intent.purpose==="PLAN_SUBSCRIPTION"){
+        const tier=(session.metadata?.plan||"").toUpperCase();
+        if(tier==="CREATOR"||tier==="PRO"){
+          const now=new Date();const renewsAt=new Date(now.getTime()+31*86400000);
+          await getPrisma()!.user.update({where:{id:intent.userId},data:{plan:tier,planStatus:"ACTIVE",planRenewsAt:renewsAt,planCycleStart:now,planProductionsUsed:0}});
+        }
+      }
     }else if(event.type==="checkout.session.async_payment_failed"||event.type==="checkout.session.expired"){
       await failStandaloneFundingIntent({fundingIntentId:intent.id,reason:event.type,cancelled:event.type==="checkout.session.expired"});
     }

@@ -95,6 +95,11 @@ model User {
   email                        String?  @unique
   displayName                  String?
   avatarUrl                    String?
+  plan                         String   @default("FREE")
+  planStatus                   String   @default("ACTIVE")
+  planRenewsAt                 DateTime?
+  planProductionsUsed          Int      @default(0)
+  planCycleStart               DateTime?
   settings                     Json     @default("{}")
   privacyStatus                String   @default("ACTIVE")
   deletionRequestedAt          DateTime?

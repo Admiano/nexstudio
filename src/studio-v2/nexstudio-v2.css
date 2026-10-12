@@ -2510,3 +2510,26 @@ button:disabled:active,[aria-disabled="true"]:active{scale:1!important}
   .pw-lt-plate{padding:7px 10px 8px 10px}.pw-lt-plate b{font-size:11px}.pw-lt-slot i{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.pw-cast-voice i{animation:none;transform:scaleY(.8)}.pw-cast-frame img{transition:none}}
+
+/* Pricing tiers */
+.pw-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
+.pw-plan{position:relative;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);background:rgba(255,255,255,.5);border-radius:24px;padding:28px 26px 26px}
+.pw-plan.featured{border-color:rgba(255,176,0,.55);background:#fffdf6;box-shadow:0 24px 60px rgba(138,90,0,.12)}
+.pw-plan-tag{position:absolute;top:-11px;left:26px;background:var(--accent);color:#1d1400;font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.pw-plan h3{font-size:22px;letter-spacing:-.03em;margin:0 0 14px}
+.pw-plan-price{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+.pw-plan-price strong{font-size:44px;letter-spacing:-.05em;font-weight:740}
+.pw-plan-price small{font-size:11px;color:var(--muted);font-weight:650}
+.pw-plan-quota{font-size:11px;color:var(--accent);font-weight:720;margin:0 0 18px}
+.pw-plan-benefits{list-style:none;margin:0 0 24px;padding:0;display:grid;gap:9px;flex:1}
+.pw-plan-benefits li{font-size:12px;line-height:1.5;color:var(--muted);padding-left:20px;position:relative}
+.pw-plan-benefits li:before{content:'✓';position:absolute;left:0;top:0;color:var(--green);font-weight:800;font-size:11px}
+.pw-plan .pw-solid,.pw-plan .pw-ghost{width:100%;height:46px;font-size:12px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.pw-plan .pw-solid:disabled,.pw-plan .pw-ghost:disabled{opacity:.55;cursor:default;transform:none}
+.pw-plan-note{grid-column:1/-1;font-size:12px;color:var(--muted);text-align:center;margin:4px 0 0}
+.pw-pricing-page main{min-height:70vh;padding-top:60px}
+.sheet-google{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:#fff;border:1px solid var(--line);color:var(--ink);margin-top:20px}
+.sheet-google:hover{background:#f6f5f1}
+.sheet-divider{display:flex;align-items:center;gap:12px;margin:16px 0 -6px;color:var(--muted2);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.sheet-divider:before,.sheet-divider:after{content:'';flex:1;height:1px;background:var(--line)}
+@media(max-width:900px){.pw-plans{grid-template-columns:1fr;max-width:520px}}

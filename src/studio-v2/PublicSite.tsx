@@ -229,7 +229,7 @@ const FAMILIES = [
   { key: "editorial-motion", name: "Illustrated Stories", desc: "Build narrative meaning through typography, illustration, staging and editorial rhythm.", art: "illustrated", soon: true },
 ];
 
-export function PublicSite({ authed }: { authed: boolean }) {
+export function PublicSite({ authed, googleAuth }: { authed: boolean; googleAuth?: boolean }) {
   const router = useRouter();
   const [brief, setBrief] = useState("Make a 30-second launch video for a new agent-payment product. Clear, premium, and built for social.");
   const [demo, setDemo] = useState<"compose" | "thinking" | "direction">("compose");
@@ -260,7 +260,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
     <div id="publicSite">
       <header className="pw-nav">
         <a aria-label="NexStudio" className="pw-logo" href="#top"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#nexmind">NexMind</a></nav>
+        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#nexmind">NexMind</a><a href="/pricing">Pricing</a></nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
           <button className="pw-solid" onClick={enter}>Open Studio</button>
@@ -373,12 +373,12 @@ export function PublicSite({ authed }: { authed: boolean }) {
         <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
       </main>
       <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#nexmind">NexMind</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
-      {signIn && <SignInSheet onClose={() => setSignIn(false)} />}
+      {signIn && <SignInSheet googleAuth={googleAuth} onClose={() => setSignIn(false)} />}
     </div>
   );
 }
 
-function SignInSheet({ onClose }: { onClose: () => void }) {
+function SignInSheet({ onClose, googleAuth }: { onClose: () => void; googleAuth?: boolean }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -406,7 +406,14 @@ function SignInSheet({ onClose }: { onClose: () => void }) {
           <div className="sent-state"><b>Check your inbox.</b><p>We sent a sign-in link to {email}. It opens your Studio directly.</p></div>
         ) : (
           <>
-            <div className="field"><label>Email</label><input autoFocus type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void submit(); }} placeholder="you@company.com" /></div>
+            {googleAuth && <>
+              <button className="sheet-action sheet-google" onClick={() => { window.location.href = "/api/v1/auth/google/start"; }}>
+                <svg aria-hidden="true" viewBox="0 0 18 18" width="16" height="16"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.8H9v3.4h4.8c-.2 1.1-.8 2-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.9.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3C2.3 16 5.4 18 9 18z"/><path fill="#FBBC05" d="M3.9 10.7c-.2-.6-.3-1.2-.3-1.7s.1-1.2.3-1.7V5H.9C.3 6.2 0 7.6 0 9s.3 2.8.9 4l3-2.3z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3L15 2.3C13.5.9 11.4 0 9 0 5.4 0 2.3 2 .9 5l3 2.3c.7-2.2 2.7-3.7 5.1-3.7z"/></svg>
+                Continue with Google
+              </button>
+              <div className="sheet-divider"><span>or</span></div>
+            </>}
+            <div className="field"><label>Email</label><input autoFocus={!googleAuth} type="email" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void submit(); }} placeholder="you@company.com" /></div>
             {error && <p className="field-error">{error}</p>}
             <button className="sheet-action" disabled={busy} onClick={() => void submit()}>{busy ? "Sending…" : "Email me a sign-in link"}</button>
             <p className="sheet-legal">By continuing you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
