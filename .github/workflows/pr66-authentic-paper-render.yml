@@ -1,0 +1,95 @@
+name: PR66 authentic Hunyuan paper render and editable scene
+on:
+  push:
+    branches: [work/pr66-authentic-folded-mesh-qa]
+    paths: ['.github/workflows/pr66-authentic-paper-render.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  authentic-paper:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .github/workflows
+            experiments/pr66-authentic-qa
+      - name: Download and verify original 27 MB handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff/extracted
+          gh release download pr66-papercraft-handoff --repo Admiano/nexstudio --pattern NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip --dir handoff
+          unzip -tq handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+          unzip -oq handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip -d handoff/extracted
+          manifest="$(find handoff/extracted -name SHA256SUMS.txt -type f | head -1)"
+          test -s "$manifest"
+          (cd "$(dirname "$manifest")" && sha256sum -c SHA256SUMS.txt)
+          root="$(dirname "$manifest")"
+          glb="$(find "$root" -name casual30_shape.glb -type f | head -1)"
+          scene="$(find "$root" -name CHASSIS_UNMODIFIED.blend -type f | head -1)"
+          concept="$(find "$root" -name concept_fullbody.png -type f | head -1)"
+          renderer="$(find "$root" -name render_gen_fullbody.py -type f | head -1)"
+          test -s "$glb"; test -s "$scene"; test -s "$concept"; test -s "$renderer"
+          mkdir -p "$root/assets/kraft"
+          cp "$root/materials/kraft/"* "$root/assets/kraft/"
+          echo "PR66_ROOT=$PWD/$root" >> "$GITHUB_ENV"
+          echo "PR66_GLB=$PWD/$glb" >> "$GITHUB_ENV"
+          echo "PR66_CONCEPT=$PWD/$concept" >> "$GITHUB_ENV"
+          echo "PR66_RENDERER=$PWD/$renderer" >> "$GITHUB_ENV"
+      - name: Install Blender 5.2.0 checksum-verified
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender52.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender52.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender52"
+          tar -xJf /tmp/blender52.tar.xz -C "$RUNNER_TEMP/blender52"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender52" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Render actual paper geometry and save native editable Blender scene
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa_paper
+          cp "$PR66_RENDERER" "$PR66_ROOT/renderer/render_checkpoint.py"
+          cat >> "$PR66_ROOT/renderer/render_checkpoint.py" <<'PY'
+          import json, bpy
+          from pathlib import Path
+          output_dir=Path("qa_paper").resolve()
+          meshes=[o for o in bpy.data.objects if o.type=='MESH' and o.name not in ('Floor','Wall')]
+          report={'project':'NexStudio authentic Hunyuan PR66 paper pass','processed_mesh_objects':[{'name':o.name,'vertices':len(o.data.vertices),'faces':len(o.data.polygons),'vertex_colors':[a.name for a in o.data.color_attributes]} for o in meshes],'source_renderer':'render_gen_fullbody.py (unaltered PR66 recipe)','decimation_ratio':0.03,'created_by':'Blender 5.2.0 Cycles from source handoff'}
+          (output_dir/'PR66_PAPER_PROCESSING_QA.json').write_text(json.dumps(report,indent=2))
+          bpy.ops.wm.save_as_mainfile(filepath=str(output_dir/'PR66_PAPER_EDITABLE_SCENE.blend'))
+          print('SAVED_EDITABLE_PR66_SCENE',flush=True)
+          PY
+          "$BLENDER_BIN" -b -t 4 --python-exit-code 1 --python "$PR66_ROOT/renderer/render_checkpoint.py" -- "$PR66_GLB" "$PR66_CONCEPT" "$PWD/qa_paper/PR66_REAL_PAPER_RENDER.png" 0.03
+          test -s qa_paper/PR66_REAL_PAPER_RENDER.png
+          test -s qa_paper/PR66_PAPER_EDITABLE_SCENE.blend
+          test -s qa_paper/PR66_PAPER_PROCESSING_QA.json
+      - name: Commit original-authored Blender preview on isolated branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/pr66-authentic-qa/paper_proofs
+          cp qa_paper/PR66_REAL_PAPER_RENDER.png qa_paper/PR66_PAPER_PROCESSING_QA.json experiments/pr66-authentic-qa/paper_proofs/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/pr66-authentic-qa/paper_proofs/
+          git commit -m "proof(papercraft): render original Devin paper chassis with actual facet-color bake"
+          git push origin HEAD:work/pr66-authentic-folded-mesh-qa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: genuine-pr66-paper-render-and-editable-scene
+          path: qa_paper
+          retention-days: 14
+          if-no-files-found: warn
