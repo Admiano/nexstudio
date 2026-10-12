@@ -1,0 +1,14 @@
+{
+  "beats": {
+    "construct:lightning_flash": "flash",
+    "construct:heated_air": "heats",
+    "construct:expansion": "expand",
+    "connect:causes_1": "causes",
+    "emphasize:lightning_flash": "lightning",
+    "emphasize:heated_air": "heats",
+    "emphasize:expansion": "expand",
+    "shift:expansion": "rapidly",
+    "shift:heated_air": "air",
+    "shift:lightning_flash": "nearby"
+  }
+}

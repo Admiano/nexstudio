@@ -1,0 +1,9 @@
+{
+  "recorded_response": "/home/ubuntu/vid_study/explainer_direction/lightning-source-quote-v16-requests/02-plan_meaning_relations.response.json",
+  "sha256": "bc75f711215902e4b2664b62b3cced9de5b1a38f333b7ef62c01796150de627f",
+  "scope": "previous model-authored decision for identical task/request/model, revalidated now; no author-edited scene",
+  "original_response_format": "json_schema",
+  "same_system_prompt": true,
+  "original_system_prompt_sha256": "08da265b7460aff66e176d7e783c15478389c8a5edef208bbaa45dd49ddd0059",
+  "current_system_prompt_sha256": "08da265b7460aff66e176d7e783c15478389c8a5edef208bbaa45dd49ddd0059"
+}

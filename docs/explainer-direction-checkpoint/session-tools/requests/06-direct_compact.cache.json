@@ -1,0 +1,9 @@
+{
+  "recorded_response": "/home/ubuntu/vid_study/explainer_direction/lightning-source-quote-v16-requests/06-direct_compact.response.json",
+  "sha256": "539fbeac8665ffa9cda00a6ce4252c22d22e76706db61890864c3bbf45e7eb70",
+  "scope": "previous model-authored decision for identical task/request/model, revalidated now; no author-edited scene",
+  "original_response_format": "json_schema",
+  "same_system_prompt": true,
+  "original_system_prompt_sha256": "639489c3a1d5bcf03225ece8724935cb60dce282d6b2de9f7aaf64ca67d1caa7",
+  "current_system_prompt_sha256": "639489c3a1d5bcf03225ece8724935cb60dce282d6b2de9f7aaf64ca67d1caa7"
+}

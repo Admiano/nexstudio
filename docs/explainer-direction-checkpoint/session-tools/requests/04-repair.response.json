@@ -1,0 +1,11 @@
+{
+  "replacement": {
+    "id": "causes_2",
+    "kind": "produces",
+    "from": "source_joint_8e325dd7e9d5",
+    "to": "sound_wave",
+    "evidence_ids": [
+      "sound_wave"
+    ]
+  }
+}

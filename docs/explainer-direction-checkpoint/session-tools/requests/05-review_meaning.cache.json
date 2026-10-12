@@ -1,0 +1,9 @@
+{
+  "recorded_response": "/home/ubuntu/vid_study/explainer_direction/lightning-source-quote-v16-requests/05-review_meaning.response.json",
+  "sha256": "d6bf2fcb89a0920910cb7229236e3411c0de653970ba10386ccf69e01e3aa6f7",
+  "scope": "previous model-authored decision for identical task/request/model, revalidated now; no author-edited scene",
+  "original_response_format": "json_schema",
+  "same_system_prompt": true,
+  "original_system_prompt_sha256": "e3954f9ac4f727259b47499b02c0ad020a70dab0eeb404a92cfecd8ed487593b",
+  "current_system_prompt_sha256": "e3954f9ac4f727259b47499b02c0ad020a70dab0eeb404a92cfecd8ed487593b"
+}

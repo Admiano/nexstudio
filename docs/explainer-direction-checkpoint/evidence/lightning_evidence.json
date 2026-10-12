@@ -1,0 +1,50 @@
+[
+  {
+    "id": "thunder_origin",
+    "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+    "status": "supported",
+    "source": {
+      "id": "NOAA_NWS_thunder",
+      "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+      "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+      "license": "public-domain",
+      "commercial_use": true
+    }
+  },
+  {
+    "id": "heating_expansion",
+    "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+    "status": "supported",
+    "source": {
+      "id": "NOAA_NWS_thunder",
+      "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+      "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+      "license": "public-domain",
+      "commercial_use": true
+    }
+  },
+  {
+    "id": "cooling_contraction",
+    "claim": "Immediately after the flash, the air cools and contracts quickly.",
+    "status": "supported",
+    "source": {
+      "id": "NOAA_NWS_thunder",
+      "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+      "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+      "license": "public-domain",
+      "commercial_use": true
+    }
+  },
+  {
+    "id": "sound_wave",
+    "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+    "status": "supported",
+    "source": {
+      "id": "NOAA_NWS_thunder",
+      "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+      "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+      "license": "public-domain",
+      "commercial_use": true
+    }
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "id": "kokoro-liam-local",
+  "model_path": "/home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/kokoro-v1_0.pth",
+  "config_path": "/home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/config.json",
+  "voice_path": "/home/ubuntu/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/voices/am_liam.pt",
+  "language": "a",
+  "device": "cpu",
+  "speed": 1,
+  "source": {
+    "id": "kokoro_82m_liam",
+    "uri": "https://huggingface.co/hexgrad/Kokoro-82M",
+    "locator": "Apache-2.0 model card and am_liam voice at revision f3ff3571791e39611d31c381e3a41a3af07b4987; Liam is an approved NexStudio voice",
+    "license": "Apache-2.0",
+    "commercial_use": true
+  }
+}

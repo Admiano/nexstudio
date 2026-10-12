@@ -1,0 +1,62 @@
+{
+  "entities": [
+    {
+      "id": "lightning_flash",
+      "kind": "process",
+      "label": "lightning discharge",
+      "evidence_ids": [
+        "thunder_origin",
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "heated_air",
+      "kind": "material",
+      "label": "air heated by lightning",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "expansion",
+      "kind": "process",
+      "label": "rapid expansion of air",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "cooling",
+      "kind": "process",
+      "label": "rapid cooling of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "contraction",
+      "kind": "process",
+      "label": "rapid contraction of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "sound_wave",
+      "kind": "signal",
+      "label": "sound wave from thunder",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "thunder",
+      "kind": "signal",
+      "label": "thunder",
+      "evidence_ids": [
+        "thunder_origin",
+        "sound_wave"
+      ]
+    }
+  ]
+}

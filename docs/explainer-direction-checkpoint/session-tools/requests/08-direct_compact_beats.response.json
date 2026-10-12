@@ -1,0 +1,15 @@
+{
+  "beats": {
+    "construct:cooling": "Immediately",
+    "construct:contraction": "quickly",
+    "construct:source_joint_8e325dd7e9d5": "rapid",
+    "reveal:sound_wave": "creates",
+    "connect:causes_2": "creates",
+    "emphasize:cooling": "cools",
+    "emphasize:contraction": "contracts",
+    "emphasize:source_joint_8e325dd7e9d5": "expansion",
+    "emphasize:sound_wave": "sound",
+    "shift:cooling": "after",
+    "shift:source_joint_8e325dd7e9d5": "contraction"
+  }
+}

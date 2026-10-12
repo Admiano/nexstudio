@@ -1,0 +1,11 @@
+{
+  "new_fact": {
+    "id": "causes_2",
+    "kind": "causes",
+    "from": "source_joint_8e325dd7e9d5",
+    "to": "source_joint_8e325dd7e9d5",
+    "evidence_ids": [
+      "sound_wave"
+    ]
+  }
+}

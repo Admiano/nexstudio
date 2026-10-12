@@ -1,0 +1,17 @@
+{
+  "primary": {
+    "provider": "openai-compatible-local",
+    "model": "qwen3-30b-a3b-instruct-2507"
+  },
+  "creative": {
+    "provider": "openai-compatible-local",
+    "model": "qwen3-4b-instruct-2507",
+    "inference_source": {
+      "uri": "https://huggingface.co/unsloth/Qwen3-4B-Instruct-2507-GGUF",
+      "revision": "a06e946bb6b655725eafa393f4a9745d460374c9",
+      "license": "Apache-2.0",
+      "commercial_use": true
+    }
+  },
+  "policy": "Primary authors meaning and concepts; delegate authors outline, scenes and choreography. Explicit local development routing, same contracts and source vetoes. No fixture or automatic fallback."
+}

@@ -1,0 +1,8 @@
+{
+  "provider": {
+    "provider": "openai-compatible-local",
+    "model": "qwen3-4b-instruct-2507"
+  },
+  "request_id": "chatcmpl-a2tjWxr6iAZO4PPSCWUr488yf7uhR3GI",
+  "seconds": 132.09886528800416
+}

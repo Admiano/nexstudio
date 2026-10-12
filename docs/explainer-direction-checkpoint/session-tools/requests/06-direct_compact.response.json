@@ -1,0 +1,105 @@
+{
+  "title": "How Lightning Creates Thunder",
+  "ideas": [
+    {
+      "method": "construction",
+      "argument": "Lightning heats air, causing it to expand and then contract rapidly\u2014this process generates the sound wave we hear as thunder.",
+      "forms": [
+        "circle",
+        "rect",
+        "diamond"
+      ],
+      "progression": [
+        "construct",
+        "connect",
+        "emphasize",
+        "shift"
+      ]
+    },
+    {
+      "method": "contrast",
+      "argument": "The sudden heating and cooling of air after lightning create opposing forces: expansion followed by contraction, which together produce thunder as a sound wave.",
+      "forms": [
+        "hexagon",
+        "label",
+        "circle"
+      ],
+      "progression": [
+        "reveal",
+        "connect",
+        "shift",
+        "emphasize"
+      ]
+    }
+  ],
+  "selected": 0,
+  "palette": {
+    "background": "#0a1a2f",
+    "surface": "#1a3a5f",
+    "text": "#a0d8ff",
+    "muted": "#6b8c9e",
+    "primary": "#ff5a5a",
+    "secondary": "#4a90e2",
+    "accent": "#ffcc00",
+    "positive": "#8bc34a",
+    "negative": "#e57373"
+  },
+  "scenes": [
+    {
+      "intent": "Show the lightning flash heating air, leading to rapid expansion.",
+      "flow": "radial",
+      "figures": [
+        {
+          "entity": "lightning_flash",
+          "form": "circle",
+          "role": "primary",
+          "anchor": "center"
+        },
+        {
+          "entity": "heated_air",
+          "form": "rect",
+          "role": "secondary",
+          "anchor": "start"
+        },
+        {
+          "entity": "expansion",
+          "form": "diamond",
+          "role": "positive",
+          "anchor": "end"
+        }
+      ],
+      "transition": "fade"
+    },
+    {
+      "intent": "Demonstrate cooling, contraction, and the resulting sound wave.",
+      "flow": "column",
+      "figures": [
+        {
+          "entity": "cooling",
+          "form": "circle",
+          "role": "negative",
+          "anchor": "start"
+        },
+        {
+          "entity": "contraction",
+          "form": "rect",
+          "role": "primary",
+          "anchor": "center"
+        },
+        {
+          "entity": "source_joint_8e325dd7e9d5",
+          "form": "hexagon",
+          "role": "accent",
+          "anchor": "end"
+        },
+        {
+          "entity": "sound_wave",
+          "form": "label",
+          "role": "positive",
+          "anchor": "end"
+        }
+      ],
+      "transition": "cut"
+    }
+  ]
+}

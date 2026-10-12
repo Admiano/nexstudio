@@ -1,0 +1,13 @@
+{
+  "source": {
+    "id": "kokoro_82m_liam",
+    "uri": "https://huggingface.co/hexgrad/Kokoro-82M",
+    "locator": "Apache-2.0 model card and am_liam voice at revision f3ff3571791e39611d31c381e3a41a3af07b4987; Liam is an approved NexStudio voice",
+    "license": "Apache-2.0",
+    "commercial_use": true
+  },
+  "provider": "kokoro-local",
+  "route": "kokoro-liam-local",
+  "audio_sha256": "607243ece69679be43e7e7bc9de986a0564bfd0d6a962c7194c24837a9760408",
+  "alignment_audio_sha256": "607243ece69679be43e7e7bc9de986a0564bfd0d6a962c7194c24837a9760408"
+}

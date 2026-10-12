@@ -1,0 +1,59 @@
+{
+  "facts": [
+    {
+      "id": "causes_1",
+      "kind": "causes",
+      "from": "lightning_flash",
+      "to": "expansion",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "causes_2",
+      "kind": "causes",
+      "from": "expansion",
+      "to": "cooling",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "causes_3",
+      "kind": "causes",
+      "from": "cooling",
+      "to": "contraction",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "produces_1",
+      "kind": "produces",
+      "from": "contraction",
+      "to": "sound_wave",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "produces_2",
+      "kind": "produces",
+      "from": "expansion",
+      "to": "sound_wave",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "causes_4",
+      "kind": "causes",
+      "from": "source_joint_8e325dd7e9d5",
+      "to": "lightning_flash",
+      "evidence_ids": [
+        "thunder_origin"
+      ]
+    }
+  ],
+  "quantity_subjects": {}
+}

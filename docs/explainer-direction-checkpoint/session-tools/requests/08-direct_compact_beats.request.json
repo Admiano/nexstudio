@@ -1,0 +1,485 @@
+{
+  "scene": {
+    "index": 1,
+    "intent": "Demonstrate cooling, contraction, and the resulting sound wave.",
+    "narration": "Immediately after the flash, the air cools and contracts quickly. This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+    "figures": [
+      {
+        "entity": "cooling",
+        "form": "circle",
+        "role": "negative",
+        "anchor": "start"
+      },
+      {
+        "entity": "contraction",
+        "form": "rect",
+        "role": "primary",
+        "anchor": "center"
+      },
+      {
+        "entity": "source_joint_8e325dd7e9d5",
+        "form": "hexagon",
+        "role": "accent",
+        "anchor": "end"
+      },
+      {
+        "entity": "sound_wave",
+        "form": "label",
+        "role": "positive",
+        "anchor": "end"
+      }
+    ],
+    "facts": [
+      {
+        "id": "causes_2",
+        "kind": "produces",
+        "from": "source_joint_8e325dd7e9d5",
+        "to": "sound_wave",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "cooling",
+      "kind": "process",
+      "label": "rapid cooling of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "contraction",
+      "kind": "process",
+      "label": "rapid contraction of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "sound_wave",
+      "kind": "signal",
+      "label": "sound wave from thunder",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "source_joint_8e325dd7e9d5",
+      "kind": "process",
+      "label": "rapid expansion and contraction",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    }
+  ],
+  "words": [
+    {
+      "word": "Immediately",
+      "start_ms": 225.0,
+      "end_ms": 775.0
+    },
+    {
+      "word": "after",
+      "start_ms": 775.0,
+      "end_ms": 1037.5
+    },
+    {
+      "word": "the",
+      "start_ms": 1037.5,
+      "end_ms": 1125.0
+    },
+    {
+      "word": "flash,",
+      "start_ms": 1125.0,
+      "end_ms": 1650.0
+    },
+    {
+      "word": "the",
+      "start_ms": 1650.0,
+      "end_ms": 1800.0
+    },
+    {
+      "word": "air",
+      "start_ms": 1800.0,
+      "end_ms": 2012.5000000000002
+    },
+    {
+      "word": "cools",
+      "start_ms": 2012.5000000000002,
+      "end_ms": 2425.0
+    },
+    {
+      "word": "and",
+      "start_ms": 2425.0,
+      "end_ms": 2550.0
+    },
+    {
+      "word": "contracts",
+      "start_ms": 2550.0,
+      "end_ms": 3100.0
+    },
+    {
+      "word": "quickly.",
+      "start_ms": 3100.0,
+      "end_ms": 3987.5
+    },
+    {
+      "word": "This",
+      "start_ms": 3987.5,
+      "end_ms": 4237.5
+    },
+    {
+      "word": "rapid",
+      "start_ms": 4237.5,
+      "end_ms": 4600.0
+    },
+    {
+      "word": "expansion",
+      "start_ms": 4600.0,
+      "end_ms": 5212.5
+    },
+    {
+      "word": "and",
+      "start_ms": 5212.5,
+      "end_ms": 5325.0
+    },
+    {
+      "word": "contraction",
+      "start_ms": 5325.0,
+      "end_ms": 5987.5
+    },
+    {
+      "word": "creates",
+      "start_ms": 5987.5,
+      "end_ms": 6400.0
+    },
+    {
+      "word": "the",
+      "start_ms": 6400.0,
+      "end_ms": 6537.5
+    },
+    {
+      "word": "sound",
+      "start_ms": 6537.5,
+      "end_ms": 6850.0
+    },
+    {
+      "word": "wave",
+      "start_ms": 6850.0,
+      "end_ms": 7200.0
+    },
+    {
+      "word": "that",
+      "start_ms": 7200.0,
+      "end_ms": 7312.5
+    },
+    {
+      "word": "we",
+      "start_ms": 7312.5,
+      "end_ms": 7450.0
+    },
+    {
+      "word": "hear",
+      "start_ms": 7450.0,
+      "end_ms": 7650.0
+    },
+    {
+      "word": "as",
+      "start_ms": 7650.0,
+      "end_ms": 7800.0
+    },
+    {
+      "word": "thunder.",
+      "start_ms": 7800.0,
+      "end_ms": 8650.0
+    }
+  ],
+  "duration_ms": 8750,
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "beats": {
+        "type": "object",
+        "properties": {
+          "construct:cooling": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "construct:contraction": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "construct:source_joint_8e325dd7e9d5": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "reveal:sound_wave": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "emphasize:cooling": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "emphasize:contraction": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "emphasize:source_joint_8e325dd7e9d5": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "emphasize:sound_wave": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "shift:contraction": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "shift:cooling": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "shift:sound_wave": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "shift:source_joint_8e325dd7e9d5": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          },
+          "connect:causes_2": {
+            "type": "string",
+            "enum": [
+              "Immediately",
+              "after",
+              "flash",
+              "air",
+              "cools",
+              "contracts",
+              "quickly",
+              "rapid",
+              "expansion",
+              "contraction",
+              "creates",
+              "sound",
+              "wave",
+              "hear",
+              "thunder"
+            ]
+          }
+        },
+        "required": [
+          "construct:cooling",
+          "construct:contraction",
+          "construct:source_joint_8e325dd7e9d5",
+          "reveal:sound_wave",
+          "connect:causes_2"
+        ],
+        "additionalProperties": false,
+        "minProperties": 5,
+        "maxProperties": 13
+      }
+    },
+    "required": [
+      "beats"
+    ],
+    "additionalProperties": false
+  }
+}

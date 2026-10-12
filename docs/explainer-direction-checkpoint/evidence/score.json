@@ -1,0 +1,1550 @@
+{
+  "schema": "explainer-direction.score/v1",
+  "film_id": "lightning_source_quote_v18",
+  "title": "How Lightning Creates Thunder",
+  "brief": "Explain why lightning produces thunder. Follow the NOAA evidence: rapid heating of air, expansion and contraction, then the sound wave heard as thunder. Compose native graphical explanations in 16:9, 9:16 and 1:1, with Liam narration and coordinated motion, not generic cards.",
+  "evidence": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    }
+  ],
+  "meaning_graph": {
+    "entities": [
+      {
+        "id": "lightning_flash",
+        "kind": "process",
+        "label": "lightning discharge",
+        "evidence_ids": [
+          "thunder_origin",
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "heated_air",
+        "kind": "material",
+        "label": "air heated by lightning",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "expansion",
+        "kind": "process",
+        "label": "rapid expansion of air",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "cooling",
+        "kind": "process",
+        "label": "rapid cooling of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "contraction",
+        "kind": "process",
+        "label": "rapid contraction of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "sound_wave",
+        "kind": "signal",
+        "label": "sound wave from thunder",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "thunder",
+        "kind": "signal",
+        "label": "thunder",
+        "evidence_ids": [
+          "thunder_origin",
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "source_joint_8e325dd7e9d5",
+        "kind": "process",
+        "label": "rapid expansion and contraction",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "id": "causes_1",
+        "kind": "causes",
+        "from": "lightning_flash",
+        "to": "expansion",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "causes_2",
+        "kind": "produces",
+        "from": "source_joint_8e325dd7e9d5",
+        "to": "sound_wave",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "quantities": []
+  },
+  "provenance": {
+    "mode": "development",
+    "creative_authority": "P8",
+    "status": "DEVELOPMENT_PREFLIGHT",
+    "direction_id": "direction_538b8df5cd8b4439a1f87e4e",
+    "source": {
+      "id": "request_538b8df5cd8b4439a1f87e4e",
+      "uri": "urn:explainer-direction:request:538b8df5cd8b4439a1f87e4e1d96319305090f590b921c9011fd81c9c45b01d6",
+      "locator": "Standalone author request only; NOT P8 approval or external evidence",
+      "license": "owned",
+      "commercial_use": true
+    },
+    "model": {
+      "provider": "openai-compatible-local",
+      "model": "qwen3-30b-a3b-instruct-2507"
+    }
+  },
+  "style": {
+    "family": "ocean",
+    "palette": {
+      "background": "#0a1a2f",
+      "surface": "#1a3a5f",
+      "text": "#a0d8ff",
+      "muted": "#90a9b6",
+      "primary": "#ff5a5a",
+      "secondary": "#4a90e2",
+      "accent": "#ffcc00",
+      "positive": "#8bc34a",
+      "negative": "#e57373"
+    },
+    "typography": {
+      "font_family": "Inter",
+      "font_url": "/engine_sources/editorial-motion-v2/assets/fonts/InterVariable.woff2",
+      "font_license": "OFL-1.1",
+      "headline_size": 96,
+      "body_size": 48,
+      "label_size": 40
+    },
+    "strokes": {
+      "width": 4,
+      "corner_radius": 10
+    },
+    "materials": {
+      "surface": "flat"
+    },
+    "motion": {
+      "character": "precise",
+      "easing": "ease_in_out"
+    }
+  },
+  "sections": [
+    {
+      "id": "explanation",
+      "title": "How Lightning Creates Thunder",
+      "intent": "Lightning heats air, causing it to expand and then contract rapidly—this process generates the sound wave we hear as thunder."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene_0",
+      "section_id": "explanation",
+      "intent": "Show the lightning flash heating air, leading to rapid expansion.",
+      "claim_ids": [
+        "thunder_origin",
+        "heating_expansion"
+      ],
+      "narration": "Thunder is the sound caused by a nearby flash of lightning. The lightning discharge heats the air rapidly and causes it to expand.",
+      "duration_ms": 7600,
+      "actors": [
+        {
+          "id": "scene_0_figure_0_label",
+          "kind": "text",
+          "role": "text",
+          "label": "lightning discharge",
+          "meaning": "lightning discharge",
+          "meaning_binding": {
+            "entity": "lightning_flash"
+          },
+          "evidence_ids": [
+            "heating_expansion",
+            "thunder_origin"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_0_figure_0"
+          },
+          "payload": {
+            "text": "lightning discharge",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "lightning discharge"
+          }
+        },
+        {
+          "id": "scene_0_figure_0",
+          "kind": "shape",
+          "role": "primary",
+          "label": "lightning discharge",
+          "meaning": "lightning discharge",
+          "meaning_binding": {
+            "entity": "lightning_flash"
+          },
+          "evidence_ids": [
+            "heating_expansion",
+            "thunder_origin"
+          ],
+          "layout": {
+            "anchor": "center"
+          },
+          "payload": {
+            "shape": "circle",
+            "aspect_ratio": 1.0
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "circle",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_0_figure_1_label",
+          "kind": "text",
+          "role": "text",
+          "label": "air heated by lightning",
+          "meaning": "air heated by lightning",
+          "meaning_binding": {
+            "entity": "heated_air"
+          },
+          "evidence_ids": [
+            "heating_expansion"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_0_figure_1"
+          },
+          "payload": {
+            "text": "air heated by lightning",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "air heated by lightning"
+          }
+        },
+        {
+          "id": "scene_0_figure_1",
+          "kind": "shape",
+          "role": "secondary",
+          "label": "air heated by lightning",
+          "meaning": "air heated by lightning",
+          "meaning_binding": {
+            "entity": "heated_air"
+          },
+          "evidence_ids": [
+            "heating_expansion"
+          ],
+          "layout": {
+            "anchor": "start"
+          },
+          "payload": {
+            "shape": "rect",
+            "aspect_ratio": 1.5
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "rect",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_0_figure_2_label",
+          "kind": "text",
+          "role": "text",
+          "label": "rapid expansion of air",
+          "meaning": "rapid expansion of air",
+          "meaning_binding": {
+            "entity": "expansion"
+          },
+          "evidence_ids": [
+            "heating_expansion"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_0_figure_2"
+          },
+          "payload": {
+            "text": "rapid expansion of air",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "rapid expansion of air"
+          }
+        },
+        {
+          "id": "scene_0_figure_2",
+          "kind": "shape",
+          "role": "positive",
+          "label": "rapid expansion of air",
+          "meaning": "rapid expansion of air",
+          "meaning_binding": {
+            "entity": "expansion"
+          },
+          "evidence_ids": [
+            "heating_expansion"
+          ],
+          "layout": {
+            "anchor": "end"
+          },
+          "payload": {
+            "shape": "diamond",
+            "aspect_ratio": 1.0
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "diamond",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_0_link_0",
+          "kind": "connector",
+          "role": "accent",
+          "label": "causes",
+          "meaning": "causes",
+          "meaning_binding": {
+            "fact": "causes_1"
+          },
+          "evidence_ids": [
+            "heating_expansion"
+          ],
+          "layout": {
+            "anchor": "center"
+          },
+          "payload": {
+            "from": "scene_0_figure_0",
+            "to": "scene_0_figure_2",
+            "arrow": true,
+            "routing": "direct"
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "draw": 0,
+            "rotation": 0
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "scene_0_relation_0",
+          "kind": "causes",
+          "from": "scene_0_figure_0",
+          "to": "scene_0_figure_2",
+          "evidence_ids": [
+            "heating_expansion"
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "scene_0_beat_0",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_0",
+            "scene_0_figure_0_label"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "nearby",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 1837.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 450.0,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_0": {
+              "opacity": 1,
+              "position": "focus"
+            },
+            "scene_0_figure_0_label": {
+              "opacity": 1
+            }
+          },
+          "claim_ids": [
+            "heating_expansion",
+            "thunder_origin"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: shift"
+        },
+        {
+          "id": "scene_0_beat_1",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "flash",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 2287.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 412.5,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_0": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1
+            }
+          },
+          "claim_ids": [
+            "heating_expansion",
+            "thunder_origin"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: construct"
+        },
+        {
+          "id": "scene_0_beat_2",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "lightning",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 2700.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_0": {
+              "opacity": 1,
+              "highlight": 1
+            }
+          },
+          "claim_ids": [
+            "heating_expansion",
+            "thunder_origin"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: emphasize"
+        },
+        {
+          "id": "scene_0_beat_3",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_1",
+            "scene_0_figure_1_label",
+            "scene_0_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "heats",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 4537.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 387.5,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_1": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1,
+              "highlight": 1
+            },
+            "scene_0_figure_1_label": {
+              "opacity": 1
+            },
+            "scene_0_figure_0": {
+              "opacity": 0.45,
+              "highlight": 0
+            }
+          },
+          "claim_ids": [
+            "heating_expansion"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: construct + emphasize"
+        },
+        {
+          "id": "scene_0_beat_5",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_1"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "air",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 4925.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_1": {
+              "opacity": 1,
+              "position": "focus"
+            }
+          },
+          "claim_ids": [
+            "heating_expansion"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: shift"
+        },
+        {
+          "id": "scene_0_beat_6",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_2",
+            "scene_0_figure_2_label"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "rapidly",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 5125.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_2": {
+              "opacity": 1,
+              "position": "focus"
+            },
+            "scene_0_figure_2_label": {
+              "opacity": 1
+            }
+          },
+          "claim_ids": [
+            "heating_expansion"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: shift"
+        },
+        {
+          "id": "scene_0_beat_7",
+          "verb": "update",
+          "targets": [
+            "scene_0_link_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "causes",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 5825.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_link_0": {
+              "opacity": 1,
+              "draw": 1
+            }
+          },
+          "claim_ids": [
+            "heating_expansion"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: connect"
+        },
+        {
+          "id": "scene_0_beat_8",
+          "verb": "update",
+          "targets": [
+            "scene_0_figure_2",
+            "scene_0_figure_1"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "expand",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 6425.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_0_figure_2": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1,
+              "highlight": 1
+            },
+            "scene_0_figure_1": {
+              "opacity": 0.45,
+              "highlight": 0
+            }
+          },
+          "claim_ids": [
+            "heating_expansion"
+          ],
+          "rationale": "Show the lightning flash heating air, leading to rapid expansion.: construct + emphasize"
+        }
+      ],
+      "composition": {
+        "flow": "radial",
+        "density": "balanced",
+        "focus": "scene_0_figure_0"
+      },
+      "transition": {
+        "kind": "fade",
+        "duration_ms": 350
+      },
+      "timing": "aligned",
+      "motif": "Show the lightning flash heating air, leading to rapid expansion."
+    },
+    {
+      "id": "scene_1",
+      "section_id": "explanation",
+      "intent": "Demonstrate cooling, contraction, and the resulting sound wave.",
+      "claim_ids": [
+        "cooling_contraction",
+        "sound_wave"
+      ],
+      "narration": "Immediately after the flash, the air cools and contracts quickly. This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "duration_ms": 8750,
+      "actors": [
+        {
+          "id": "scene_1_figure_0_label",
+          "kind": "text",
+          "role": "text",
+          "label": "rapid cooling of air",
+          "meaning": "rapid cooling of air",
+          "meaning_binding": {
+            "entity": "cooling"
+          },
+          "evidence_ids": [
+            "cooling_contraction"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_1_figure_0"
+          },
+          "payload": {
+            "text": "rapid cooling of air",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "rapid cooling of air"
+          }
+        },
+        {
+          "id": "scene_1_figure_0",
+          "kind": "shape",
+          "role": "negative",
+          "label": "rapid cooling of air",
+          "meaning": "rapid cooling of air",
+          "meaning_binding": {
+            "entity": "cooling"
+          },
+          "evidence_ids": [
+            "cooling_contraction"
+          ],
+          "layout": {
+            "anchor": "start"
+          },
+          "payload": {
+            "shape": "circle",
+            "aspect_ratio": 1.0
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "circle",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_1_figure_1_label",
+          "kind": "text",
+          "role": "text",
+          "label": "rapid contraction of air",
+          "meaning": "rapid contraction of air",
+          "meaning_binding": {
+            "entity": "contraction"
+          },
+          "evidence_ids": [
+            "cooling_contraction"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_1_figure_1"
+          },
+          "payload": {
+            "text": "rapid contraction of air",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "rapid contraction of air"
+          }
+        },
+        {
+          "id": "scene_1_figure_1",
+          "kind": "shape",
+          "role": "primary",
+          "label": "rapid contraction of air",
+          "meaning": "rapid contraction of air",
+          "meaning_binding": {
+            "entity": "contraction"
+          },
+          "evidence_ids": [
+            "cooling_contraction"
+          ],
+          "layout": {
+            "anchor": "center"
+          },
+          "payload": {
+            "shape": "rect",
+            "aspect_ratio": 1.5
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "rect",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_1_figure_2_label",
+          "kind": "text",
+          "role": "text",
+          "label": "rapid expansion and contraction",
+          "meaning": "rapid expansion and contraction",
+          "meaning_binding": {
+            "entity": "source_joint_8e325dd7e9d5"
+          },
+          "evidence_ids": [
+            "sound_wave"
+          ],
+          "layout": {
+            "anchor": "caption",
+            "relative_to": "scene_1_figure_2"
+          },
+          "payload": {
+            "text": "rapid expansion and contraction",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "rapid expansion and contraction"
+          }
+        },
+        {
+          "id": "scene_1_figure_2",
+          "kind": "shape",
+          "role": "accent",
+          "label": "rapid expansion and contraction",
+          "meaning": "rapid expansion and contraction",
+          "meaning_binding": {
+            "entity": "source_joint_8e325dd7e9d5"
+          },
+          "evidence_ids": [
+            "sound_wave"
+          ],
+          "layout": {
+            "anchor": "end"
+          },
+          "payload": {
+            "shape": "hexagon",
+            "aspect_ratio": 1.0
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "variant": "hexagon",
+            "rotation": 0,
+            "draw": 0,
+            "fill": 0
+          }
+        },
+        {
+          "id": "scene_1_figure_3",
+          "kind": "text",
+          "role": "positive",
+          "label": "sound wave from thunder",
+          "meaning": "sound wave from thunder",
+          "meaning_binding": {
+            "entity": "sound_wave"
+          },
+          "evidence_ids": [
+            "sound_wave"
+          ],
+          "layout": {
+            "anchor": "end"
+          },
+          "payload": {
+            "text": "sound wave from thunder",
+            "purpose": "label",
+            "max_lines": 3
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "text": "sound wave from thunder"
+          }
+        },
+        {
+          "id": "scene_1_link_0",
+          "kind": "connector",
+          "role": "accent",
+          "label": "produces",
+          "meaning": "produces",
+          "meaning_binding": {
+            "fact": "causes_2"
+          },
+          "evidence_ids": [
+            "sound_wave"
+          ],
+          "layout": {
+            "anchor": "center"
+          },
+          "payload": {
+            "from": "scene_1_figure_2",
+            "to": "scene_1_figure_3",
+            "arrow": true,
+            "routing": "direct"
+          },
+          "initial": {
+            "opacity": 0,
+            "position": "home",
+            "scale": 1,
+            "highlight": 0,
+            "draw": 0,
+            "rotation": 0
+          }
+        }
+      ],
+      "relations": [
+        {
+          "id": "scene_1_relation_0",
+          "kind": "produces",
+          "from": "scene_1_figure_2",
+          "to": "scene_1_figure_3",
+          "evidence_ids": [
+            "sound_wave"
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "scene_1_beat_0",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_0",
+            "scene_1_figure_0_label"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "Immediately",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 225.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 550.0,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_0": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1
+            },
+            "scene_1_figure_0_label": {
+              "opacity": 1
+            }
+          },
+          "claim_ids": [
+            "cooling_contraction"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: construct"
+        },
+        {
+          "id": "scene_1_beat_1",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "after",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 775.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_0": {
+              "opacity": 1,
+              "position": "focus"
+            }
+          },
+          "claim_ids": [
+            "cooling_contraction"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: shift"
+        },
+        {
+          "id": "scene_1_beat_2",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "cools",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 2012.5000000000002,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 537.4999999999998,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_0": {
+              "opacity": 1,
+              "highlight": 1
+            }
+          },
+          "claim_ids": [
+            "cooling_contraction"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: emphasize"
+        },
+        {
+          "id": "scene_1_beat_3",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_1",
+            "scene_1_figure_1_label",
+            "scene_1_figure_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "contracts",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 2550.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 550.0,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_1": {
+              "opacity": 1,
+              "highlight": 1
+            },
+            "scene_1_figure_1_label": {
+              "opacity": 1
+            },
+            "scene_1_figure_0": {
+              "opacity": 0.45,
+              "highlight": 0
+            }
+          },
+          "claim_ids": [
+            "cooling_contraction"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: emphasize"
+        },
+        {
+          "id": "scene_1_beat_4",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_1"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "quickly",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 3100.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_1": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1
+            }
+          },
+          "claim_ids": [
+            "cooling_contraction"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: construct"
+        },
+        {
+          "id": "scene_1_beat_5",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_2",
+            "scene_1_figure_2_label"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "rapid",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 4237.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 362.5,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_2": {
+              "opacity": 1,
+              "draw": 1,
+              "fill": 1
+            },
+            "scene_1_figure_2_label": {
+              "opacity": 1
+            }
+          },
+          "claim_ids": [
+            "sound_wave"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: construct"
+        },
+        {
+          "id": "scene_1_beat_6",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_2",
+            "scene_1_figure_1"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "expansion",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 4600.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_2": {
+              "opacity": 1,
+              "highlight": 1
+            },
+            "scene_1_figure_1": {
+              "opacity": 0.45,
+              "highlight": 0
+            }
+          },
+          "claim_ids": [
+            "sound_wave"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: emphasize"
+        },
+        {
+          "id": "scene_1_beat_7",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_2"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "contraction",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 5325.0,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_2": {
+              "opacity": 1,
+              "position": "focus"
+            }
+          },
+          "claim_ids": [
+            "sound_wave"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: shift"
+        },
+        {
+          "id": "scene_1_beat_8",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_3",
+            "scene_1_link_0"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "creates",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 5987.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 550.0,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_3": {
+              "opacity": 1
+            },
+            "scene_1_link_0": {
+              "opacity": 1,
+              "draw": 1
+            }
+          },
+          "claim_ids": [
+            "sound_wave"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: reveal + connect"
+        },
+        {
+          "id": "scene_1_beat_10",
+          "verb": "update",
+          "targets": [
+            "scene_1_figure_3",
+            "scene_1_figure_2"
+          ],
+          "cue": {
+            "kind": "word",
+            "word": "sound",
+            "occurrence": 0,
+            "edge": "start",
+            "resolved_ms": 6537.5,
+            "alignment_id": "alignment_607243ece69679be43e7e7bc"
+          },
+          "duration_ms": 650,
+          "dependencies": [],
+          "easing": "ease_in_out",
+          "changes": {
+            "scene_1_figure_3": {
+              "opacity": 1,
+              "highlight": 1
+            },
+            "scene_1_figure_2": {
+              "opacity": 0.45,
+              "highlight": 0
+            }
+          },
+          "claim_ids": [
+            "sound_wave"
+          ],
+          "rationale": "Demonstrate cooling, contraction, and the resulting sound wave.: emphasize"
+        }
+      ],
+      "composition": {
+        "flow": "column",
+        "density": "balanced",
+        "focus": "scene_1_figure_0"
+      },
+      "transition": {
+        "kind": "cut",
+        "duration_ms": 0
+      },
+      "timing": "aligned",
+      "motif": "Demonstrate cooling, contraction, and the resulting sound wave."
+    }
+  ],
+  "alignment": {
+    "schema": "explainer-direction.alignment/v1",
+    "id": "alignment_607243ece69679be43e7e7bc",
+    "source": {
+      "provider": "kokoro-local",
+      "method": "provider_word_timestamps",
+      "audio_sha256": "607243ece69679be43e7e7bc9de986a0564bfd0d6a962c7194c24837a9760408"
+    },
+    "scenes": [
+      {
+        "scene_id": "scene_0",
+        "duration_ms": 7600,
+        "words": [
+          {
+            "word": "Thunder",
+            "start_ms": 225.0,
+            "end_ms": 600.0
+          },
+          {
+            "word": "is",
+            "start_ms": 600.0,
+            "end_ms": 737.5
+          },
+          {
+            "word": "the",
+            "start_ms": 737.5,
+            "end_ms": 862.5
+          },
+          {
+            "word": "sound",
+            "start_ms": 862.5,
+            "end_ms": 1225.0
+          },
+          {
+            "word": "caused",
+            "start_ms": 1225.0,
+            "end_ms": 1550.0
+          },
+          {
+            "word": "by",
+            "start_ms": 1550.0,
+            "end_ms": 1725.0
+          },
+          {
+            "word": "a",
+            "start_ms": 1725.0,
+            "end_ms": 1837.5
+          },
+          {
+            "word": "nearby",
+            "start_ms": 1837.5,
+            "end_ms": 2287.5
+          },
+          {
+            "word": "flash",
+            "start_ms": 2287.5,
+            "end_ms": 2612.5
+          },
+          {
+            "word": "of",
+            "start_ms": 2612.5,
+            "end_ms": 2700.0
+          },
+          {
+            "word": "lightning.",
+            "start_ms": 2700.0,
+            "end_ms": 3525.0
+          },
+          {
+            "word": "The",
+            "start_ms": 3525.0,
+            "end_ms": 3650.0
+          },
+          {
+            "word": "lightning",
+            "start_ms": 3650.0,
+            "end_ms": 4025.0000000000005
+          },
+          {
+            "word": "discharge",
+            "start_ms": 4025.0000000000005,
+            "end_ms": 4537.5
+          },
+          {
+            "word": "heats",
+            "start_ms": 4537.5,
+            "end_ms": 4787.5
+          },
+          {
+            "word": "the",
+            "start_ms": 4787.5,
+            "end_ms": 4925.0
+          },
+          {
+            "word": "air",
+            "start_ms": 4925.0,
+            "end_ms": 5125.0
+          },
+          {
+            "word": "rapidly",
+            "start_ms": 5125.0,
+            "end_ms": 5687.5
+          },
+          {
+            "word": "and",
+            "start_ms": 5687.5,
+            "end_ms": 5825.0
+          },
+          {
+            "word": "causes",
+            "start_ms": 5825.0,
+            "end_ms": 6175.0
+          },
+          {
+            "word": "it",
+            "start_ms": 6175.0,
+            "end_ms": 6275.0
+          },
+          {
+            "word": "to",
+            "start_ms": 6275.0,
+            "end_ms": 6425.0
+          },
+          {
+            "word": "expand.",
+            "start_ms": 6425.0,
+            "end_ms": 7500.0
+          }
+        ]
+      },
+      {
+        "scene_id": "scene_1",
+        "duration_ms": 8750,
+        "words": [
+          {
+            "word": "Immediately",
+            "start_ms": 225.0,
+            "end_ms": 775.0
+          },
+          {
+            "word": "after",
+            "start_ms": 775.0,
+            "end_ms": 1037.5
+          },
+          {
+            "word": "the",
+            "start_ms": 1037.5,
+            "end_ms": 1125.0
+          },
+          {
+            "word": "flash,",
+            "start_ms": 1125.0,
+            "end_ms": 1650.0
+          },
+          {
+            "word": "the",
+            "start_ms": 1650.0,
+            "end_ms": 1800.0
+          },
+          {
+            "word": "air",
+            "start_ms": 1800.0,
+            "end_ms": 2012.5000000000002
+          },
+          {
+            "word": "cools",
+            "start_ms": 2012.5000000000002,
+            "end_ms": 2425.0
+          },
+          {
+            "word": "and",
+            "start_ms": 2425.0,
+            "end_ms": 2550.0
+          },
+          {
+            "word": "contracts",
+            "start_ms": 2550.0,
+            "end_ms": 3100.0
+          },
+          {
+            "word": "quickly.",
+            "start_ms": 3100.0,
+            "end_ms": 3987.5
+          },
+          {
+            "word": "This",
+            "start_ms": 3987.5,
+            "end_ms": 4237.5
+          },
+          {
+            "word": "rapid",
+            "start_ms": 4237.5,
+            "end_ms": 4600.0
+          },
+          {
+            "word": "expansion",
+            "start_ms": 4600.0,
+            "end_ms": 5212.5
+          },
+          {
+            "word": "and",
+            "start_ms": 5212.5,
+            "end_ms": 5325.0
+          },
+          {
+            "word": "contraction",
+            "start_ms": 5325.0,
+            "end_ms": 5987.5
+          },
+          {
+            "word": "creates",
+            "start_ms": 5987.5,
+            "end_ms": 6400.0
+          },
+          {
+            "word": "the",
+            "start_ms": 6400.0,
+            "end_ms": 6537.5
+          },
+          {
+            "word": "sound",
+            "start_ms": 6537.5,
+            "end_ms": 6850.0
+          },
+          {
+            "word": "wave",
+            "start_ms": 6850.0,
+            "end_ms": 7200.0
+          },
+          {
+            "word": "that",
+            "start_ms": 7200.0,
+            "end_ms": 7312.5
+          },
+          {
+            "word": "we",
+            "start_ms": 7312.5,
+            "end_ms": 7450.0
+          },
+          {
+            "word": "hear",
+            "start_ms": 7450.0,
+            "end_ms": 7650.0
+          },
+          {
+            "word": "as",
+            "start_ms": 7650.0,
+            "end_ms": 7800.0
+          },
+          {
+            "word": "thunder.",
+            "start_ms": 7800.0,
+            "end_ms": 8650.0
+          }
+        ]
+      }
+    ]
+  }
+}

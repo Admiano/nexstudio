@@ -1,0 +1,328 @@
+{
+  "authority": {
+    "status": "DEVELOPMENT_PREFLIGHT",
+    "missing": "Authenticated P8 and exact-media review/calibration"
+  },
+  "evidence": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    }
+  ],
+  "meaning_graph": {
+    "entities": [
+      {
+        "id": "lightning_flash",
+        "kind": "process",
+        "label": "lightning discharge",
+        "evidence_ids": [
+          "thunder_origin",
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "heated_air",
+        "kind": "material",
+        "label": "air heated by lightning",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "expansion",
+        "kind": "process",
+        "label": "rapid expansion of air",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "cooling",
+        "kind": "process",
+        "label": "rapid cooling of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "contraction",
+        "kind": "process",
+        "label": "rapid contraction of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "sound_wave",
+        "kind": "signal",
+        "label": "sound wave from thunder",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "thunder",
+        "kind": "signal",
+        "label": "thunder",
+        "evidence_ids": [
+          "thunder_origin",
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "source_joint_8e325dd7e9d5",
+        "kind": "process",
+        "label": "rapid expansion and contraction",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "id": "review_fact_0",
+        "kind": "causes",
+        "from": "lightning_flash",
+        "to": "expansion",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "review_fact_1",
+        "kind": "produces",
+        "from": "source_joint_8e325dd7e9d5",
+        "to": "sound_wave",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "quantities": []
+  },
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "enum": [
+          "accept",
+          "revise"
+        ]
+      },
+      "issues": {
+        "type": "array",
+        "maxItems": 1,
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "claim_id": {
+                  "const": "thunder_origin"
+                },
+                "fact_id": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "category": {
+                  "enum": [
+                    "missing_relation",
+                    "unsupported_relation",
+                    "wrong_direction",
+                    "wrong_quantity_subject",
+                    "unsupported_entity"
+                  ]
+                },
+                "evidence_quote": {
+                  "const": "Thunder is the sound caused by a nearby flash of lightning."
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 240
+                }
+              },
+              "required": [
+                "claim_id",
+                "fact_id",
+                "category",
+                "evidence_quote",
+                "explanation"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "claim_id": {
+                  "const": "heating_expansion"
+                },
+                "fact_id": {
+                  "enum": [
+                    null,
+                    "review_fact_0"
+                  ]
+                },
+                "category": {
+                  "enum": [
+                    "missing_relation",
+                    "unsupported_relation",
+                    "wrong_direction",
+                    "wrong_quantity_subject",
+                    "unsupported_entity"
+                  ]
+                },
+                "evidence_quote": {
+                  "const": "The lightning discharge heats the air rapidly and causes it to expand."
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 240
+                }
+              },
+              "required": [
+                "claim_id",
+                "fact_id",
+                "category",
+                "evidence_quote",
+                "explanation"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "claim_id": {
+                  "const": "cooling_contraction"
+                },
+                "fact_id": {
+                  "enum": [
+                    null
+                  ]
+                },
+                "category": {
+                  "enum": [
+                    "missing_relation",
+                    "unsupported_relation",
+                    "wrong_direction",
+                    "wrong_quantity_subject",
+                    "unsupported_entity"
+                  ]
+                },
+                "evidence_quote": {
+                  "const": "Immediately after the flash, the air cools and contracts quickly."
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 240
+                }
+              },
+              "required": [
+                "claim_id",
+                "fact_id",
+                "category",
+                "evidence_quote",
+                "explanation"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "claim_id": {
+                  "const": "sound_wave"
+                },
+                "fact_id": {
+                  "enum": [
+                    null,
+                    "review_fact_1"
+                  ]
+                },
+                "category": {
+                  "enum": [
+                    "missing_relation",
+                    "unsupported_relation",
+                    "wrong_direction",
+                    "wrong_quantity_subject",
+                    "unsupported_entity"
+                  ]
+                },
+                "evidence_quote": {
+                  "const": "This rapid expansion and contraction creates the sound wave that we hear as thunder."
+                },
+                "explanation": {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 240
+                }
+              },
+              "required": [
+                "claim_id",
+                "fact_id",
+                "category",
+                "evidence_quote",
+                "explanation"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      }
+    },
+    "required": [
+      "verdict",
+      "issues"
+    ],
+    "additionalProperties": false
+  },
+  "source_attested_routes": [],
+  "source_attested_orientations": [],
+  "review_scope": "The source_attested_orientations were checked by exact source subject, verb, direction phrase and EVERY cited claim. They remain established in the full graph. Review the other facts and remaining claim coverage. Do not report them as omitted or reject a direction concept for not being a physical object. Check source entailment and entity definitions. Return only the first actionable issue with exact fact ID and a verbatim source quote; do not edit the graph."
+}

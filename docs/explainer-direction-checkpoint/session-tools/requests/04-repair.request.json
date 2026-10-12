@@ -1,0 +1,268 @@
+{
+  "authority": {
+    "status": "DEVELOPMENT_PREFLIGHT",
+    "missing": "Authenticated P8 and exact-media review/calibration"
+  },
+  "evidence": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    }
+  ],
+  "meaning_entities": [
+    {
+      "id": "lightning_flash",
+      "kind": "process",
+      "label": "lightning discharge",
+      "evidence_ids": [
+        "thunder_origin",
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "heated_air",
+      "kind": "material",
+      "label": "air heated by lightning",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "expansion",
+      "kind": "process",
+      "label": "rapid expansion of air",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "cooling",
+      "kind": "process",
+      "label": "rapid cooling of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "contraction",
+      "kind": "process",
+      "label": "rapid contraction of air",
+      "evidence_ids": [
+        "cooling_contraction"
+      ]
+    },
+    {
+      "id": "sound_wave",
+      "kind": "signal",
+      "label": "sound wave from thunder",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "thunder",
+      "kind": "signal",
+      "label": "thunder",
+      "evidence_ids": [
+        "thunder_origin",
+        "sound_wave"
+      ]
+    },
+    {
+      "id": "source_joint_8e325dd7e9d5",
+      "kind": "process",
+      "label": "rapid expansion and contraction",
+      "evidence_ids": [
+        "sound_wave"
+      ]
+    }
+  ],
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "replacement": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "const": "causes_2"
+              },
+              "kind": {
+                "enum": [
+                  "causes"
+                ]
+              },
+              "from": {
+                "enum": [
+                  "lightning_flash",
+                  "heated_air",
+                  "expansion",
+                  "cooling",
+                  "contraction",
+                  "sound_wave",
+                  "thunder",
+                  "source_joint_8e325dd7e9d5"
+                ]
+              },
+              "to": {
+                "enum": [
+                  "lightning_flash",
+                  "expansion",
+                  "cooling",
+                  "contraction",
+                  "source_joint_8e325dd7e9d5"
+                ]
+              },
+              "evidence_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "items": {
+                  "enum": [
+                    "thunder_origin",
+                    "heating_expansion",
+                    "cooling_contraction",
+                    "sound_wave"
+                  ]
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "from",
+              "to",
+              "evidence_ids"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "const": "causes_2"
+              },
+              "kind": {
+                "enum": [
+                  "produces"
+                ]
+              },
+              "from": {
+                "enum": [
+                  "lightning_flash",
+                  "expansion",
+                  "cooling",
+                  "contraction",
+                  "source_joint_8e325dd7e9d5"
+                ]
+              },
+              "to": {
+                "enum": [
+                  "lightning_flash",
+                  "heated_air",
+                  "expansion",
+                  "cooling",
+                  "contraction",
+                  "sound_wave",
+                  "thunder",
+                  "source_joint_8e325dd7e9d5"
+                ]
+              },
+              "evidence_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 4,
+                "items": {
+                  "enum": [
+                    "thunder_origin",
+                    "heating_expansion",
+                    "cooling_contraction",
+                    "sound_wave"
+                  ]
+                },
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "from",
+              "to",
+              "evidence_ids"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "required": [
+      "replacement"
+    ],
+    "additionalProperties": false
+  },
+  "meaning_guidance": "Describe only entities and relationships entailed by the supplied claims. Type each entity by what it is: places/devices/systems/organisms are physical; material, energy and signal are carriers that move or are converted, never route endpoints. A counted collection is its own system entity, distinct from its members. Cite every claim an entity takes part in. Include separate source-named processes and unspecific energy when a claim explicitly states them. Omit ungrounded entities. flows_to moves the carrier between two physical endpoints, optionally via a distinct physical device; attach its driving process to flows_to.process if the source names one; electricity can power a pump and a device or process can produce an output, but the input cannot create the material being moved. Cite all claims needed for each fact. Give each measured claim the entity it actually counts or measures, or null; never turn a count into heights or percentages. Use the smallest set of directly supported facts that conveys the source; a nearby device, later process or familiar technology does not by itself justify an extra connection, output, or causal fact. Do not invent a link simply to use every entity. Use the complete accepted combined-process entity for a source-stated joint cause; its individual constituents do not each independently cause the outcome. When alignment explicitly names the direction of something, target that literal direction concept, not the field or material whose direction it describes.",
+  "original_task": "plan_meaning_relations",
+  "repair_mode": "scoped_patch",
+  "repair_scope": "$.meaning.facts[1]",
+  "invalid_item": {
+    "id": "causes_2",
+    "kind": "causes",
+    "from": "source_joint_8e325dd7e9d5",
+    "to": "source_joint_8e325dd7e9d5",
+    "evidence_ids": [
+      "sound_wave"
+    ]
+  },
+  "validation_error": {
+    "path": "$.meaning.facts[1]",
+    "message": "$.meaning.facts[1]: fact needs distinct endpoints and claim provenance"
+  },
+  "repair_attempt": 2,
+  "repair_policy": "Replace only the invalid fact or entity; if null is admitted, delete this unsupported fact. Preserve every other decision and do not repeat the invalid item."
+}

@@ -1,0 +1,87 @@
+{
+  "brief": "Explain why lightning produces thunder. Follow the NOAA evidence: rapid heating of air, expansion and contraction, then the sound wave heard as thunder. Compose native graphical explanations in 16:9, 9:16 and 1:1, with Liam narration and coordinated motion, not generic cards.",
+  "evidence": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    }
+  ],
+  "context": {
+    "audience": "Curious adults watching a short original animated explainer.",
+    "target_seconds": 20,
+    "narration_target_words": "45 to 55 clear words",
+    "creative_requirements": [
+      "Explain why lightning creates thunder using actual NOAA-sourced processes.",
+      "Show air heating, expansion and contraction as a connected explanation, not disconnected word cards.",
+      "Represent the sound wave as an outcome of the processes, not material travelling through lightning.",
+      "Use coordinated graphical changes and purposeful scene-to-scene continuity.",
+      "Choose film-specific colour roles and a coherent visual character.",
+      "Make the graphical relationship legible in native 16:9, 9:16 and 1:1.",
+      "Use actual measured Kokoro Liam word timing and no invented numeric measurements."
+    ]
+  },
+  "family": "ocean",
+  "aspects": [
+    "16:9",
+    "9:16",
+    "1:1"
+  ],
+  "proof": "short",
+  "score_input": false,
+  "staged": false,
+  "concept_first": false,
+  "compact": true,
+  "max_repairs": 2,
+  "fps": 30,
+  "sound_direction": null,
+  "source_quote_narration": true,
+  "source_grounder": {
+    "model": "MoritzLaurer/DeBERTa-v3-large-mnli-fever-anli-ling-wanli",
+    "revision": "b3546ea6b0346eb6f8d5d68b13c7dc6d0376b3d7",
+    "authority": "DEVELOPMENT_PREFLIGHT_ONLY"
+  }
+}

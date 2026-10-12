@@ -1,0 +1,8 @@
+{
+  "provider": {
+    "provider": "openai-compatible-local",
+    "model": "qwen3-30b-a3b-instruct-2507"
+  },
+  "request_id": null,
+  "seconds": 0.0018473370000720024
+}

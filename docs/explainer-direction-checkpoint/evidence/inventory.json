@@ -1,0 +1,94 @@
+{
+  "schema": "explainer-direction.checkpoint-inventory/v1",
+  "sample": "lightning-source-quote-v18",
+  "visual_verdict": "FAILED_REQUESTED_STANDARD",
+  "authority": "DEVELOPMENT_PREFLIGHT",
+  "selection_note": "Selected original artifacts only. Original manifest retains VM paths and references to omitted frames; this inventory lists the files actually archived in Git.",
+  "files": [
+    {
+      "path": "alignment.json",
+      "bytes": 5454,
+      "sha256": "e2306e53f4f4b2c897ea71ded2df72c34a10ddabbbc0e26be69405e12ab7386d"
+    },
+    {
+      "path": "lightning-thunder-landscape.mp4",
+      "bytes": 539621,
+      "sha256": "18fabf8058bd66d6eeb7b17603411e44f1f1135e52f82ef81d8750d0cbf45c80"
+    },
+    {
+      "path": "lightning-thunder-portrait.mp4",
+      "bytes": 643945,
+      "sha256": "8308387b965dbf21e6cc4f6a8691df2b55edfef4dedb3fc5702efbf40e8d6c45"
+    },
+    {
+      "path": "lightning-thunder-square.mp4",
+      "bytes": 534521,
+      "sha256": "1232f8b75b0135f6e60138db9ecdb6e1326b86a167a96188215093eabf9d7576"
+    },
+    {
+      "path": "lightning_context.json",
+      "bytes": 810,
+      "sha256": "5fc95f0b96a786dd2ba9b214dfbe7a2bf211bfed29e86abecf77d66953f1d7d7"
+    },
+    {
+      "path": "lightning_evidence.json",
+      "bytes": 1749,
+      "sha256": "aef0a636f5f51105ec16362b67caf7828b0d3a0dbb9cc8383fb9b9ceb9ac7e28"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 265494,
+      "sha256": "4b380182879f023f79a5d04ca3cf2ce1f36e9a4bc0e7f4fe28af0187550e86e1"
+    },
+    {
+      "path": "native-film-contact-sheet.png",
+      "bytes": 83409,
+      "sha256": "7b1ee558b46ba67d1f94c20bc7531432121c04b9c41b82418f2257075475874d"
+    },
+    {
+      "path": "plan-16x9.json",
+      "bytes": 75721,
+      "sha256": "f0d1f1ccf0d916cd1c8037ea6d56c6798c03b653091a1fb755fd09e9a6513ca6"
+    },
+    {
+      "path": "plan-1x1.json",
+      "bytes": 75634,
+      "sha256": "889da2426be1104938782ef685f341580b2484fe013a7769382ed97c024aab1b"
+    },
+    {
+      "path": "plan-9x16.json",
+      "bytes": 75693,
+      "sha256": "1040ffe12f38b227c50f0d7325e7f2556095f1e8a173a76ff9c6f707bdad5aa5"
+    },
+    {
+      "path": "request.json",
+      "bytes": 3490,
+      "sha256": "03116dc17101262132009cde39b0da768281e8438f9995c660543ea5adc81023"
+    },
+    {
+      "path": "score.json",
+      "bytes": 42190,
+      "sha256": "9e93afba733baff3b535b0f86c42492a46a5c74c29cb3a7f5f22df2982b39a30"
+    },
+    {
+      "path": "visual-audit.md",
+      "bytes": 4263,
+      "sha256": "97311f9fa31eea0d190ff1cddca040f65464ca21116438117e7a5286fb4f835d"
+    },
+    {
+      "path": "voice-ledger.json",
+      "bytes": 15885,
+      "sha256": "6a118f7e9c2a3afd15c647a67e9c13707275f6494fe24f19af2216bcf8cef0cc"
+    },
+    {
+      "path": "voice-meta.json",
+      "bytes": 555,
+      "sha256": "d2c51343404d1b808f0f5cf4c5fdac7d58e9a9f27dec2e84136f09310294ac8f"
+    },
+    {
+      "path": "voice.wav",
+      "bytes": 4708902,
+      "sha256": "607243ece69679be43e7e7bc9de986a0564bfd0d6a962c7194c24837a9760408"
+    }
+  ]
+}

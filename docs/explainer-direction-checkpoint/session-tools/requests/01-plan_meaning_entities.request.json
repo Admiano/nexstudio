@@ -1,0 +1,119 @@
+{
+  "authority": {
+    "status": "DEVELOPMENT_PREFLIGHT",
+    "missing": "Authenticated P8 and exact-media review/calibration"
+  },
+  "evidence": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder.",
+      "status": "supported",
+      "source": {
+        "id": "NOAA_NWS_thunder",
+        "uri": "https://www.weather.gov/safety/lightning-science-thunder",
+        "locator": "Understanding Lightning: Thunder; explanation of heated air and sound wave",
+        "license": "public-domain",
+        "commercial_use": true
+      }
+    }
+  ],
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "entities": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 24,
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,95}$"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "system",
+                "place",
+                "device",
+                "material",
+                "energy",
+                "signal",
+                "organism",
+                "process",
+                "concept"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "thunder_origin",
+                  "heating_expansion",
+                  "cooling_contraction",
+                  "sound_wave"
+                ]
+              },
+              "minItems": 0,
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "evidence_ids"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "entities"
+    ],
+    "additionalProperties": false
+  },
+  "meaning_guidance": "Describe only entities and relationships entailed by the supplied claims. Type each entity by what it is: places/devices/systems/organisms are physical; material, energy and signal are carriers that move or are converted, never route endpoints. A counted collection is its own system entity, distinct from its members. Cite every claim an entity takes part in. Include separate source-named processes and unspecific energy when a claim explicitly states them. Omit ungrounded entities."
+}

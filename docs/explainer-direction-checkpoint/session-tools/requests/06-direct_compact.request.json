@@ -1,0 +1,473 @@
+{
+  "brief": "Explain why lightning produces thunder. Follow the NOAA evidence: rapid heating of air, expansion and contraction, then the sound wave heard as thunder. Compose native graphical explanations in 16:9, 9:16 and 1:1, with Liam narration and coordinated motion, not generic cards.",
+  "family": "ocean",
+  "family_direction": "Marine depth, cool clarity and warm signals; not a compulsory blue ground.",
+  "audience": "Curious adults watching a short original animated explainer.",
+  "narration_target": "45 to 55 clear words",
+  "requirements": [
+    "Explain why lightning creates thunder using actual NOAA-sourced processes.",
+    "Show air heating, expansion and contraction as a connected explanation, not disconnected word cards.",
+    "Represent the sound wave as an outcome of the processes, not material travelling through lightning.",
+    "Use coordinated graphical changes and purposeful scene-to-scene continuity.",
+    "Choose film-specific colour roles and a coherent visual character.",
+    "Make the graphical relationship legible in native 16:9, 9:16 and 1:1.",
+    "Use actual measured Kokoro Liam word timing and no invented numeric measurements."
+  ],
+  "claims": [
+    {
+      "id": "thunder_origin",
+      "claim": "Thunder is the sound caused by a nearby flash of lightning."
+    },
+    {
+      "id": "heating_expansion",
+      "claim": "The lightning discharge heats the air rapidly and causes it to expand."
+    },
+    {
+      "id": "cooling_contraction",
+      "claim": "Immediately after the flash, the air cools and contracts quickly."
+    },
+    {
+      "id": "sound_wave",
+      "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder."
+    }
+  ],
+  "brand": {},
+  "meaning_graph": {
+    "entities": [
+      {
+        "id": "lightning_flash",
+        "kind": "process",
+        "label": "lightning discharge",
+        "evidence_ids": [
+          "thunder_origin",
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "heated_air",
+        "kind": "material",
+        "label": "air heated by lightning",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "expansion",
+        "kind": "process",
+        "label": "rapid expansion of air",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "cooling",
+        "kind": "process",
+        "label": "rapid cooling of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "contraction",
+        "kind": "process",
+        "label": "rapid contraction of air",
+        "evidence_ids": [
+          "cooling_contraction"
+        ]
+      },
+      {
+        "id": "sound_wave",
+        "kind": "signal",
+        "label": "sound wave from thunder",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "thunder",
+        "kind": "signal",
+        "label": "thunder",
+        "evidence_ids": [
+          "thunder_origin",
+          "sound_wave"
+        ]
+      },
+      {
+        "id": "source_joint_8e325dd7e9d5",
+        "kind": "process",
+        "label": "rapid expansion and contraction",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "id": "causes_1",
+        "kind": "causes",
+        "from": "lightning_flash",
+        "to": "expansion",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      },
+      {
+        "id": "causes_2",
+        "kind": "produces",
+        "from": "source_joint_8e325dd7e9d5",
+        "to": "sound_wave",
+        "evidence_ids": [
+          "sound_wave"
+        ]
+      }
+    ],
+    "quantities": []
+  },
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "ideas": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "method": {
+              "type": "string",
+              "enum": [
+                "journey",
+                "construction",
+                "contrast",
+                "transformation",
+                "cycle",
+                "hierarchy"
+              ]
+            },
+            "argument": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "forms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "circle",
+                  "rect",
+                  "diamond",
+                  "hexagon",
+                  "label"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 5,
+              "uniqueItems": true
+            },
+            "progression": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "construct",
+                  "reveal",
+                  "connect",
+                  "emphasize",
+                  "shift"
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 8
+            }
+          },
+          "required": [
+            "method",
+            "argument",
+            "forms",
+            "progression"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "selected": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "palette": {
+        "type": "object",
+        "properties": {
+          "background": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "surface": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "text": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "muted": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "primary": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "secondary": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "accent": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "positive": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "negative": {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          }
+        },
+        "required": [
+          "background",
+          "surface",
+          "text",
+          "muted",
+          "primary",
+          "secondary",
+          "accent",
+          "positive",
+          "negative"
+        ],
+        "additionalProperties": false
+      },
+      "scenes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "intent": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "flow": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "row",
+                "column",
+                "radial",
+                "stack"
+              ]
+            },
+            "figures": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "entity": {
+                    "enum": [
+                      "lightning_flash",
+                      "heated_air",
+                      "expansion",
+                      "cooling",
+                      "contraction",
+                      "sound_wave",
+                      "thunder",
+                      "source_joint_8e325dd7e9d5"
+                    ]
+                  },
+                  "form": {
+                    "type": "string",
+                    "enum": [
+                      "circle",
+                      "rect",
+                      "diamond",
+                      "hexagon",
+                      "label"
+                    ]
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "primary",
+                      "secondary",
+                      "accent",
+                      "positive",
+                      "negative"
+                    ]
+                  },
+                  "anchor": {
+                    "type": "string",
+                    "enum": [
+                      "primary",
+                      "secondary",
+                      "center",
+                      "context",
+                      "start",
+                      "end"
+                    ]
+                  }
+                },
+                "required": [
+                  "entity",
+                  "form",
+                  "role",
+                  "anchor"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 1,
+              "maxItems": 8
+            },
+            "transition": {
+              "type": "string",
+              "enum": [
+                "cut",
+                "fade",
+                "wipe"
+              ]
+            }
+          },
+          "required": [
+            "intent",
+            "flow",
+            "figures",
+            "transition"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "required": [
+      "title",
+      "ideas",
+      "selected",
+      "palette",
+      "scenes"
+    ],
+    "additionalProperties": false
+  },
+  "relation_requirements": [
+    {
+      "fact": "causes_1",
+      "kind": "causes",
+      "endpoints": [
+        {
+          "entity": "lightning_flash",
+          "label": "lightning discharge"
+        },
+        {
+          "entity": "expansion",
+          "label": "rapid expansion of air"
+        }
+      ]
+    },
+    {
+      "fact": "causes_2",
+      "kind": "produces",
+      "endpoints": [
+        {
+          "entity": "source_joint_8e325dd7e9d5",
+          "label": "rapid expansion and contraction"
+        },
+        {
+          "entity": "sound_wave",
+          "label": "sound wave from thunder"
+        }
+      ]
+    }
+  ],
+  "scene_word_budget": {
+    "minimum": 23,
+    "maximum": 27
+  },
+  "source_quote_scenes": [
+    {
+      "index": 0,
+      "claims": [
+        {
+          "id": "thunder_origin",
+          "claim": "Thunder is the sound caused by a nearby flash of lightning."
+        },
+        {
+          "id": "heating_expansion",
+          "claim": "The lightning discharge heats the air rapidly and causes it to expand."
+        }
+      ],
+      "admitted_entities": [
+        "lightning_flash",
+        "heated_air",
+        "expansion",
+        "thunder"
+      ],
+      "relations": [
+        {
+          "fact": "causes_1",
+          "kind": "causes",
+          "endpoints": [
+            {
+              "entity": "lightning_flash",
+              "label": "lightning discharge"
+            },
+            {
+              "entity": "expansion",
+              "label": "rapid expansion of air"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "claims": [
+        {
+          "id": "cooling_contraction",
+          "claim": "Immediately after the flash, the air cools and contracts quickly."
+        },
+        {
+          "id": "sound_wave",
+          "claim": "This rapid expansion and contraction creates the sound wave that we hear as thunder."
+        }
+      ],
+      "admitted_entities": [
+        "cooling",
+        "contraction",
+        "sound_wave",
+        "thunder",
+        "source_joint_8e325dd7e9d5"
+      ],
+      "relations": [
+        {
+          "fact": "causes_2",
+          "kind": "produces",
+          "endpoints": [
+            {
+              "entity": "source_joint_8e325dd7e9d5",
+              "label": "rapid expansion and contraction"
+            },
+            {
+              "entity": "sound_wave",
+              "label": "sound wave from thunder"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

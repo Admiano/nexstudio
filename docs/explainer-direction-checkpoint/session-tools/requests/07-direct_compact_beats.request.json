@@ -1,0 +1,386 @@
+{
+  "scene": {
+    "index": 0,
+    "intent": "Show the lightning flash heating air, leading to rapid expansion.",
+    "narration": "Thunder is the sound caused by a nearby flash of lightning. The lightning discharge heats the air rapidly and causes it to expand.",
+    "figures": [
+      {
+        "entity": "lightning_flash",
+        "form": "circle",
+        "role": "primary",
+        "anchor": "center"
+      },
+      {
+        "entity": "heated_air",
+        "form": "rect",
+        "role": "secondary",
+        "anchor": "start"
+      },
+      {
+        "entity": "expansion",
+        "form": "diamond",
+        "role": "positive",
+        "anchor": "end"
+      }
+    ],
+    "facts": [
+      {
+        "id": "causes_1",
+        "kind": "causes",
+        "from": "lightning_flash",
+        "to": "expansion",
+        "evidence_ids": [
+          "heating_expansion"
+        ]
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "lightning_flash",
+      "kind": "process",
+      "label": "lightning discharge",
+      "evidence_ids": [
+        "thunder_origin",
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "heated_air",
+      "kind": "material",
+      "label": "air heated by lightning",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    },
+    {
+      "id": "expansion",
+      "kind": "process",
+      "label": "rapid expansion of air",
+      "evidence_ids": [
+        "heating_expansion"
+      ]
+    }
+  ],
+  "words": [
+    {
+      "word": "Thunder",
+      "start_ms": 225.0,
+      "end_ms": 600.0
+    },
+    {
+      "word": "is",
+      "start_ms": 600.0,
+      "end_ms": 737.5
+    },
+    {
+      "word": "the",
+      "start_ms": 737.5,
+      "end_ms": 862.5
+    },
+    {
+      "word": "sound",
+      "start_ms": 862.5,
+      "end_ms": 1225.0
+    },
+    {
+      "word": "caused",
+      "start_ms": 1225.0,
+      "end_ms": 1550.0
+    },
+    {
+      "word": "by",
+      "start_ms": 1550.0,
+      "end_ms": 1725.0
+    },
+    {
+      "word": "a",
+      "start_ms": 1725.0,
+      "end_ms": 1837.5
+    },
+    {
+      "word": "nearby",
+      "start_ms": 1837.5,
+      "end_ms": 2287.5
+    },
+    {
+      "word": "flash",
+      "start_ms": 2287.5,
+      "end_ms": 2612.5
+    },
+    {
+      "word": "of",
+      "start_ms": 2612.5,
+      "end_ms": 2700.0
+    },
+    {
+      "word": "lightning.",
+      "start_ms": 2700.0,
+      "end_ms": 3525.0
+    },
+    {
+      "word": "The",
+      "start_ms": 3525.0,
+      "end_ms": 3650.0
+    },
+    {
+      "word": "lightning",
+      "start_ms": 3650.0,
+      "end_ms": 4025.0000000000005
+    },
+    {
+      "word": "discharge",
+      "start_ms": 4025.0000000000005,
+      "end_ms": 4537.5
+    },
+    {
+      "word": "heats",
+      "start_ms": 4537.5,
+      "end_ms": 4787.5
+    },
+    {
+      "word": "the",
+      "start_ms": 4787.5,
+      "end_ms": 4925.0
+    },
+    {
+      "word": "air",
+      "start_ms": 4925.0,
+      "end_ms": 5125.0
+    },
+    {
+      "word": "rapidly",
+      "start_ms": 5125.0,
+      "end_ms": 5687.5
+    },
+    {
+      "word": "and",
+      "start_ms": 5687.5,
+      "end_ms": 5825.0
+    },
+    {
+      "word": "causes",
+      "start_ms": 5825.0,
+      "end_ms": 6175.0
+    },
+    {
+      "word": "it",
+      "start_ms": 6175.0,
+      "end_ms": 6275.0
+    },
+    {
+      "word": "to",
+      "start_ms": 6275.0,
+      "end_ms": 6425.0
+    },
+    {
+      "word": "expand.",
+      "start_ms": 6425.0,
+      "end_ms": 7500.0
+    }
+  ],
+  "duration_ms": 7600,
+  "response_schema": {
+    "type": "object",
+    "properties": {
+      "beats": {
+        "type": "object",
+        "properties": {
+          "construct:lightning_flash": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "construct:heated_air": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "construct:expansion": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "emphasize:lightning_flash": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "emphasize:heated_air": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "emphasize:expansion": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "shift:expansion": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "shift:heated_air": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "shift:lightning_flash": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          },
+          "connect:causes_1": {
+            "type": "string",
+            "enum": [
+              "Thunder",
+              "sound",
+              "caused",
+              "nearby",
+              "flash",
+              "lightning",
+              "lightning#2",
+              "discharge",
+              "heats",
+              "air",
+              "rapidly",
+              "causes",
+              "expand"
+            ]
+          }
+        },
+        "required": [
+          "construct:lightning_flash",
+          "construct:heated_air",
+          "construct:expansion",
+          "connect:causes_1"
+        ],
+        "additionalProperties": false,
+        "minProperties": 4,
+        "maxProperties": 10
+      }
+    },
+    "required": [
+      "beats"
+    ],
+    "additionalProperties": false
+  }
+}
