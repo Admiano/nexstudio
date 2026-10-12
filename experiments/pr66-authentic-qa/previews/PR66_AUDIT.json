@@ -1,0 +1,25 @@
+{
+  "source_glb_sha256": "ea68eae5c2591d7ce7c608bf798d8b7239b836d80d7b6ba2112bcd0e3fa272bc",
+  "source_blend_sha256": "d8111d9805d7cd4d853bf30f9728dd67fab80e7ddc9fb2cbb1243b21271547b7",
+  "original_scene": {
+    "source_name_verified": true,
+    "mesh_names": [
+      "SOURCE_PR66_casual30_UNMODIFIED"
+    ]
+  },
+  "total_vertices": 354047,
+  "mesh_topology": [
+    {
+      "mesh": "geometry_0",
+      "vertices": 354047,
+      "faces": 708118,
+      "boundaries": 0,
+      "nonmanifold": 0,
+      "shape_keys": 0,
+      "armature": false
+    }
+  ],
+  "original_geometry_untouched": true,
+  "render_engine": "Workbench",
+  "assessment": "geometry only; appearance and motion not approved"
+}
