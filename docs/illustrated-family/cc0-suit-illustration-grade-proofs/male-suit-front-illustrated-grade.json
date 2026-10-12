@@ -1,0 +1,13 @@
+{
+  "gender": "male",
+  "asset": "toigo_male_suit_tie_and_jacket",
+  "fabricGrade": "UV_original_texture_desaturated",
+  "saturation": 0.5400000214576721,
+  "freestyleCollections": [
+    "GARMENT_SILHOUETTE",
+    "PEEPS_CONTOUR_SOURCES"
+  ],
+  "originalV1Rig": "Host.rig",
+  "canonicalSourceUnchanged": true,
+  "status": "UNAPPROVED_ILLUSTRATED_FINISH_SIDE_BY_SIDE_QA"
+}

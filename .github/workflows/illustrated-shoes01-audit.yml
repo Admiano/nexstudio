@@ -1,0 +1,36 @@
+name: CC0 female shoe donor archive audit
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-shoes01-audit.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Download and independently hash official CC0 shoes pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/shoes01_cc0.zip https://files2.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip
+          unzip -tq /tmp/shoes01_cc0.zip
+          sha256sum /tmp/shoes01_cc0.zip | tee shoe_archive_sha256.txt
+          unzip -l /tmp/shoes01_cc0.zip | grep -E 'toigo_(flats|ballet_flats|ankle_boots_female)|mhclo|obj' | tee shoe_asset_candidates.txt
+          for name in toigo_flats toigo_ballet_flats toigo_ankle_boots_female; do
+            file="clothes/$name/$name.mhclo"
+            if unzip -Z1 /tmp/shoes01_cc0.zip | grep -Fxq "$file"; then
+              unzip -p /tmp/shoes01_cc0.zip "$file" | head -n 24 | grep -iE '^#.*(author|license)|^obj_file' || true
+            fi
+          done | tee shoe_license_headers.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shoes01-cc0-donor-integrity-evidence
+          path: |
+            shoe_archive_sha256.txt
+            shoe_asset_candidates.txt
+            shoe_license_headers.txt
+          retention-days: 14
+          if-no-files-found: warn

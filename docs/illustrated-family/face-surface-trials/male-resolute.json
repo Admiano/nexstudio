@@ -1,0 +1,43 @@
+{
+  "style": "resolute",
+  "identityLabel": "Resolute angular",
+  "gender": "male",
+  "source": "/home/runner/work/nexstudio/nexstudio/engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_MALE.decoded.blend",
+  "blender": "5.2.0 LTS",
+  "removedOriginalEyeArt": {
+    "Host.V59_face_art": {
+      "beforeVertices": 1172,
+      "afterVertices": 868,
+      "eyeStrokeVerticesRemoved": 304,
+      "shapeKeysPreserved": 29
+    },
+    "Host.V59_face_frame": {
+      "beforeVertices": 1172,
+      "afterVertices": 868,
+      "eyeStrokeVerticesRemoved": 304,
+      "shapeKeysPreserved": 29
+    }
+  },
+  "authoredFeatures": [
+    "NEX_ID_resolute_eyeTop_L",
+    "NEX_ID_resolute_eyeLower_L",
+    "NEX_ID_resolute_brow_L",
+    "NEX_ID_resolute_eyeTop_R",
+    "NEX_ID_resolute_eyeLower_R",
+    "NEX_ID_resolute_brow_R",
+    "NEX_ID_resolute_nose_0",
+    "NEX_ID_resolute_nose_1",
+    "NEX_ID_resolute_nose_2"
+  ],
+  "mouthOriginal": "PRESERVED",
+  "bodyRigOriginal": "PRESERVED",
+  "bodyShapeKeyCount": 34,
+  "projectedStrokePoints": {
+    "hit": 153,
+    "nearest": 0,
+    "failed": 0
+  },
+  "status": "UNAPPROVED_SURFACE_REGISTERED_STILLS_ONLY",
+  "performance": "New authored strokes bone-parented; facial eyelid/blink and extreme viseme tests pending",
+  "editable_scene": "male-resolute.blend"
+}

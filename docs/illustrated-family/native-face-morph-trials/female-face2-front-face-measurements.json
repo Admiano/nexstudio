@@ -1,0 +1,12 @@
+{
+  "gender": "female",
+  "nativeFace": "2",
+  "headSampledVertices": 2019,
+  "changedVertices": 1200,
+  "maxHeadVertexDeltaMetres": 0.008056,
+  "originalRigBoneCount": 163,
+  "originalBodyShapeKeyCount": 34,
+  "originalActionsUnchanged": true,
+  "originalSceneUnmodified": true,
+  "status": "NATIVE_GEOMETRIC_FACE_VARIATION_TRIAL_NEEDS_VISUAL_AND_MOTION_REVIEW"
+}

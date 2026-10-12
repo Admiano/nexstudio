@@ -1,0 +1,104 @@
+name: V1 polished illustrated formal wardrobe bank
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-suit-family-polished.yml']
+permissions:
+  contents: write
+jobs:
+  real-donor-fit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/scripts
+          persist-credentials: true
+      - name: Verified Blender 5.2 runtime plus CC0 MakeHuman suit assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/suits01_cc0.zip https://files2.makehumancommunity.org/asset_packs/suits01/suits01_cc0.zip
+          echo '2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19  /tmp/suits01_cc0.zip' | sha256sum -c -
+          mkdir -p donor/suits01
+          unzip -oq /tmp/suits01_cc0.zip -d donor/suits01
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/shoes01_cc0.zip https://files2.makehumancommunity.org/asset_packs/shoes01/shoes01_cc0.zip
+          echo 'ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada  /tmp/shoes01_cc0.zip' | sha256sum -c -
+          mkdir -p donor/shoes01
+          unzip -oq /tmp/shoes01_cc0.zip -d donor/shoes01
+      - name: Actual MakeHuman fit with unmodified V1 character bodies
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/suit-options-polished
+          for selected in \
+            "MALE:toigo_suit_with_dinner_jacket" \
+            "FEMALE:toigo_female_suit_2" \
+            "MALE:toigo_male_suit_3" \
+            "MALE:toigo_male_double-breasted_suit"; do
+            gender="${selected%%:*}"
+            donor="${selected#*:}"
+            src="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_${gender}.blend"
+            scene="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_${gender}.decoded.blend"
+            zstd -q -d -c "$src" > "$scene"
+            test "$(head -c 7 "$scene")" = BLENDER
+            low=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            source="donor/suits01/clothes/$donor/$donor.mhclo"
+            test -s "$source"
+            mkdir -p "proofs/suit-options-polished/$donor"
+            "$BLENDER_BIN" -b "$scene" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/donor_suit_fit_uv.py \
+              --python experiments/illustrated-family/shoe_female_cc0_fit.py \
+              --python experiments/illustrated-family/suit_illustrated_finish_trial.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/donor_suit_pose_qa.py \
+              -- "$low" "proofs/suit-options-polished/$donor/$low-suit-front.png" "$source" "donor/shoes01/clothes/toigo_ballet_flats/toigo_ballet_flats.mhclo"
+            test -s "proofs/suit-options-polished/$donor/$low-suit-front.png"
+            test -s "proofs/suit-options-polished/$donor/$low-suit-threeq.png"
+            test -s "proofs/suit-options-polished/$donor/$low-suit-pose-338.png"
+            test -s "proofs/suit-options-polished/$donor/$low-suit-pose-891.png"
+            test -s "proofs/suit-options-polished/$donor/$low-suit-front.blend"
+            echo "LICENSED_VARIANT_RENDERED:$donor"
+          done
+      - name: Publish individual original Blender suit previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/cc0-suit-options-polished
+          for dir in proofs/suit-options-polished/*; do
+            asset="${dir##*/}"
+            mkdir -p "docs/illustrated-family/cc0-suit-options-polished/$asset"
+            cp "$dir"/*.png "docs/illustrated-family/cc0-suit-options-polished/$asset/"
+            cp "$dir"/*.json "docs/illustrated-family/cc0-suit-options-polished/$asset/"
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/cc0-suit-options-polished/
+          git diff --cached --quiet && exit 0
+          git commit -m 'proof(character): actual licensed MakeHuman suit fit, all original gestures intact'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-four-alternative-cc0-outfits-fully-illustrated-and-shod
+          path: proofs/suit-options-polished
+          retention-days: 14
+          if-no-files-found: warn

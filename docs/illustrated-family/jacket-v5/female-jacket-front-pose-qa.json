@@ -1,0 +1,71 @@
+{
+  "geometry": "V5",
+  "gender": "female",
+  "blender": "5.2.0 LTS",
+  "rig": "Host.rig",
+  "source_object": "Host.mindfront_f_dress_11",
+  "underlayer_visible": true,
+  "shape_key_count": 34,
+  "frames": [
+    {
+      "frame": 338,
+      "image": "female-jacket-pose-338.png",
+      "jacket_bounds": {
+        "min": [
+          -0.6616,
+          -0.1827,
+          0.9771
+        ],
+        "max": [
+          -0.1736,
+          0.0765,
+          1.4131
+        ]
+      },
+      "source_bounds": {
+        "min": [
+          -0.6575,
+          -0.183,
+          0.5068
+        ],
+        "max": [
+          -0.1781,
+          0.1022,
+          1.4096
+        ]
+      },
+      "camera": "front",
+      "jacket_rigged": true
+    },
+    {
+      "frame": 891,
+      "image": "female-jacket-pose-891.png",
+      "jacket_bounds": {
+        "min": [
+          -0.6527,
+          -0.2915,
+          0.9781
+        ],
+        "max": [
+          -0.1714,
+          0.0829,
+          1.4114
+        ]
+      },
+      "source_bounds": {
+        "min": [
+          -0.6494,
+          -0.286,
+          0.5068
+        ],
+        "max": [
+          -0.176,
+          0.1021,
+          1.4085
+        ]
+      },
+      "camera": "front",
+      "jacket_rigged": true
+    }
+  ]
+}

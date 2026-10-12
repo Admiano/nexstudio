@@ -1,0 +1,270 @@
+{
+  "gender": "male",
+  "scene": "/home/runner/work/_temp/MALE.blend",
+  "blender": "5.2.0 LTS",
+  "rigBones": 163,
+  "shapeKeys": 34,
+  "hairCandidates": [
+    {
+      "name": "ChairBack0",
+      "type": "MESH",
+      "hidden": true,
+      "parent": null,
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "Chair"
+      ],
+      "rigModifiers": [],
+      "vertices": 8,
+      "faces": 6,
+      "groups": []
+    },
+    {
+      "name": "ChairBack1",
+      "type": "MESH",
+      "hidden": true,
+      "parent": null,
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "Chair"
+      ],
+      "rigModifiers": [],
+      "vertices": 8,
+      "faces": 6,
+      "groups": []
+    },
+    {
+      "name": "ChairSeat0",
+      "type": "MESH",
+      "hidden": true,
+      "parent": null,
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "Chair"
+      ],
+      "rigModifiers": [],
+      "vertices": 8,
+      "faces": 6,
+      "groups": []
+    },
+    {
+      "name": "ChairSeat1",
+      "type": "MESH",
+      "hidden": true,
+      "parent": null,
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "Chair"
+      ],
+      "rigModifiers": [],
+      "vertices": 8,
+      "faces": 6,
+      "groups": []
+    },
+    {
+      "name": "Host.hair_culturalibre_hair_01",
+      "type": "MESH",
+      "hidden": true,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "LINEART_HAIR_PAPER"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        },
+        {
+          "type": "MASK",
+          "target": null
+        },
+        {
+          "type": "SHRINKWRAP",
+          "target": null
+        },
+        {
+          "type": "SHRINKWRAP",
+          "target": null
+        }
+      ],
+      "vertices": 3138,
+      "faces": 2114,
+      "groups": [
+        "head",
+        "neck01",
+        "spine05",
+        "hair_lower",
+        "hair_hidden"
+      ]
+    },
+    {
+      "name": "Host.hair_elvs_maxwell_hair",
+      "type": "MESH",
+      "hidden": false,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection",
+        "HAIR_LINES",
+        "NO_HEAD_OUTLINE"
+      ],
+      "materials": [
+        "LINEART_HAIR_PAPER"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        },
+        {
+          "type": "MASK",
+          "target": null
+        },
+        {
+          "type": "SHRINKWRAP",
+          "target": null
+        },
+        {
+          "type": "SHRINKWRAP",
+          "target": null
+        },
+        {
+          "type": "SHRINKWRAP",
+          "target": null
+        }
+      ],
+      "vertices": 765,
+      "faces": 1468,
+      "groups": [
+        "head",
+        "neck01",
+        "spine05",
+        "hair_lower",
+        "hair_hidden"
+      ]
+    },
+    {
+      "name": "Host.ink_hair_lock_0",
+      "type": "MESH",
+      "hidden": true,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_HAIR_DETAIL"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        }
+      ],
+      "vertices": 6,
+      "faces": 2,
+      "groups": [
+        "head"
+      ]
+    },
+    {
+      "name": "Host.ink_hair_lock_1",
+      "type": "MESH",
+      "hidden": true,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_HAIR_DETAIL"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        }
+      ],
+      "vertices": 6,
+      "faces": 2,
+      "groups": [
+        "head"
+      ]
+    },
+    {
+      "name": "Host.ink_hair_lock_2",
+      "type": "MESH",
+      "hidden": true,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_HAIR_DETAIL"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        }
+      ],
+      "vertices": 6,
+      "faces": 2,
+      "groups": [
+        "head"
+      ]
+    },
+    {
+      "name": "Host.ink_hair_lock_3",
+      "type": "MESH",
+      "hidden": true,
+      "parent": "Host.rig",
+      "parentType": "OBJECT",
+      "parentBone": "",
+      "collections": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_HAIR_DETAIL"
+      ],
+      "rigModifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "Host.rig"
+        }
+      ],
+      "vertices": 6,
+      "faces": 2,
+      "groups": [
+        "head"
+      ]
+    }
+  ],
+  "status": "INSPECTION_ONLY_CANONICAL_SCENES_UNCHANGED"
+}

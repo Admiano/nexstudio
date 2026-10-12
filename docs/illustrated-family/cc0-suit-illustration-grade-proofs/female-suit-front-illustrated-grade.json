@@ -1,0 +1,13 @@
+{
+  "gender": "female",
+  "asset": "toigo_female_double-breasted_suit",
+  "fabricGrade": "UV_original_texture_desaturated",
+  "saturation": 0.699999988079071,
+  "freestyleCollections": [
+    "GARMENT_SILHOUETTE",
+    "PEEPS_CONTOUR_SOURCES"
+  ],
+  "originalV1Rig": "Host.rig",
+  "canonicalSourceUnchanged": true,
+  "status": "UNAPPROVED_ILLUSTRATED_FINISH_SIDE_BY_SIDE_QA"
+}

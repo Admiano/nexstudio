@@ -1,0 +1,49 @@
+{
+  "variantCount": 6,
+  "framesPerVariant": 10,
+  "scope": "real original armature and evaluated mesh; NOT intersection or deformation quality certification",
+  "results": [
+    {
+      "name": "female-double-breasted",
+      "gender": "female",
+      "maxWristMovement": 0.30047,
+      "evaluatedMeshVertices": 20838,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    },
+    {
+      "name": "female-statement",
+      "gender": "female",
+      "maxWristMovement": 0.30047,
+      "evaluatedMeshVertices": 33226,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    },
+    {
+      "name": "male-dinner-jacket",
+      "gender": "male",
+      "maxWristMovement": 0.34291,
+      "evaluatedMeshVertices": 31447,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    },
+    {
+      "name": "male-double-breasted",
+      "gender": "male",
+      "maxWristMovement": 0.34291,
+      "evaluatedMeshVertices": 20838,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    },
+    {
+      "name": "male-jacket-tie",
+      "gender": "male",
+      "maxWristMovement": 0.34291,
+      "evaluatedMeshVertices": 39163,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    },
+    {
+      "name": "male-navy-classic",
+      "gender": "male",
+      "maxWristMovement": 0.34291,
+      "evaluatedMeshVertices": 33298,
+      "status": "PASS_RIG_DYNAMIC_GEOMETRY_FINITE_NOT_COLLISION_CERTIFICATION"
+    }
+  ]
+}

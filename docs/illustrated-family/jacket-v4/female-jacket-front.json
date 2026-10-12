@@ -1,0 +1,23 @@
+{
+  "gender": "female",
+  "source": "Host.mindfront_f_dress_11",
+  "coat": "NEX_V1_TAILORED_JACKET_V4_FEMALE",
+  "coat_faces": 778,
+  "source_unchanged": true,
+  "source_visible": true,
+  "armature_modifiers": 1,
+  "new_lapel_objects": [
+    "NEX_JACKET_LAPEL_female-1",
+    "NEX_JACKET_LAPEL_female-1_authored-ink-edge",
+    "NEX_JACKET_WELT_female-1",
+    "NEX_JACKET_LAPEL_female1",
+    "NEX_JACKET_LAPEL_female1_authored-ink-edge",
+    "NEX_JACKET_WELT_female1"
+  ],
+  "status": "UNAPPROVED_V4_INK_LAPEL_POCKET_FIT_GESTURE_QA_PENDING",
+  "source_license": "MakeHuman garment, retain source credits",
+  "editable_proof_file": "female-jacket-front.blend",
+  "blender": "5.2.0 LTS",
+  "render_is_approved": false,
+  "requires_performance_check": true
+}

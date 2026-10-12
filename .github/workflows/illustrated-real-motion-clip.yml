@@ -1,0 +1,98 @@
+name: V1 real moving formal presenter preview
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-real-motion-clip.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  real-animated-proof:
+    strategy:
+      fail-fast: false
+      matrix:
+        gender: [female, male]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+      - name: Retrieve original rigged real Blender scene proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/v1-real-scenes
+          gh run download 38001501107 --repo Admiano/nexstudio \
+            --name v1-real-illustration-style-cc0-suit-donor-qa \
+            --dir /tmp/v1-real-scenes
+          find /tmp/v1-real-scenes -type f -name '*.blend' -ls
+          f="$(find /tmp/v1-real-scenes -type f -name '${{ matrix.gender }}-suit-front.blend' -print -quit)"
+          test -s "$f"
+          echo "SOURCE_BLEND=$f" >> "$GITHUB_ENV"
+      - name: Install checksum-verified Blender 5.2.0 and encoder
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6 ffmpeg
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Render 100 contiguous frames sampled at original action time
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/real-motion/${{ matrix.gender }}
+          "$BLENDER_BIN" -b "$SOURCE_BLEND" -t 4 --python-exit-code 1 \
+            --python experiments/illustrated-family/real_formal_motion_clip.py \
+            -- '${{ matrix.gender }}' 'proofs/real-motion/${{ matrix.gender }}'
+          test -s 'proofs/real-motion/${{ matrix.gender }}/animation_provenance.json'
+      - name: Encode faithful timed silent video with neutral background
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/motion-proofs
+          fps="$(python -c "import json; print(json.load(open('proofs/real-motion/${{ matrix.gender }}/animation_provenance.json'))['outputFps'])")"
+          ffmpeg -hide_banner -loglevel warning -y \
+            -f lavfi -i "color=c=0xf8f7f5:s=440x700:r=$fps" \
+            -framerate "$fps" -i 'proofs/real-motion/${{ matrix.gender }}/frame_%04d.png' \
+            -filter_complex "[0:v][1:v]overlay=shortest=1:format=auto,format=yuv420p[out]" \
+            -map "[out]" -an -c:v libx264 -crf 21 -preset medium \
+            -movflags +faststart "docs/illustrated-family/motion-proofs/${{ matrix.gender }}-actual-original-gesture.mp4"
+          ffprobe -v error -show_entries stream=codec_name,width,height,nb_frames -of default=nw=1 \
+            "docs/illustrated-family/motion-proofs/${{ matrix.gender }}-actual-original-gesture.mp4"
+          cp "proofs/real-motion/${{ matrix.gender }}/animation_provenance.json" \
+             "docs/illustrated-family/motion-proofs/${{ matrix.gender }}-animation-provenance.json"
+          test -s "docs/illustrated-family/motion-proofs/${{ matrix.gender }}-actual-original-gesture.mp4"
+      - name: Publish directly playable genuine moving character video
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/motion-proofs/
+          git commit -m 'proof(character): actual original-action ${{ matrix.gender }} presenter MP4'
+          for attempt in 1 2 3 4; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nex-v1-${{ matrix.gender }}-real-blender-moving-gesture
+          path: |
+            docs/illustrated-family/motion-proofs/${{ matrix.gender }}*.mp4
+            docs/illustrated-family/motion-proofs/${{ matrix.gender }}*.json
+          retention-days: 14
+          if-no-files-found: warn

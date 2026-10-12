@@ -1,0 +1,13 @@
+{
+  "asset": "toigo_ballet_flats",
+  "license": "CC0",
+  "fittedVertices": 4558,
+  "faces": 4480,
+  "deformGroups": 34,
+  "visibleOriginalShoesHiddenOnlyInTestScene": [
+    "Host.lineart_shoe.L",
+    "Host.lineart_shoe.R"
+  ],
+  "sourceRigUnchanged": true,
+  "status": "UNAPPROVED_SHOE_FIT_TRIAL"
+}

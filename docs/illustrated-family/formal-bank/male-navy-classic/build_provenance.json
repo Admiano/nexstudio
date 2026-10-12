@@ -1,0 +1,39 @@
+{
+  "variant": "male-navy-classic",
+  "gender": "male",
+  "donor": "toigo_male_suit_3",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "male-navy-classic-front.png",
+      "bytes": 179799,
+      "sha256": "77e5f3bb86f1e938e2b75ac7ce2ad0f9c223847ad86f8fc796f92dfe771202aa"
+    },
+    {
+      "name": "male-navy-classic-front.blend",
+      "bytes": 20058362,
+      "sha256": "fcda3d423a73f8aa3391af78c85041246ca184887b64c73bcd632edc121507ea"
+    },
+    {
+      "name": "male-navy-classic-threeq.png",
+      "bytes": 181465,
+      "sha256": "5d0532302d162c06283a65c03a42bf628665ecafc089af6026c940926464ca33"
+    },
+    {
+      "name": "male-navy-classic-pose-338.png",
+      "bytes": 182386,
+      "sha256": "a38a91d141de00988f26f45a12342e7ffd0f3c8dda0c24d99b02a023cf9b3311"
+    },
+    {
+      "name": "male-navy-classic-pose-891.png",
+      "bytes": 181455,
+      "sha256": "28228c2f9b5e792dea61393cf1b93adccb8445f720eebe7cdc3433fb9b98d9d8"
+    }
+  ]
+}

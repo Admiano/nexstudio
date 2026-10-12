@@ -1,0 +1,97 @@
+name: V1 composable male alternate and original-hair fallback certification
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-composite-male-fallback.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  compose-male:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 70
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/illustrated-family
+            scripts/illustrated-family-preview
+            experiments/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py
+            engine_sources/makehuman-lineart/scripts
+            docs/illustrated-family/hair-inventory
+      - name: Install checksum-pinned Blender and prevalidated CC0 hair geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          mkdir -p donors/hair01
+          gh run download 38009389161 --repo Admiano/nexstudio \
+            --name NEX_V1_CURATED_HAIR01_ELEVEN_CC0_MESHES --dir donors/hair01
+      - name: Compose genuine original male rig with independent alt and source-style choices
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/male-composed
+          python scripts/illustrated-family/build_character_variant.py \
+            --outfit male-jacket-tie --hair faydaen_hair_1 \
+            --color '#7A848D' --face 0 \
+            --hair-root donors/hair01 --blender "$BLENDER_BIN" \
+            --archive-cache "$RUNNER_TEMP/source-archives" \
+            --output-dir proofs/male-composed/alternate
+          python scripts/illustrated-family/build_character_variant.py \
+            --outfit male-navy-classic --hair original --face 2 \
+            --blender "$BLENDER_BIN" \
+            --archive-cache "$RUNNER_TEMP/source-archives" \
+            --output-dir proofs/male-composed/original-fallback
+          test "$(find proofs/male-composed -name '*.blend' | wc -l)" -eq 2
+          test "$(find proofs/male-composed -name 'character-composition-provenance.json' | wc -l)" -eq 2
+          test "$(find proofs/male-composed -name '*-pose-891.png' | wc -l)" -eq 2
+      - name: Reopen both male scenes, certify original rig preserved and expected mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          for variant in alternate original-fallback; do
+            scene="$(find "proofs/male-composed/$variant" -name '*.blend' -print -quit)"
+            test -s "$scene"
+            EXPECTED="$variant" "$BLENDER_BIN" -b "$scene" -t 2 --python-exit-code 1 \
+              --python-expr 'import bpy,os; rig=bpy.data.objects["Host.rig"]; body=bpy.data.objects["Host.body"]; assert len(rig.data.bones)==163 and len(body.data.shape_keys.key_blocks)==34; assert "NEX_V1_CC0_FORMAL_SUIT_MALE" in bpy.data.objects; alt=[o for o in bpy.data.objects if o.name.startswith("NEX_V1_CC0_HAIR_") and not o.hide_render]; assert (len(alt)==1 and alt[0].data.materials[0].name.startswith("NEX_V1_CC0_ALTERNATE_HAIR_COLOR_")) if os.environ["EXPECTED"]=="alternate" else (len(alt)==0 and not bpy.data.objects["Host.hair_elvs_maxwell_hair"].hide_render); print("VALIDATED_MALE_CHARACTER_COMPOSITION_MODE",os.environ["EXPECTED"])'
+          done
+      - name: Publish actual separate Blender male customization previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          for variant in alternate original-fallback; do
+            target="docs/illustrated-family/composed-male-proofs/$variant"
+            mkdir -p "$target"
+            find "proofs/male-composed/$variant" -name '*.png' -exec cp {} "$target/" \;
+            find "proofs/male-composed/$variant" -name 'character-composition-provenance.json' -exec cp {} "$target/" \;
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/composed-male-proofs/
+          git commit -m 'proof(character): one-scene male licensed hair/tint and original hair with original face-morph fallback'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NEX_V1_TWO_MALE_ORIGINAL_RIG_COMPOSABLE_SCENES
+          path: proofs/male-composed/
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,24 @@
+name: Fetch certified Blender 5.2 runtime for illustrated development
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-blender-runtime.yml']
+permissions:
+  contents: read
+jobs:
+  verified-archive:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Retrieve original Blender 5.2.0 Linux x64 archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 2 -o blender-5.2.0-linux-x64.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  blender-5.2.0-linux-x64.tar.xz" | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-blender-5.2.0-linux-x64
+          path: blender-5.2.0-linux-x64.tar.xz
+          compression-level: 0
+          retention-days: 2

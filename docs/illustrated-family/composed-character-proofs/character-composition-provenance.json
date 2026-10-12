@@ -1,0 +1,43 @@
+{
+  "schema": "nexstudio.illustrated.v1.composable-original-character-proof/1",
+  "outfit": "female-statement",
+  "gender": "female",
+  "hair": "toigo_inverted_bob",
+  "hairDonorSourceSha256": "af32890eb389dd536afcb8f6cd5cbf1f57fd42be6a7c1ab2bcb56e0b383473c5",
+  "hairSourceLicense": "# license CC0",
+  "hairColor": "#343034",
+  "nativeFaceMorph": 1,
+  "originalSceneSha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb",
+  "originalRig": "Host.rig",
+  "sourceBuilder": "scripts/illustrated-family/build_formal_cast.py",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "originalPerformanceActionsReplaced": false,
+  "productionStatus": "COMPOSABLE_EDITABLE_REAL_BLENDER_TRIAL_NOT_INTEGRATED",
+  "files": [
+    {
+      "name": "female_statement__toigo_inverted_bob__face1__343034-front.png",
+      "bytes": 185398,
+      "sha256": "d0f1661575801b32f31635ba0e5487dfa569cc59c924e5023d69591bcb1f6e0d"
+    },
+    {
+      "name": "female_statement__toigo_inverted_bob__face1__343034-front.blend",
+      "bytes": 21256176,
+      "sha256": "7fd2e74f94fc8055ab4b1b04df18b74903a003094dde796c8cdf177e59e19296"
+    },
+    {
+      "name": "female_statement__toigo_inverted_bob__face1__343034-threeq.png",
+      "bytes": 185856,
+      "sha256": "554d62d7245e87f4c60f780d5511dfa3541b88d2f9ea39fa606c972a11e3f39a"
+    },
+    {
+      "name": "female_statement__toigo_inverted_bob__face1__343034-pose-338.png",
+      "bytes": 186182,
+      "sha256": "0e855f75f7a279a456a98cb14d0c9ad7afc670e1ae50aa8b7da2e787dccc0999"
+    },
+    {
+      "name": "female_statement__toigo_inverted_bob__face1__343034-pose-891.png",
+      "bytes": 184848,
+      "sha256": "9766bb8b5abe116b84504d4b2817cf44061dcfdf326c358edc73fcea34bda62f"
+    }
+  ]
+}

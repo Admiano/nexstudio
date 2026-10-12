@@ -1,0 +1,63 @@
+name: Assemble original Blender authored face comparison boards
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-face-contact-sheet.yml']
+permissions:
+  contents: write
+jobs:
+  contact-sheet:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docs/illustrated-family/authored-faces
+          persist-credentials: true
+      - name: Install image compositor for existing PNG files
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil
+      - name: Arrange actual scene renders; do not synthesize any character
+        run: |
+          /usr/bin/python3 - <<'PY'
+          from PIL import Image, ImageDraw, ImageFont
+          from pathlib import Path
+          folder=Path("docs/illustrated-family/authored-faces")
+          neutral=(246,245,243)
+          try: f=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',22)
+          except: f=ImageFont.load_default()
+          for kind in ("front","threeq"):
+              w,h=560,620
+              grid=Image.new("RGB",(w*3,h*2),neutral)
+              draw=ImageDraw.Draw(grid)
+              for row,gender in enumerate(("female","male")):
+                  for col,style in enumerate(("expressive","resolute","thoughtful")):
+                      path=folder/f"{gender}-{style}-{kind}.png"
+                      im=Image.open(path).convert("RGBA")
+                      assert im.size==(560,560),path
+                      bg=Image.new("RGBA",im.size,(*neutral,255))
+                      bg.alpha_composite(im)
+                      grid.paste(bg.convert("RGB"),(col*w,row*h+45))
+                      draw.text((col*w+18,row*h+12),f"{gender.upper()}  /  {style.title()}",font=f,fill=(25,25,25))
+              dst=folder/f"qa-authored-face-{kind}-contact-sheet.png"
+              grid.save(dst)
+              assert dst.stat().st_size>20000
+              print("REAL_FACE_CONTACT_SHEET_SAVED",dst,dst.stat().st_size)
+          PY
+      - name: Publish QA contact sheets to working branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/authored-faces/qa-authored-face-*-contact-sheet.png
+          git diff --cached --quiet && exit 0
+          git commit -m 'proof(character): comparison sheets of six true Blender face-design renders'
+          git push origin HEAD:work/illustrated-family-expansion-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: illustrated-authored-faces-comparison-boards
+          path: docs/illustrated-family/authored-faces/qa-authored-face-*-contact-sheet.png
+          retention-days: 14

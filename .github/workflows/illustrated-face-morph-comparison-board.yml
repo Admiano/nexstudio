@@ -1,0 +1,68 @@
+name: V1 matched native face morph visual comparison board
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-face-morph-comparison-board.yml']
+permissions:
+  contents: write
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            docs/illustrated-family/native-face-baselines
+            docs/illustrated-family/native-face-closeups
+      - name: Composite six original Blender render PNGs without synthesizing artwork
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet Pillow
+          python - <<'PY'
+          from PIL import Image,ImageDraw,ImageFont
+          from pathlib import Path
+          root=Path('docs/illustrated-family')
+          out=root/'qa'
+          out.mkdir(parents=True,exist_ok=True)
+          try:font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',19)
+          except OSError:font=ImageFont.load_default()
+          names=[('FEMALE  /  Original',root/'native-face-baselines/female-original-threeq.png'),
+                 ('FEMALE  /  Morph 1',root/'native-face-closeups/female-face1-threeq.png'),
+                 ('FEMALE  /  Morph 2',root/'native-face-closeups/female-face2-threeq.png'),
+                 ('MALE  /  Original',root/'native-face-baselines/male-original-threeq.png'),
+                 ('MALE  /  Morph 1',root/'native-face-closeups/male-face1-threeq.png'),
+                 ('MALE  /  Morph 2',root/'native-face-closeups/male-face2-threeq.png')]
+          W,H=500,560
+          board=Image.new('RGB',(3*W,2*H),(248,247,245))
+          draw=ImageDraw.Draw(board)
+          for i,(label,path) in enumerate(names):
+            assert path.is_file(),path
+            img=Image.open(path).convert('RGBA')
+            base=Image.new('RGBA',img.size,(248,247,245,255))
+            base.alpha_composite(img)
+            scaled=base.convert('RGB').resize((W,H-42),Image.Resampling.LANCZOS)
+            x=(i%3)*W;y=(i//3)*H
+            board.paste(scaled,(x,y+42))
+            draw.text((x+14,y+13),label,fill=(27,26,27),font=font)
+          dest=out/'matched-original-vs-native-face-morphs.png'
+          board.save(dest,optimize=True)
+          print('SIX_MATCHED_ACTUAL_BLENDER_HEADS_COMPOSITED',dest,dest.stat().st_size)
+          PY
+      - name: Publish evidence side-by-side
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/qa/matched-original-vs-native-face-morphs.png
+          git commit -m 'proof(character): matched real Blender head geometry baseline versus four native face morphs'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1

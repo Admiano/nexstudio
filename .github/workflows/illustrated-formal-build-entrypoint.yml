@@ -1,0 +1,79 @@
+name: V1 formal cast reproducible standalone builder test
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-build-entrypoint.yml', 'scripts/illustrated-family/build_formal_cast.py']
+permissions:
+  contents: write
+jobs:
+  prove-rebuild:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            scripts/illustrated-family
+            scripts/illustrated-family-preview
+            experiments/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+            engine_sources/makehuman-lineart/scripts
+      - name: Install verified Blender 5.2 and Zstandard
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Validate all six names and rebuild one character end to end
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/illustrated-family/build_formal_cast.py --list > formal_variants.json
+          python - <<'PY'
+          import json
+          r=json.load(open("formal_variants.json"))
+          assert len(r)==6,(len(r),r.keys())
+          print("SUPPORTED_FORMAL_CAST_VARIANTS",len(r),list(r))
+          PY
+          python scripts/illustrated-family/build_formal_cast.py \
+            --variant female-double-breasted \
+            --blender "$BLENDER_BIN" \
+            --archive-cache "$RUNNER_TEMP/donor-archive-cache" \
+            --output-dir proofs/standalone-formal-builder | tee formal_builder_results.txt
+          test -s proofs/standalone-formal-builder/female-double-breasted-front.png
+          test -s proofs/standalone-formal-builder/female-double-breasted-front.blend
+          test -s proofs/standalone-formal-builder/build_provenance.json
+      - name: Publish authentic standalone-builder render and provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/standalone-builder-proofs
+          cp proofs/standalone-formal-builder/*.png docs/illustrated-family/standalone-builder-proofs/
+          cp proofs/standalone-formal-builder/build_provenance.json docs/illustrated-family/standalone-builder-proofs/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/standalone-builder-proofs/
+          git commit -m 'proof(character): reproducible original-rig formal cast CLI actual Blender render'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: formal-cast-standalone-builder-verification
+          path: |
+            proofs/standalone-formal-builder
+            formal_variants.json
+            formal_builder_results.txt
+          retention-days: 14
+          if-no-files-found: warn

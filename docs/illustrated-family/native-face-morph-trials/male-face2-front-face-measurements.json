@@ -1,0 +1,12 @@
+{
+  "gender": "male",
+  "nativeFace": "2",
+  "headSampledVertices": 2182,
+  "changedVertices": 1326,
+  "maxHeadVertexDeltaMetres": 0.008323,
+  "originalRigBoneCount": 163,
+  "originalBodyShapeKeyCount": 34,
+  "originalActionsUnchanged": true,
+  "originalSceneUnmodified": true,
+  "status": "NATIVE_GEOMETRIC_FACE_VARIATION_TRIAL_NEEDS_VISUAL_AND_MOTION_REVIEW"
+}

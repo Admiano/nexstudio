@@ -1,0 +1,242 @@
+{
+  "schema": "nexstudio.illustrated.v1.formal-bank-verified/1",
+  "validation": "ALL_SAVED_SCENES_REOPENED_IN_BLENDER_5_2",
+  "status": "EXPERIMENTAL_NOT_MERGED",
+  "sourceRun": 38003760983,
+  "variants": [
+    {
+      "variant": "female-double-breasted",
+      "gender": "female",
+      "donor": "toigo_female_double-breasted_suit",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "female-double-breasted-front.png",
+          "bytes": 181725,
+          "sha256": "1fcb71a987043ff22a3129b960ab3d04ce56ef311b2ae9eadf27debc5b7706db"
+        },
+        {
+          "name": "female-double-breasted-front.blend",
+          "bytes": 20739257,
+          "sha256": "2e4f7e606e02f32bc065b3f037877a2839c4576be16f479115c11286ef849dcb"
+        },
+        {
+          "name": "female-double-breasted-threeq.png",
+          "bytes": 184158,
+          "sha256": "dd8ec7f5b9bfdb15b2f0fe816029a49f6f801995cc4899ca233577baec7ef373"
+        },
+        {
+          "name": "female-double-breasted-pose-338.png",
+          "bytes": 182589,
+          "sha256": "cbd5854ebd0bd7cb46de2467b4fd90b76e2661919a677c1b5c6ff910026ee5e1"
+        },
+        {
+          "name": "female-double-breasted-pose-891.png",
+          "bytes": 183043,
+          "sha256": "ba9b68f1bd0e17756e92121468cb84fd9f394338ced0c44100b35825819c84a6"
+        }
+      ]
+    },
+    {
+      "variant": "female-statement",
+      "gender": "female",
+      "donor": "toigo_female_suit_2",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "female-statement-front.png",
+          "bytes": 190507,
+          "sha256": "40f55cd426cec15a86a867ae9cb6d82851852b92a61c77b9d97e13f59043d596"
+        },
+        {
+          "name": "female-statement-front.blend",
+          "bytes": 20982921,
+          "sha256": "60dc9f79dcb2617106231cb91ec0e4a5310f06ddf4155330e72fbb354a1e1c5f"
+        },
+        {
+          "name": "female-statement-threeq.png",
+          "bytes": 192719,
+          "sha256": "1271d1233a9091630891e2a1b9572f177cdf5473874913d8bd1e23d8e4c82f98"
+        },
+        {
+          "name": "female-statement-pose-338.png",
+          "bytes": 191384,
+          "sha256": "4cbac250f7788375692fd99064b6e8a29c4e9d9952f6d0135f19213ec268c315"
+        },
+        {
+          "name": "female-statement-pose-891.png",
+          "bytes": 190051,
+          "sha256": "3e24d0e91787da8abce29ea787ce8817dd06aa96e525316fe7bc50adbb907fbb"
+        }
+      ]
+    },
+    {
+      "variant": "male-jacket-tie",
+      "gender": "male",
+      "donor": "toigo_male_suit_tie_and_jacket",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "male-jacket-tie-front.png",
+          "bytes": 178814,
+          "sha256": "a53bc28eca0026ea87413d7fc161e6a35fc0e46fc9df84e39434e8cc4b9c7b67"
+        },
+        {
+          "name": "male-jacket-tie-front.blend",
+          "bytes": 18080255,
+          "sha256": "f1bd19aca27aee2e45d46f0360bc8de467bc149994c3949512cb49c072e7b5e4"
+        },
+        {
+          "name": "male-jacket-tie-threeq.png",
+          "bytes": 179500,
+          "sha256": "831724d04899ad6cbe942aa2611b6ec2d1aaa7e496d98098db050f7295cfcb13"
+        },
+        {
+          "name": "male-jacket-tie-pose-338.png",
+          "bytes": 180499,
+          "sha256": "59aa87781bb4b8efe12fe4b84012f0d1a35fee318d540b9653e9b55515773739"
+        },
+        {
+          "name": "male-jacket-tie-pose-891.png",
+          "bytes": 179726,
+          "sha256": "0ca939ab3235b3e6092da6a938518c59cb9118cda362399c250c923ce34ea6ca"
+        }
+      ]
+    },
+    {
+      "variant": "male-double-breasted",
+      "gender": "male",
+      "donor": "toigo_male_double-breasted_suit",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "male-double-breasted-front.png",
+          "bytes": 190892,
+          "sha256": "4fdab38e792e641a6744f3a092fb173c8b6199a8cea29f104f195a1e0e031a8b"
+        },
+        {
+          "name": "male-double-breasted-front.blend",
+          "bytes": 20147800,
+          "sha256": "323e1e2524afc0a2386a6ffd478cb3e41c6083af2970aa3041803d512bd45512"
+        },
+        {
+          "name": "male-double-breasted-threeq.png",
+          "bytes": 190804,
+          "sha256": "de3398fb2155adb3d4a42b5bd72a9176a9ac62e7ff3f46c751a51e9e25c082c1"
+        },
+        {
+          "name": "male-double-breasted-pose-338.png",
+          "bytes": 193565,
+          "sha256": "7a6042d8ba8f020bd08452cbab101e97848cb8e313b3d64279ab1d9cadba667a"
+        },
+        {
+          "name": "male-double-breasted-pose-891.png",
+          "bytes": 191692,
+          "sha256": "3d06812e7cecc8991b1aea30b82b03e9156c2ca1a2f5b1f883c7d07f338bdc5e"
+        }
+      ]
+    },
+    {
+      "variant": "male-navy-classic",
+      "gender": "male",
+      "donor": "toigo_male_suit_3",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "male-navy-classic-front.png",
+          "bytes": 179799,
+          "sha256": "77e5f3bb86f1e938e2b75ac7ce2ad0f9c223847ad86f8fc796f92dfe771202aa"
+        },
+        {
+          "name": "male-navy-classic-front.blend",
+          "bytes": 20058362,
+          "sha256": "fcda3d423a73f8aa3391af78c85041246ca184887b64c73bcd632edc121507ea"
+        },
+        {
+          "name": "male-navy-classic-threeq.png",
+          "bytes": 181465,
+          "sha256": "5d0532302d162c06283a65c03a42bf628665ecafc089af6026c940926464ca33"
+        },
+        {
+          "name": "male-navy-classic-pose-338.png",
+          "bytes": 182386,
+          "sha256": "a38a91d141de00988f26f45a12342e7ffd0f3c8dda0c24d99b02a023cf9b3311"
+        },
+        {
+          "name": "male-navy-classic-pose-891.png",
+          "bytes": 181455,
+          "sha256": "28228c2f9b5e792dea61393cf1b93adccb8445f720eebe7cdc3433fb9b98d9d8"
+        }
+      ]
+    },
+    {
+      "variant": "male-dinner-jacket",
+      "gender": "male",
+      "donor": "toigo_suit_with_dinner_jacket",
+      "upstreamArchiveSha256": {
+        "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+        "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+      },
+      "originalSceneSha256": "2a39da6e81d2e03d8b3b81df7c8df26bec3b29676869b1cc4d8658031dd3c9ed",
+      "blenderVersion": "Blender 5.2.0 LTS",
+      "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+      "files": [
+        {
+          "name": "male-dinner-jacket-front.png",
+          "bytes": 193864,
+          "sha256": "f293cac43ad1f046b1e8a3c1a4d0a36321af0118ea35f6b6a09fde9644c2be0c"
+        },
+        {
+          "name": "male-dinner-jacket-front.blend",
+          "bytes": 22451352,
+          "sha256": "d2b55f5acc45ce488a72ba844b6aeec3439d2feafe04b84ac2f26f4aced46e6b"
+        },
+        {
+          "name": "male-dinner-jacket-threeq.png",
+          "bytes": 195105,
+          "sha256": "81fb349e0634c328a1084c69c3c9f6ba0412fefbcd8582737d7d68c41956ff60"
+        },
+        {
+          "name": "male-dinner-jacket-pose-338.png",
+          "bytes": 198206,
+          "sha256": "27ae549299a90b63533b2f948f7d65c4be58c80ff8e8d6faafe093b8e4325e10"
+        },
+        {
+          "name": "male-dinner-jacket-pose-891.png",
+          "bytes": 196798,
+          "sha256": "8f66e30d681163c414b2edfe349ee3b87006bf98a4c36c8088d288e4f2e13921"
+        }
+      ]
+    }
+  ]
+}

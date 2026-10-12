@@ -1,0 +1,18 @@
+{
+  "gender": "female",
+  "sourceFittedHair": "NEX_V1_CC0_HAIR_toigo_blunt_bob_with_bangs",
+  "newRealGeometryStrokes": [
+    "V1_BOB_REAL_SURFACE_STRAND_02",
+    "V1_BOB_REAL_SURFACE_STRAND_03",
+    "V1_BOB_REAL_SURFACE_STRAND_04",
+    "V1_BOB_REAL_SURFACE_STRAND_05",
+    "V1_BOB_REAL_SURFACE_STRAND_06",
+    "V1_BOB_REAL_SURFACE_STRAND_07",
+    "V1_BOB_REAL_SURFACE_STRAND_08"
+  ],
+  "raysHit": 103,
+  "raysMissed": 40,
+  "originalRig": "Host.rig",
+  "sourceCanonicalSceneUntouched": true,
+  "status": "UNAPPROVED_GENUINE_SURFACE_STRAND_RENDER_TRIAL"
+}

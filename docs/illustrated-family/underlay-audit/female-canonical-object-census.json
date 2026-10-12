@@ -1,0 +1,852 @@
+{
+  "scene": "/home/runner/work/_temp/female.blend",
+  "frame": 27,
+  "items": [
+    {
+      "name": "Host.V26_mark_hem_echo_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.5705,
+        0.5772
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V26_mark_hem_echo_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.5705,
+        0.5772
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V26_mark_hip_fold_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.8849,
+        0.9353
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V26_mark_hip_fold_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.8849,
+        0.9353
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V26_mark_skirt_crease_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.6801,
+        0.8001
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V26_mark_skirt_crease_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 34,
+      "bbox": [
+        0.6801,
+        0.8001
+      ],
+      "collectionNames": [
+        "V26_GARMENT_MARKS"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_pleat_dash_-0.12_0.704",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 8,
+      "bbox": [
+        0.6817,
+        0.7043
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_TEAL_PLEATS"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_pleat_dash_-0.12_0.742",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 8,
+      "bbox": [
+        0.7197,
+        0.7423
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_TEAL_PLEATS"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_pleat_dash_-0.12_0.78",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 8,
+      "bbox": [
+        0.7577,
+        0.7803
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_TEAL_PLEATS"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_skirt_hem",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 82,
+      "bbox": [
+        0.5608,
+        0.5792
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_CLOTH_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_skirt_pleat_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 30,
+      "bbox": [
+        0.6847,
+        0.8057
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_CLOTH_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_skirt_pleat_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 30,
+      "bbox": [
+        0.6847,
+        0.8057
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_CLOTH_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V3_waist_seam",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 84,
+      "bbox": [
+        0.9082,
+        0.9258
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V3_CLOTH_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V4_left_skirt_fold",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 46,
+      "bbox": [
+        0.7177,
+        0.8852
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V4_BOLD_BLACK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V4_left_waist_fold",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 16,
+      "bbox": [
+        0.9298,
+        0.967
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V4_BOLD_BLACK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V4_right_skirt_fold",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 46,
+      "bbox": [
+        0.7177,
+        0.8852
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V4_BOLD_BLACK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V4_skirt_hem",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 102,
+      "bbox": [
+        0.5573,
+        0.5827
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V4_BOLD_BLACK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V5_skirt_pleat_shadow_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 72,
+      "bbox": [
+        0.6859,
+        0.8551
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V5_skirt_pleat_shadow_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 72,
+      "bbox": [
+        0.6859,
+        0.8551
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V5_skirt_side_crease_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 50,
+      "bbox": [
+        0.6018,
+        0.7101
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V5_skirt_side_crease_R",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 50,
+      "bbox": [
+        0.6018,
+        0.7101
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V5_waist_shadow_L",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 28,
+      "bbox": [
+        0.9145,
+        0.9305
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V5_INK"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.V64_dress_lines",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": false,
+      "vertexCount": 1234,
+      "bbox": [
+        0.5204,
+        1.405
+      ],
+      "collectionNames": [
+        "Collection",
+        "GARMENT_SILHOUETTE",
+        "Host_V10_FIXED_GARMENT_BORDERS",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "PEEPS_V5_INK",
+        "V64_TOPSTITCH"
+      ],
+      "parents": null
+    },
+    {
+      "name": "Host.V64_sd_proxy",
+      "hideRender": true,
+      "hideViewport": false,
+      "hasBodyArmature": true,
+      "vertexCount": 1350,
+      "bbox": [
+        0.5074,
+        1.4079
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.body",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": true,
+      "vertexCount": 19158,
+      "bbox": [
+        0.0,
+        1.6766
+      ],
+      "collectionNames": [
+        "Collection",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "PEEPS_V2_WARM_SKIN",
+        "PEEPS_V2_WARM_SKIN",
+        "PEEPS_V2_WARM_SKIN"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_fabric_mark_0",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 6,
+      "bbox": [
+        0.8082,
+        0.8212
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_fabric_mark_1",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 6,
+      "bbox": [
+        0.7912,
+        0.8042
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_fabric_mark_2",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 6,
+      "bbox": [
+        0.7912,
+        0.8042
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_fabric_mark_3",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 6,
+      "bbox": [
+        0.8082,
+        0.8212
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_hem_echo",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 58,
+      "bbox": [
+        0.5529,
+        0.5701
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_lapel_left",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 26,
+      "bbox": [
+        1.2444,
+        1.3694
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_lapel_right",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 28,
+      "bbox": [
+        1.2484,
+        1.3704
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_pocket_left",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 4,
+      "bbox": [
+        1.0129,
+        1.0171
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_pocket_right",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 4,
+      "bbox": [
+        1.0129,
+        1.0171
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_skirt_pleat_left",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 38,
+      "bbox": [
+        0.6699,
+        0.8893
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_skirt_pleat_right",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 38,
+      "bbox": [
+        0.6699,
+        0.8893
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_waist_dart_left",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 18,
+      "bbox": [
+        1.025,
+        1.1166
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.cloth_waist_dart_right",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 16,
+      "bbox": [
+        1.0249,
+        1.1064
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_SEAM"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.female_elegantsuit01",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 2205,
+      "bbox": [
+        0.5407,
+        1.4337
+      ],
+      "collectionNames": [
+        "Collection",
+        "Host_V10_FIXED_GARMENT_BORDERS",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_JACKET",
+        "PEEPS_V2_TEAL_SKIRT"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.lineart_lower_legs",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": true,
+      "vertexCount": 19158,
+      "bbox": [
+        0.0,
+        0.662
+      ],
+      "collectionNames": [
+        "Collection",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "LINEART_SKIN_WHITE",
+        "LINEART_SKIN_WHITE",
+        "LINEART_SKIN_WHITE"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.lineart_pupil.L",
+      "hideRender": true,
+      "hideViewport": false,
+      "hasBodyArmature": false,
+      "vertexCount": 266,
+      "bbox": [
+        1.5537,
+        1.5652
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_PUPIL"
+      ],
+      "parents": "Host.high-poly"
+    },
+    {
+      "name": "Host.lineart_pupil.R",
+      "hideRender": true,
+      "hideViewport": false,
+      "hasBodyArmature": false,
+      "vertexCount": 266,
+      "bbox": [
+        1.5515,
+        1.5629
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_PUPIL"
+      ],
+      "parents": "Host.high-poly"
+    },
+    {
+      "name": "Host.lineart_shoe.L",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": false,
+      "vertexCount": 8,
+      "bbox": [
+        0.0092,
+        0.1142
+      ],
+      "collectionNames": [
+        "Collection",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "PEEPS_V2_SHOE"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.lineart_shoe.R",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": false,
+      "vertexCount": 8,
+      "bbox": [
+        0.0092,
+        0.1142
+      ],
+      "collectionNames": [
+        "Collection",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "PEEPS_V2_SHOE"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.mindfront_f_dress_01",
+      "hideRender": true,
+      "hideViewport": true,
+      "hasBodyArmature": true,
+      "vertexCount": 1840,
+      "bbox": [
+        0.5393,
+        1.4026
+      ],
+      "collectionNames": [
+        "Collection"
+      ],
+      "materials": [
+        "PEEPS_V2_MUSTARD_JACKET"
+      ],
+      "parents": "Host.rig"
+    },
+    {
+      "name": "Host.mindfront_f_dress_11",
+      "hideRender": false,
+      "hideViewport": false,
+      "hasBodyArmature": true,
+      "vertexCount": 1350,
+      "bbox": [
+        0.5068,
+        1.4092
+      ],
+      "collectionNames": [
+        "Collection",
+        "GARMENT_SILHOUETTE",
+        "Host_V10_FIXED_GARMENT_BORDERS",
+        "PEEPS_CONTOUR_SOURCES"
+      ],
+      "materials": [
+        "V63_DRESS_mindfront_f_dress_11"
+      ],
+      "parents": "Host.rig"
+    }
+  ],
+  "total": 46,
+  "blender": "5.2.0 LTS"
+}

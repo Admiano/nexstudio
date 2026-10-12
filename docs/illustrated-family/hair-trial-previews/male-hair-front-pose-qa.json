@@ -1,0 +1,18 @@
+{
+  "asset": "toigo_male_suit_tie_and_jacket",
+  "gender": "male",
+  "blender": "5.2.0 LTS",
+  "performanceAuthority": "original V1 Host",
+  "frames": [
+    {
+      "frame": 338,
+      "render": "male-hair-pose-338.png",
+      "renderBytes": 174075
+    },
+    {
+      "frame": 891,
+      "render": "male-hair-pose-891.png",
+      "renderBytes": 173591
+    }
+  ]
+}

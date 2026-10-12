@@ -1,0 +1,67 @@
+name: V1 illustrated authored facial identity proofs
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-authored-face-proofs.yml']
+permissions:
+  contents: write
+jobs:
+  real-face-designs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            experiments/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+          persist-credentials: true
+      - name: Verify original Blender 5.2.0 binary and graphics environment
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6 zstd
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Render new authored eye brow nose geometry for six trial identities
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/authored-face
+          for gender in FEMALE MALE; do
+            source="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.blend"
+            decoded="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.decoded.blend"
+            zstd -q -d -c "$source" > "$decoded"
+            test "$(head -c 7 "$decoded")" = BLENDER
+            lower=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            for style in expressive resolute thoughtful; do
+              "$BLENDER_BIN" -b "$decoded" -t 4 --python-exit-code 1 \
+                --python experiments/illustrated-family/authored_face_hook.py \
+                --python experiments/illustrated-family/authored_face_render.py \
+                -- "$lower" "$style" "proofs/authored-face/$lower-$style"
+              test -s "proofs/authored-face/$lower-$style-front.png"
+              test -s "proofs/authored-face/$lower-$style-threeq.png"
+              test -s "proofs/authored-face/$lower-$style.blend"
+            done
+          done
+      - name: Publish actual proof images and geometry reports for direct inspection
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/authored-faces
+          cp proofs/authored-face/*.png docs/illustrated-family/authored-faces/
+          cp proofs/authored-face/*.json docs/illustrated-family/authored-faces/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/authored-faces/
+          git diff --cached --quiet && exit 0
+          git commit -m 'proof(character): six newly authored V1 illustrated faces with genuine Blender screenshots'
+          git push origin HEAD:work/illustrated-family-expansion-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-authored-face-test-blend-scenes-and-stills
+          path: proofs/authored-face
+          retention-days: 14
+          if-no-files-found: warn

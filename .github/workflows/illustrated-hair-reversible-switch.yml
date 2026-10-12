@@ -1,0 +1,89 @@
+name: V1 reversible original and licensed hairstyle switching proof
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-hair-reversible-switch.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  swap-proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+      - name: Fetch actual original-rig character scenes with both hairstyle meshes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download 38008949312 --repo Admiano/nexstudio \
+            --name v1-three-individual-cc0-hair-candidate-scenes --dir input
+          test -s input/toigo_inverted_bob/female-hair-front.blend
+          test -s input/faydaen_hair_1/male-hair-front.blend
+      - name: Load checksum-verified Blender
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Save real Blender originals and alternate hair on the SAME preserved rig
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/hair-switch
+          for which in female:toigo_inverted_bob male:faydaen_hair_1; do
+            gender="${which%%:*}"
+            donor="${which#*:}"
+            source="input/$donor/$gender-hair-front.blend"
+            for mode in original alternate; do
+              dest="proofs/hair-switch/$gender-$mode-front.png"
+              "$BLENDER_BIN" -b "$source" -t 4 --python-exit-code 1 \
+                --python experiments/illustrated-family/switch_hair_trial.py \
+                --python scripts/illustrated-family-preview/quick_preview.py \
+                --python experiments/illustrated-family/wardrobe_threeq.py \
+                -- "$gender" "$dest" "$mode"
+              test -s "proofs/hair-switch/$gender-$mode-front.png"
+              test -s "proofs/hair-switch/$gender-$mode-threeq.png"
+              test -s "proofs/hair-switch/$gender-$mode-front.blend"
+              test -s "proofs/hair-switch/$gender-$mode-front-switch-report.json"
+              echo "V1_HAIR_CHOICE_REAL_RENDERED:$gender:$mode"
+            done
+          done
+      - name: Publish direct visual proof of original versus fitted hair choices
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/hair-switch-proof
+          cp proofs/hair-switch/*.png docs/illustrated-family/hair-switch-proof/
+          cp proofs/hair-switch/*.json docs/illustrated-family/hair-switch-proof/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/hair-switch-proof/
+          git commit -m 'proof(character): reversible original or licensed hairstyle on same genuine Blender performer'
+          for attempt in 1 2 3 4; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: V1_REAL_ORIGINAL_AND_ALTERNATE_HAIR_SWITCH_SCENES
+          path: proofs/hair-switch
+          retention-days: 14
+          if-no-files-found: warn

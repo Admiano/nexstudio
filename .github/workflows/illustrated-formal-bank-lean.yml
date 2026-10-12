@@ -1,0 +1,71 @@
+name: V1 compact verified formal scene bank handoff
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-formal-bank-lean.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docs/illustrated-family/formal-bank
+      - name: Retrieve six original Blender-reopened verified scenes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source/bank
+          gh run download 38003760983 --repo Admiano/nexstudio \
+            --name NEX_V1_SIX_FORMAL_EDITABLE_BLEND_BANK --dir source/bank
+          find source/bank -type f -printf "%s %p\n" | sort -nr | head -20
+      - name: Copy only the required editable scenes and real preview proofs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff
+          cp docs/illustrated-family/formal-bank/BANK_MANIFEST.json handoff/
+          python - <<'PY'
+          from pathlib import Path
+          import json,hashlib,shutil
+          source=Path("source/bank")
+          dest=Path("handoff")
+          bank=json.loads((dest/"BANK_MANIFEST.json").read_text())
+          assert bank["validation"]=="ALL_SAVED_SCENES_REOPENED_IN_BLENDER_5_2"
+          assert len(bank["variants"])==6
+          total_bytes=0
+          for record in bank["variants"]:
+            v=record["variant"]
+            directory=dest/v
+            directory.mkdir(exist_ok=True)
+            for entry in record["files"]:
+              a=source/v/entry["name"]
+              assert a.is_file() and a.stat().st_size==entry["bytes"]
+              sha=hashlib.sha256()
+              with a.open("rb") as f:
+                for chunk in iter(lambda:f.read(1<<20),b""):sha.update(chunk)
+              assert sha.hexdigest()==entry["sha256"]
+              shutil.copy2(a,directory/entry["name"])
+              total_bytes+=entry["bytes"]
+            shutil.copy2(source/v/"build_provenance.json",directory/"build_provenance.json")
+          scene_files=list(dest.glob("*/*.blend"))
+          assert len(scene_files)==6
+          assert not list(dest.rglob("*.blend1")) and not list(dest.rglob("*.blend2"))
+          assert not list(dest.rglob("*.log"))
+          print("LEAN_HANDOFF_VERIFIED_SIX_EDITABLE_SCENES",len(scene_files),"FILE_BYTES",total_bytes)
+          PY
+          du -sh source/bank handoff
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NEX_V1_LEAN_SIX_EDITABLE_FORMAL_SCENES
+          path: handoff/
+          retention-days: 14
+          compression-level: 2
+          if-no-files-found: error

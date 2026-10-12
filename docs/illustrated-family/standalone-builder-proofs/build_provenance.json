@@ -1,0 +1,39 @@
+{
+  "variant": "female-double-breasted",
+  "gender": "female",
+  "donor": "toigo_female_double-breasted_suit",
+  "upstreamArchiveSha256": {
+    "suits": "2b1d8676f3863b188e9eea98c1d8f234543d54c440e791d92b819f8ee1861f19",
+    "shoes": "ded3f70428505eabbf1f6d7b5f61196a7366ef20757103d276ad0ed336c35ada"
+  },
+  "originalSceneSha256": "203c2dba778207f45693ab04c4882be194794a21d2f21b58a1bf8e9c0c6148cb",
+  "blenderVersion": "Blender 5.2.0 LTS",
+  "outputStatus": "REAL_GEOMETRY_PROOF_UNAPPROVED_NOT_IN_PRODUCTION",
+  "files": [
+    {
+      "name": "female-double-breasted-front.png",
+      "bytes": 181725,
+      "sha256": "963432183f9cc05f41232cac173546aca81339c4207c6729b08204df1b7df238"
+    },
+    {
+      "name": "female-double-breasted-front.blend",
+      "bytes": 20739207,
+      "sha256": "180d3382e2d8b6d389c0ec0c4f7f2eadfab07d7303c8d9bd595099751a076672"
+    },
+    {
+      "name": "female-double-breasted-threeq.png",
+      "bytes": 184158,
+      "sha256": "94056a3d794952d79faff2c13ed1c705b51d6fbb3ab37a941016d2d19cbc5a33"
+    },
+    {
+      "name": "female-double-breasted-pose-338.png",
+      "bytes": 182589,
+      "sha256": "7afb78a400784f6c997ea5a3a1dc5c87e4a1964a3cabe9fbc3d4caab4589111c"
+    },
+    {
+      "name": "female-double-breasted-pose-891.png",
+      "bytes": 183043,
+      "sha256": "d76cbf78ba1237f4117307ed0a72c1fef9ad685e25f6fc6fe6621c9d88008c8a"
+    }
+  ]
+}

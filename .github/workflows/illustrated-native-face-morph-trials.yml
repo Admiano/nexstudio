@@ -1,0 +1,89 @@
+name: V1 real native face morphology options with original formal casts
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-native-face-morph-trials.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  original-native-identity-geometry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+            scripts/illustrated-family-preview
+            engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py
+      - name: Retrieve original real clothing bank from verified artifact and Blender 5.2.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+          mkdir -p original/formal
+          gh run download 38004823946 --repo Admiano/nexstudio \
+            --name NEX_V1_LEAN_SIX_EDITABLE_FORMAL_SCENES --dir original/formal
+      - name: Verify four distinctly morphed real head meshes, preview from three angles and gestures
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/native-face-family
+          for entry in female:1:female-double-breasted male:1:male-jacket-tie female:2:female-double-breasted male:2:male-jacket-tie; do
+            gender="${entry%%:*}"
+            remainder="${entry#*:}"
+            morph="${remainder%%:*}"
+            variant="${remainder#*:}"
+            source="original/formal/$variant/$variant-front.blend"
+            test -s "$source"
+            out="proofs/native-face-family/$gender-face$morph-front.png"
+            FACE="$morph" "$BLENDER_BIN" -b "$source" -t 4 --python-exit-code 1 \
+              --python experiments/illustrated-family/native_face_geometry_before.py \
+              --python engine_sources/makehuman-lineart/presenters_v1/scripts/facevar.py \
+              --python experiments/illustrated-family/native_face_geometry_after.py \
+              --python scripts/illustrated-family-preview/quick_preview.py \
+              --python experiments/illustrated-family/wardrobe_threeq.py \
+              --python experiments/illustrated-family/donor_suit_pose_qa.py \
+              -- "$gender" "$out" "V1-original-morph-$morph"
+            for suffix in front threeq pose-338 pose-891; do
+              test -s "proofs/native-face-family/$gender-face$morph-$suffix.png"
+            done
+            test -s "proofs/native-face-family/$gender-face$morph-front.blend"
+            test -s "proofs/native-face-family/$gender-face$morph-front-face-measurements.json"
+            echo "ACTUAL_DIFFERENT_FACE_MESH_PROOF:$gender:$morph"
+          done
+      - name: Publish only real Blender-rendered native shape variants and validated geometry changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/native-face-morph-trials
+          cp proofs/native-face-family/*.png docs/illustrated-family/native-face-morph-trials/
+          cp proofs/native-face-family/*-face-measurements.json docs/illustrated-family/native-face-morph-trials/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/native-face-morph-trials/
+          git commit -m 'proof(character): original-rig native face shape variants and actual suit animation poses'
+          for attempt in 1 2 3 4; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: V1_REAL_FACE_MORPH_EDITABLE_SCENE_TRIALS
+          path: proofs/native-face-family/
+          retention-days: 14
+          if-no-files-found: warn

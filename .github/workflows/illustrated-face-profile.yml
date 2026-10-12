@@ -1,0 +1,54 @@
+name: V1 illustrated facial ink topology audit
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-face-profile.yml']
+permissions:
+  contents: write
+jobs:
+  actual-face-mesh-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/illustrated-family
+            engine_sources/makehuman-lineart/presenters_v1/scenes
+          persist-credentials: true
+      - name: Verified runtime install
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Inspect canonical facial mesh island structure read only
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/facial-topology
+          for gender in FEMALE MALE; do
+            src="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.blend"
+            dst="engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_$gender.decoded.blend"
+            zstd -q -d -c "$src" > "$dst"
+            lower=$(printf '%s' "$gender" | tr '[:upper:]' '[:lower:]')
+            "$BLENDER_BIN" -b "$dst" -t 2 --python-exit-code 1 --python scripts/illustrated-family/face_component_profile.py -- "$lower" "docs/illustrated-family/facial-topology/$lower.json"
+          done
+      - name: Commit structural audit, no model modifications
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/facial-topology/
+          git diff --cached --quiet && exit 0
+          git commit -m 'audit(character): verified canonical facial ink mesh islands and shape-key names'
+          git push origin HEAD:work/illustrated-family-expansion-v1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-facial-ink-source-mesh-analysis
+          path: docs/illustrated-family/facial-topology/*.json
+          retention-days: 14

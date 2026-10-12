@@ -1,0 +1,77 @@
+name: V1 native face morph close-up visual QA on real Blender scenes
+on:
+  push:
+    branches: [work/illustrated-family-expansion-v1]
+    paths: ['.github/workflows/illustrated-native-face-closeups.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  closeups:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          sparse-checkout: |
+            experiments/illustrated-family
+      - name: Retrieve authentic geometry-changed native-face V1 scenes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download 38009251412 --repo Admiano/nexstudio \
+            --name V1_REAL_FACE_MORPH_EDITABLE_SCENE_TRIALS --dir input
+          test "$(find input -name '*face*-front.blend' | wc -l)" -eq 4
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Actual original-head geometry front and three-quarter portrait renders
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p proofs/morph-closeup
+          for gender in female male; do
+            for n in 1 2; do
+              input="input/$gender-face$n-front.blend"
+              test -s "$input"
+              base="proofs/morph-closeup/$gender-face$n"
+              "$BLENDER_BIN" -b "$input" -t 4 --python-exit-code 1 \
+                --python experiments/illustrated-family/authored_face_render.py \
+                -- "$gender" "native$n" "$base"
+              test -s "$base-front.png"
+              test -s "$base-threeq.png"
+              echo "ORIGINAL_V1_NATIVE_MORPH_CLOSEUP:$gender:$n"
+            done
+          done
+      - name: Publish truthfully labeled real 3D head-closeup QA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p docs/illustrated-family/native-face-closeups
+          cp proofs/morph-closeup/*.png docs/illustrated-family/native-face-closeups/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse docs/illustrated-family/native-face-closeups/
+          git commit -m 'proof(character): actual V1 native face geometry morph head portraits front and 3/4'
+          for attempt in 1 2 3; do
+            git fetch origin work/illustrated-family-expansion-v1
+            git rebase origin/work/illustrated-family-expansion-v1
+            if git push origin HEAD:work/illustrated-family-expansion-v1; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: V1_REAL_NATIVE_FACE_MORPH_CLOSEUPS
+          path: proofs/morph-closeup/
+          retention-days: 14
+          if-no-files-found: warn

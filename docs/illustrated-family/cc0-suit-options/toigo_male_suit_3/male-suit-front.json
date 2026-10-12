@@ -1,0 +1,27 @@
+{
+  "gender": "male",
+  "asset": "toigo_male_suit_3",
+  "donorCC0Header": true,
+  "sourceAuthor": "MRT / Margaret Toigo",
+  "inputSourceScene": "/home/runner/work/nexstudio/nexstudio/engine_sources/makehuman-lineart/presenters_v1/scenes/NEXSTUDIO_V1_MALE.decoded.blend",
+  "blender": "5.2.0 LTS",
+  "fittedVertices": 8527,
+  "faces": 8125,
+  "uvCoordinates": 9795,
+  "uvFaceLoops": 32500,
+  "originalDiffuseTexture": "NewSuit3.png",
+  "rig": "Host.rig",
+  "boneWeightGroups": 46,
+  "bodyShapeKeysPreserved": 34,
+  "hiddenOriginalWardrobeInDisposableScene": [
+    "Host.elvs_male_shirt_untucked_bd1",
+    "Host.mindfront_male_trousers_2",
+    "Host.mindfront_shoes_monk_strap_male",
+    "Host.lineart_shoe.L",
+    "Host.lineart_shoe.R"
+  ],
+  "sourceAssetsInRepoUnchanged": true,
+  "status": "UNAPPROVED_REAL_MAKEHUMAN_SUIT_FIT_UV_TEXTURED_PROOF",
+  "fitPipeline": "NexStudio mhclo_fit.py; original Host armature and weights; UV loops and original CC0 diffuse texture",
+  "editableSceneFile": "male-suit-front.blend"
+}
