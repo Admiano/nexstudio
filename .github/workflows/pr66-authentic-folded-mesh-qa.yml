@@ -1,0 +1,76 @@
+name: PR66 source handoff - genuine Blender mesh audit
+on:
+  push:
+    branches: [work/pr66-authentic-folded-mesh-qa]
+    paths: ['.github/workflows/pr66-authentic-folded-mesh-qa.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download, extract, and verify Devin's original PR66 release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p handoff
+          gh release download pr66-papercraft-handoff --repo Admiano/nexstudio --pattern NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip --dir handoff
+          test -s handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+          unzip -tq handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip
+          unzip -oq handoff/NEXSTUDIO_PR66_PAPERCRAFT_SOURCE_HANDOFF.zip -d handoff/extracted
+          manifest="$(find handoff/extracted -type f -name SHA256SUMS.txt | head -1)"
+          test -n "$manifest"
+          (cd "$(dirname "$manifest")" && sha256sum -c SHA256SUMS.txt)
+          glb="$(find handoff/extracted -type f -name casual30_shape.glb | head -1)"
+          scene="$(find handoff/extracted -type f -name CHASSIS_UNMODIFIED.blend | head -1)"
+          test -s "$glb"; test -s "$scene"
+          echo "GLB_PATH=$PWD/$glb" >> "$GITHUB_ENV"
+          echo "BLEND_PATH=$PWD/$scene" >> "$GITHUB_ENV"
+          echo "Original Hunyuan GLB bytes: $(stat -c%s "$glb")"
+      - name: Install certified Blender 5.2.0
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 --retry-delay 2 -o /tmp/blender52.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender52.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender52"
+          tar -xJf /tmp/blender52.tar.xz -C "$RUNNER_TEMP/blender52"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender52" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Audit original geometry, reopen handoff scene, render four true views
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p qa_out
+          "$BLENDER_BIN" -b -t 4 --python-exit-code 1 --python experiments/pr66-authentic-qa/audit_original.py -- "$GLB_PATH" "$BLEND_PATH" "$PWD/qa_out"
+          test -s qa_out/PR66_front.png
+          test -s qa_out/PR66_threeq.png
+          test -s qa_out/PR66_profile.png
+          test -s qa_out/PR66_head3q.png
+          test -s qa_out/PR66_UNMODIFIED_QA.blend
+          test -s qa_out/PR66_AUDIT.json
+      - name: Publish small visual proofs on experimental branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/pr66-authentic-qa/previews
+          cp qa_out/*.png qa_out/PR66_AUDIT.json experiments/pr66-authentic-qa/previews/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/pr66-authentic-qa/previews
+          git commit -m "proof(papercraft): genuine PR66 source four-view Blender geometry audit"
+          git push origin HEAD:work/pr66-authentic-folded-mesh-qa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: genuine-pr66-original-four-view-and-editable-blender
+          path: qa_out
+          if-no-files-found: warn
+          retention-days: 14
