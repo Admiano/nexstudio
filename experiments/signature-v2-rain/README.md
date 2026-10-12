@@ -115,3 +115,19 @@ Checkpoint in ChatGPT workspace: `NEXSTUDIO_RAIN_V2_REV19_CHARACTER_PROGRESS_CHE
 - New delivered checkpoint archive: `NEXSTUDIO_RAIN_V2_REV33_GEOMETRY_TEXTILE_CHECKPOINT_20261012.zip` — 58,588,369 bytes, 26 ZIP entries, CRC check passed, SHA-256 `98bee5d22390c989a414fa8d1c9d9cf315da01971a0e2d7a837f544e75afcc3c`. Includes separate, editable Rev31 and Rev33 scenes, QA, Blender scripts, and genuine preview stills. **ZIP and .blend binary files delivered in ChatGPT, not committed to GitHub.**
 
 The artwork remains prototype-level. Do not merge or publicly release as a finished NexStudio character.
+
+
+## 2026-10-12 — Rev34–36: pose-fitted sleeves and sculpted knit collar
+
+**New preferred experimental checkpoint: Rev36**. Local Blender package is delivered through the conversation, not committed as binary to GitHub. Rev33 remains intact. Rev35 is the sleeve-only fallback.
+
+- **Root cause identified**: original Rev33 sleeves were five 33-point rings that folded back after rig skinning; apparent cuff and shoulder positions could not be fixed by changing only wrist weights.
+- **Rev34**: replaced each sleeve with a continuous 9×32-ring / 288-vertex / 256-quad arm-fitted garment mesh, retaining the genuine Rain armature deform-group names and existing armature modifier. Inverted blended deform-bone matrices and iterated against evaluated **B-Bone** deformation until the greatest neutral pose fitting error was **0.000134m** on L and **0.000114m** on R.
+- **Rev35**: refined continuous deep-blue wool material, restrained shoulder accents and dark integrated cuff hems; hid obsolete independent piping whose positions no longer matched the new cuffs. Real Blender Cycles neutral front/3/4 and arm-stress images verified.
+- **Rev36**: replaced the rigid 196-vertex collar with a fitted 640-vertex 8×80-rib mockneck, skinned to `DEF-Spine3` and `DEF-Neck`, with a slight lowered front neckline. Inverse fitting converged below **0.000087m** on the neutral posed mesh. Real `FK-Neck` 12° test moved a collar sample **0.007014m**.
+- **Quantitative neutral cuff-to-wrist center distance**: old Rev33 **0.07193m**, new Rev35/36 **0.04395m**, on each wrist. With IK hands moved outward local X ±0.13 and upward local Z 0.15, old Rev33 **0.06568m**, new **0.03918m**. These are measured geometric center distances, not skin-collision distances.
+- Rev36 independent reopening Blender audit: **2,166 rig bones**, **25 head shape keys**, **8 parented hair meshes**, **4 wardrobe collections**, **288 sleeve vertices per sleeve**, **640 knit collar vertices**, **4 packed images**, no missing external image assets. Original assets remain untouched. Full cloth and animation certification is **NOT** claimed.
+- Final downloadable archive **`NEXSTUDIO_RAIN_V2_REV36_TAILORED_SLEEVES_NECK_CHECKPOINT_20261012.zip`**, **54,497,487 bytes**, 25 ZIP entries, CRC integrity PASS. SHA-256: `76346d572258e5536284446e4304413195c18959cc89cc1bdb7413bf8720cd48`. Includes editable Rev35/Rev36 .blend, Blender native progress board, real front/3/4/stress renders, scripts and QA.
+- Primary remaining blockers: high-end facial identity, non-rigid hairstyle with proper groom, authentic upper coat-to-sleeve seams and lapels, broader arm gesture and cloth collisions, blink/lip sync, NexStudio app integration. The new long sleeves improve fit but still have visible seams.
+
+No merge to NexStudio V1 and no changes to original Rain files.
