@@ -167,3 +167,18 @@ No merge to NexStudio V1 and no changes to original Rain files.
 - `NEXSTUDIO_RAIN_V2_REV44_EXPERIMENTAL_HAIR_CHECKPOINT_20261012.zip` **27,782,147 bytes; 15 entries; ZIP CRC passed**, SHA-256 `caaefc7323fe52bf88af9638bf4d12cbcc9998a6e11b4288863e8cc08b60826f`. Contains the *unapproved* Rev44 experimental scene, three native renders, side-by-side hair board, scripts and head-pose QA.
 
 **Still to finish:** distinctive premium face, high-quality signature hair, visually integrated *oversized tailored* lapel construction (Rev40 deliberately gives an understated alternative), continuous shoulder construction, arm/cloth collision and full gestures, verified blink/speech and NexStudio video engine integration. Original Rain source and NexStudio V1 untouched.
+
+
+## 2026-10-12 — Rev45–48 layered hairstyle and four-combination character scene
+
+**Latest checkpoint: Rev48 independently switchable wardrobe + hair (development-only). Rev42 remains an intact fallback.**
+
+- Rev45: created a new genuine Blender mesh hairstyle using **118 tapered hair sections**. Rendered front, portrait and 3/4. **Rejected** first pass because specular made it grey and exposed uniform roots.
+- Rev46: replaced with 88 darker matte tapered segments. Underlying original Rain hair crown and rig preserved; grey material issue fixed, temple roots remained too visible.
+- Rev47: moved new roots beneath sculpted crown and narrowed their profiles; **88 editable hair sections in a 17,952-vertex / 17,424-face mesh**, rigidly bone-parented to original Rain `DEF-Head`. Still *unapproved* artistic groom: unnaturally even fan-shaped sweep, no secondary hair dynamics.
+- Rev48: one actual portable Blender scene with **2 coats × 2 hairstyles = 4 independent combinations**. Original Rev42 `soft` shell has 1,020 base vertices, `statement` shell 972; original eight fine-groom groups remain and new layered-groom mesh is added. Blender Text Editor exposes `NEX48_COAT_AND_HAIR_VARIANT_SWITCH.py`, editable `coat='soft'|'statement'` and `hair='fine'|'layered'`. Four **real Blender 5.2 Cycles renders** from the same saved file verify each combination.
+- Independently reopened Rev48 in Blender 5.2. Verified **one Rain rig, 2,166 bones, 25 head shape keys, 6,395 head vertices, 4 wardrobe collections, no missing unpacked image dependencies**, both bound coat shells and new groom attached to original head bone.
+- Verified a 12° original `FK-Head` pose change produces **0.041732 m** sampled groom-mesh displacement with **0.1205 s** pose evaluation on test runtime; actual pose render included. Not a broad animation benchmark, facial performance certificate, or hairstyle motion simulation.
+- Packaged `NEXSTUDIO_RAIN_V2_REV48_FOUR_CHARACTER_STYLES_CHECKPOINT_20261012.zip`, **35,212,694 bytes**, **47 entries**, ZIP CRC passed, SHA-256 `46c50fc44bbc2d63344c6bbeb4961149517d91e1868095c9cc5ca67fb1956a38`. Package includes Rev48 editable portable .blend (**26,623,022 bytes**), actual four-variant render board, Rev45/46/47 hair material comparison, head-pose render, scripts, manifests and QA evidence. Delivered through ChatGPT conversation artifacts, **not uploaded to GitHub**.
+
+**Still not ready:** signature facial sculpt, natural quality hair silhouette and follow-through, completed lapels and shoulder seams, cloth and arm collisions, genuine blink/dialogue/lip sync, and NexStudio runtime integration. This GitHub branch stays isolated; original Rain and V1 untouched.
