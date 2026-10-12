@@ -84,3 +84,20 @@ Checkpoint in ChatGPT workspace: `NEXSTUDIO_RAIN_V2_REV19_CHARACTER_PROGRESS_CHE
 - Package also includes the independent true Blender facial comparison board and construction diagnostic board, Rev27 and Rev29 separate portable .blend scenes, scripts and test reports.
 
 **Priority remaining:** high-end facial identity and sculpted hairline, redesign coat shoulders and sleeve seams with true tailored construction, run functional eyelid/blink/lip-speech and body-gesture tests, outfit collision, exports, then NexStudio integration. Do not merge this experiment into existing V1 or original Rain source.
+
+
+## 2026-10-12 follow-up — Rev30–Rev32 integrated shoulder study
+
+**Rev31 is the preferred new geometry checkpoint; Rev32 cuff-weight experiment rejected.**
+
+- Primary starting point: Rev27 face and eight fine-groom groups, preserving original Rain rig, its 25 face shape keys and four modular wardrobe collections. Rev29 smaller-eye candidate was not silently merged because eyelid closure had not been verified.
+- Geometric diagnosis: Rev27 coat upper shell is **12 contiguous loops of 81 vertices**, while each independently skinned sleeve has **five loops of 33 vertices**. Shoulder cap protrusion comes from the combination of ring profiles, not just single shoulder points. A focused sleeve-only or shell-only displacement had created visible gaps in prior revisions.
+- **Rev30:** uniformly scaled upper sleeve ring cross sections (factors **0.72/0.78/0.86/0.95/1.00**) and gently tapered top shell loops (first six multipliers **1.00/0.96/0.948/0.969/0.989/1.00**), keeping all original faces and deform weights.
+- **Rev31:** used a Kabsch estimate of the *actually evaluated* original Rain sleeve ring transformations to convert desired posed-world shoulder inset to local rest-space offsets. Upper arm cap moved inward ~0.043m and down ~0.024m; following ring inward ~0.012m and down ~0.008m. The real native Blender 3/4 and shoulder-detail renders show a visibly softer top-arm silhouette. Pattern/seam/shoulder joins remain visibly rough.
+- Armature stress pose: IK-Hand.L/R each moved outward 0.13 local X and upward 0.15 local Z. Both sleeves visibly deformed; selected vertex motions **0.041–0.082 m**. Sleeve cuff, arm exposure and garment intersections are **not** production-ready.
+- **Rev32 rejected:** increased sleeve terminal-ring hand weighting from 0.15 to 0.52; the actual side-by-side arm stress render produced no meaningful improvement.
+- Rev31 independently reopened in Blender **5.2** and structural assertions passed: 2,166 bones, 25 facial shape keys, 6,395 face vertices, original 972 coat shell vertices and 165 vertices on each original sleeve; all sleeve/coat skin groups resolve to bones; eight additional hair grooms parented to DEF-Head; all four wardrobe collections; four packed textures; no missing external image dependencies.
+- Sampled FK-Head 12-degree control motion: sampled original head point **0.006858m** displacement; all eight groom samples moved **0.045233–0.083792m**. This shows attachment only, not hair simulation.
+- Deliverable: `NEXSTUDIO_RAIN_V2_REV31_SHOULDER_GEOMETRY_CHECKPOINT_20261012.zip` (30,939,242 bytes), 20 entries, full ZIP CRC check passed, SHA-256 `216de8525c732d422d9f1b31520777bff1cdf15c2fcc7f92342e5d2eb8c31731`. The working `.blend` is 26,012,885 bytes. Binary deliverables were shared in ChatGPT, **not committed to GitHub**.
+
+**Production blockers:** face identity, hair sculpt and secondary motion, tailored upper garment construction, arm/shoulder deformation and collision, verified blinking/lip sync and studio integration. Do not present these renders as finished.
