@@ -133,3 +133,37 @@ The artwork remains prototype-level. Do not merge or publicly release as a finis
 No merge to NexStudio V1 and no changes to original Rain files.
 
 - **Rev37 exploratory lapel smoothing REJECTED**: applying Catmull–Clark smoothing to the original three-panel lapel surfaces rounded them into unsupported floating flaps. The Rev36 independently tailored sleeve and collar checkpoint remains the preferred candidate; no Rev37 replacement/merge was made. Correct next step is constructing actual garment-connected lapel surfaces, not applying smoothing alone.
+
+
+## 2026-10-12 — Rev38–44 integrated front-facing and hairstyle research
+
+**Main working checkpoint: Rev42 (two coat constructions, one Rain scene).** Rev44 is an unapproved optional hairstyle study, **not** promoted over Rev42.
+
+### Genuine geometry development
+
+- **Rev38, Rev39 REJECTED:** reconstructing the old three-part lapels as independent curved surfaces still produced disconnected-looking strips/fins in actual native Blender renders.
+- **Rev40:** the coat was rebuilt as **one topologically connected mesh** with folded front facings **directly joined to the coat shell opening**. Old original shell: 972 vertices / 880 faces. New version: **1,020 vertices / 920 faces** (+48 vertices, +40 faces). All 48 added vertices carry valid Rain deform-bone groups with normalized weights. Old detached lapels and hanging decorative piping hidden, not deleted. Rendered genuine front, three-quarter and close-up stills.
+- **Rev41 REJECTED:** a bolder version of the attached facing looked excessively bulky, especially with long hair. Included as render/script evidence only.
+- **Rev40 targeted arm diagnostic:** IK-Hand controls moved outward ±0.13 local X and +0.15 local Z; modified shell evaluated successfully. For this *one* stress still, unchanged fine hair meshes were temporarily hidden to reduce render time and reveal garment intersections. No claim of full cloth dynamics or body collision.
+- **Rev42:** packed both *original Rev36 statement coat* and *Rev40 integrated facing coat* into **one same** portable `.blend` file with the original Rain rig. Added embedded manual style-switch helper `NEX42_COAT_STYLE_SWITCH.py` (Text Editor > set style to `soft` or `statement` > Run Script). Both configurations were rendered separately from the same file and camera; both pass arm-pose rig evaluation. Rev42 is Blender-side customization, **not app integration**.
+
+### Structural QA
+
+- Original Rain skeletal rig intact with **2,166 bones**, original **25 head facial shape keys**, and four modular wardrobe collections.
+- **Exactly one original Rain rig in the Rev42 file**, with old statement shell 972 vertices and new integrated shell 1,020 vertices.
+- Four packed bitmap images; **no missing unpacked file-image dependencies** in independent reopen tests.
+- Subdivision and armature modifiers retained on both variants. New front-facing topology is one connected mesh component; verified on Rev40.
+- CloudRig original script is skipped in Blender safe background mode; full dialog/lip-sync and animation remain untested.
+
+### Hair test
+
+- **Rev43 rejected grey render** (hair reflections too bright) → **Rev44 dark matte** variant. Built 50 tapered sculpted loc-like clumps as a single **10,800-vertex** editable mesh, hidden/reversible eight legacy long-groom meshes, and parented new geometry to **DEF-Head**.
+- Real Blender 3/4 and 12° head-turn still renders; sample clump point displacement **0.039638 m**, sampled head-bone point **0.006272 m**, both confirming rigid attachment in this test. Original Rain rig and 25 shape keys intact. **Art quality not approved**: roots and clumping are too heavy; no physics, collision or natural swing.
+- The preferred Rev42 hairstyle remains the prior detailed fine-strand groom. Rev44 is a separate candidate only.
+
+### Verified packaged artifacts, delivered in ChatGPT not committed to GitHub
+
+- `NEXSTUDIO_RAIN_V2_REV42_TWO_COAT_STYLES_BLENDER_CHECKPOINT_20261012.zip` **58,037,150 bytes; 34 entries; ZIP CRC passed**, SHA-256 `aafadbc351ab4a9ddf54569b953ba30d63fcede49f290ea528aacf72d7f2bc71`. Contains the actual Rev40 and Rev42 portable Blender scenes, construction and switch scripts, two comparison boards, 3/4 and front stills, animated two-state swap proof, geometric QA and IK diagnostic. Rev36 baseline original remains separately backed up in the previous Rev36 checkpoint.
+- `NEXSTUDIO_RAIN_V2_REV44_EXPERIMENTAL_HAIR_CHECKPOINT_20261012.zip` **27,782,147 bytes; 15 entries; ZIP CRC passed**, SHA-256 `caaefc7323fe52bf88af9638bf4d12cbcc9998a6e11b4288863e8cc08b60826f`. Contains the *unapproved* Rev44 experimental scene, three native renders, side-by-side hair board, scripts and head-pose QA.
+
+**Still to finish:** distinctive premium face, high-quality signature hair, visually integrated *oversized tailored* lapel construction (Rev40 deliberately gives an understated alternative), continuous shoulder construction, arm/cloth collision and full gestures, verified blink/speech and NexStudio video engine integration. Original Rain source and NexStudio V1 untouched.
