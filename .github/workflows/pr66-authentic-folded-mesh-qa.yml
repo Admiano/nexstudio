@@ -15,6 +15,12 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          filter: blob:none
+          sparse-checkout: |
+            .github/workflows
+            experiments/pr66-authentic-qa
       - name: Download, extract, and verify Devin's original PR66 release
         shell: bash
         run: |
