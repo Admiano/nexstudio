@@ -17,7 +17,7 @@ export default async function Page() {
     <div id="publicSite" className="pw-pricing-page">
       <header className="pw-nav">
         <a aria-label="NexStudio" className="pw-logo" href="/"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="/">Home</a><a href="/#pricing">Plans</a></nav>
+        <nav aria-label="Public navigation" className="pw-links"><a href="/">Home</a><a href="/pricing">Plans</a></nav>
         <div className="pw-actions"><a className="pw-solid" href={session ? "/studio" : "/?signin=1"}>{session ? "Open Studio" : "Sign in"}</a></div>
       </header>
       <main>

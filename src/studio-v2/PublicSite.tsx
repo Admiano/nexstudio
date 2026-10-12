@@ -3,8 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ensureNxPresence } from "./nx-presence";
-import { PricingTiers } from "./PricingTiers";
-import type { UserPlanState } from "@/lib/plan";
 
 const FAMILY_ART: Record<string, ReactNode> = {
   explainer: (
@@ -231,7 +229,7 @@ const FAMILIES = [
   { key: "editorial-motion", name: "Illustrated Stories", desc: "Build narrative meaning through typography, illustration, staging and editorial rhythm.", art: "illustrated", soon: true },
 ];
 
-export function PublicSite({ authed, plan, googleAuth }: { authed: boolean; plan?: UserPlanState | null; googleAuth?: boolean }) {
+export function PublicSite({ authed, googleAuth }: { authed: boolean; googleAuth?: boolean }) {
   const router = useRouter();
   const [brief, setBrief] = useState("Make a 30-second launch video for a new agent-payment product. Clear, premium, and built for social.");
   const [demo, setDemo] = useState<"compose" | "thinking" | "direction">("compose");
@@ -262,7 +260,7 @@ export function PublicSite({ authed, plan, googleAuth }: { authed: boolean; plan
     <div id="publicSite">
       <header className="pw-nav">
         <a aria-label="NexStudio" className="pw-logo" href="#top"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#nexmind">NexMind</a><a href="#pricing">Pricing</a></nav>
+        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#nexmind">NexMind</a><a href="/pricing">Pricing</a></nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
           <button className="pw-solid" onClick={enter}>Open Studio</button>
@@ -370,12 +368,6 @@ export function PublicSite({ authed, plan, googleAuth }: { authed: boolean; plan
               <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-nx-presence="" data-state="listening"><canvas /></span><b>NexMind</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
               <div className="mind-direction-card"><div className="mind-direction-label">Creative direction</div><h3>Start with the friction. Make the mechanism visible.</h3><div className="mind-direction-meta"><span>Explainer</span><span>30 sec</span><span>All screens</span></div><div className="mind-decision"><label>Opening</label><b>Lead with the problem people already feel.</b></div><div className="mind-decision"><label>Treatment</label><b>Clear staged visuals + typed motion + one dominant visual system.</b></div><div className="mind-decision"><label>Voice</label><b>Confident, direct, no unnecessary performance.</b></div><div className="mind-direction-ready"><i /> Ready for your approval</div></div>
             </div>
-          </div>
-        </section>
-        <section className="pw-section" id="pricing">
-          <div className="pw-wrap">
-            <div className="pw-section-head pw-reveal"><div className="pw-kicker"><i /> Pricing</div><h2>Start free. Upgrade when it earns its keep.</h2><p>Every film ships with onchain proof. Higher plans unlock more engines, more presenters and a lower cost per film.</p></div>
-            <PricingTiers plan={plan ?? null} onNeedSignIn={() => setSignIn(true)} />
           </div>
         </section>
         <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
