@@ -101,3 +101,17 @@ Checkpoint in ChatGPT workspace: `NEXSTUDIO_RAIN_V2_REV19_CHARACTER_PROGRESS_CHE
 - Deliverable: `NEXSTUDIO_RAIN_V2_REV31_SHOULDER_GEOMETRY_CHECKPOINT_20261012.zip` (30,939,242 bytes), 20 entries, full ZIP CRC check passed, SHA-256 `216de8525c732d422d9f1b31520777bff1cdf15c2fcc7f92342e5d2eb8c31731`. The working `.blend` is 26,012,885 bytes. Binary deliverables were shared in ChatGPT, **not committed to GitHub**.
 
 **Production blockers:** face identity, hair sculpt and secondary motion, tailored upper garment construction, arm/shoulder deformation and collision, verified blinking/lip sync and studio integration. Do not present these renders as finished.
+
+
+## Rev33 preferred styling checkpoint — 2026-10-12
+
+**Rev33 is the latest, visual-only preference over Rev31 and Rev27; still not production ready.**
+
+- Built on Rev31's revised 12-loop coat shell and 5-loop sleeves with restrained editorial color palette for seven NEX wool/panel materials.
+- Added native Blender shader-node micro-textile noise and bump for more natural cloth surface response. No binary or image-generation substitutions. Procedural fabric surfaces stay editable in the Rev33 Blender scene.
+- Actual Cycles renders compare original Rev27, Rev31 shoulder reconstruction, and the Rev33 front/three-quarter/shoulder/IK-arm-motion pass.
+- Rev33 reopened in Blender 5.2 and passed same independent structural and motion checks as Rev31: 2,166 rig bones, 25 facial shape keys, 6,395 head vertices, 8 added bone-parented groom groups, four wardrobe modules, 4 packed bitmap images, no missing image dependencies, coat and sleeves retained all skin-bone group names.
+- Rev32 increased cuff hand-weight contribution but stress-test images showed no useful improvement; **rejected**. Cuff exposure, seam continuity, facial redesign, improved hairstyle and full dialogue/performance certification remain open.
+- New delivered checkpoint archive: `NEXSTUDIO_RAIN_V2_REV33_GEOMETRY_TEXTILE_CHECKPOINT_20261012.zip` — 58,588,369 bytes, 26 ZIP entries, CRC check passed, SHA-256 `98bee5d22390c989a414fa8d1c9d9cf315da01971a0e2d7a837f544e75afcc3c`. Includes separate, editable Rev31 and Rev33 scenes, QA, Blender scripts, and genuine preview stills. **ZIP and .blend binary files delivered in ChatGPT, not committed to GitHub.**
+
+The artwork remains prototype-level. Do not merge or publicly release as a finished NexStudio character.
