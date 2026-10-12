@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PLANS, TIER_ORDER, type PlanTier, type UserPlanState } from "@/lib/plan";
 
 interface Cta {
@@ -12,6 +12,17 @@ interface Cta {
 export function PricingTiers({ plan, onNeedSignIn }: { plan: UserPlanState | null; onNeedSignIn?: () => void }) {
   const [pending, setPending] = useState<PlanTier | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const els = rootRef.current?.querySelectorAll(".pw-reveal") ?? [];
+    if (!("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("in")); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
   const myIdx = plan ? TIER_ORDER.indexOf(plan.tier) : -1;
   const needSignIn = onNeedSignIn ?? (() => { window.location.href = "/?signin=1"; });
 
@@ -52,7 +63,7 @@ export function PricingTiers({ plan, onNeedSignIn }: { plan: UserPlanState | nul
   }
 
   return (
-    <div className="pw-plans">
+    <div ref={rootRef} className="pw-plans">
       {TIER_ORDER.map((tier, i) => {
         const spec = PLANS[tier];
         const cta = ctaFor(tier, i);

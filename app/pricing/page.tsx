@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { getSession } from "@/lib/auth";
 import { effectivePlan } from "@/lib/plan";
 import { env } from "@/lib/env";
+import { PublicFooter, PublicHeader } from "@/studio-v2/PublicChrome";
 import { PricingTiers } from "@/studio-v2/PricingTiers";
 import "@/studio-v2/nexstudio-v2.css";
 
@@ -15,19 +16,21 @@ export default async function Page() {
   const plan = user ? effectivePlan({ plan: user.plan ?? "FREE", planStatus: user.planStatus ?? "ACTIVE", planRenewsAt: user.planRenewsAt ?? null }) : null;
   return (
     <div id="publicSite" className="pw-pricing-page">
-      <header className="pw-nav">
-        <a aria-label="NexStudio" className="pw-logo" href="/"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="/">Home</a><a href="/pricing">Plans</a></nav>
-        <div className="pw-actions"><a className="pw-solid" href={session ? "/studio" : "/?signin=1"}>{session ? "Open Studio" : "Sign in"}</a></div>
-      </header>
+      <PublicHeader authed={Boolean(session)} googleAuth={Boolean(env.googleClientId && env.googleClientSecret)} linkBase="/" />
       <main>
         <section className="pw-section">
           <div className="pw-wrap">
-            <div className="pw-section-head"><div className="pw-kicker"><i /> Pricing</div><h1>Start free. Upgrade when it earns its keep.</h1><p>Every film ships with onchain proof. Higher plans unlock more engines, more presenters and a lower cost per film. Quotas reset each billing cycle, and top-up packs keep you rolling between them.</p></div>
+            <div className="pw-section-head">
+              <div className="pw-kicker"><i /> Pricing</div>
+              <h1>Start free. Upgrade when you're ready.</h1>
+              <p>Free lets you make your first videos today. Creator opens up the whole studio. Pro lets you build your own presenters.</p>
+            </div>
             <PricingTiers plan={plan} />
+            <p className="pw-plan-note">Your videos reset each month on your billing date. Run out? Top up or upgrade anytime.</p>
           </div>
         </section>
       </main>
+      <PublicFooter linkBase="/" />
     </div>
   );
 }
