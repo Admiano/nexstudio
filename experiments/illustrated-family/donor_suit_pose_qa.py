@@ -11,7 +11,7 @@ rig=bpy.data.objects["Host.rig"]
 suit=bpy.data.objects["NEX_V1_CC0_FORMAL_SUIT_"+gender.upper()]
 assert suit["donorCC0"] and suit["approved"]==False
 assert any(m.type=="ARMATURE" and m.object==rig for m in suit.modifiers)
-assert len(body.data.shape_keys.key_blocks)==35, 'CORRECTED_V17_FEMALE_MALE_SHAPE_KEY_GATE'
+assert len(body.data.shape_keys.key_blocks)==(35 if gender=='female' else 36), 'CORRECTED_V17_PER_GENDER_SHAPE_KEY_GATE'
 s.render.resolution_x=440
 s.render.resolution_y=700
 s.render.resolution_percentage=100
