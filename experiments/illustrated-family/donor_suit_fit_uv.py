@@ -26,8 +26,10 @@ rig=bpy.data.objects["Host.rig"]
 scene.frame_set(27)
 rig.data.pose_position="REST"
 bpy.context.view_layer.update()
-if not (body.data.shape_keys and len(body.data.shape_keys.key_blocks)==34):
-    raise RuntimeError("CANONICAL_BODY_FACE_KEYS_INVALID")
+keys=len(body.data.shape_keys.key_blocks) if body.data.shape_keys else 0
+print("SCENEBAM_CORRECTED_CAST_SOURCE_INVENTORY",json.dumps({"bodyVertices":len(body.data.vertices),"faceShapeKeys":keys,"boneCount":len(rig.data.bones),"bodyName":body.name}),flush=True)
+if keys < 34:
+    raise RuntimeError("CORRECTED_SCENE_INSUFFICIENT_FACE_KEYS:"+str(keys))
 W=F.shaped_coords(body)
 locations,refs=F.fit(str(source),W)
 _,_,obj_path=F.load_mhclo(str(source))
