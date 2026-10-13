@@ -59,6 +59,10 @@ jobs:
           mkdir -p donor-refits
           gh run download 38467452220 --repo Admiano/nexstudio --name SCENEBAM_CURRENT_CAST_REAL_REFITS_AND_PREVIEWS --dir donor-refits
           test -s donor-refits/female-double-breasted/female-double-breasted-front.blend
+      - name: Restore and hash-verify the 99 original MakeHuman production assets
+        run: |
+          set -euo pipefail
+          python scripts/install-cast-assets.py
       - name: Assemble actual production-worker appearance from repository
         run: |
           set -euo pipefail
