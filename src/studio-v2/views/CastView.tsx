@@ -47,7 +47,7 @@ function specSummary(s0: CastSpec): string {
     bits.push(`${(colour ?? "").toLowerCase()} ${(label ?? s.outfit.kind).toLowerCase()}`.trim());
   }
   if (s.watch && s.watch !== "none") bits.push(`${s.watch} watch`);
-  if(s.character==="male"){const p=malePieces(s);bits.push(MALE_BOTTOMS.find(b=>b.key===p.bottom)!.label.toLowerCase());}
+  if(s.character==="male"&&!isFormalOutfit(s.outfit?.kind)){const p=malePieces(s);bits.push(MALE_BOTTOMS.find(b=>b.key===p.bottom)!.label.toLowerCase());}
   return bits.join(" · ");
 }
 
