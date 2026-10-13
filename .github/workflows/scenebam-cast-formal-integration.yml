@@ -9,6 +9,7 @@ on:
       - scripts/cast-apply-formal.py
       - scripts/cast-formal-material-audit.py
       - scripts/cast-formal-colour-proof.py
+      - scripts/cast-formal-slim-asset.py
       - scripts/cast-render-assembled.py
       - scripts/cast-preview-worker.py
       - scripts/install-cast-formals.py
@@ -34,6 +35,7 @@ jobs:
             services
             tools
             public/cast
+            engine_sources/makehuman-lineart/assets/cast-formals
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -134,51 +136,41 @@ jobs:
               raise SystemExit('CAST_FORMAL_RENDER_COLOUR_DIFFERENCE_FAILED:'+variant+':'+str([sum(td),sum(sd)]))
             print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),flush=True)
           PY
-      - name: Pack real rigged assets; verify release archive and six front images
+      - name: Export verified self-contained rigged garment assets and real previews
         run: |
           set -euo pipefail
-          mkdir -p package public/cast/options/formal
+          mkdir -p engine_sources/makehuman-lineart/assets/cast-formals public/cast/options/formal
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            "$BLENDER_BIN" -b --python-exit-code 1 --python scripts/cast-formal-slim-asset.py -- "donor/$v/$v-production-assembled.blend" "$v" "engine_sources/makehuman-lineart/assets/cast-formals/$v.blend"
+          done
           python3 - <<'PY'
-          import hashlib,json,tarfile,io
+          import hashlib,json
           from pathlib import Path
           from PIL import Image
           variants='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
-          root=Path('donor')
+          root=Path('engine_sources/makehuman-lineart/assets/cast-formals')
           files={}
-          archive=Path('package/scenebam-formal-v3v6-20261014.tar.gz')
-          with tarfile.open(archive,'w:gz',compresslevel=3) as tar:
-            for variant in variants:
-              source=root/variant/(variant+'-production-assembled.blend')
-              assert source.is_file() and source.stat().st_size>1000000,variant
-              files[variant]=hashlib.sha256(source.read_bytes()).hexdigest()
-              tar.add(source,arcname=variant+'.blend')
-              frame=root/variant/(variant+'-front.png')
-              assert frame.is_file(),frame
-              with Image.open(frame) as im:
-                im.thumbnail((400,520))
-                im.convert('RGB').save(Path('public/cast/options/formal')/(variant+'.webp'),format='WEBP',quality=88)
-          sha=hashlib.sha256(archive.read_bytes()).hexdigest()
-          manifest={'url':'https://github.com/Admiano/nexstudio/releases/download/scenebam-formal-v3v6-20261014/scenebam-formal-v3v6-20261014.tar.gz',
-            'archiveSha256':sha,'files':files,'provenance':'GitHub Actions run 38480065233; production V3/V6 assembly; live VM parity not certified'}
-          Path('config/scenebam-formal-assets.json').write_text(json.dumps(manifest,indent=2)+'\n')
-          print('PINNED_FORMAL_ARCHIVE_SHA256',sha,flush=True)
+          for variant in variants:
+            source=root/(variant+'.blend')
+            assert source.is_file() and 1000000<source.stat().st_size<95000000,variant
+            files[variant]=hashlib.sha256(source.read_bytes()).hexdigest()
+            frame=Path('donor')/variant/(variant+'-front.png')
+            assert frame.is_file(),frame
+            with Image.open(frame) as im:
+              im.thumbnail((400,520))
+              im.convert('RGB').save(Path('public/cast/options/formal')/(variant+'.webp'),format='WEBP',quality=88)
+          Path('config/scenebam-formal-assets.json').write_text(json.dumps({
+            'files':files,'sourceProvenance':'Actions run 38480065233; Blender 5.2.0;',
+            'liveVMParityCertified':False,'collisionCertified':False},indent=2)+'\\n')
+          print('SCENEBAM_AUTHENTIC_FORMAL_ASSETS_READY',json.dumps(files),flush=True)
           PY
-      - name: Publish immutable development asset release (not deploy)
-        run: |
-          set -euo pipefail
-          tag=scenebam-formal-v3v6-20261014
-          if gh release view "$tag" --repo Admiano/nexstudio >/dev/null 2>&1; then
-            echo 'Release already exists. Do not silently overwrite versioned garment assets.'
-            exit 1
-          fi
-          gh release create "$tag" package/scenebam-formal-v3v6-20261014.tar.gz --repo Admiano/nexstudio --target "$GITHUB_SHA" --title 'SceneBam six rigged formal outfits — V3/V6 QA source' --notes 'Isolated integration assets. Structural assembly proof only; not a live VM parity or collision certification.' --prerelease
-      - name: Commit six Blender-derived previews and exact asset digests to integration branch
+      - name: Version-control approved development assets on isolated branch; no release or deployment
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/cast/options/formal config/scenebam-formal-assets.json
-          git commit -m 'assets(cast): pin six production-assembled formal blends and genuine thumbnails'
+          git add --sparse engine_sources/makehuman-lineart/assets/cast-formals public/cast/options/formal config/scenebam-formal-assets.json
+          git commit -m 'assets(cast): six slim real Blender formalwear assets and render-derived thumbnails'
           git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
           git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
       - uses: actions/upload-artifact@v4
