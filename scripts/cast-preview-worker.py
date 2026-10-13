@@ -3,10 +3,10 @@
 import argparse,fcntl,json,os,re,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-corrected-original-performance-v20-upper-thigh'
+SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-formalwardrobe-v21-upper-thigh'
 CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
 SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
-ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
+ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS','CAST_FORMAL_ID','CAST_FORMAL_SUIT_HEX','CAST_FORMAL_TIE_HEX'}
 BLENDER=os.environ.get('BLENDER_BIN') or shutil.which('blender')
 def atomic_json(path,value):
     tmp=path.with_name(path.name+f'.{os.getpid()}.tmp');tmp.write_text(json.dumps(value));tmp.replace(path)
@@ -17,6 +17,11 @@ def validate(config):
     env=config['env']
     if set(env)!=ENV_KEYS or any(not isinstance(v,str) or len(v)>400 or not re.fullmatch(r'[A-Za-z0-9_=,.-]*',v) for v in env.values()):raise ValueError('CAST_RENDER_ENV_INVALID')
     if env['CAST_CHARACTER'] not in ('female','male') or env['CAST_FACE'] not in ('0','1','2'):raise ValueError('CAST_CHARACTER_INVALID')
+    if env['CAST_FORMAL_ID']:
+        valid={'female-double-breasted','female-statement','male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket'}
+        if env['CAST_FORMAL_ID'] not in valid or not env['CAST_FORMAL_ID'].startswith(env['CAST_CHARACTER']+'-'):raise ValueError('CAST_FORMAL_ID_INVALID')
+        if not re.fullmatch('[0-9A-Fa-f]{6}',env['CAST_FORMAL_SUIT_HEX']) or not re.fullmatch('[0-9A-Fa-f]{6}',env['CAST_FORMAL_TIE_HEX']):raise ValueError('CAST_FORMAL_COLOUR_INVALID')
+    elif env['CAST_FORMAL_SUIT_HEX'] or env['CAST_FORMAL_TIE_HEX']:raise ValueError('CAST_FORMAL_SELECTION_INCOMPLETE')
 def render(job):
     config=json.loads((job/'request.json').read_text())['config'];validate(config)
     if not BLENDER or not Path(BLENDER).is_file():raise RuntimeError('BLENDER_RUNTIME_MISSING')

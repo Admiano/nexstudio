@@ -121,6 +121,9 @@ RUN python3 scripts/install-engines.py
 # Presenter cast assets: downloaded from makehumancommunity.org and sha1-verified
 # against engine_sources/makehuman-lineart/assets/FILES.json (~800 MB unpacked).
 RUN python3 scripts/install-cast-assets.py
+# SceneBam formal wardrobe is a separate, checksum-pinned Blender asset bundle.
+# A missing/mismatched release must fail the build rather than silently show old clothes.
+RUN python3 scripts/install-cast-formals.py
 # The durable studio/upload/account workers run with tsx and need the same
 # source and generated Prisma client as the standalone web application.
 COPY --from=build /app/src ./src
