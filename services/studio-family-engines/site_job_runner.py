@@ -60,9 +60,14 @@ def _sha(p: Path) -> str:
 def _env(extra: dict | None = None) -> dict:
     env = os.environ.copy()
     node_bin = str(Path.home() / ".nvm/versions/node/v24.19.0/bin")
-    env["PATH"] = f"{node_bin}:{env.get('PATH', '')}"
+    if Path(node_bin).is_dir():
+        env["PATH"] = node_bin + os.pathsep + env.get("PATH", "")
     env.setdefault("WHITEBOARD_V3_SYSTEM_PACKAGE",
                    str(ROOT / "engines/whiteboard-v3-system/NEXMIND_WHITEBOARD_V3_SYSTEM_PACKAGE"))
+    env.setdefault("NLTK_DATA", str(ROOT / "llm" / "nltk"))
+    local_model = ROOT / 'llm' / 'whisper-small'
+    if (local_model / 'model.bin').exists():
+        env.setdefault('WHISPER_MODEL_PATH', str(local_model))
     whisper = Path.home() / "tools/whisper/bin/python3"
     if whisper.exists():
         env.setdefault("WHISPER_PYTHON", str(whisper))
@@ -121,6 +126,35 @@ def _first_gate_failure(j: Path) -> str | None:
     return None
 
 
+def _engine_failure(j: Path, code: int) -> tuple[str, str]:
+    try:
+        log = (j / "job.log").read_text(errors="replace").rsplit("--- P8 dispatch", 1)[-1]
+        if "WHITEBOARD_V3_EXECUTION_BODY_MISSING" in log:
+            return ("ENGINE_RUNTIME_MISSING", "The whiteboard renderer isn't installed on this server. Your narration is saved; retry after the renderer is restored.")
+        if "WHITEBOARD_LANGUAGE_DATA_MISSING" in log:
+            return ("WHITEBOARD_LANGUAGE_DATA_MISSING", "The whiteboard planner's language data isn't installed on this server. Your narration is saved; retry after it is restored.")
+        if "mkl_malloc: failed to allocate memory" in log or "The paging file is too small" in log:
+            return ("RENDER_MEMORY_UNAVAILABLE", "The render server ran out of memory. Try again after freeing some memory.")
+        if "NARRATION_PROVIDER_UNAVAILABLE" in log or (
+            "edge_tts" in log and "WSServerHandshakeError: 403" in log
+        ):
+            return ("NARRATION_PROVIDER_UNAVAILABLE",
+                    "The narration service couldn't generate your selected voice. Try again shortly or choose another voice.")
+        if "NARRATION_ALIGNMENT_FAILED" in log:
+            return ("NARRATION_ALIGNMENT_FAILED",
+                    "The narration audio couldn't be prepared for rendering. Try again shortly.")
+        if "GATE_REFUSED" in log and "overlap/off-frame" in log:
+            return ("BOARD_SCENE_LAYOUT_REFUSED",
+                    "Some scene drawings overlap or extend outside the selected video sizes. Your narration and settings are saved; review the direction and retry.")
+        if "GATE_REFUSED" in log and any(reason in log for reason in (
+                "semantic-loose", "semantic-art", "generic-art")):
+            return ("BOARD_SCENE_ART_REFUSED",
+                    "The whiteboard planner couldn't find suitable artwork for a scene. Your narration and settings are saved; review the direction and retry.")
+    except OSError:
+        pass
+    return "ENGINE_EXIT_NONZERO", f"engine exited {code} with no outputs"
+
+
 def _run(j: Path, argv: list[str], cwd: Path, env_extra: dict | None = None) -> int:
     log = (j / "job.log").open("a")
     log.write(f"\n--- P8 dispatch {time.strftime('%H:%M:%S')} ---\n{' '.join(argv)}\n")
@@ -149,6 +183,8 @@ def _whiteboard(j: Path, spec: dict, params: dict, subtype: dict) -> tuple[list[
         argv += ["--script", params["scriptPath"]]
     if params.get("voiceFile"):
         argv += ["--voice-file", params["voiceFile"]]
+    if params.get("wordTimings"):
+        argv += ["--word-timings", params["wordTimings"]]
     if params.get("accent"):
         argv += ["--accent", params["accent"]]
     if subtype.get("icons"):
@@ -244,13 +280,14 @@ def main() -> int:
         return 0
 
     gate = _first_gate_failure(j)
+    failure_code, failure_message = _engine_failure(j, code)
     _write_status(j, status="failed", exitCode=code,
-                  failureCode=(gate.split(":")[0] if gate else "ENGINE_EXIT_NONZERO"),
-                  error=gate or f"engine exited {code} with no outputs",
+                  failureCode=(gate.split(":")[0] if gate else failure_code),
+                  error=gate or failure_message,
                   finishedAt=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
     _result(j, "TECHNICAL_RETRY_REQUIRED", family=family_id, subtype=subtype_id,
-            code="ENGINE_EXIT_NONZERO" if not gate else "ENGINE_QA_GATE_FAILED",
-            detail=gate or f"exit {code}", artifacts=[])
+            code=failure_code if not gate else "ENGINE_QA_GATE_FAILED",
+            detail=gate or failure_message, artifacts=[])
     return 1
 
 

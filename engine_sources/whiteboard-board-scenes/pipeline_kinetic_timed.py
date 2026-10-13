@@ -95,13 +95,13 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     name = str(plan.get('production_id') or 'kinetic')
-    frames_dir = Path(tempfile.mkdtemp(prefix='kinetic-frames-'))
+    frames_dir = Path(tempfile.mkdtemp(prefix='kinetic-frames-', dir=out_dir))
     frame_count = 0
     try:
         for t, frame in render_frames(plan, ratio, fps, face, word_times,
                                       theme=theme, watermark=watermark,
                                       accent=accent, icons=icons):
-            frame.save(frames_dir / f'f{frame_count:05d}.png')
+            frame.save(frames_dir / f'f{frame_count:05d}.png', compress_level=1)
             frame_count += 1
 
         ffmpeg = shutil.which('ffmpeg')
@@ -123,6 +123,8 @@ def render_production(plan: dict, out_dir: Path, ratio: str = '9:16',
                            out_dir / f'{name}_QA.jpg')
     finally:
         if not keep_frames:
+            if not frames_dir.resolve().is_relative_to(out_dir.resolve()):
+                raise RuntimeError('Temporary frame directory escaped the render output directory')
             shutil.rmtree(frames_dir, ignore_errors=True)
 
     metrics = {

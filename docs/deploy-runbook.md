@@ -34,11 +34,11 @@ Outputs are served by the app's own `/api/v1/*/files/` routes.
 
 ## 2. Scaling renders
 
-Render jobs are CPU-bound. The worker default is `RENDER_WORKER_CONCURRENCY=1`
-(one render at a time — the right setting on one box). To go faster:
+Render jobs are CPU-bound. The worker default is `RENDER_WORKER_CONCURRENCY=auto`,
+which starts one queue consumer per available CPU. To scale:
 
-- more cores on the same box → bump `RENDER_WORKER_CONCURRENCY` (roughly
-  one worker per 4 cores);
+- more cores on the same box → automatic concurrency follows available CPUs;
+  use a positive integer override to choose a different number;
 - more boxes → run `worker` services on other machines pointing at the same
   `DATABASE_URL`. The queue is Postgres (`render_queue` schema), so any
   worker anywhere drains the same queue. Only `web` needs the public port.
@@ -89,7 +89,7 @@ Caddy/nginx). WebSocket/SSE aren't used; plain HTTP proxying is enough.
 | --- | --- |
 | `DATABASE_URL` | Postgres DSN — required everywhere |
 | `RENDER_QUEUE` | `on` (default in image) — `off` reverts to in-process spawn |
-| `RENDER_WORKER_CONCURRENCY` | jobs per worker process (default 1) |
+| `RENDER_WORKER_CONCURRENCY` | jobs per worker process (default auto: available CPUs) |
 | `STUDIO_MAX_QUEUED_RENDERS` | backlog cap before 429 (default 25) |
 | `STORAGE_DRIVER` | `local` (default) or `s3` |
 | `S3_*` | endpoint/bucket/keys/region/public base for object storage |

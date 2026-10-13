@@ -24,12 +24,17 @@ Usage:
 """
 import argparse
 import json
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-NODE = str(Path.home() / '.nvm/versions/node/v24.19.0/bin/node')
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
+NODE = (os.environ.get('NODE_BIN') or shutil.which('node')
+        or str(Path.home() / '.nvm/versions/node/v24.19.0/bin/node'))
 
 BLANK_MAX_MS = 400          # grain/dot-grid floor keeps "rest" frames alive; blank = dead pixels
 BLANK_STD = 1.5
@@ -118,7 +123,7 @@ def main() -> int:
         film_out = root_out / name
         gate = compile_fixture(treatment, film_out)
         film = {'film': name, 'aspects': {}, 'gate': gate['status']}
-        for aspect in aspects:
+        def render_format(aspect):
             plan = film_out / f'plan_{aspect}.json'
             manifest_path = film_out / f'render_{aspect}.json'
             manifest = None
@@ -151,9 +156,11 @@ def main() -> int:
             metrics['authorship_findings'] = [
                 f"{f['code']}:{f['beat_id']}:{f['id']}@{f['first_ms']}ms" for f in authorship.get('findings', [])]
             metrics['static_hold_longest_ms'] = authorship.get('longest_static_hold_ms')
-            film['aspects'][aspect] = {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
+            return {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
                                        'mp4_sha256': manifest['mp4_sha256']}
-            failures += sum(1 for ok in checks.values() if not ok)
+        film['aspects'] = render_aspects(aspects, render_format)
+        failures += sum(1 for result in film['aspects'].values()
+                        for ok in result['checks'].values() if not ok)
         report['films'].append(film)
 
     report['failures'] = failures

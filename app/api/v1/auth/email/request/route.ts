@@ -3,13 +3,14 @@ import { getSession, randomToken, secretHash } from "@/lib/auth";
 import { appendAuditEvent } from "@/lib/audit-log";
 import { getPrisma } from "@/lib/db";
 import { env } from "@/lib/env";
+import { requestAppOrigin } from "@/lib/app-origin";
 import { json, problem, requestId, zodProblem } from "@/lib/http";
 import { sendMail } from "@/lib/mailer";
 import { requireTrustedOrigin } from "@/lib/route-auth";
 import { consumeRateLimit, requestIpHash } from "@/lib/rate-limit";
 export const runtime="nodejs";
 const schema=z.object({email:z.string().trim().email().max(320),next:z.string().trim().max(2000).optional()}).strict();
-const safeNext=(v?:string)=>v?.startsWith("/")&&!v.startsWith("//")?v:"/dashboard";
+const safeNext=(v?:string)=>v?.startsWith("/")&&!v.startsWith("//")&&!/[\\\u0000-\u0020\u007f]/.test(v)?v:"/dashboard";
 export async function POST(request:Request){
   const id=requestId(request);const origin=requireTrustedOrigin(request,id);if(origin)return origin;
   if(process.env.NODE_ENV==="production"&&(!env.resendApiKey||!env.emailFrom))return problem(id,503,"EMAIL_AUTH_NOT_CONFIGURED","Email access is unavailable","Configure the approved email provider before enabling sign-in.");
@@ -23,7 +24,7 @@ export async function POST(request:Request){
   if(!ipLimit.allowed||!emailLimit.allowed)return problem(id,429,"EMAIL_RATE_LIMITED","Too many email links requested",`Wait ${Math.max(ipLimit.retryAfterSeconds,emailLimit.retryAfterSeconds)} seconds.`);
   const current=await getSession(request);const token=randomToken(32);
   const challenge=await prisma.authChallenge.create({data:{userId:current?.userId,purpose:"EMAIL_MAGIC",identifier:email,secretHash:secretHash("email-magic",token),payload:{next:safeNext(parsed.data.next)},expiresAt:new Date(Date.now()+15*60000)}});
-  const verifyOrigin=new URL(env.appOrigin).origin;
+  const verifyOrigin=requestAppOrigin(request);
   const url=`${verifyOrigin}/api/v1/auth/email/verify?token=${encodeURIComponent(token)}`;
   const mail=await sendMail({to:email,subject:"Your SceneBam sign-in link",html:`<p>Continue to SceneBam:</p><p><a href="${url}">Open SceneBam</a></p><p>This link expires in 15 minutes and can be used once.</p>`,text:`Continue to SceneBam: ${url}`});
   if(!mail.sent){await prisma.authChallenge.delete({where:{id:challenge.id}}).catch(()=>undefined);await appendAuditEvent({request,requestId:id,actorUserId:current?.userId,action:"AUTH_EMAIL_DELIVERY_FAILED",entityType:"AuthChallenge",entityId:challenge.id});return problem(id,503,"EMAIL_DELIVERY_FAILED","Email could not be sent","Try again without changing your saved production.");}

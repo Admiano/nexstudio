@@ -12,6 +12,7 @@ const trustSecret = process.env.STUDIO_TRUST_SECRET?.trim() || process.env.ENCRY
 
 export const env = {
   appOrigin,
+  appAdditionalOrigins: (process.env.APP_ADDITIONAL_ORIGINS || "").split(/[\s,]+/).filter(Boolean),
   databaseUrl: process.env.DATABASE_URL?.trim() || "",
   databasePoolMax: int(process.env.DATABASE_POOL_MAX, 10),
   resendApiKey: process.env.RESEND_API_KEY?.trim() || "",

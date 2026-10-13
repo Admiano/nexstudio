@@ -26,7 +26,7 @@ ARG BLENDER_VERSION=5.2.1
 ARG BLENDER_MINOR=5.2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      python3.11 python3.11-venv python3-pip ffmpeg \
+      python3.11 python3.11-venv python3-pip ffmpeg espeak-ng \
       chromium fonts-dejavu fonts-liberation fonts-noto-color-emoji \
       ca-certificates curl xz-utils procps \
       libgl1 libglib2.0-0 libxrender1 libxkbcommon0 libegl1 libxi6 libxxf86vm1 libxfixes3 \
@@ -79,35 +79,64 @@ WORKDIR /app
 COPY requirements.txt ./requirements.txt
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
+# Carry the offline explainer voices into the image; local llm/ files are
+# deliberately excluded from the build context.
+RUN mkdir -p /opt/kokoro \
+ && curl -fsSL --retry 3 -o /opt/kokoro/kokoro-v1.0.onnx \
+      https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx \
+ && curl -fsSL --retry 3 -o /opt/kokoro/voices-v1.0.bin \
+      https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+ENV KOKORO_MODEL_PATH=/opt/kokoro/kokoro-v1.0.onnx \
+    KOKORO_VOICES_PATH=/opt/kokoro/voices-v1.0.bin
+
 # Engine JS tools resolve playwright-core upward — install prod deps at root.
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 # App: standalone server + static + public
-COPY --from=build /app/.next/standalone ./
+# The engine trees are copied explicitly below. Keep the standalone trace
+# from duplicating their large artwork libraries in another image layer.
+COPY --from=build --exclude=engine_sources --exclude=assets /app/.next/standalone ./
+RUN test ! -e engine_sources && test ! -e assets
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
 
 # Engines + orchestration + the pieces the runner delegates to
 COPY engine_sources ./engine_sources
+COPY assets ./assets
 COPY services ./services
 COPY scripts ./scripts
 COPY prisma ./prisma
+COPY prisma.config.ts tsconfig.json ./
+COPY vendor ./vendor
+COPY config ./config
+# edge-tts 7.2.8 still targets Microsoft's retired Read Aloud endpoint.
+RUN python3 scripts/patch-edge-tts.py
+ENV NLTK_DATA=/opt/nltk_data
+RUN python3 scripts/install-whiteboard-language.py --data-dir /opt/nltk_data
+ENV WHISPER_MODEL_PATH=/opt/narration/whisper-small
+RUN python3 scripts/install-narration-model.py --out /opt/narration/whisper-small
 # engines/ is generated and gitignored — extract the tracked archives at build time.
 RUN python3 scripts/install-engines.py
 # Presenter cast assets: downloaded from makehumancommunity.org and sha1-verified
 # against engine_sources/makehuman-lineart/assets/FILES.json (~800 MB unpacked).
 RUN python3 scripts/install-cast-assets.py
-COPY --from=build /app/src/generated ./src/generated
+# The durable studio/upload/account workers run with tsx and need the same
+# source and generated Prisma client as the standalone web application.
+COPY --from=build /app/src ./src
 COPY --from=build /app/dist/render-worker.cjs ./dist/render-worker.cjs
 
 ENV NODE_ENV=production \
+    PYTHONUTF8=1 \
+    PYTHONIOENCODING=utf-8 \
     WHISPER_PYTHON=/opt/whisper/bin/python3 \
     NEXSTUDIO_WHISPER_PYTHON=/opt/whisper/bin/python3 \
     MFA_BIN=/opt/mamba/envs/mfa/bin/mfa \
     BLENDER_BIN=/usr/local/bin/blender \
     CHROME_PATH=/usr/bin/chromium \
     RENDER_QUEUE=on
+
+RUN python3 -m pip check && python3 scripts/check-engine-runtime.py
 
 EXPOSE 3000
 CMD ["node", "server.js"]

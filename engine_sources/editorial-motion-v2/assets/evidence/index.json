@@ -1537,6 +1537,34 @@
    "year": null,
    "source_size": []
   },
+  "light bulb": {
+   "concept": "light bulb",
+   "query": "light bulb",
+   "source": "wikimedia_commons",
+   "provider": "commons",
+   "source_id": "24925561",
+   "title": "File:Light bulb.jpg",
+   "creator": "Leon Brooks",
+   "license": "Public Domain",
+   "license_url": "",
+   "landing_url": "https://commons.wikimedia.org/wiki/File:Light_bulb.jpg",
+   "file_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Light_bulb.jpg/1920px-Light_bulb.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+   "file": "light-bulb.1069d53f2bad.jpg",
+   "sha256": "03d8a99a7a624cbb4b3757ce63df6e1fb902b7965fa3d27389536d660597eaa6",
+   "width": 1400,
+   "height": 1050,
+   "fetched": "2026-10-11",
+   "subjects": [
+    "Incandescent light bulbs",
+    "Public-domain-image.com",
+    "Public-domain-image.com (check needed)"
+   ],
+   "year": 2013,
+   "source_size": [
+    2560,
+    1920
+   ]
+  },
   "lighthouse": {
    "concept": "lighthouse",
    "query": "lighthouse",

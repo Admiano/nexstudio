@@ -24,6 +24,7 @@ const MAX_SCRIPT = 4000;
 export async function GET(request: Request) {
   const auth = await requireSession(request); if (auth.response) return auth.response;
   return json({
+    available: process.env.STUDIO_PRESENTER_ENABLED !== "false",
     voices: VOICES, aspects: Object.keys(ASPECTS), promos: [...PROMOS],
     direction: { cinematic: true, infographic: false },
     backgrounds: ENVIRONMENTS.map((e) => ({ id: e.key, name: e.label })),
@@ -33,6 +34,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const auth = await requireSession(request); if (auth.response) return auth.response;
   const id = auth.id;
+  if (process.env.STUDIO_PRESENTER_ENABLED === "false") {
+    return problem(id, 503, "PRESENTER_RENDERING_DISABLED", "Presenter rendering unavailable",
+      "This server currently supports whiteboard and explainer videos. Choose one of those production types.");
+  }
   let form: FormData;
   try { form = await request.formData(); }
   catch { return problem(id, 400, "BAD_FORM", "Invalid form", "Send multipart/form-data."); }

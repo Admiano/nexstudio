@@ -1844,86 +1844,78 @@ def sem_rank(phrase: str, ic):
     return art_clip.rank(phrase, key)
 
 
+def semantic_art_evidence(phrase: str, ic) -> dict:
+    """One acceptance rule for selection and the final storyboard gate."""
+    phrase = str(phrase).lower().strip()
+    exact = ic is not None and ic == kit_exact(phrase)
+    curated = isinstance(ic, tuple) and (
+        ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
+    pinned = curated and str(ic[1]) == 'kit:' + str(_ART_KIT or '')
+    rank = None if exact or pinned else sem_rank(phrase, ic)
+    via = 'exact' if exact else (
+        'kit-domain' if pinned else 'kit-fallback' if curated else 'library')
+    failure = None
+    if via != 'exact' and rank is not None and rank > SEM_BAD_RANK:
+        failure = 'semantic-art'
+    elif via == 'library' and not art_related(phrase, ic):
+        failure = 'semantic-loose'
+    return {'word': phrase, 'art': str(ic), 'via': via,
+            'rank': rank, 'failure': failure}
+
+
 def _icon_for(concept: str, exclude=None, _depth: int = 0):
-    """Lexical/contextual resolution, then a visual-semantic veto: a pick
-    that the CLIP model ranks far down the library for the phrase is
-    swapped for the next lexical candidate that actually depicts it."""
+    """Resolve art using the same semantic evidence as the shipping gate.
+
+    Exhausting alternatives never resurrects a rejected library candidate.
+    Uncovered concepts return None so planning can handle missing artwork.
+    """
     ic = _icon_for_lex(concept, exclude, _depth)
     if _depth:
         return ic
     phrase = str(concept).lower().replace('-', ' ').strip()
-    words = phrase.split()
-    rk = sem_rank(phrase, ic)
-    slug = phrase.replace(' ', '-')
-    named_ic = isinstance(ic, tuple) and ic[0] in ('icon', 'custom') and (
-        isinstance(ic[2], str) and (ic[2] == slug
-                                    or _singular(ic[2]) == _singular(slug)))
-    # bespoke domain kits curate their keyword senses by hand and are
-    # trusted; the world kit is the open library where 'string' can be a
-    # spool of thread — there only the phrase-named glyph (or a hit the
-    # model ranks outright) counts as curated
-    curated = isinstance(ic, tuple) and (
-        ic[0] == 'custom' or (str(ic[1]).startswith('kit:') and (
-            (ic[1] != 'kit:world' and ic == kit_exact(phrase, exclude))
-            or (named_ic and (rk is None or rk <= SEM_VETO_KEYWORD))
-            or (rk is not None and rk <= SEM_BAD_RANK))))
-    if (rk is None or rk <= SEM_BAD_RANK or curated) and (
-            curated or art_related(phrase, ic)):
-        SEM_LOG[phrase] = (_art_key(ic), rk)
+
+    def accepted(candidate):
+        evidence = semantic_art_evidence(phrase, candidate)
+        if candidate is None or evidence['failure']:
+            return False
+        SEM_LOG[phrase] = (_art_key(candidate), evidence['rank'])
+        return True
+
+    if accepted(ic):
         return ic
-    if rk is None:
-        rk = SEM_BAD_RANK * 10
-    best, best_rk, ex = (ic, rk), rk, set(exclude or ()) | {ic}
+    ex = set(exclude or ()) | {ic}
     named = _named_art(phrase, ex)
-    if named is not None:
-        nrk = sem_rank(phrase, named)
-        if nrk is not None and nrk <= SEM_VETO_KEYWORD:
-            SEM_LOG[phrase] = (_art_key(named), nrk)
-            return named
+    if accepted(named):
+        return named
     for _ in range(6):
         alt = _icon_for_lex(concept, ex, 0)
         if alt in ex or alt in (None, 'card', 'tile') or _is_emblem(alt):
             break
         ex.add(alt)
-        if not art_related(phrase, alt):
-            continue
-        ark = sem_rank(phrase, alt)
-        if ark is not None and ark < best_rk:
-            best, best_rk = (alt, ark), ark
-        if ark is not None and ark <= SEM_BAD_RANK:
-            break
-    if named is not None and best_rk > SEM_BAD_RANK:
-        best, best_rk = (named, nrk), nrk
-    if best_rk > SEM_BAD_RANK:
-        # last resort — a glyph named by a word in the phrase's own noun
-        # family depicts the thing itself when every keyword hit fails:
-        # 'reservoir' -> a pool/tank, 'string' -> a line, 'kite string'
-        # -> the kite. A family-named glyph outranks a family keyword
-        # association (a boat keyworded 'lake' isn't a reservoir).
-        kin_named, kin_hits = [], []
-        for w_ in dict.fromkeys(words + [_singular(x) for x in words]):
-            for kin in _wn_family(w_):
-                knames = {kin.replace(' ', '-'), kin.split()[-1],
-                          _singular(kin.split()[-1])}
-                for cand in (kit_exact(kin, ex), _named_art(kin, ex)):
-                    if not (isinstance(cand, tuple) and len(cand) == 3
-                            and isinstance(cand[2], str)) \
-                            or cand in ex or _is_emblem(cand) or (
-                            _INK_ONLY and _is_sprite(cand)):
-                        continue
-                    crk = sem_rank(phrase, cand)
-                    if crk is None or crk >= SEM_VETO_KEYWORD:
-                        continue
-                    (kin_named if cand[2] in knames
-                     else kin_hits).append((crk, cand))
-        for pool in (kin_named, kin_hits):
-            if pool:
-                crk, cand = min(pool)
-                if crk < best_rk:
-                    best, best_rk = (cand, crk), crk
-                break
-    SEM_LOG[phrase] = (_art_key(best[0]), best_rk)
-    return best[0]
+        if accepted(alt):
+            return alt
+
+    # Related, named drawings can cover a concept when lexical keyword
+    # matches have the wrong sense. Require the final gate's evidence for
+    # the original phrase, including when the visual model is unavailable.
+    candidates = []
+    words = phrase.split()
+    for word in dict.fromkeys(words + [_singular(x) for x in words]):
+        for kin in sorted(_wn_family(word)):
+            for cand in (kit_exact(kin, ex), _named_art(kin, ex)):
+                if not (isinstance(cand, tuple) and len(cand) == 3
+                        and isinstance(cand[2], str)) or cand in ex \
+                        or _is_emblem(cand) or (_INK_ONLY and _is_sprite(cand)):
+                    continue
+                evidence = semantic_art_evidence(phrase, cand)
+                if not evidence['failure']:
+                    candidates.append((evidence['rank'] or 0, cand))
+    if candidates:
+        candidate = min(candidates)[1]
+        accepted(candidate)
+        return candidate
+    SEM_LOG[phrase] = (None, None)
+    return None
 
 
 _NAMED_DIRS = ('tabler', 'phosphor', 'fluent')
@@ -2664,7 +2656,19 @@ def _nearest_for_word(w, exclude, max_depth):
     # a close cousin in the tree ('tuba' -> cornet, 'sonar' -> radar)
     best, best_key = None, (0.0, 0)
     for ss in senses[:2]:
+        # Only nouns at distance <= 2 can win. Walking those neighbours
+        # first avoids an expensive WordNet similarity call for every
+        # glyph in the library, while preserving the same ranking rule.
+        near, frontier = {ss}, {ss}
+        for _ in range(2):
+            neighbours = {n for node in frontier for n in (
+                node.hypernyms() + node.instance_hypernyms()
+                + node.hyponyms() + node.instance_hyponyms())}
+            frontier = neighbours - near
+            near.update(neighbours)
         for tv, icon in _draw_vocab().items():
+            if tv not in near:
+                continue
             if (_INK_ONLY and _is_sprite(icon)) or (exclude and icon in exclude):
                 continue
             sim = ss.wup_similarity(tv) or 0.0
@@ -2737,7 +2741,8 @@ def _composed_parts(words, exclude=None):
             spans = [' '.join(words[a:b]) for a, b in cuts]
             parts = [_icon_for(s, exclude, _depth=1) for s in spans]
             if all(p not in _COMPOSE_REJECT and not _is_emblem(p)
-                   for p in parts):
+                   and not semantic_art_evidence(span, p)['failure']
+                   for span, p in zip(spans, parts)):
                 return ('composed', tuple(parts))
     return None
 
@@ -2785,6 +2790,8 @@ def icon_for(concept: str, used=None):
     if head and head in nouns and nouns[head] != label and len(words) > 1:
         rest = ' '.join(words[:-1])
         icon = (_illust_lookup(rest, excl) or _icon_lookup(rest, excl))
+        if icon is not None and semantic_art_evidence(label, icon)['failure']:
+            icon = None
     if icon is None:
         icon = _icon_for(concept, excl)
     key = ('card', label) if icon == 'card' else _asset_key(icon)

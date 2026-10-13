@@ -1,0 +1,152 @@
+name: nexstudio
+
+x-app: &app
+  image: nexstudio:oracle
+  build:
+    context: ../..
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  init: true
+  env_file: .env
+  environment: &app-env
+    DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?set a hex POSTGRES_PASSWORD}@postgres:5432/studio?schema=public
+    STUDIO_TRUST_SECRET: ${STUDIO_TRUST_SECRET:?set STUDIO_TRUST_SECRET}
+    APP_ORIGIN: ${APP_ORIGIN:?set the public HTTPS origin}
+    RENDER_QUEUE: "on"
+    STORAGE_DRIVER: local
+    OBJECT_STORAGE_LOCAL_ROOT: /app/data/objects
+    OBJECT_STORAGE_ALLOW_LOCAL_PRODUCTION: "true"
+    STUDIO_SCRIPT_OPENAI_API_URL: ${STUDIO_SCRIPT_OPENAI_API_URL:-http://ai:8787/v1}
+    STUDIO_SCRIPT_OPENAI_API_KEY: ${STUDIO_SCRIPT_OPENAI_API_KEY:-${LOCAL_AI_API_KEY:?set LOCAL_AI_API_KEY}}
+    STUDIO_SCRIPT_MODEL: ${STUDIO_SCRIPT_MODEL:-qwen2.5-3b-instruct}
+    NEXMIND_STUDIO_SCRIPT_PROVIDER: ${NEXMIND_STUDIO_SCRIPT_PROVIDER:-llama.cpp}
+    NEXMIND_STUDIO_SCRIPT_MODEL: ${NEXMIND_STUDIO_SCRIPT_MODEL:-${STUDIO_SCRIPT_MODEL:-qwen2.5-3b-instruct}}
+    NEXMIND_STUDIO_SCRIPT_BASE_URL: ${NEXMIND_STUDIO_SCRIPT_BASE_URL:-${STUDIO_SCRIPT_OPENAI_API_URL:-http://ai:8787/v1}}
+    NEXMIND_STUDIO_SCRIPT_API_KEY_ENV: ${NEXMIND_STUDIO_SCRIPT_API_KEY_ENV:-STUDIO_SCRIPT_OPENAI_API_KEY}
+    STUDIO_PLAN_PREVIEW_OPENAI_API_URL: ${STUDIO_PLAN_PREVIEW_OPENAI_API_URL:-http://ai:8787/v1}
+    STUDIO_PLAN_PREVIEW_OPENAI_API_KEY: ${STUDIO_PLAN_PREVIEW_OPENAI_API_KEY:-${LOCAL_AI_API_KEY:?set LOCAL_AI_API_KEY}}
+  volumes:
+    - jobs-whiteboard:/app/engine_sources/whiteboard-v3-runtime/out
+    - jobs-explainer:/app/engine_sources/explainer-locks/out
+    - jobs-presenter:/app/engine_sources/makehuman-lineart/out
+    - jobs-boards:/app/engine_sources/whiteboard-board-scenes/out
+    - objects:/app/data
+    - hf-cache:/root/.cache/huggingface
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: studio
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set a hex POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d studio"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  db-init:
+    <<: *app
+    restart: "no"
+    depends_on:
+      postgres: {condition: service_healthy}
+    # This existing helper only bootstraps an empty DB, preserves the audit
+    # trigger and baselines the incremental migrations. It seeds no users.
+    command:
+      - /bin/sh
+      - -ec
+      - CAST_PREVIEW_MODE=true node --import tsx scripts/cast-preview-db.ts; node node_modules/prisma/build/index.js migrate deploy
+
+  ai:
+    image: nexstudio-ai:oracle
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    restart: unless-stopped
+    init: true
+    environment:
+      LOCAL_AI_API_KEY: ${LOCAL_AI_API_KEY:?set LOCAL_AI_API_KEY}
+      AI_THREADS: ${AI_THREADS:-auto}
+      AI_PARALLEL: ${AI_PARALLEL:-auto}
+    volumes:
+      - ai-models:/models
+    healthcheck:
+      test: [CMD-SHELL, "curl -fsS http://127.0.0.1:8787/health >/dev/null"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10m
+      retries: 40
+
+  web:
+    <<: *app
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+      ai: {condition: service_healthy}
+    # Host access is only for local readiness checks. Public traffic uses Caddy.
+    ports: ["127.0.0.1:3000:3000"]
+    environment:
+      <<: *app-env
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 10
+
+  render-worker:
+    <<: *app
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+    command: [node, dist/render-worker.cjs]
+    stop_grace_period: 2m
+    shm_size: 1gb
+
+  studio-worker:
+    <<: *app
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+    command: [node, --import, tsx, scripts/studio-worker.ts, --watch]
+
+  account-worker:
+    <<: *app
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+    command: [/bin/sh, -ec, "while true; do node --import tsx scripts/studio-account-data-worker.ts; sleep 30; done"]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      web: {condition: service_healthy}
+    environment:
+      STUDIO_DOMAIN: ${STUDIO_DOMAIN:?set the public domain}
+      STUDIO_APP_DOMAIN: ${STUDIO_APP_DOMAIN:?set the full application domain}
+      STUDIO_APP_ALIASES: ${STUDIO_APP_ALIASES:-}
+      STUDIO_ALIASES: ${STUDIO_ALIASES:-}
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./homepage/out:/srv/homepage:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  pgdata:
+  jobs-whiteboard:
+  jobs-explainer:
+  jobs-presenter:
+  jobs-boards:
+  objects:
+  hf-cache:
+  ai-models:
+  caddy-data:
+  caddy-config:

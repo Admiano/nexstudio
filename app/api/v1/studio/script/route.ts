@@ -45,6 +45,11 @@ function apiKey(): string | undefined {
     || process.env.OPENAI_API_KEY?.trim();
 }
 
+function scriptTimeoutMs(): number {
+  const configured = Number(process.env.STUDIO_SCRIPT_TIMEOUT_MS);
+  return Number.isInteger(configured) && configured >= 1000 && configured <= 300000 ? configured : 60_000;
+}
+
 async function writeScript(brief: string, family: string, videoType: string, duration: number, beats: { purposeTitle: string; description: string }[] | undefined, extraInstruction?: string) {
   // Prefer the provider-neutral routing registry; when nothing is configured
   // fall back to an explicit env model or a small default (local servers ignore it).
@@ -75,7 +80,7 @@ async function writeScript(brief: string, family: string, videoType: string, dur
     apiUrl: process.env.STUDIO_SCRIPT_OPENAI_API_URL?.trim() || process.env.STUDIO_PLAN_PREVIEW_OPENAI_API_URL?.trim() || "https://api.openai.com/v1",
     apiKey: apiKey(),
     maxTokens: 900,
-    timeoutMs: 60_000,
+    timeoutMs: scriptTimeoutMs(),
     jsonSchema: { name: "studio_script", schema: outputSchema as unknown as Record<string, unknown> },
   });
   return parseProviderJson(result.content) as { lines?: string[]; title?: string; refused?: boolean; reason?: string };

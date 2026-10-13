@@ -1,0 +1,11 @@
+{
+  "domain": "Materials and manufacturing",
+  "lex": "noun.substance",
+  "glyphs": {
+    "rubber": {"keywords": ["rubber", "elastic rubber", "rubber sheet"]},
+    "polyester": {"keywords": ["polyester", "polyester fabric", "fabric"]},
+    "latex": {"keywords": ["latex", "liquid latex"]},
+    "mixture": {"keywords": ["mixture", "ingredient", "ingredients"], "donor": "phosphor:flask"},
+    "pressure": {"keywords": ["pressure", "air pressure", "pneumatic pressure"], "donor": "phosphor:gauge"}
+  }
+}

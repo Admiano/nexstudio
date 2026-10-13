@@ -1,0 +1,61 @@
+# Native Arm deployment for whiteboard/explainer videos and the studio app.
+# 3D presenter tools need a separate native Blender/MFA build.
+FROM node:24.19.0-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN export STUDIO_TRUST_SECRET="$(head -c48 /dev/urandom | base64)" \
+ && npx prisma generate && npm run build \
+ && npx esbuild scripts/render-worker.ts --bundle --platform=node \
+      --format=cjs --outfile=dist/render-worker.cjs
+
+FROM node:24.19.0-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 python3.11-venv python3-pip ffmpeg chromium espeak-ng \
+    fonts-dejavu fonts-liberation fonts-noto-color-emoji \
+    ca-certificates curl libgl1 libglib2.0-0 libcairo2 libpango-1.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt \
+ && python3.11 -m venv /opt/whisper \
+ && /opt/whisper/bin/pip install --no-cache-dir faster-whisper==1.2.1 "av<19"
+RUN mkdir -p /opt/kokoro \
+ && curl -fsSL --retry 3 -o /opt/kokoro/kokoro-v1.0.onnx \
+    https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx \
+ && curl -fsSL --retry 3 -o /opt/kokoro/voices-v1.0.bin \
+    https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
+COPY --from=build /app/src ./src
+COPY --from=build /app/dist/render-worker.cjs ./dist/render-worker.cjs
+COPY engine_sources ./engine_sources
+COPY services ./services
+COPY scripts ./scripts
+COPY prisma ./prisma
+COPY prisma.config.ts tsconfig.json ./
+COPY vendor ./vendor
+COPY config ./config
+ENV NLTK_DATA=/opt/nltk_data \
+    WHISPER_MODEL_PATH=/opt/narration/whisper-small
+RUN python3 scripts/patch-edge-tts.py \
+ && python3 scripts/install-whiteboard-language.py --data-dir /opt/nltk_data \
+ && python3 scripts/install-narration-model.py --out /opt/narration/whisper-small \
+ && python3 scripts/install-engines.py --only whiteboard whiteboard-v3-system \
+    whiteboard-v3-approved-source explainer editorial sound editorial-text-led-bundle
+ENV NODE_ENV=production \
+    PYTHONUTF8=1 \
+    PYTHONIOENCODING=utf-8 \
+    WHISPER_PYTHON=/opt/whisper/bin/python3 \
+    NEXSTUDIO_WHISPER_PYTHON=/opt/whisper/bin/python3 \
+    KOKORO_MODEL_PATH=/opt/kokoro/kokoro-v1.0.onnx \
+    KOKORO_VOICES_PATH=/opt/kokoro/voices-v1.0.bin \
+    CHROME_PATH=/usr/bin/chromium \
+    STUDIO_PRESENTER_ENABLED=false \
+    RENDER_QUEUE=on
+EXPOSE 3000
+CMD ["node", "server.js"]

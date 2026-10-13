@@ -1,0 +1,5 @@
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+#nex-stage{position:absolute;inset:0;overflow:hidden}
+.native-node{position:absolute;box-sizing:border-box;transform-origin:50% 50%}
+.native-node.text{white-space:pre;line-height:1.1;font-optical-sizing:auto;text-rendering:geometricPrecision;-webkit-font-smoothing:antialiased}
+.native-node.dot{border-radius:50%}

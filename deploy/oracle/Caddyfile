@@ -1,0 +1,52 @@
+{$STUDIO_DOMAIN} {
+    encode zstd gzip
+
+    # The shared public URL exposes only the homepage, pricing and their assets.
+    # Never proxy this host to the app, even for authenticated visitors.
+    root * /srv/homepage
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:"
+    }
+    @homepage {
+        method GET HEAD
+        path /
+    }
+    handle @homepage {
+        header Cache-Control "no-store"
+        rewrite * /index.html
+        file_server
+    }
+    @pricing {
+        method GET HEAD
+        path /pricing /pricing/
+    }
+    handle @pricing {
+        header Cache-Control "no-store"
+        rewrite * /pricing.html
+        file_server
+    }
+    @homepage_assets {
+        method GET HEAD
+        path /_next/static/* /home/* /cast/* /nexstudio/nx-presence.js /favicon.ico
+        file {path}
+    }
+    handle @homepage_assets {
+        file_server
+    }
+    handle {
+        respond "Not found." 404
+    }
+}
+
+# The original app address keeps the full authenticated application.
+{$STUDIO_APP_DOMAIN} {$STUDIO_APP_ALIASES} {
+    encode zstd gzip
+    reverse_proxy web:3000 {
+        header_down Location "^https?://0[.]0[.]0[.]0:3000(/.*)$" "https://{http.request.host}$1"
+    }
+}

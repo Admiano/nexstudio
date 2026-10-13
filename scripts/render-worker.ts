@@ -1,13 +1,13 @@
 // Render worker: drains the site-render pg-boss queue and runs
 // site_job_runner.py per job. Run alongside the web app:
 //   npm run worker:renders
-// Concurrency is 1 by default — CPU-bound renders saturate cores fast;
-// raise RENDER_WORKER_CONCURRENCY on bigger boxes.
+// Concurrency follows available CPUs by default; a positive override is uncapped.
 import { PgBoss, type Job } from "pg-boss";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { RENDER_QUEUE, runRenderJob, type RenderJobPayload } from "../src/lib/render-queue";
 import { uploadJobOutputs } from "../src/lib/storage";
+import { renderWorkerOptions } from "../src/lib/render-parallelism";
 
 async function main() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL required");
@@ -19,8 +19,8 @@ async function main() {
   boss.on("error", (e: Error) => console.error("[render-worker]", e));
   await boss.start();
   await boss.createQueue(RENDER_QUEUE);
-  const concurrency = Math.max(1, Number(process.env.RENDER_WORKER_CONCURRENCY ?? 1) || 1);
-  await boss.work(RENDER_QUEUE, { batchSize: 1, pollingIntervalSeconds: 2, teamSize: concurrency }, async (jobs: Job<RenderJobPayload>[]) => {
+  const options = renderWorkerOptions();
+  await boss.work(RENDER_QUEUE, options, async (jobs: Job<RenderJobPayload>[]) => {
     const payload = jobs[0].data;
     console.log(`[render-worker] start ${payload.family}/${payload.jobId}`);
     const code = await runRenderJob(payload);
@@ -38,7 +38,7 @@ async function main() {
     // The runner always writes a terminal status.json; a nonzero exit is still
     // "complete" for queue purposes — the job itself reports the failure.
   });
-  console.log(`[render-worker] listening on ${RENDER_QUEUE} (concurrency=${concurrency})`);
+  console.log(`[render-worker] listening on ${RENDER_QUEUE} (concurrency=${options.localConcurrency})`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

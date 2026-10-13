@@ -1,0 +1,19 @@
+# Apply alongside compose.yml on an Ampere A1 VM. Only the app image changes;
+# Postgres, Caddy and llama.cpp already have native Arm build paths.
+x-arm-app: &arm-app
+  image: nexstudio:oracle-arm
+  build:
+    context: ../..
+    dockerfile: deploy/oracle/Dockerfile.arm
+
+services:
+  db-init:
+    <<: *arm-app
+  web:
+    <<: *arm-app
+  render-worker:
+    <<: *arm-app
+  studio-worker:
+    <<: *arm-app
+  account-worker:
+    <<: *arm-app

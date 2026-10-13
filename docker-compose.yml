@@ -57,7 +57,7 @@ services:
     command: ["node", "dist/render-worker.cjs"]
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/studio?schema=public
-      RENDER_WORKER_CONCURRENCY: "1"
+      RENDER_WORKER_CONCURRENCY: ${RENDER_WORKER_CONCURRENCY:-auto}
       # same STORAGE_* envs as web when S3 is on
     volumes:
       - jobs-whiteboard:/app/engine_sources/whiteboard-v3-runtime/out

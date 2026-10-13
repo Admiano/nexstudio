@@ -1,0 +1,22 @@
+# Local AI service; b6605 is the llama.cpp revision used by the local stack.
+FROM ubuntu:24.04 AS build
+ARG LLAMA_CPP_REF=b6605
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates git cmake build-essential libcurl4-openssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+RUN git clone --depth 1 --branch "${LLAMA_CPP_REF}" \
+    https://github.com/ggml-org/llama.cpp.git /src
+RUN cmake -S /src -B /src/build -DCMAKE_BUILD_TYPE=Release \
+    -DGGML_NATIVE=OFF -DLLAMA_CURL=ON -DLLAMA_BUILD_TESTS=OFF \
+    && cmake --build /src/build --target llama-server --parallel "$(nproc)"
+
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl libcurl4t64 libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=build /src/build/bin /opt/llama/bin
+COPY ai-entrypoint.sh /usr/local/bin/nexstudio-ai
+RUN chmod 755 /usr/local/bin/nexstudio-ai
+ENV LD_LIBRARY_PATH=/opt/llama/bin
+EXPOSE 8787
+ENTRYPOINT ["/usr/local/bin/nexstudio-ai"]

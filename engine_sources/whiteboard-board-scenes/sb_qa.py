@@ -64,24 +64,13 @@ def _semantic(v3r, out, si, name, ic, word: str = '') -> dict:
     # judged against the word the viewer reads, not the icon key the
     # author substituted for it ('anvil' drawn via 'block')
     phrase = str(word or name).lower().strip()
-    exact = ic is not None and ic == v3r.kit_exact(phrase)
-    curated = isinstance(ic, tuple) and (
-        ic[0] == 'custom' or str(ic[1]).startswith('kit:'))
-    # a hit on the plan's pinned domain kit is the pack author's own
-    # semantic table — it is the evidence, so it stands like an exact
-    # pick. Hits leaking in from other kits keep the CLIP veto.
-    pinned = curated and str(ic[1]) == 'kit:' + str(
-        getattr(v3r, '_ART_KIT', '') or '')
-    rk = None if (exact or pinned) else v3r.sem_rank(phrase, ic)
-    how = 'exact' if exact else (
-        'kit-domain' if pinned else 'kit-fallback' if curated
-        else 'library')
-    rec = {'word': phrase, 'art': str(ic), 'via': how, 'rank': rk}
-    if how != 'exact' and rk is not None and rk > v3r.SEM_BAD_RANK:
+    rec = v3r.semantic_art_evidence(phrase, ic)
+    how, rk = rec['via'], rec['rank']
+    if rec['failure'] == 'semantic-art':
         rec['severity'] = 'fail'
         _issue(out, 'fail', 'semantic-art', si,
                f'{phrase} -> {ic} (clip rank {rk} > {v3r.SEM_BAD_RANK})')
-    elif how == 'library' and not v3r.art_related(phrase, ic):
+    elif rec['failure'] == 'semantic-loose':
         rec['severity'] = 'fail'
         _issue(out, 'fail', 'semantic-loose', si,
                f'{phrase} -> {ic}: art name unrelated to the word')

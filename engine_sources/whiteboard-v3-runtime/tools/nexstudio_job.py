@@ -21,6 +21,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 
 VOICES = {
     "emma": "en-US-EmmaMultilingualNeural",
@@ -63,11 +65,15 @@ def build_voice(args, script_text: str | None, work: Path) -> tuple[Path, Path |
     speed = min(max(getattr(args, 'speed', None) or 1.0, 0.6), 2.0)
     vo_synth.synth_edge(text, vo_wav, voice=VOICES[args.voice], speed=speed)
     words = work / "vo_words.json"
+    if words.exists():
+        print('[voice] Using Microsoft word timings; local alignment skipped', flush=True)
+        return vo_wav, words
     try:
         vo_synth.word_timings(vo_wav, words)
         return vo_wav, words
-    except Exception:
-        return vo_wav, None
+    except Exception as error:
+        print(str(error), file=sys.stderr)
+        raise RuntimeError('NARRATION_ALIGNMENT_FAILED: could not prepare narration timing') from error
 
 
 def build_plan(args, script_text: str, work: Path) -> Path:
@@ -120,10 +126,11 @@ def main() -> int:
     plan_path = build_plan(args, script_text or "", work)
 
     pipeline = ROOT / PIPELINES[args.type]
-    outputs: dict[str, str] = {}
     aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
-    for ai, aspect in enumerate(aspect_list):
-        progress(phase="render", aspect=aspect, aspectsDone=ai, aspectsTotal=len(aspect_list))
+    active = list(aspect_list)
+    progress(phase="render", aspectsActive=active, aspectsDone=0, aspectsTotal=len(aspect_list))
+
+    def render(aspect):
         ratio_dir = out / aspect.replace(":", "x")
         cmd = [sys.executable, str(pipeline), str(plan_path),
                "--out-dir", str(ratio_dir), "--ratio", aspect,
@@ -136,8 +143,15 @@ def main() -> int:
             cmd += ["--icons", args.icons]
         sh(cmd, cwd=ROOT)
         mp4s = sorted(ratio_dir.glob("*.mp4"))
-        if mp4s:
-            outputs[aspect] = str(mp4s[0])
+        if not mp4s:
+            raise RuntimeError(f"RENDER_OUTPUT_MISSING: {aspect}")
+        return str(mp4s[0])
+
+    def completed(aspect, count, total):
+        active.remove(aspect)
+        progress(phase="render", aspectsActive=list(active), aspectsDone=count, aspectsTotal=total)
+
+    outputs = render_aspects(aspect_list, render, completed)
 
     progress(phase="packaging", aspectsDone=len(outputs), aspectsTotal=len(aspect_list))
     (out / "manifest.json").write_text(json.dumps(

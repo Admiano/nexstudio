@@ -1,5 +1,5 @@
 from pathlib import Path
-import shutil, zipfile
+import argparse, os, shutil, zipfile
 ROOT=Path(__file__).resolve().parents[1]
 SOURCES=ROOT/'engine_sources'; ENGINES=ROOT/'engines'
 items={
@@ -14,21 +14,32 @@ items={
  'editorial-text-led-bundle':'EDITORIAL_TEXT_LED_BUNDLE_SOURCE.zip',
  'nita-motion':'NITA_MOTION_SYSTEM_ENGINE_SOURCE.zip',
 }
+parser = argparse.ArgumentParser(description='Install the bundled engine sources.')
+parser.add_argument('--only', nargs='+', choices=sorted(items),
+                    help='Install only the named engines, leaving other installations untouched.')
+args = parser.parse_args()
+selected = set(args.only or items)
 # Tracked working trees win over their frozen archives. explainer-v2 is the
 # development fork of the Explainer execution body (HyperFrames scene work);
 # the zip stays as the pristine baseline it was extracted from.
 tracked={ 'explainer': SOURCES/'explainer-v2' }
 ENGINES.mkdir(exist_ok=True)
 for name,archive in items.items():
+ if name not in selected: continue
  target=ENGINES/name
- if target.exists(): shutil.rmtree(target)
- target.mkdir(parents=True)
+ resolved = target.resolve()
+ if not resolved.is_relative_to(ENGINES.resolve()):
+  raise RuntimeError(f'Engine target escapes the engines directory: {resolved}')
+ # Archives contain deeply nested authority modules beyond Windows MAX_PATH.
+ filesystem_target = Path('\\\\?\\' + str(resolved)) if os.name == 'nt' else resolved
+ if filesystem_target.exists(): shutil.rmtree(filesystem_target)
+ filesystem_target.mkdir(parents=True)
  worktree=tracked.get(name)
  if worktree is not None and worktree.exists():
-  shutil.copytree(worktree,target,dirs_exist_ok=True)
+  shutil.copytree(worktree,filesystem_target,dirs_exist_ok=True)
   print(f'{name}: {target} (tracked tree {worktree})')
  else:
-  with zipfile.ZipFile(SOURCES/archive) as z: z.extractall(target)
+  with zipfile.ZipFile(SOURCES/archive) as z: z.extractall(filesystem_target)
   print(f'{name}: {target}')
 
 # Explainer archive is an execution-only authored-art body beneath full NexMind P8.
@@ -39,7 +50,7 @@ for name,archive in items.items():
 # NexStick V5.1 runtime is authored as CommonJS. The standalone Next app is ESM,
 # so establish a local package boundary after extraction without altering vendor files.
 stick_root=ENGINES/'stickman'/'NEXSTICK_MASTER_V2_UNIFIED_PERFORMANCE_V5_1_CLEAN_2026-08-13'
-if stick_root.exists():
+if 'stickman' in selected and stick_root.exists():
     (stick_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
 
 # Whiteboard v3 runtime lives checked-in at engine_sources/whiteboard-v3-runtime
@@ -48,7 +59,7 @@ if stick_root.exists():
 
 # NexStick Performance System Consolidated V2 runtime/authority modules are also authored as CommonJS.
 perf_root=ENGINES/'stickman-performance'/'NEXSTICK_COMPLETE_PERFORMANCE_PACKAGE'
-if perf_root.exists():
+if 'stickman-performance' in selected and perf_root.exists():
     (perf_root/'package.json').write_text('{\n  \"type\": \"commonjs\"\n}\n')
 
 # NexMind Whiteboard V3 curated package (Cluster Travel TEXTFIX_V2 lineage): provenance and

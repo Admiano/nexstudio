@@ -3,12 +3,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { requireSession } from "@/lib/route-auth";
 import { problem } from "@/lib/http";
 import { resolveOutputFile } from "@/lib/storage";
+import { engineJobsDir } from "@/lib/engine-paths";
 
 export const runtime = "nodejs";
 
-const ENGINE = process.env.WHITEBOARD_V3_RUNTIME_DIR
-  ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime");
-const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
+const JOBS = engineJobsDir("whiteboard");
 
 export async function GET(request: Request, context: { params: Promise<{ id: string; name: string }> }) {
   const auth = await requireSession(request); if (auth.response) return auth.response;

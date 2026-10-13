@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PLANS, TIER_ORDER, type PlanTier, type UserPlanState } from "@/lib/plan";
 
 interface Cta {
@@ -10,6 +10,11 @@ interface Cta {
 }
 
 export function PricingTiers({ plan, onNeedSignIn }: { plan: UserPlanState | null; onNeedSignIn?: () => void }) {
+  const plansRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    plansRef.current?.querySelectorAll(".pw-reveal")
+      .forEach(element => element.classList.add("in"));
+  }, []);
   const [pending, setPending] = useState<PlanTier | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const myIdx = plan ? TIER_ORDER.indexOf(plan.tier) : -1;
@@ -52,7 +57,7 @@ export function PricingTiers({ plan, onNeedSignIn }: { plan: UserPlanState | nul
   }
 
   return (
-    <div className="pw-plans">
+    <div className="pw-plans" ref={plansRef}>
       {TIER_ORDER.map((tier, i) => {
         const spec = PLANS[tier];
         const cta = ctaFor(tier, i);

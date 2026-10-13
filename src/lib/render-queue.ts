@@ -1,7 +1,7 @@
 import path from "node:path";
 import { homedir } from "node:os";
 import { spawn } from "node:child_process";
-import { appendFileSync } from "node:fs";
+import { appendFileSync, existsSync } from "node:fs";
 
 // Render jobs drain from a Postgres queue (pg-boss) instead of the route
 // spawning a detached child. One box can host any number of workers; the
@@ -35,12 +35,18 @@ async function getBoss() {
 
 // Same env the engines see regardless of who spawns the runner.
 export function renderEnv(): NodeJS.ProcessEnv {
-  const nodeBin = path.join(homedir(), ".nvm", "versions", "node", "v24.19.0", "bin");
-  const whisperPy = process.env.NEXSTUDIO_WHISPER_PYTHON
-    ?? path.join(homedir(), "tools", "whisper", "bin", "python3");
+  const nodeBin = path.dirname(process.execPath);
+  const legacyWhisper = path.join(homedir(), "tools", "whisper", "bin", "python3");
+  const whisperPy = process.env.NEXSTUDIO_WHISPER_PYTHON?.trim()
+    || process.env.WHISPER_PYTHON?.trim()
+    || (existsSync(legacyWhisper) ? legacyWhisper : process.env.PYTHON_BIN?.trim());
+  const env = { ...process.env };
+  // Windows treats Path/PATH as the same key; spawn only passes the first.
+  // Remove alternate casing before adding the node directory.
+  for (const key of Object.keys(env)) if (key.toUpperCase() === "PATH") delete env[key];
   return {
-    ...process.env,
-    PATH: `${nodeBin}:${process.env.PATH}`,
+    ...env,
+    PATH: `${nodeBin}${path.delimiter}${process.env.PATH ?? ""}`,
     WHISPER_PYTHON: whisperPy,
     NEXSTUDIO_SCENE_LLM: process.env.NEXSTUDIO_SCENE_LLM ?? "off",
   };
