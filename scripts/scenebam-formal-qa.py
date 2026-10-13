@@ -11,7 +11,7 @@ assert rig and rig.type=="ARMATURE", "APPROVED_HOST_RIG_MISSING"
 assert body and body.type=="MESH", "APPROVED_BODY_MISSING"
 assert garment and garment.type=="MESH", "FITTED_NEW_FORMAL_GARMENT_MISSING"
 assert len(rig.data.bones)==163, f"BONE_COUNT_DRIFT:{len(rig.data.bones)}"
-assert body.data.shape_keys and len(body.data.shape_keys.key_blocks)==34, "BODY_SHAPEKEY_DRIFT"
+assert body.data.shape_keys and len(body.data.shape_keys.key_blocks)==35, "CORRECTED_V17_BODY_SHAPEKEY_DRIFT"
 assert len(garment.data.vertices)>1000 and len(garment.data.polygons)>1000, "DONOR_MESH_EMPTY"
 assert len([m for m in garment.modifiers if m.type=="ARMATURE" and m.object==rig])==1, "RIG_BINDING_INVALID"
 assert garment.get("donorCC0") is True, "DONOR_LICENSE_MARKER_MISSING"
@@ -50,7 +50,7 @@ out={
 "garmentFaces":len(garment.data.polygons),
 "garmentWeightGroups":len(garment.vertex_groups),
 "testedFrames":frames,
-"warnings":["Finite rig evaluations are not hand/body/chair intersection tests","Real rendered front/three-quarter and two gesture frames still require visual review","Current approved v3/v6 scene geometry is not proof of deployment in the SceneBam live service"],
+"warnings":["Finite rig evaluations are not hand/body/chair intersection tests","Real rendered front/three-quarter and two gesture frames still require visual review","Corrected packaged V17 scene geometry does not establish parity with live V21 SceneBam renderer or collision-free poses"],
 }
 output.parent.mkdir(parents=True,exist_ok=True)
 output.write_text(json.dumps(out,indent=2)+"\n")
