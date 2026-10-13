@@ -105,6 +105,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p donor/formal production-colour
+          export CAST_FORMAL_ASSETS_DIR="$PWD/donor/formal"
           for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
             sex=${v%%-*}
             cp "donor/$v/$v-production-assembled.blend" "donor/formal/$v.blend"
