@@ -17,31 +17,74 @@ KINDS = {
     "male-jacket-tie", "male-double-breasted",
     "male-navy-classic", "male-dinner-jacket",
 }
-SUIT_EXCLUDE = ("tie", "bow", "neck", "button", "metal", "shoe", "sole", "skin", "shirt", "watch", "hair", "eye", "teeth")
-TIE_NAMES = ("necktie", "bowtie", "bow_tie", "tie", "cravat")
+# Face counts here are from the six real Blender 5.2 geometry audits, not a
+# guessed apparel mask. Each count refers to a physically isolated connected
+# mesh island that follows the garment's original armature weights.
+TIE_ISLAND_FACE_COUNTS = {
+    'female-double-breasted': (436,),
+    'female-statement': (616,),
+    'male-jacket-tie': (678,382),
+    'male-double-breasted': (436,),
+    'male-navy-classic': (616,),
+    'male-dinner-jacket': (580,580,316),
+}
 
 def _colour(code):
     if not re.fullmatch(r"[A-Fa-f0-9]{6}",code):
         raise ValueError("CAST_FORMAL_INVALID_HEX")
     return tuple(int(code[i:i + 2],16)/255 for i in (0,2,4))
 
-def _shade(material, rgb):
-    material.diffuse_color = (*rgb, 1)
-    material.use_nodes = True
-    count = 0
-    for node in material.node_tree.nodes:
-        if node.type == 'BSDF_PRINCIPLED':
-            socket = node.inputs.get('Base Color')
-            if socket is not None:
-                socket.default_value = (*rgb,1)
-                count += 1
-        elif node.type == 'BSDF_DIFFUSE':
-            socket = node.inputs.get('Color')
-            if socket is not None:
-                socket.default_value = (*rgb,1)
-                count += 1
-    if count == 0:
-        raise RuntimeError('CAST_FORMAL_UNCOLOURABLE_MATERIAL:' + material.name)
+def _islands(mesh):
+    parent=list(range(len(mesh.vertices)))
+    def find(a):
+        while a != parent[a]:
+            parent[a]=parent[parent[a]]
+            a=parent[a]
+        return a
+    for edge in mesh.edges:
+        a,b=edge.vertices
+        x,y=find(a),find(b)
+        if x!=y: parent[x]=y
+    islands={}
+    for polygon in mesh.polygons:
+        root=find(polygon.vertices[0])
+        islands.setdefault(root,[]).append(polygon.index)
+    return list(islands.values())
+
+def _island_stats(mesh,indices):
+    vertices={v for index in indices for v in mesh.polygons[index].vertices}
+    pts=[mesh.vertices[v].co for v in vertices]
+    return {'faces':len(indices),'vertices':len(vertices),
+            'bounds':[[min(float(p[i]) for p in pts),max(float(p[i]) for p in pts)] for i in range(3)]}
+
+def _colour_material(source, role, rgb, variant):
+    """Use the original packed photographic/illustrated UV atlas as luminance
+    and detail authority, recolouring that material rather than drawing an
+    unsupported overlay in image space."""
+    mat=source.copy()
+    mat.name='SCENEBAM_FORMAL_'+role.upper()+'_'+variant.replace('-','_')
+    if not mat.use_nodes or not mat.node_tree:
+        raise RuntimeError('CAST_FORMAL_MATERIAL_NODES_REQUIRED')
+    nodes=mat.node_tree.nodes
+    node=next((n for n in nodes if n.type == 'EMISSION' and n.inputs.get('Color')),None)
+    if node is None:
+        raise RuntimeError('CAST_FORMAL_ATLAS_EMISSION_MISSING')
+    sock=node.inputs['Color']
+    links=mat.node_tree.links
+    existing=list(sock.links)
+    if len(existing)!=1 or not any(n.type=='TEX_IMAGE' for n in nodes):
+        raise RuntimeError('CAST_FORMAL_ORIGINAL_ATLAS_REQUIRED')
+    upstream=existing[0].from_socket
+    links.remove(existing[0])
+    blend=nodes.new('ShaderNodeMixRGB')
+    blend.name='SCENEBAM_FORMAL_'+role.upper()+'_UV_COLOUR'
+    blend.blend_type='COLOR'
+    blend.inputs[0].default_value=1.0
+    blend.inputs[2].default_value=(*rgb,1.0)
+    links.new(upstream,blend.inputs[1])
+    links.new(blend.outputs[0],sock)
+    mat.diffuse_color=(*rgb,1)
+    return mat
 
 def apply_formal(scene, variant, suit_hex, tie_hex):
     if variant not in KINDS:
@@ -107,24 +150,47 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
             obj.hide_render=True
             hidden.append(obj.name)
 
-    # A real rigged mesh has per-face material slots: tint the tailored fabric
-    # and the tie material separately, without altering the body or white shirt.
-    roles = {'suit': [], 'tie': [], 'preserve': []}
-    rgb={'suit':_colour(suit_hex),'tie':_colour(tie_hex)}
-    materials = [m for m in donor.data.materials if m]
-    for slot,material in enumerate(donor.data.materials):
-        if material is None:
-            continue
-        name = material.name.lower().replace(' ','_')
-        role = 'tie' if any(t in name for t in TIE_NAMES) else ('preserve' if any(t in name for t in SUIT_EXCLUDE) else 'suit')
-        roles[role].append({'slot':slot,'original':material.name})
-        if role in rgb:
-            copy=material.copy()
-            copy.name='SCENEBAM_' + role.upper() + '_' + variant.replace('-','_') + '_' + str(slot)
-            _shade(copy,rgb[role])
-            donor.data.materials[slot]=copy
-    if not roles['suit'] or not roles['tie']:
-        raise RuntimeError('CAST_FORMAL_SEPARATE_SUIT_TIE_MATERIALS_REQUIRED:' + repr(roles))
+    # Donor has one packed UV material. Separate face MATERIAL INDICES by real
+    # connected cloth islands. This retains the original vertices, UVs, weights,
+    # seam geometry, image detail and physically rigged garment motion.
+    mesh=donor.data
+    source=mesh.materials[0]
+    if len(mesh.materials)!=1 or source is None:
+        raise RuntimeError('CAST_FORMAL_UNEXPECTED_DONOR_MATERIAL_LAYOUT')
+    islands=_islands(mesh)
+    expected=list(TIE_ISLAND_FACE_COUNTS[variant])
+    tie=[]
+    suits=[]
+    other=[]
+    for indices in islands:
+        stats=_island_stats(mesh,indices)
+        count=stats['faces']
+        # Tight central upper-chest checks stop similarly-sized sleeves, pants
+        # or hardware from being mistaken for the tie.
+        xlo,xhi=stats['bounds'][0]
+        zlo,zhi=stats['bounds'][2]
+        is_tie=(count in expected and xlo > -0.09 and xhi < 0.09
+                and zlo >= 0.95 and zhi <= 1.52)
+        if is_tie:
+            expected.remove(count)
+            tie.append((indices,stats))
+        elif count >= 900:
+            suits.append((indices,stats))
+        else:
+            other.append((indices,stats))
+    if expected or not tie or not suits or len(suits)<2:
+        raise RuntimeError('CAST_FORMAL_UV_ISLAND_CONTRACT_FAILED:'+variant+':'+repr(expected))
+    mesh.materials.append(_colour_material(source,'suit',_colour(suit_hex),variant))
+    mesh.materials.append(_colour_material(source,'tie',_colour(tie_hex),variant))
+    for indices,_ in suits:
+        for index in indices:mesh.polygons[index].material_index=1
+    for indices,_ in tie:
+        for index in indices:mesh.polygons[index].material_index=2
+    roles={'suit': [stats for _,stats in suits],'tie':[stats for _,stats in tie],
+           'preserve':[stats for _,stats in other]}
+    # Require exact partition of all polygons and physical separation.
+    assert sum(sum(len(ids) for ids,_ in group) for group in (suits,tie,other))==len(mesh.polygons)
+    assert all(mesh.polygons[i].material_index==2 for ids,_ in tie for i in ids)
     scene.view_layers.update() if hasattr(scene.view_layers,'update') else bpy.context.view_layer.update()
     return {'enabled':True,'variant':variant,'sourceFile':file.name,
             'restError':max_error,'garmentVertices':len(donor.data.vertices),
