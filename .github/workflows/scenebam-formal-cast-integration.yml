@@ -1,0 +1,43 @@
+name: SceneBam formal wardrobe integration checks
+on:
+  push:
+    branches:
+      - work/scenebam-formal-cast-wardrobe-20261013
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  wardrobe-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            app
+            src
+            scripts
+            tests
+            prisma
+            services
+            config
+            package.json
+            package-lock.json
+            tsconfig.json
+            next.config.ts
+            next-env.d.ts
+            prisma.config.ts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install TypeScript and runtime test dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Syntax-check real Blender importer and preview worker
+        run: python3 -m py_compile scripts/cast-formal-wardrobe.py scripts/cast-render-assembled.py scripts/cast-preview-worker.py
+      - name: Cast normalization, palette, worker and preview regressions
+        run: npm run test:cast
+      - name: Generate Prisma types
+        run: npm run db:generate
+      - name: Type check full application
+        run: npx tsc --noEmit
