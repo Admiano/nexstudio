@@ -58,5 +58,5 @@ r.update({
  "shipped":False,
  "visualAcceptance":"REQUIRES_ART_REVIEW"
 })
-p.write_text(json.dumps(r,indent=2)+"\\n")
+p.write_text(json.dumps(r,indent=2)+"\n")
 print("SCENEBAM_CORRECTED_CHARACTER_FORMAL_REFIT_COMPLETE",variant, r["originalSceneSha256"],flush=True)
