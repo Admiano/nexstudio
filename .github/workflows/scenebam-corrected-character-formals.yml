@@ -48,10 +48,6 @@ jobs:
             "$BLENDER_BIN" -b "proofs/scenebam-corrected-cast-formals/$variant/$variant-front.blend" -t 4 --python-exit-code 1 --python scripts/scenebam-formal-qa.py -- "$gender" "$variant" "proofs/scenebam-corrected-cast-formals/$variant/current-rig-qa.json"
             echo "::endgroup::"
           done
-      - name: Combine real corrected-character renders
-        shell: bash
-        run: |
-          python scripts/scenebam-corrected-character-contact-sheet.py proofs/scenebam-corrected-cast-formals
       - uses: actions/upload-artifact@v4
         if: always()
         with:
