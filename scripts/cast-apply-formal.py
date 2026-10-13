@@ -51,9 +51,9 @@ def _islands(mesh):
         islands.setdefault(root,[]).append(polygon.index)
     return list(islands.values())
 
-def _island_stats(mesh,indices):
+def _island_stats(mesh,indices,world):
     vertices={v for index in indices for v in mesh.polygons[index].vertices}
-    pts=[mesh.vertices[v].co for v in vertices]
+    pts=[world@mesh.vertices[v].co for v in vertices]
     return {'faces':len(indices),'vertices':len(vertices),
             'bounds':[[min(float(p[i]) for p in pts),max(float(p[i]) for p in pts)] for i in range(3)]}
 
@@ -163,7 +163,7 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     suits=[]
     other=[]
     for indices in islands:
-        stats=_island_stats(mesh,indices)
+        stats=_island_stats(mesh,indices,donor.matrix_world)
         count=stats['faces']
         # Tight central upper-chest checks stop similarly-sized sleeves, pants
         # or hardware from being mistaken for the tie.
