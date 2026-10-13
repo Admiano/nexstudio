@@ -376,10 +376,10 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
 
               <div className="identity-group">
                 <div className="identity-group-head"><label>Formal suits</label><span>rigged outfits fitted to SceneBam's production cast</span></div>
-                <div className="identity-options">
+                <div className="cast-image-options">
                   {(spec.character==="female"?FEM_FORMAL_OUTFITS:MALE_FORMAL_OUTFITS).map(o=>{
                     const available=formalAvailable.includes(spec.character+":"+o.key);
-                    return <button key={o.key} type="button" className="identity-option" disabled={!available} title={available?o.note:"Awaiting verified production assets"} aria-pressed={spec.outfit?.kind===o.key} onClick={()=>patchOutfitKind(o.key)}>{o.label}{!available?" · Not yet available":""}</button>;
+                    return <OptionImage key={o.key} character={spec.character} category="formal" option={o.key} label={o.label} note={available?o.note:"Awaiting verified assets"} disabled={!available} selected={spec.outfit?.kind===o.key} onSelect={()=>patchOutfitKind(o.key)}/>;
                   })}
                 </div>
               </div>
