@@ -86,6 +86,32 @@ jobs:
             "$BLENDER_BIN" -b "donor/$v/$v-production-assembled.blend" --python-exit-code 1 --python scripts/cast-formal-material-audit.py -- "$v" "production-qa/$v.json" >"production-qa/$v.log" 2>&1 || { cat "production-qa/$v.log"; exit 1; }
             cat "production-qa/$v.json"
           done
+      - name: Store original UV/material and mesh-island diagnostic evidence
+        run: |
+          set -euo pipefail
+          mkdir -p docs/scenebam-formal-uv-audit
+          cp production-qa/*.json docs/scenebam-formal-uv-audit/
+          cp production-qa/*.png docs/scenebam-formal-uv-audit/ 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse docs/scenebam-formal-uv-audit
+          git commit -m 'audit(cast): true Blender UV and mesh-region diagnostics for six suits' || true
+          git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
+          git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
+      - name: Gate independently editable suit and tie geometry
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for p in Path('production-qa').glob('*.json'):
+            data=json.loads(p.read_text())
+            # The old CC0 asset uses one UV-textured material for all clothing.
+            # A per-region/tie isolation adapter must be certified before release.
+            separate=len(data['materials']) >= 2 and any(
+              'tie' in m['material'].lower() or 'bow' in m['material'].lower() for m in data['materials'])
+            if not separate:
+              raise SystemExit('FORMAL_TIE_REGION_NOT_CERTIFIED: '+data['kind'])
+          PY
       - name: Pack real rigged assets; verify release archive and six front images
         run: |
           set -euo pipefail
