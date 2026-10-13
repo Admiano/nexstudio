@@ -310,7 +310,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 </div>
               )}
 
-              {spec.character === "female" && (
+              {spec.character === "female" && !isFormalOutfit(spec.outfit?.kind) && (
                 <div className="identity-group">
                   <div className="identity-group-head"><label>Neckwear</label><span>around the neckline</span></div>
                   <div className="cast-image-options">
@@ -348,7 +348,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                   </div>
                 </>
               )}
-              {isFormalOutfit(spec.outfit?.kind) ? null : spec.character === "female" ? (
+              {spec.character === "female" ? (
                 <>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Dress style</label><span>shape and cut</span></div>
@@ -358,7 +358,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                       ))}
                     </div>
                   </div>
-                  <div className="identity-group">
+                  {!isFormalOutfit(spec.outfit?.kind)&&<div className="identity-group">
                     <div className="identity-group-head"><label>Dress colour</label><span>independent of style</span></div>
                     <div className="identity-color-row">
                       {FEM_DRESS_COLORS.map((c) => (
@@ -366,7 +366,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                       ))}
                     <CustomColour label="Custom dress colour" value={colourValue(spec.outfit?.color,FEM_DRESS_COLORS)} onChange={patchOutfitColor}/>
                     </div>
-                  </div>
+                  </div>}
                 </>
               ) : (
                 <>
@@ -378,6 +378,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                       ))}
                     </div>
                   </div>
+                  {!isFormalOutfit(spec.outfit?.kind)&&<>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Top colour</label><span>independent of style</span></div>
                     <div className="identity-color-row">
@@ -387,7 +388,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                     <CustomColour label="Custom top colour" value={colourValue(spec.outfit?.color,MALE_TOP_COLORS)} onChange={patchOutfitColor}/>
                     </div>
 </div>
-<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="cast-image-options">{MALE_BOTTOMS.map(b=><OptionImage key={b.key} character="male" category="bottom" option={b.key} label={b.label} selected={malePieces(spec).bottom===b.key} onSelect={()=>patchPieces({bottom:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div>
+<div className="identity-group"><div className="identity-group-head"><label>Trousers</label><span>choose separately</span></div><div className="cast-image-options">{MALE_BOTTOMS.map(b=><OptionImage key={b.key} character="male" category="bottom" option={b.key} label={b.label} selected={malePieces(spec).bottom===b.key} onSelect={()=>patchPieces({bottom:b.key})} />)}</div><div className="identity-color-row" style={{marginTop:10}}>{MALE_BOTTOMS.map(b=><button key={b.key} aria-label={"Trousers "+b.label+" colour"} className="identity-color" style={{["--c" as string]:b.hex}} aria-pressed={malePieces(spec).bottomColor===b.hex} onClick={()=>patchPieces({bottomColor:b.hex})}/>)}<CustomColour label="Custom trouser colour" value={malePieces(spec).bottomColor} onChange={bottomColor=>patchPieces({bottomColor})}/></div></div></>}
 
 
 
