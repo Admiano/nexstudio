@@ -74,10 +74,10 @@ bpy.context.view_layer.update()
 
 sc=bpy.context.scene
 sc.render.engine='CYCLES'
-sc.cycles.samples=20
+sc.cycles.samples=8
 sc.cycles.use_denoising=True
-sc.render.resolution_x=810
-sc.render.resolution_y=1200
+sc.render.resolution_x=540
+sc.render.resolution_y=800
 sc.render.resolution_percentage=100
 sc.render.film_transparent=True
 sc.render.image_settings.file_format='PNG'
@@ -117,7 +117,7 @@ for name,frame,threeq in views:
     p=Path(sc.render.filepath)
     assert p.stat().st_size > 10000, 'EMPTY_PRODUCTION_RENDER:' + name
     files.append({'name':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size})
-report={'variant':variant,'baseScene':base_file,'workerAssembled':True,
+report={'variant':variant,'baseScene':base_file,'workerAssembled':True,'previewQuality':'technical_preview_540x800_8_cycles_samples',
     'liveVMParityCertified':False,'exactLiveVMHashProvided':False,
     'sourceRigRestMaxError':error,'productionRigBones':len(rig.data.bones),
     'productionBodyShapeKeys':len(body.data.shape_keys.key_blocks),
