@@ -22,6 +22,17 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            app
+            src
+            scripts
+            tests
+            prisma
+            config
+            services
+            tools
+            public/cast
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -38,6 +49,11 @@ jobs:
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            config
+            public/cast
       - name: Retrieve completed production-assembled V3/V6 Blender proofs
         run: |
           mkdir -p donor
