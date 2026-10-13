@@ -5,14 +5,14 @@ export const TERMS: Doc = {
   slug: "terms",
   kicker: "Legal",
   title: "Terms of Service.",
-  intro: "The rules for using NexStudio. Written plainly because you should actually be able to read them.",
+  intro: "The rules for using SceneBam. Written plainly because you should actually be able to read them.",
   updated: "September 2026",
   sections: [
     {
       id: "agreement",
       title: "The agreement",
       body: [
-        "These terms are a contract between you and NexStudio. By creating an account, requesting a video, or using any part of the service, you accept them. If you use NexStudio on behalf of a company or another person, you confirm you have the authority to bind them, and they accept these terms through you.",
+        "These terms are a contract between you and SceneBam. By creating an account, requesting a video, or using any part of the service, you accept them. If you use SceneBam on behalf of a company or another person, you confirm you have the authority to bind them, and they accept these terms through you.",
         "If you do not agree, do not use the service. That is the whole point of terms.",
       ],
     },
@@ -20,17 +20,17 @@ export const TERMS: Doc = {
       id: "account",
       title: "Your account",
       body: [
-        "NexStudio uses email sign-in links instead of passwords. Anyone who can open your inbox can sign in, so protect your email account. Every active sign-in session is listed in your account settings, and you can revoke any of them, including the current one.",
+        "SceneBam uses email sign-in links instead of passwords. Anyone who can open your inbox can sign in, so protect your email account. Every active sign-in session is listed in your account settings, and you can revoke any of them, including the current one.",
         "You are responsible for what happens on your account. If you think someone else has access, sign out other sessions from account settings and tell us.",
         "One account per person. You must be at least 16 years old.",
       ],
     },
     {
       id: "service",
-      title: "What NexStudio does",
+      title: "What SceneBam does",
       body: [
-        "You give NexMind a brief or a script. NexMind turns a brief into a written narration, then a production direction, which you approve before anything renders. NexStudio then produces a finished video for widescreen, vertical, and square formats in the same run.",
-        "You can review the result, request revisions, download the files, or take them to platforms yourself. NexStudio does not publish anything on your behalf.",
+        "You give Bam a brief or a script. Bam turns a brief into a written narration, then a production direction, which you approve before anything renders. SceneBam then produces a finished video for widescreen, vertical, and square formats in the same run.",
+        "You can review the result, request revisions, download the files, or take them to platforms yourself. SceneBam does not publish anything on your behalf.",
         "We may improve, change, or retire parts of the service. If a change removes something you paid for, you get a reasonable adjustment or a credit for the difference.",
       ],
     },
@@ -38,7 +38,7 @@ export const TERMS: Doc = {
       id: "billing",
       title: "Credits and payment",
       body: [
-        "NexStudio runs on credits. You buy a pack, the balance lands in your account, and renders draw from it. Credits can show as pending while a render is in progress, then settle when it finishes.",
+        "SceneBam runs on credits. You buy a pack, the balance lands in your account, and renders draw from it. Credits can show as pending while a render is in progress, then settle when it finishes.",
         "You can pay with a credit or debit card, or with USDC, where both methods are available at checkout. Prices, packs, and any promotions are shown before you pay. Payment processing is handled by our providers; we never see or store your full card number.",
         "Credits you have not spent can be refunded to the original payment method within 30 days of purchase, unless a law gives you longer. Credits already spent on completed or in-progress renders are final. If a render fails on our side, its credits come back to your balance automatically.",
         "You are responsible for any taxes that apply where you live.",
@@ -49,7 +49,7 @@ export const TERMS: Doc = {
       title: "What is yours",
       body: [
         "What you bring stays yours: briefs, scripts, uploads, brand material, and references. You keep every right you had.",
-        "The videos NexStudio produces for you are yours too, once paid for. You can download them, publish them, sell them, or archive them. No extra license from us, no revenue share, no watermark requirement.",
+        "The videos SceneBam produces for you are yours too, once paid for. You can download them, publish them, sell them, or archive them. No extra license from us, no revenue share, no watermark requirement.",
         "To make the service work you grant us a limited license to store, process, and display your content and your productions, only for running and improving the service and only while your account is active.",
       ],
     },
@@ -57,7 +57,7 @@ export const TERMS: Doc = {
       id: "acceptable-use",
       title: "What we will not make",
       body: [
-        "NexStudio refuses certain content before it is ever rendered. This is not optional and it is not negotiable. The service will not produce, and you will not ask it to produce:",
+        "SceneBam refuses certain content before it is ever rendered. This is not optional and it is not negotiable. The service will not produce, and you will not ask it to produce:",
         "Content that is vulgar or obscene for the audience it could reach. Content that attacks, threatens, or defames government officials, public figures, or private individuals. Content that promotes, instructs, or assists crime, fraud, or violence.",
         "Hate or harassment of any group. Sexual content of any kind, and anything sexual involving minors under any circumstances. Content that encourages self-harm. Praise or recruitment material for extremist or violent movements.",
         "Content that reproduces copyrighted text or media you do not have rights to. False or guaranteed claims about health, law, finance, or elections. Impersonation of real people, companies, or institutions. Anything designed to deceive viewers about who made it or why.",
@@ -68,15 +68,15 @@ export const TERMS: Doc = {
       id: "ai-output",
       title: "Made by machines",
       body: [
-        "NexMind writes, plans, and directs with artificial intelligence. Output can contain errors: a wrong fact, a mispronounced name, a visual that reads wrong for your audience.",
+        "Bam writes, plans, and directs with artificial intelligence. Output can contain errors: a wrong fact, a mispronounced name, a visual that reads wrong for your audience.",
         "You approve the direction and you review the finished video. What you publish is your responsibility. Where a law or a platform requires AI-generated content to be labeled, the label is your responsibility too.",
       ],
     },
     {
       id: "memory",
-      title: "NexMind memory",
+      title: "Bam memory",
       body: [
-        "To keep your productions consistent, NexMind remembers things: your brand, your series continuity, your stated preferences. Everything it remembers is visible to you in Brand and Series views, and you can delete any remembered fact permanently.",
+        "To keep your productions consistent, Bam remembers things: your brand, your series continuity, your stated preferences. Everything it remembers is visible to you in Brand and Series views, and you can delete any remembered fact permanently.",
         "Memory exists to serve your productions. It is not used to profile you for advertising, and it is deleted when your account is.",
       ],
     },
@@ -100,7 +100,7 @@ export const TERMS: Doc = {
       id: "liability",
       title: "Liability",
       body: [
-        "To the extent the law allows, NexStudio is not liable for indirect, incidental, or consequential losses: lost profits, lost audience, lost data that could have been exported, or the cost of a video that underperformed.",
+        "To the extent the law allows, SceneBam is not liable for indirect, incidental, or consequential losses: lost profits, lost audience, lost data that could have been exported, or the cost of a video that underperformed.",
         "Our total liability for any claim is capped at the amount you paid us in the 12 months before the claim, or 100 US dollars if you paid nothing. Some jurisdictions do not allow these limits; where they do not, they do not apply to you.",
       ],
     },
@@ -108,7 +108,7 @@ export const TERMS: Doc = {
       id: "changes",
       title: "Changes to these terms",
       body: [
-        "We may update these terms at any time, at our discretion. The version on this page is the current one and applies from the date shown. Continued use of NexStudio after an update means you accept it.",
+        "We may update these terms at any time, at our discretion. The version on this page is the current one and applies from the date shown. Continued use of SceneBam after an update means you accept it.",
       ],
     },
     {
@@ -134,7 +134,7 @@ export const PRIVACY: Doc = {
       body: [
         "Account data: your email address and display name. There is no password; sign-in works through emailed links.",
         "Production data: briefs, scripts, uploads, generated narration, direction choices, and the finished video files.",
-        "Memory: facts NexMind stores to keep your brand, series, and preferences consistent across productions. All of it is inspectable inside the studio.",
+        "Memory: facts Bam stores to keep your brand, series, and preferences consistent across productions. All of it is inspectable inside the studio.",
         "Session data: each active sign-in session stores a hashed token, a device description, a hashed IP, and timestamps. You can see every session and revoke any of them.",
         "Billing data: ledger entries, pack purchases, and payment status. Card numbers never touch our servers; they go straight to the payment processor.",
       ],
@@ -150,9 +150,9 @@ export const PRIVACY: Doc = {
     },
     {
       id: "memory",
-      title: "What NexMind remembers",
+      title: "What Bam remembers",
       body: [
-        "NexMind keeps an append-only production memory: brand voice, palette, series continuity, cast notes, and things you explicitly tell it. Nothing enters memory silently; remembered facts appear in Brand and Series where you can read and tombstone them.",
+        "Bam keeps an append-only production memory: brand voice, palette, series continuity, cast notes, and things you explicitly tell it. Nothing enters memory silently; remembered facts appear in Brand and Series where you can read and tombstone them.",
         "Tombstoning a fact removes it from every future production. Deleting your account removes all of it.",
       ],
     },
@@ -160,8 +160,8 @@ export const PRIVACY: Doc = {
       id: "sharing",
       title: "Who sees it",
       body: [
-        "Infrastructure providers that host the application and store your files. Payment processors that run checkout for card or USDC. The AI provider that helps NexMind write and plan, which receives the brief and context needed for the job and nothing more.",
-        "Each processor receives only what its job requires and only while we use them. We do not sell, rent, or trade your data, and there are no third-party advertising cookies on NexStudio.",
+        "Infrastructure providers that host the application and store your files. Payment processors that run checkout for card or USDC. The AI provider that helps Bam write and plan, which receives the brief and context needed for the job and nothing more.",
+        "Each processor receives only what its job requires and only while we use them. We do not sell, rent, or trade your data, and there are no third-party advertising cookies on SceneBam.",
         "We disclose data when the law genuinely requires it, and to you whenever you ask for it.",
       ],
     },
@@ -192,7 +192,7 @@ export const PRIVACY: Doc = {
       id: "children",
       title: "Children",
       body: [
-        "NexStudio is not for anyone under 16. If we learn an account belongs to a child, we close it and delete its data.",
+        "SceneBam is not for anyone under 16. If we learn an account belongs to a child, we close it and delete its data.",
       ],
     },
     {
@@ -215,16 +215,16 @@ export const FAQ: Doc = {
   sections: [
     {
       id: "what",
-      title: "What is NexStudio?",
+      title: "What is SceneBam?",
       body: [
-        "A production studio you talk to. You describe the video you want, NexMind writes the narration and the direction, you approve it, and the studio renders the finished video. No timeline, no editing software, no production skills required.",
+        "A production studio you talk to. You describe the video you want, Bam writes the narration and the direction, you approve it, and the studio renders the finished video. No timeline, no editing software, no production skills required.",
       ],
     },
     {
       id: "how",
       title: "How does making a video actually work?",
       body: [
-        "Four steps. You write a brief or paste a script. NexMind shapes it into a story and a direction you can inspect and change. You pick the style, voice, and length. Then the studio renders it while you watch the journey, stage by stage.",
+        "Four steps. You write a brief or paste a script. Bam shapes it into a story and a direction you can inspect and change. You pick the style, voice, and length. Then the studio renders it while you watch the journey, stage by stage.",
         "You get the finished video in widescreen, vertical, and square in the same render. Three files, one direction.",
       ],
     },
@@ -232,7 +232,7 @@ export const FAQ: Doc = {
       id: "brief-vs-script",
       title: "What is the difference between a brief and a script?",
       body: [
-        "A brief is the idea in your own words, and NexMind writes the narration for you. A script is finished narration you wrote, voiced and illustrated exactly as written. Toggle between them above the text box.",
+        "A brief is the idea in your own words, and Bam writes the narration for you. A script is finished narration you wrote, voiced and illustrated exactly as written. Toggle between them above the text box.",
       ],
     },
     {
@@ -277,12 +277,12 @@ export const FAQ: Doc = {
       title: "What can I not make?",
       body: [
         "The Terms list it exactly, and the service enforces it before anything renders: no vulgarity, no attacks on officials or individuals, no crime promotion, no hate, no sexual content, no extremist material, no copyrighted text you do not own, no false health or financial claims, no deception.",
-        "If NexMind refuses a brief, it tells you what was flagged so you can rework it.",
+        "If Bam refuses a brief, it tells you what was flagged so you can rework it.",
       ],
     },
     {
       id: "mistakes",
-      title: "Does NexMind make mistakes?",
+      title: "Does Bam make mistakes?",
       body: [
         "Yes. It writes quickly and confidently, which is exactly why the direction stage exists: you inspect the story, the beats, and the narration before paying to render. Review the finished video the same way before you publish it.",
       ],
@@ -291,7 +291,7 @@ export const FAQ: Doc = {
       id: "training",
       title: "Is my content used to train models?",
       body: [
-        "No. Your productions, uploads, and brand material are not used to train models. NexMind memory exists only to keep your own work consistent, and you can inspect and delete every fact it stores.",
+        "No. Your productions, uploads, and brand material are not used to train models. Bam memory exists only to keep your own work consistent, and you can inspect and delete every fact it stores.",
       ],
     },
     {

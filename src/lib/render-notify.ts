@@ -22,8 +22,8 @@ export async function maybeNotifyRenderDone(jobDir: string, userId: string, titl
     await sendMail({
       to: user.email,
       subject: "Your video is ready to review",
-      html: `<p><b>${clean}</b> finished rendering.</p><p>All three screens (16:9, 9:16, 1:1) are ready to review.</p><p><a href="${url}">Open it in your Studio</a></p>`,
-      text: `${clean} finished rendering. Open it in your Studio: ${url}`,
+      html: `<p><b>${clean}</b> finished rendering.</p><p>All three screens (16:9, 9:16, 1:1) are ready to review.</p><p><a href="${url}">Open it in SceneBam</a></p>`,
+      text: `${clean} finished rendering. Open it in SceneBam: ${url}`,
     });
   } catch { /* never surface mail failures to the status read */ }
 }

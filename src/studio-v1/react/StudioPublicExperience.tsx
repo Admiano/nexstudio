@@ -136,7 +136,7 @@ function ShowcaseFilm({ item, onSelect, reducedMotion }: { item: ProductionVideo
     onPointerLeave={() => { if (!reducedMotion) videoRef.current?.pause(); }}
     whileTap={reducedMotion ? undefined : { scale: .985 }}>
     <span className="nxs-film-frame">
-      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame ?? undefined} aria-label={`${item.name} NexStudio film preview`}>
+      <video ref={videoRef} muted loop playsInline preload="metadata" poster={item.posterFrame ?? undefined} aria-label={`${item.name} SceneBam film preview`}>
         <source src={item.previewVideo?.src} type={item.previewVideo?.type || "video/mp4"}/>
       </video>
       <i className="nxs-film-play" aria-hidden="true">▶</i>
@@ -251,7 +251,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
       const response = await fetch("/api/v1/studio/recommendation", { method:"POST", credentials:"same-origin", headers:{"content-type":"application/json"}, body:JSON.stringify({prompt:initial}) });
       const body = await response.json().catch(() => null) as { data?: { status:string; recommendation?:Recommendation }; detail?:string } | null;
       if (!response.ok || !body?.data) throw new Error(body?.detail || "A recommendation is unavailable right now.");
-      if (body.data.status !== "ready" || !body.data.recommendation) { setRecommendationMessage("NexStudio does not have an available production path for this request yet."); return null; }
+      if (body.data.status !== "ready" || !body.data.recommendation) { setRecommendationMessage("SceneBam does not have an available production path for this request yet."); return null; }
       setRecommendation(body.data.recommendation);
       return PRODUCTION_REGISTRY.videoTypes.find((item) => item.id === body.data?.recommendation?.videoType && item.family === body.data.recommendation.family) ?? null;
     } catch (reason) {
@@ -270,7 +270,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
       return;
     }
     if (!certifiedCount) {
-      setComposerMessage("NexStudio is not accepting new productions yet. Your idea stays here.");
+      setComposerMessage("SceneBam is not accepting new productions yet. Your idea stays here.");
       return;
     }
     setCreating(true);
@@ -314,19 +314,19 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
 
   return <div className="sv1-root sv1-calm" data-environment="calm">
     <header className={`sv1-header sv1-header-premium${headerScrolled ? " is-scrolled" : ""}`}>
-      <button className="sv1-wordmark" onClick={() => { setFamily(null); router.push("/"); }} aria-label="NexStudio home"><span className="sv1-wordmark-glyph" aria-hidden="true"><i/><i/></span><span>NexStudio</span></button>
-      <nav className="nxs-desktop-nav" aria-label="NexStudio navigation">
+      <button className="sv1-wordmark" onClick={() => { setFamily(null); router.push("/"); }} aria-label="SceneBam home"><span className="sv1-wordmark-glyph" aria-hidden="true"><i/><i/></span><span>SceneBam</span></button>
+      <nav className="nxs-desktop-nav" aria-label="SceneBam navigation">
         <button onClick={() => router.push("/work")}>Work</button>
         <button onClick={() => router.push("/pricing")}>Pricing</button>
         {authenticated ? <button onClick={() => router.push("/dashboard")}>Dashboard</button> : <button onClick={() => setSignIn(true)}>Sign in</button>}
         <button className="sv1-primary small sv1-nav-create" onClick={goCreate}>Create</button>
       </nav>
-      <button className="nxs-mobile-menu" type="button" onClick={() => setMobileNavOpen(true)} aria-label="Open NexStudio menu" aria-expanded={mobileNavOpen}><i/><i/></button>
+      <button className="nxs-mobile-menu" type="button" onClick={() => setMobileNavOpen(true)} aria-label="Open SceneBam menu" aria-expanded={mobileNavOpen}><i/><i/></button>
     </header>
 
     <AnimatePresence>
       {mobileNavOpen ? <motion.div className="nxs-mobile-menu-backdrop" role="presentation" initial={reducedMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.currentTarget === event.target) setMobileNavOpen(false); }}>
-        <motion.section className="nxs-mobile-menu-sheet" role="dialog" aria-modal="true" aria-label="NexStudio navigation" initial={reducedMotion ? false : { y: 36, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 28, opacity: 0 }} transition={{ duration: reducedMotion ? 0 : .28 }}>
+        <motion.section className="nxs-mobile-menu-sheet" role="dialog" aria-modal="true" aria-label="SceneBam navigation" initial={reducedMotion ? false : { y: 36, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 28, opacity: 0 }} transition={{ duration: reducedMotion ? 0 : .28 }}>
           <div className="nxs-mobile-menu-head"><span>Navigate</span><button type="button" onClick={() => setMobileNavOpen(false)} aria-label="Close menu">×</button></div>
           <button type="button" onClick={() => { setMobileNavOpen(false); router.push("/work"); }}><span>Work</span><i>↗</i></button>
           <button type="button" onClick={() => { setMobileNavOpen(false); router.push("/pricing"); }}><span>Pricing</span><i>↗</i></button>
@@ -346,7 +346,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
           <div className="sv1-hero-grain" />
         </div>
 
-        {certifiedShowcase.length ? <div className="sv1-hero-showcase" aria-label="Certified NexStudio work">
+        {certifiedShowcase.length ? <div className="sv1-hero-showcase" aria-label="Certified SceneBam work">
           {certifiedShowcase.map((item, index) => <motion.div key={item.id} className={`sv1-hero-showcase-card sv1-hero-showcase-${index + 1}`} initial={reducedMotion ? false : { opacity: 0, y: 20, rotate: index === 1 ? 1 : -1 }} animate={{ opacity: 1, y: 0, rotate: index === 1 ? 2.2 : index === 2 ? -2.5 : -1.6 }} transition={{ duration: .7, delay: .14 + index * .08 }}><CertifiedPreview item={item} hero/><span>{item.name}</span></motion.div>)}
         </div> : null}
 
@@ -354,7 +354,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
           <motion.div className="sv1-hero-copy" initial={reducedMotion ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .62 }}>
             <p className="sv1-kicker">Your AI production studio</p>
             <h1 id="studio-hero-title">Make something worth watching.</h1>
-            <p>Describe what you need. Add what you already have. NexStudio carries it through to a finished film.</p>
+            <p>Describe what you need. Add what you already have. SceneBam carries it through to a finished film.</p>
           </motion.div>
 
           <motion.div id="studio-create" className={`sv1-composer sv1-composer-premium${composerActive ? " is-active" : ""}`} layout transition={{ layout: { duration: reducedMotion ? 0 : .34 } }} style={{ viewTransitionName: "production-prompt" }}>
@@ -382,7 +382,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
                 <button className="sv1-composer-tool" onClick={() => fileInputRef.current?.click()}><span aria-hidden="true">＋</span> Add files</button>
                 <button className={`sv1-composer-tool${referenceOpen ? " active" : ""}`} onClick={() => setReferenceOpen((value) => !value)}><span aria-hidden="true">↗</span> Add reference</button>
               </div>
-              <button className="sv1-create-button" onClick={createFromPrompt} disabled={creating || recommending} aria-label="Create with NexStudio"><span>{creating || recommending ? "Starting" : "Create"}</span><i aria-hidden="true">→</i></button>
+              <button className="sv1-create-button" onClick={createFromPrompt} disabled={creating || recommending} aria-label="Create with SceneBam"><span>{creating || recommending ? "Starting" : "Create"}</span><i aria-hidden="true">→</i></button>
             </div>
 
             {composerMessage ? <p className="sv1-composer-message" role="status">{composerMessage}</p> : null}
@@ -403,10 +403,10 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
       {certifiedWork.length ? <section className="nxs-film-gallery" aria-labelledby="nxs-work-title">
         <div className="nxs-section-shell">
           <div className="nxs-film-gallery-head">
-            <div><p className="sv1-kicker">Made with NexStudio</p><h2 id="nxs-work-title">Watch what Studio can make.</h2></div>
+            <div><p className="sv1-kicker">Made with SceneBam</p><h2 id="nxs-work-title">Watch what Studio can make.</h2></div>
             <p>Finished films, shown as films. Not feature descriptions.</p>
           </div>
-          <div className="nxs-film-filters" role="tablist" aria-label="Filter NexStudio films">
+          <div className="nxs-film-filters" role="tablist" aria-label="Filter SceneBam films">
             {WORK_FILTERS.map((filter) => <button key={filter.id} role="tab" aria-selected={workFilter === filter.id} className={workFilter === filter.id ? "active" : ""} onClick={() => setWorkFilter(filter.id)}>{filter.label}</button>)}
           </div>
           <motion.div className="nxs-film-grid" layout>
@@ -459,7 +459,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
       </section>
 
       <footer className="nxs-home-footer nxs-home-footer-final">
-        <div className="nxs-section-shell"><button className="sv1-wordmark" onClick={() => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" })} aria-label="Back to top"><span className="sv1-wordmark-glyph" aria-hidden="true"><i/><i/></span><span>NexStudio</span></button><nav aria-label="Footer navigation"><button onClick={() => router.push("/work")}>Work</button><button onClick={() => router.push("/pricing")}>Pricing</button><button onClick={goCreate}>Create</button></nav><p>Creative production, carried from brief to film.</p></div>
+        <div className="nxs-section-shell"><button className="sv1-wordmark" onClick={() => window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" })} aria-label="Back to top"><span className="sv1-wordmark-glyph" aria-hidden="true"><i/><i/></span><span>SceneBam</span></button><nav aria-label="Footer navigation"><button onClick={() => router.push("/work")}>Work</button><button onClick={() => router.push("/pricing")}>Pricing</button><button onClick={goCreate}>Create</button></nav><p>Creative production, carried from brief to film.</p></div>
       </footer>
     </main> : <main className="sv1-public-main sv1-family-page">
       <button className="sv1-back" onClick={() => setFamily(null)}>← All production families</button>
@@ -469,7 +469,7 @@ export function StudioPublicExperience({ authenticated }: { authenticated: boole
 
     <AnimatePresence>
       {mobileDockVisible && !mobileNavOpen && !selected ? <motion.div className="nxs-mobile-create-dock" initial={reducedMotion ? false : { opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 14 }} transition={{ duration: reducedMotion ? 0 : .24 }}>
-        <button type="button" onClick={goCreate}><span><small>Create with NexStudio</small><strong>Make something</strong></span><i aria-hidden="true">→</i></button>
+        <button type="button" onClick={goCreate}><span><small>Create with SceneBam</small><strong>Make something</strong></span><i aria-hidden="true">→</i></button>
       </motion.div> : null}
     </AnimatePresence>
 

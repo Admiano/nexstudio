@@ -26,7 +26,7 @@ const outputSchema = {
 } as const;
 
 const POLICY = [
-  "NexStudio content policy. The narration script must comply with all of it:",
+  "SceneBam content policy. The narration script must comply with all of it:",
   "- No vulgar or profane language of any kind.",
   "- No attacks on government officials, politicians, or public figures. No claims that they are corrupt, criminal, evil, or should be harmed, arrested, or removed.",
   "- No promotion, instruction, or glorification of crime, weapons, drugs, hacking, fraud, or evasion.",
@@ -60,7 +60,7 @@ async function writeScript(brief: string, family: string, videoType: string, dur
     {
       role: "system",
       content: [
-        "You are NexMind, NexStudio's narration scriptwriter. Turn a customer brief into a spoken-narration script for a short video.",
+        "You are Bam, SceneBam's creative narration director. Turn a customer brief into a spoken-narration script for a short video.",
         `This video: family=${family}, type=${videoType}, target ${duration}s (about ${words} words total).`,
         "Return JSON only: {lines: string[], title: string}. One narration line per board beat; each line is a single complete spoken sentence (max ~30 words), in a warm, clear voiceover register.",
         "Lines are read verbatim by text-to-speech and shown one board at a time. No headings, no scene directions, no markdown, no quotation marks, no speaker labels.",
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     const local = writeLocalScript(brief, duration, beats);
     const guard = checkScriptLines(local.lines);
     if (!guard.ok) {
-      return problem(id, 422, "SCRIPT_NOT_ALLOWED", "NexMind couldn't write a safe script for this brief", "Rephrase the brief and try again.");
+      return problem(id, 422, "SCRIPT_NOT_ALLOWED", "Bam couldn't write a safe script for this brief", "Rephrase the brief and try again.");
     }
     if (!local.lines.length) return problem(id, 503, "SCRIPT_EMPTY", "Script generation returned nothing", "Try again.");
     return json({ status: "ready", source: "local", script: local.lines.join("\n"), lines: local.lines, title: local.title }, id);
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
       lines = (out.lines ?? []).map((l) => l.trim()).filter(Boolean);
       guard = checkScriptLines(lines);
       if (!guard.ok) {
-        return problem(id, 422, "SCRIPT_NOT_ALLOWED", "NexMind couldn't write a safe script for this brief", "Rephrase the brief and try again.");
+        return problem(id, 422, "SCRIPT_NOT_ALLOWED", "Bam couldn't write a safe script for this brief", "Rephrase the brief and try again.");
       }
     }
     if (lines.length < 2) return problem(id, 503, "SCRIPT_EMPTY", "Script generation returned nothing", "Try again.");

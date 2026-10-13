@@ -184,7 +184,7 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "profile" && (
                 <>
-                  <p className="account-lead">NexStudio signs you in with an email link, so there's no password to leak. Your productions, memory and library are attached to this account.</p>
+                  <p className="account-lead">SceneBam signs you in with an email link, so there's no password to leak. Your productions, memory and library are attached to this account.</p>
                   <div className="acct-hero">
                     <span className="acct-hero-avatar">{initials}</span>
                     <div className="acct-hero-copy">
@@ -197,14 +197,14 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                   <div className="acct-field-row">
                     <div className="account-field acct-field-grow">
                       <label>Display name</label>
-                      <input value={name} placeholder="What should NexStudio call you?" onChange={(e) => { setName(e.target.value); setNameDirty(true); }} onKeyDown={(e) => { if (e.key === "Enter") void saveName(); }} />
+                      <input value={name} placeholder="What should SceneBam call you?" onChange={(e) => { setName(e.target.value); setNameDirty(true); }} onKeyDown={(e) => { if (e.key === "Enter") void saveName(); }} />
                     </div>
                     <button className="account-secondary acct-field-btn" disabled={busy || !nameDirty || !name.trim()} onClick={() => void saveName()}>Save</button>
                   </div>
                   <div className="acct-facts">
                     <div className="acct-fact"><span className="acct-fact-ico">◈</span><b>No password</b><span>Sign-in links land in your inbox. Nothing to forget or leak.</span></div>
                     <div className="acct-fact"><span className="acct-fact-ico">▤</span><b>Work attached</b><span>Every production, brand and asset lives on this account.</span></div>
-                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Inspectable memory</b><span>What NexMind remembers is visible to you, and you can remove any of it.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Inspectable memory</b><span>What Bam remembers is visible to you, and you can remove any of it.</span></div>
                   </div>
                 </>
               )}
@@ -333,12 +333,12 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
 
               {section === "data" && (
                 <>
-                  <p className="account-lead">Everything NexStudio holds for you: productions, memory, assets, billing. Exportable as one archive.</p>
+                  <p className="account-lead">Everything SceneBam holds for you: productions, memory, assets, billing. Exportable as one archive.</p>
                   <div className="acct-export-hero">
                     <span className="acct-export-ico">⬒</span>
                     <div>
                       <b>Full account archive</b>
-                      <span>Productions, NexMind memory, library assets and billing history in one download.</span>
+                      <span>Productions, Bam memory, library assets and billing history in one download.</span>
                     </div>
                     <button className="account-primary" disabled={busy} onClick={() => void requestExport()}>Request export</button>
                   </div>
@@ -370,9 +370,9 @@ export function AccountSheet({ onClose, notify, profile, onProfile, openCredits 
                 <>
                   <p className="account-lead">Production memory is append-only and inspectable. You can see every remembered fact and remove it. Publishing hands files to you; it never posts on your behalf.</p>
                   <div className="acct-facts">
-                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Memory you can see</b><span>Everything NexMind remembers is inspectable in Brand and Series.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">◐</span><b>Memory you can see</b><span>Everything Bam remembers is inspectable in Brand and Series.</span></div>
                     <div className="acct-fact"><span className="acct-fact-ico">✕</span><b>Tombstone anything</b><span>Delete a memory and it's gone from every future production.</span></div>
-                    <div className="acct-fact"><span className="acct-fact-ico">↗</span><b>You publish, not us</b><span>Files are prepared for you. NexStudio never posts on your behalf.</span></div>
+                    <div className="acct-fact"><span className="acct-fact-ico">↗</span><b>You publish, not us</b><span>Files are prepared for you. SceneBam never posts on your behalf.</span></div>
                   </div>
                   <div className="acct-danger">
                     <div className="acct-danger-copy">

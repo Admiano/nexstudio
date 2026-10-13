@@ -57,7 +57,7 @@ function parseCapabilityRegistry(): NexMindCapabilityRoute[] {
 
 export function nexMindRoleRouting(role: string): NexMindResolvedRoute {
   const capability = ROLE_CAPABILITY[role];
-  if (!capability) throw new Error(`Unsupported standalone NexMind role: ${role}`);
+  if (!capability) throw new Error(`Unsupported Bam production role: ${role}`);
 
   // Exact operator overrides are allowed, but the architecture never supplies
   // a provider or model identity. Both must be explicitly configured together.

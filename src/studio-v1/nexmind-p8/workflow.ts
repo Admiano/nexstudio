@@ -408,7 +408,7 @@ export async function runStandaloneNexMindP8Activity(activity: { id: string; wor
       escalation_scope: isSeriesRepetition ? "UPSTREAM_VISUAL_STRATEGY" : "RESPONSIBLE_DEPARTMENT",
       invalidate_slots: isSeriesRepetition ? ["visual_concept", "art_direction", "cinematography", "editorial_rhythm"] : [],
       issues: [result.code, result.detail || ""].filter(Boolean),
-      revision_plan: [isSeriesRepetition ? "Create a materially fresh Series plan while preserving intentional continuity; vary the blocked environment/camera/layout/motif dimensions and emit a complete planSignature." : "Re-enter the responsible NexMind departments with the prior failure evidence; preserve unaffected approved intent and the 9.5 creative quality floor."],
+      revision_plan: [isSeriesRepetition ? "Create a materially fresh Series plan while preserving intentional continuity; vary the blocked environment/camera/layout/motif dimensions and emit a complete planSignature." : "Re-enter Bam's responsible creative departments with the prior failure evidence; preserve unaffected approved intent and the 9.5 creative quality floor."],
       quality_reasons: [result.code],
       production_disposition: "CONTINUE_REPLANNING",
       quality_floor_may_weaken: false,
