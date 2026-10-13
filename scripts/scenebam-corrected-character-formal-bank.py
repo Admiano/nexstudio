@@ -37,7 +37,13 @@ def verified_corrected_scene(gender:str,dest:Path):
     if digest!=expected["sha256"]:
         raise RuntimeError("CORRECTED_SCENE_SHA_MISMATCH:"+relative+":"+digest)
     if output.open("rb").read(7)!=b"BLENDER":
-        raise RuntimeError("CORRECTED_SCENE_NOT_BLENDER:"+relative)
+        import subprocess
+        decoded=output.with_suffix(".decoded.blend")
+        with decoded.open("wb") as sink:
+            subprocess.run(["zstd","-q","-d","-c",str(output)],stdout=sink,check=True)
+        if decoded.open("rb").read(7)!=b"BLENDER":
+            raise RuntimeError("CORRECTED_SCENE_DECODING_FAILURE:"+relative)
+        decoded.replace(output)
     return output,digest
 
 mod.source_scene=verified_corrected_scene
