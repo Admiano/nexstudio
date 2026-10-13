@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import {createHash} from 'node:crypto';
+import {availableFormalWardrobe,formalSpecAvailable,formalSceneName} from '../src/lib/cast-formal-wardrobe';
+import {DEFAULT_SPEC,CAST_SOURCE_VERSION} from '../src/studio-v2/cast/spec';
+const dir=mkdtempSync(path.join(os.tmpdir(),'scenebam-formal-gate-'));
+process.env.SCENEBAM_FORMAL_ASSET_ROOT=dir;
+const name='female:formal-statement';const file=path.join(dir,formalSceneName('female','formal-statement'));
+const content='test placeholder only, not a valid Blender scene';
+const sha=createHash('sha256').update(content).digest('hex');writeFileSync(file,content);
+const ref=()=>({castSourceVersion:CAST_SOURCE_VERSION,liveVmHashMatched:false,validated:{[name]:{sha256:sha,independentSuitAndTie:true,rigAndMotion:true}}});
+const female={...DEFAULT_SPEC.female,outfit:{kind:'formal-statement',color:'rose',tieColor:'cream'}};
+try{
+ assert.deepEqual(availableFormalWardrobe(),[],'unregistered assets cannot unlock a wardrobe');
+ const m=ref();writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(m));
+ assert.deepEqual(availableFormalWardrobe(),[],'live VM verification is mandatory');
+ assert.equal(formalSpecAvailable(female),false);
+ m.liveVmHashMatched=true;m.validated[name].rigAndMotion=false;writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(m));
+ assert.deepEqual(availableFormalWardrobe(),[],'rig validation is mandatory');
+ m.validated[name].rigAndMotion=true;m.validated[name].independentSuitAndTie=false;writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(m));
+ assert.deepEqual(availableFormalWardrobe(),[],'material separation is mandatory');
+ m.validated[name].independentSuitAndTie=true;m.validated[name].sha256='0'.repeat(64);writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(m));
+ assert.deepEqual(availableFormalWardrobe(),[],'SHA mismatch rejected');
+ m.validated[name].sha256=sha;writeFileSync(path.join(dir,'manifest.json'),JSON.stringify(m));
+ assert.deepEqual(availableFormalWardrobe(),[name],'only checked assets are recognized');
+ assert.equal(formalSpecAvailable(female),true);
+ assert.equal(formalSpecAvailable(DEFAULT_SPEC.male),true,'casual assets unaffected');
+ console.log('PASS SceneBam formal wardrobe availability gate, VM/rig/material/hash protection');
+}finally{rmSync(dir,{recursive:true,force:true});}
