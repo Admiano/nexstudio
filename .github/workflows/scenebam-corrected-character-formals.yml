@@ -1,8 +1,8 @@
-name: SceneBam corrected-character formalwear refit
+name: SceneBam corrected-character male formalwear cleanup proof
 on:
   push:
     branches: [work/scenebam-corrected-cast-formals-20261013]
-    paths: ['.github/workflows/scenebam-corrected-character-formals.yml', 'scripts/scenebam-corrected-character-formal-bank.py', 'scripts/scenebam-corrected-character-contact-sheet.py', 'experiments/illustrated-family/donor_suit_fit_uv.py', 'experiments/illustrated-family/donor_suit_pose_qa.py', 'scripts/scenebam-formal-qa.py']
+    paths: ['.github/workflows/scenebam-corrected-character-formals.yml', 'scripts/scenebam-corrected-character-formal-bank.py', 'scripts/scenebam-corrected-character-contact-sheet.py', 'experiments/illustrated-family/donor_suit_fit_uv.py', 'experiments/illustrated-family/donor_suit_pose_qa.py', 'scripts/scenebam-formal-qa.py', 'scripts/illustrated-family/build_formal_cast.py', 'experiments/illustrated-family/hide_original_formal_competitors.py']
 permissions:
   contents: read
 jobs:
@@ -40,7 +40,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p proofs/scenebam-corrected-cast-formals
-          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+          for variant in male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
             echo "::group::$variant"
             mkdir -p "proofs/scenebam-corrected-cast-formals/$variant"
             python scripts/scenebam-corrected-character-formal-bank.py --variant "$variant" --blender "$BLENDER_BIN" --archive-cache "$RUNNER_TEMP/verified-donors" --output-dir "proofs/scenebam-corrected-cast-formals/$variant" 2>&1 | tee "proofs/scenebam-corrected-cast-formals/$variant/build.log"
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: SCENEBAM_CORRECTED_CAST_SIX_REAL_FORMAL_REFITS
+          name: SCENEBAM_CORRECTED_MALE_FOUR_REAL_REFITS
           path: proofs/scenebam-corrected-cast-formals
           retention-days: 14
           compression-level: 3
