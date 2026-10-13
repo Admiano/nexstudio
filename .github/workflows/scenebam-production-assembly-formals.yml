@@ -21,6 +21,7 @@ jobs:
             scripts
             docs/cast-quality-reference
             engine_sources/makehuman-lineart/presenters_v1
+            engine_sources/makehuman-lineart/scripts
             engine_sources/makehuman-lineart/assets
             engine_sources/makehuman-lineart/NexStudio_Presenter_Reference
             engine_sources/makehuman-lineart/approved-polish.json
