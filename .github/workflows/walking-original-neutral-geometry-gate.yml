@@ -1,0 +1,51 @@
+name: Walking People — Original Neutral Geometry Gate
+on:
+  push:
+    branches:
+      - work/walking-original-neutral-rig-study-20261013
+    paths:
+      - experiments/walking-people/neutral_pose_skeleton_audit.py
+      - .github/workflows/walking-original-neutral-geometry-gate.yml
+jobs:
+  geometry-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      NEX_OUT: walking-neutral-audit-output
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/papercraft-cast/assets/walking-people-pack
+            experiments/walking-people/neutral_pose_skeleton_audit.py
+          sparse-checkout-cone-mode: false
+      - name: Install headless Blender dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libegl1 libxrender1 libxi6 libxkbcommon0 libglu1-mesa
+      - name: Install certified Blender 5.2.0
+        run: |
+          curl -fL --retry 4 --retry-delay 3 https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz -o /tmp/blender.tar.xz
+          echo "96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz" | sha256sum -c -
+          mkdir -p /tmp/blender-runtime
+          tar -xf /tmp/blender.tar.xz -C /tmp/blender-runtime
+      - name: Measure actual foot and joint landmarks, render original materials
+        run: |
+          mkdir -p "$NEX_OUT"
+          xvfb-run -a /tmp/blender-runtime/blender-5.2.0-linux-x64/blender -b -noaudio -t 2 --python-exit-code 1 --python experiments/walking-people/neutral_pose_skeleton_audit.py
+          test -s "$NEX_OUT/LANDMARK_AUDIT.json"
+          for f in man1_intact_front.png woman2_intact_front.png man1_intact_threeq.png woman2_intact_threeq.png; do test -s "$NEX_OUT/$f"; done
+      - name: Upload visual and measurement proofs only (NEVER source scans)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walking-people-intact-mesh-neutral-landmark-audit
+          path: |
+            walking-neutral-audit-output/*.json
+            walking-neutral-audit-output/*.png
+          retention-days: 14
+          if-no-files-found: warn
