@@ -24,6 +24,10 @@ jobs:
           mkdir -p sourced-renders
           gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir sourced-renders
           test -s sourced-renders/male-dinner-jacket/male-dinner-jacket-front.png
+      - name: Install Pillow for exact Blender image crops
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil
       - name: Crop six genuine wardrobe cards (not AI-generated)
         run: |
           python3 - <<'PY'
