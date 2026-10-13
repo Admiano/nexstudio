@@ -15,6 +15,7 @@ jobs:
           sparse-checkout: |
             scripts/scenebam-upgraded-formal-bank.py
             scripts/scenebam-formal-qa.py
+            scripts/scenebam-real-contact-sheet.py
             scripts/illustrated-family
             scripts/illustrated-family-preview
             experiments/illustrated-family
@@ -26,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          sudo apt-get install -y -qq python3-pil zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
           curl -fL --retry 4 --retry-delay 3 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
           echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
           mkdir -p "$RUNNER_TEMP/blender"
