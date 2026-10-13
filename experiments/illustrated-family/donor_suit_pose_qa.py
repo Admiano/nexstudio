@@ -11,13 +11,13 @@ rig=bpy.data.objects["Host.rig"]
 suit=bpy.data.objects["NEX_V1_CC0_FORMAL_SUIT_"+gender.upper()]
 assert suit["donorCC0"] and suit["approved"]==False
 assert any(m.type=="ARMATURE" and m.object==rig for m in suit.modifiers)
-assert len(body.data.shape_keys.key_blocks)==34
+assert len(body.data.shape_keys.key_blocks)==35, 'CORRECTED_V17_FEMALE_MALE_SHAPE_KEY_GATE'
 s.render.resolution_x=440
 s.render.resolution_y=700
 s.render.resolution_percentage=100
 s.cycles.samples=8
 data={"asset":suit["donorName"],"gender":gender,"blender":bpy.app.version_string,
-    "performanceAuthority":"original V1 Host", "frames":[]}
+    "performanceAuthority":"corrected V17 Host", "frames":[]}
 for frame in (338,891):
     s.frame_set(frame)
     bpy.context.view_layer.update()
