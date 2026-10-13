@@ -1,0 +1,51 @@
+name: SceneBam formal source color-role audit
+on:
+  push:
+    branches: [work/scenebam-formal-cast-wardrobe-20261013]
+    paths:
+      - scripts/cast-formal-inspect.py
+      - .github/workflows/scenebam-formal-source-audit.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  inspect-real-assets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/cast-formal-inspect.py
+      - name: Install certified Blender 5.2.0
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 3 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59c7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Download verified repository production assembly proof
+        run: |
+          set -euo pipefail
+          mkdir -p source-proofs
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir source-proofs
+          test -s source-proofs/female-statement/female-statement-production-assembled.blend
+      - name: Inventory independent garment materials without modifying geometry
+        run: |
+          set -euo pipefail
+          mkdir -p formal-audit
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            "$BLENDER_BIN" -b "source-proofs/$variant/$variant-production-assembled.blend" --python-exit-code 1 --python scripts/cast-formal-inspect.py -- "$variant" "formal-audit/$variant.json"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_FORMAL_TRUE_MATERIAL_SEGMENTATION
+          path: formal-audit/
+          retention-days: 14
