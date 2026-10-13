@@ -1,6 +1,16 @@
 Pillow>=10.0
 CairoSVG>=2.7
+# Board-scenes paper-cast artwork uses Matplotlib's headless Agg renderer.
+matplotlib>=3.10,<4
 numpy>=1.26
 opencv-python-headless>=4.9
 jsonschema>=4.21
 playwright>=1.45
+# Apply scripts/patch-edge-tts.py after installing to update Microsoft endpoints.
+edge-tts>=7.2.8,<8
+kokoro-onnx==0.6.1
+soundfile>=0.13,<1
+faster-whisper==1.2.1
+# faster-whisper 1.2.1 uses metadata_errors, removed in PyAV 19.
+av>=11,<19
+nltk>=3.9,<4

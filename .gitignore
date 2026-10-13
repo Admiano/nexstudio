@@ -10,6 +10,7 @@
 /dist/
 /.vercel/
 /.turbo/
+/deploy/oracle/homepage/
 
 # Python environments and caches
 /.venv/
@@ -24,6 +25,7 @@ __pycache__/
 /engines/
 engine_sources/*/out/
 /local-renders/
+/llm/
 /uploads/
 /tmp/
 /backups/

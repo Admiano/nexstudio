@@ -12,6 +12,8 @@ import functools, hashlib, http.server, json, os, re, shutil, subprocess, sys, t
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 S = ROOT / 'scripts'
 WEB = S / 'presenter-browser'
 BLENDER = os.environ.get('BLENDER_BIN') or shutil.which('blender') or '/opt/blender-5.2.1-linux-x64/blender'
@@ -230,11 +232,11 @@ def kids_books(wav, aspects):
 
 
 def compose(frames_dir, boards=None):
-    outputs = {}
     aspects = REQ.get('aspects') or ['16:9']
     promo = REQ.get('promo') or {}
-    for i, a in enumerate(aspects):
-        progress('compose', i / len(aspects))
+    progress('compose', 0, aspectsActive=aspects)
+
+    def render(a):
         key = a.replace(':', 'x')
         out = J / 'files' / f'{key}.mp4'
         out.parent.mkdir(exist_ok=True)
@@ -263,8 +265,11 @@ def compose(frames_dir, boards=None):
         plan_file = out.with_suffix('.director.json')
         if plan_file.exists():
             plan_file.rename(J / f'director-plan-{key}.json')  # the executed shot grammar, per aspect
-        outputs[key] = f'/api/v1/presenters/{J.name}/files/{out.name}'
-    return outputs
+        return f'/api/v1/presenters/{J.name}/files/{out.name}'
+
+    outputs = render_aspects(aspects, render,
+                            lambda aspect, count, total: progress('compose', count / total))
+    return {aspect.replace(':', 'x'): output for aspect, output in outputs.items()}
 
 
 def main():

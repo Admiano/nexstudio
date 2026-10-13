@@ -31,6 +31,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 # Node may live anywhere: explicit override first, then PATH, then the
 # known dev-machine nvm location.
 NODE = (os.environ.get('NODE_BIN')
@@ -124,7 +126,7 @@ def main() -> int:
         film_out = root_out / name
         gate = compile_fixture(treatment, film_out)
         film = {'film': name, 'aspects': {}, 'gate': gate['status']}
-        for aspect in aspects:
+        def render_format(aspect):
             plan = film_out / f'plan_{aspect}.json'
             manifest_path = film_out / f'render_{aspect}.json'
             manifest = None
@@ -155,9 +157,11 @@ def main() -> int:
             metrics['authorship_findings'] = [
                 f"{f['code']}:{f['beat_id']}:{f['id']}@{f['first_ms']}ms" for f in authorship.get('findings', [])]
             metrics['static_hold_longest_ms'] = authorship.get('longest_static_hold_ms')
-            film['aspects'][aspect] = {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
+            return {'checks': checks, 'metrics': metrics, 'mp4': manifest['mp4'],
                                        'mp4_sha256': manifest['mp4_sha256']}
-            failures += sum(1 for ok in checks.values() if not ok)
+        film['aspects'] = render_aspects(aspects, render_format)
+        failures += sum(1 for result in film['aspects'].values()
+                        for ok in result['checks'].values() if not ok)
         report['films'].append(film)
 
     report['failures'] = failures

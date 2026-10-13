@@ -557,7 +557,7 @@ def main():
         taken = {pv.norm(c['words'][c['icon']['word']]['word']) for c in caps.chunks if c.get('icon')}
         concrete = ki.concrete_noun if ki is not None else None
         plan = pv.plan(words, taken, concrete, len(frames) / a.fps)
-        cards = pv.Cards(plan, a.aspect, W, H, pres, ktr, hexrgb(a.accent), Path(a.out).parent / '.visuals')
+        cards = pv.Cards(plan, a.aspect, W, H, pres, ktr, hexrgb(a.accent), Path(a.out).parent / f'.visuals-{Path(a.out).stem}')
     icon = Image.open(a.promo_image) if a.promo_image else None
     dur = len(frames) / a.fps
     at = a.promo_at if a.promo_at is not None else max(1.5, min(dur * 0.35, dur - a.promo_seconds - 2.0))

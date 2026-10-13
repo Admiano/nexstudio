@@ -489,6 +489,8 @@ button:disabled{cursor:not-allowed}
 .mind-stage:before{background:linear-gradient(rgba(16,21,17,.026) 1px,transparent 1px),linear-gradient(90deg,rgba(16,21,17,.026) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(circle at center,black 0 38%,transparent 76%);opacity:.78!important}
 .mind-orb{display:none!important}.mind-wrap{position:relative;z-index:5;transform:translateY(112px);transition:transform 700ms var(--nx-ease)}
 .mind-stage[data-step="resolve"] .mind-wrap{transform:translateY(128px)}
+.mind-stage.closed-stage{overflow:auto}
+.closed-stage .mind-wrap{transform:none;margin:28px auto}
 .nx-mind-field{position:absolute;left:50%;top:44%;width:118px;height:118px;transform:translate(-50%,-50%);z-index:4;transition:width 760ms var(--nx-ease),height 760ms var(--nx-ease),transform 760ms var(--nx-ease);filter:drop-shadow(0 22px 50px rgba(16,21,17,.08))}
 .nx-field-rail{position:absolute;background:var(--nx-ink);border-radius:99px;transition:all 720ms var(--nx-ease)}
 .nx-field-rail.top,.nx-field-rail.bottom{height:2px;width:28px;left:0}.nx-field-rail.top{top:0}.nx-field-rail.bottom{bottom:0}.nx-field-rail.left,.nx-field-rail.right{width:2px;height:28px;top:0}.nx-field-rail.left{left:0}.nx-field-rail.right{right:0}

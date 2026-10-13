@@ -1,0 +1,14 @@
+{
+  "schema": "StudioDepartmentReviewerProfileV1",
+  "provider": "openrouter",
+  "model": "stealth/space-bunny-alpha",
+  "baseUrl": "https://openrouter.ai/api/v1",
+  "apiKeyEnv": "OPENROUTER_API_KEY",
+  "apiMode": "chat_completions_prompt_json",
+  "reasoning": "high",
+  "inputModalities": ["images"],
+  "environmentPrefix": "NEXMIND_EXECUTIVE_PRODUCER",
+  "tasks": ["producer", "art_review", "storyboard_review", "cinematography_review", "editorial_review", "temporal_storyboard_review", "motion_review", "sound_review"],
+  "nativeAudioSupported": false,
+  "excludedTasks": ["final_producer", "perceptual_auditor"]
+}

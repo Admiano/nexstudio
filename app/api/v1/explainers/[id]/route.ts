@@ -4,12 +4,11 @@ import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { friendlyEngineError, finalizeCastScope } from "@/lib/engine-jobs";
 import { maybeNotifyRenderDone } from "@/lib/render-notify";
+import { engineJobsDir } from "@/lib/engine-paths";
 
 export const runtime = "nodejs";
 
-const ENGINE = process.env.EXPLAINER_ENGINE_DIR
-  ?? path.join(process.cwd(), "engine_sources", "explainer-locks");
-const JOBS = path.join(ENGINE, "out", "explainer-jobs");
+const JOBS = engineJobsDir("explainer");
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   const auth = await requireSession(request); if (auth.response) return auth.response;
@@ -32,6 +31,6 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   return json({
     jobId: id, style: req.style, voice: req.voice, aspects: req.aspects,
     createdAt: req.createdAt, progress, ...status,
-    ...(status.status === "failed" && !status.error ? { error: friendlyEngineError(dir) } : {}),
+    ...(status.status === "failed" ? { error: friendlyEngineError(dir) ?? status.error } : {}),
   }, auth.id);
 }

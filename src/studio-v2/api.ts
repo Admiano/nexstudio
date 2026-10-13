@@ -185,7 +185,7 @@ export const studioApi = {
   requestAccountExport: (signal?: AbortSignal) => postJson<unknown>("/api/v1/account/data", { type: "EXPORT" }, signal),
   accountData: (signal?: AbortSignal) => readJson<{ items: Array<{ id: string; type: string; status: string; downloadUrl: string | null }> }>("/api/v1/account/data", signal),
   explainerCatalog: (signal?: AbortSignal) =>
-    readJson<{ styles: Array<{ id: string; name: string; tagline?: string; variants?: Array<{ id: string; name: string }> }>; voices: string[]; aspects: string[] }>("/api/v1/explainers", signal),
+    readJson<{ styles: Array<{ id: string; name: string; tagline?: string; variants?: Array<{ id: string; name: string }> }>; voices: Array<{ id: string; name: string; accent: string; engine: string; preview: string }>; aspects: string[] }>("/api/v1/explainers", signal),
   whiteboardCatalog: (signal?: AbortSignal) =>
     readJson<{ types: Array<{ id: string; name: string }>; themes: string[]; voices: string[]; aspects: string[] }>("/api/v1/whiteboards", signal),
   createEngineJob: (kind: EngineKind, form: FormData) =>

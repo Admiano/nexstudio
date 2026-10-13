@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createSessionTx, secretHashCandidates, setSessionCookie } from "@/lib/auth";
 import { appendAuditEvent } from "@/lib/audit-log";
 import { getPrisma } from "@/lib/db";
+import { requestAppOrigin } from "@/lib/app-origin";
 import { problem, requestId } from "@/lib/http";
 export const runtime="nodejs";
 export async function GET(request:Request){
@@ -15,7 +16,7 @@ export async function GET(request:Request){
       if(!challenge)throw new Error("EMAIL_LINK_EXPIRED");
       const claimed=await tx.authChallenge.updateMany({where:{id:challenge.id,usedAt:null,expiresAt:{gt:new Date()}},data:{usedAt:new Date()}});
       if(claimed.count!==1)throw new Error("EMAIL_LINK_ALREADY_USED");
-      const email=challenge.identifier.toLowerCase();const payload=challenge.payload as {next?:string|null};const next=payload.next?.startsWith("/")&&!payload.next.startsWith("//")?payload.next:"/studio";
+      const email=challenge.identifier.toLowerCase();const payload=challenge.payload as {next?:string|null};const next=payload.next?.startsWith("/")&&!payload.next.startsWith("//")&&!/[\\\u0000-\u0020\u007f]/.test(payload.next)?payload.next:"/studio";
       const existing=await tx.user.findUnique({where:{email}});
       if(existing && (existing as {privacyStatus?:string}).privacyStatus==="DELETED")throw new Error("ACCOUNT_DELETED");
       const target=existing
@@ -30,7 +31,7 @@ export async function GET(request:Request){
     },{isolationLevel:"Serializable"});
     const session=result.session;
     await appendAuditEvent({request,requestId:id,actorUserId:result.user.id,action:"AUTH_EMAIL_VERIFIED",entityType:"AuthChallenge",entityId:result.challengeId});
-    const response=NextResponse.redirect(new URL(result.next,new URL(request.url).origin),303);setSessionCookie(response,session.token,session.expiresAt,request);return response;
+    const response=NextResponse.redirect(new URL(result.next,requestAppOrigin(request)),303);setSessionCookie(response,session.token,session.expiresAt,request);return response;
   }catch(error){
     const code=error instanceof Error?error.message:"EMAIL_LINK_EXPIRED";
     if(code==="ACCOUNT_DELETED")return problem(id,410,code,"Account is no longer active","Contact support if you believe this is incorrect.");

@@ -4,20 +4,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { getPrisma } from "@/lib/db";
 import { appendStudioMemoryVersion } from "@/studio-v1/memory/service";
 
-export type EngineKind = "whiteboard" | "explainer" | "presenter";
+import { engineJobsDir, type EngineKind } from "./engine-paths";
+export { engineJobsDir, type EngineKind } from "./engine-paths";
 export const ENGINE_KINDS: EngineKind[] = ["whiteboard", "explainer", "presenter"];
-
-function engineDir(kind: EngineKind): string {
-  if (kind === "presenter")
-    return process.env.PRESENTER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "makehuman-lineart");
-  return kind === "whiteboard"
-    ? (process.env.WHITEBOARD_V3_RUNTIME_DIR ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime"))
-    : (process.env.EXPLAINER_ENGINE_DIR ?? path.join(process.cwd(), "engine_sources", "explainer-locks"));
-}
-
-export function engineJobsDir(kind: EngineKind): string {
-  return path.join(engineDir(kind), "out", `${kind}-jobs`);
-}
 
 export function friendlyEngineError(dir: string): string | undefined {
   try {
@@ -27,6 +16,20 @@ export function friendlyEngineError(dir: string): string | undefined {
     const direct = typeof statusRaw.error === "string" && statusRaw.error
       ? statusRaw.error
       : (typeof statusRaw.failureCode === "string" && statusRaw.failureCode ? statusRaw.failureCode : undefined);
+    if (statusRaw.status === "failed" && (!direct || /^engine exited \d+ with no outputs$/.test(direct) || direct === "ENGINE_EXIT_NONZERO")) {
+      const logPath = path.join(dir, "job.log");
+      const log = existsSync(logPath) ? readFileSync(logPath, "utf8").split("--- P8 dispatch").at(-1) ?? "" : "";
+      if (log.includes("WHITEBOARD_V3_EXECUTION_BODY_MISSING"))
+        return "The whiteboard renderer isn't installed on this server. Your narration is saved; retry after the renderer is restored.";
+      if (log.includes("WHITEBOARD_LANGUAGE_DATA_MISSING"))
+        return "The whiteboard planner's language data isn't installed on this server. Your narration is saved; retry after it is restored.";
+      if (log.includes("mkl_malloc: failed to allocate memory") || log.includes("The paging file is too small"))
+        return "The render server ran out of memory. Try again after freeing some memory.";
+      if (log.includes("NARRATION_PROVIDER_UNAVAILABLE") || (log.includes("edge_tts") && log.includes("WSServerHandshakeError: 403")))
+        return "The narration service couldn't generate your selected voice. Try again shortly or choose another voice.";
+      if (log.includes("NARRATION_ALIGNMENT_FAILED"))
+        return "The narration audio couldn't be prepared for rendering. Try again shortly.";
+    }
     if (direct) return direct;
     if (statusRaw.status !== "failed") return undefined;
     const outDir = path.join(dir, "out");
@@ -100,7 +103,7 @@ export function readEngineJob(kind: EngineKind, jobId: string): EngineJobRead {
       status: status === "done" || status === "failed" || status === "running" ? status : "unknown",
       phase: typeof progressRaw.phase === "string" ? progressRaw.phase : (typeof progressRaw.step === "string" ? progressRaw.step : undefined),
       outputs: statusRaw.outputs && typeof statusRaw.outputs === "object" ? statusRaw.outputs as Record<string, string> : undefined,
-      failureCode: (typeof statusRaw.error === "string" && statusRaw.error ? statusRaw.error : (typeof statusRaw.failureCode === "string" && statusRaw.failureCode ? statusRaw.failureCode : undefined)) ?? friendlyEngineError(dir),
+      failureCode: friendlyEngineError(dir),
       script: typeof requestRaw.script === "string" ? requestRaw.script : undefined,
       title: typeof requestRaw.title === "string" ? requestRaw.title : undefined,
     };

@@ -395,6 +395,9 @@ def build_plan(script: str, *, vtype: str = 'diagram',
 # Deterministic rules over WordNet (free, local); the output is ordinary
 # plan JSON the author can edit before rendering.
 try:
+    import nltk
+    # Keep local language data beside the models on the repository drive.
+    nltk.data.path.insert(0, str(Path(__file__).resolve().parents[2] / 'llm' / 'nltk'))
     from nltk.corpus import wordnet as _wn
     _wn.synsets('dog')
 except Exception:  # pragma: no cover - WordNet optional
@@ -578,6 +581,10 @@ def _noun_in_context(low: list, i: int, picked: set) -> bool:
     w = low[i]
     prev = low[i - 1] if i else ''
     if w in _SB_ADV or _relational(low, i):
+        return False
+    if _wn is not None and _wn.synsets(w, 'v') and not _wn.synsets(w, 'n'):
+        return False
+    if _wn is not None and w.endswith('ing') and _wn.synsets(w, 'v') and not _is_physical(w):
         return False
     if prev in _SB_DET:
         return True
@@ -1532,11 +1539,14 @@ def _drop_role(roles: list, n: int) -> None:
 
 def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                      wpm: float = 150.0) -> dict:
+    if _wn is None:
+        raise RuntimeError('WHITEBOARD_LANGUAGE_DATA_MISSING: install the Python requirements and run scripts/install-whiteboard-language.py')
     import pipeline_v3_narration_timed as p3
     p3.load_execution_body(None)
     import v3_board_renderer as v3
     v3.set_ink_only(True)
     v3.set_context(script)
+    v3.set_art_kit(None)
     # the domain kit this script speaks — detected up front so authoring
     # resolves every concept against it, then stamped on the plan so the
     # render resolves the same way
@@ -1559,12 +1569,13 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
             if got is not None:
                 maps.append(sm)
                 return got
-        tokens = _WORD_RE.findall(sent)
+        matches = list(_WORD_RE.finditer(sent))
+        tokens = [m.group() for m in matches]
         low = [t.lower().split("'")[0] for t in tokens]
         cands = []
         seen = set()
         for i, w in enumerate(low):
-            if len(w) < 3 or w in _STOP or w in seen:
+            if len(w) < 3 or w in _STOP or w in _SB_ADV or w in seen:
                 continue
             nxt = low[i + 1] if i + 1 < len(low) else ''
             if _wn is not None and i and _wn.synsets(w, 'v') and any(
@@ -1594,7 +1605,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 continue
             big = (f'{w} {_lemma(nxt)}' if nxt and nxt not in _STOP
                    else '')
-            if big and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
+            joined = bool(nxt) and not re.search(r'[,;:]', sent[matches[i].end():matches[i + 1].start()])
+            if big and joined and ((_wn is not None and _wn.synsets(big.replace(' ', '_')))
                         or v3.kit_exact(big)
                         or (_is_person(nxt) and not _is_person(w)
                             and _is_thing(w) and prev_det(low, i))
@@ -1629,6 +1641,8 @@ def build_storyboard(script: str, *, title: str = '', max_roles: int = 3,
                 seen.add(w)
                 continue
             if not _noun_in_context(low, i, picked_w) or w in _SB_NOT_ROLE:
+                continue
+            if not _is_physical(w) and v3.kit_exact(_lemma(w)) is None:
                 continue
             ic = v3.icon_for(_lemma(w), used)
             kit = isinstance(ic, tuple) and str(ic[1]).startswith('kit:')
@@ -2039,11 +2053,11 @@ def _detect_art_kit(script: str, v3) -> str:
     txt = ' ' + re.sub(r'[^a-z0-9]+', ' ', script.lower()) + ' '
     best, best_n = None, 0
     for dom, glyphs in v3._kits().items():
-        if dom == 'world':
+        if dom == 'world' or v3._kit_live(dom) is None:
             continue
-        hits = [k for meta in glyphs.values()
+        hits = {k for meta in glyphs.values()
                 for k in meta.get('keywords', ())
-                if f' {k} ' in txt]
+                if f' {k} ' in txt}
         if len(hits) > best_n:
             best, best_n = dom, len(hits)
     return best if best_n >= 3 else ''

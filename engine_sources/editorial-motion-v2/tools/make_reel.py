@@ -19,6 +19,8 @@ import argparse, json, os, re, subprocess, sys, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 from generate_voice import synth, align, VOICES  # noqa: E402
@@ -1140,8 +1142,7 @@ def main():
         manifest["treatment_source"] = tsource
         if storyboard:
             manifest["storyboard"] = str(fixture_dir / "storyboard.json")
-    for aspect in args.aspects.split(","):
-        a = aspect.strip()
+    def package_format(a):
         rd = out_dir / stem
         web = rd / f"{stem}_{a}_web.mp4"
         frames = rd / f"frames_{a}"
@@ -1154,9 +1155,11 @@ def main():
             w, h = dims[a]
             poster = rd / f"{stem}_{a}_poster.mp4"
             posterize(frames, web, poster, w, h, out_dir, first_frame=(book == "paperbook"))
-            manifest["outputs"][a] = str(poster)
+            return str(poster)
         else:
-            manifest["outputs"][a] = str(web)
+            return str(web)
+    manifest["outputs"] = render_aspects(
+        [a.strip() for a in args.aspects.split(",") if a.strip()], package_format)
     if not args.no_review:
         sys.path.insert(0, str(TOOLS))
         import film_review

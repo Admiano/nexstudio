@@ -1,17 +1,17 @@
 import path from "node:path";
-import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { requireSession } from "@/lib/route-auth";
 import { json, problem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
 import { createEngineDraft, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
 import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
+import { engineJobsDir } from "@/lib/engine-paths";
+import { explainerStyles } from "@/lib/explainer-catalog";
 
 export const runtime = "nodejs";
 
-const ENGINE = process.env.EXPLAINER_ENGINE_DIR
-  ?? path.join(process.cwd(), "engine_sources", "explainer-locks");
-const JOBS = path.join(ENGINE, "out", "explainer-jobs");
+const JOBS = engineJobsDir("explainer");
 const VOICES = [
   { id: "heart",   name: "Heart",   gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/heart.mp3" },
   { id: "sky",     name: "Sky",     gender: "female", accent: "American", engine: "Kokoro",           preview: "/voice-previews/sky.mp3" },
@@ -28,14 +28,8 @@ const VOICE_IDS = new Set(VOICES.map((v) => v.id));
 const ASPECTS = new Set(["16x9", "1x1", "9x16"]);
 
 function stylesList() {
-  try {
-    const doc = JSON.parse(readFileSync(path.join(ENGINE, "styles.json"), "utf8"));
-    return (doc.styles ?? []).map((s: any) => ({
-      id: s.id, name: s.name, tagline: s.tagline,
-      preview: s.preview ?? null, poster: s.poster ?? null,
-      variants: (s.variants ?? []).map((v: any) => ({ id: `${s.id}.${v.id}`, name: `${s.name} · ${v.name}`, tagline: v.tagline })),
-    }));
-  } catch { return []; }
+  try { return explainerStyles(); }
+  catch { return []; }
 }
 
 export async function GET(request: Request) {
@@ -51,8 +45,10 @@ export async function POST(request: Request) {
   catch { return problem(id, 400, "BAD_FORM", "Invalid form", "Send multipart/form-data."); }
 
   const style = String(form.get("style") ?? "photo_story");
-  const validStyles = new Set(stylesList().flatMap((s: any) => [s.id, ...s.variants.map((v: any) => v.id)]));
-  if (validStyles.size && !validStyles.has(style))
+  const validStyles = new Set(stylesList().flatMap((s) => [s.id, ...s.variants.map((v) => v.id)]));
+  if (!validStyles.size)
+    return problem(id, 503, "STYLE_CATALOG_UNAVAILABLE", "Styles unavailable", "The explainer style catalog could not be loaded. Try again shortly.");
+  if (!validStyles.has(style))
     return problem(id, 422, "STYLE_UNKNOWN", "Unknown style", `Pick one of: ${[...validStyles].join(", ")}.`);
 
   const script = String(form.get("script") ?? "").trim();

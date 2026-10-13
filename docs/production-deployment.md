@@ -122,7 +122,7 @@ echo "APP_ORIGIN=https://studio.yourdomain.com" >> .env
 | `WEB_PORT` | no | Host port for web (default 3000). Caddy proxies to it. |
 | `RENDER_QUEUE` | no | `on` (default). `off` reverts to in-process spawns — dev only. |
 | `STUDIO_MAX_QUEUED_RENDERS` | no | Backlog cap before 429 (default 25). |
-| `RENDER_WORKER_CONCURRENCY` | no | Jobs per worker (default 1 — ~1 per 4 CPU cores is the honest ratio). |
+| `RENDER_WORKER_CONCURRENCY` | no | Jobs per worker (default auto: available CPUs); positive overrides have no fixed maximum. |
 | `STORAGE_DRIVER` | no | `local` (default) or `s3` — see §8. |
 | `S3_*` | only with s3 | endpoint/bucket/keys/region/public base URL. |
 
@@ -206,7 +206,7 @@ presenter (Blender) ≈ 25–40 CPU-min.
 
 To scale out: run `docker compose up -d worker` on additional machines sharing
 the same `DATABASE_URL`, switch storage to S3, raise
-`RENDER_WORKER_CONCURRENCY` per box (~1 per 4 cores), raise
+`RENDER_WORKER_CONCURRENCY` per box if the automatic CPU count needs adjustment, raise
 `STUDIO_MAX_QUEUED_RENDERS` if you want a deeper queue before 429s.
 
 The constraint is queue wait, not money — renders are CPU-heavy and there is

@@ -1,0 +1,16 @@
+{
+  "schema": "StudioReviewerProfileV1",
+  "provider": "vercel",
+  "model": "xiaomi/mimo-v2.6-flash",
+  "baseUrl": "https://ai-gateway.vercel.sh/v1",
+  "apiKeyEnv": "VERCEL_AI_GATEWAY_API_KEY",
+  "apiMode": "chat_completions_prompt_json",
+  "reasoning": "high",
+  "departmentPrefix": "NEXMIND_EXECUTIVE_PRODUCER",
+  "departmentTasks": ["producer", "art_review", "storyboard_review", "cinematography_review", "editorial_review", "temporal_storyboard_review", "motion_review", "sound_review"],
+  "finalPrefixes": ["NEXMIND_FINAL_EXECUTIVE_PRODUCER", "NEXMIND_PERCEPTUAL_AUDITOR"],
+  "finalTasks": ["final_producer", "perceptual_auditor"],
+  "audioInputMode": "chat_file_audio",
+  "multimodalReviewMode": "separate",
+  "audioSampleRate": 16000
+}

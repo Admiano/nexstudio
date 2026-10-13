@@ -75,6 +75,8 @@ def resolve_execution_package(package_root: str | None = None) -> Path:
 
 def load_execution_body(package_root: str | None = None):
     runtime = resolve_execution_package(package_root)
+    import nltk
+    nltk.data.path.insert(0, str(REPO_ROOT / 'llm' / 'nltk'))
     if str(runtime) not in sys.path:
         sys.path.insert(0, str(runtime))
     import whiteboard_compiler  # noqa: E402
@@ -705,11 +707,11 @@ def render_production(
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     name = str(plan.get('production_id') or 'whiteboard-v3')
-    frames_dir = Path(tempfile.mkdtemp(prefix='wbv3-frames-'))
+    frames_dir = Path(tempfile.mkdtemp(prefix='wbv3-frames-', dir=out_dir))
     frame_count = 0
     try:
         for t, frame in render_frames(wbp, v3r, plan, ratio, fps):
-            frame.save(frames_dir / f'f{frame_count:05d}.png')
+            frame.save(frames_dir / f'f{frame_count:05d}.png', compress_level=1)
             frame_count += 1
 
         sfx_wav = None
@@ -733,6 +735,8 @@ def render_production(
         contact_sheet(frames_dir, times, fps, out_dir / f'{name}_QA.jpg')
     finally:
         if not keep_frames:
+            if not frames_dir.resolve().is_relative_to(out_dir.resolve()):
+                raise RuntimeError('Temporary frame directory escaped the render output directory')
             shutil.rmtree(frames_dir, ignore_errors=True)
 
     metrics = {

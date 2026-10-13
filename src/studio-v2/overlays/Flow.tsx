@@ -82,7 +82,7 @@ const MIND_STEPS = [
 ];
 
 const DEFAULT_VIDEO_TYPE: Record<string, string> = {
-  explainer: "tiles",
+  explainer: "photo_story",
   whiteboard: "kinetic-text",
   presenter: "presenter",
 };
@@ -107,7 +107,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
           } catch { /* fall through to defaults */ }
         }
         family = family ?? "explainer";
-        videoType = DEFAULT_VIDEO_TYPE[family.toLowerCase()] ?? videoType ?? "tiles";
+        videoType = DEFAULT_VIDEO_TYPE[family.toLowerCase()] ?? videoType ?? "photo_story";
         if (!alive) return;
         setMindStep(1);
         const engineKind = engineKindOf(family);
@@ -145,7 +145,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
               duration: flow.duration ?? 45,
             });
             if (s.status === "ready" && s.script) generatedScript = s.script;
-          } catch { /* verbatim-brief fallback */ }
+          } catch { /* Direction shows the unavailable narration state. */ }
           if (!alive) return;
           if (generatedScript) api.patchFlow({ generatedScript });
         }
@@ -178,7 +178,10 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
   }, [flow.stage === "mind"]);
 
   if (flow.stage === "mind") return <MindStage step={mindStep} />;
-  if (flow.stage === "closed") return <ClosedStage flow={flow} onClose={api.closeFlow} />;
+  if (flow.stage === "closed") return <ClosedStage flow={flow} onClose={api.closeFlow}
+    changeVoice={flow.jobKind === "explainer" && !!flow.error?.includes("selected voice")}
+    onRetry={flow.jobKind && (flow.script || flow.generatedScript)
+      ? () => api.patchFlow({ stage: "direction", error: undefined, jobId: undefined, jobKind: undefined, jobOutputs: undefined }) : undefined} />;
   if (flow.stage === "direction") return <DirectionStage flow={flow} api={api} />;
   if (flow.stage === "production") return <ProductionStage flow={flow} api={api} />;
   if (flow.stage === "review") return <ReviewStage flow={flow} api={api} refresh={refresh} />;
@@ -204,14 +207,18 @@ function MindStage({ step }: { step: number }) {
   );
 }
 
-function ClosedStage({ flow, onClose }: { flow: FlowState; onClose: () => void }) {
+function ClosedStage({ flow, onClose, onRetry, changeVoice }: { flow: FlowState; onClose: () => void; onRetry?: () => void; changeVoice: boolean }) {
   return (
-    <div className="mind-stage open" data-step="understand">
-      <div className="mind-wrap">
+    <div className="mind-stage closed-stage open" data-step="understand" id="closedStage">
+      <div className="mind-wrap" role="alert">
         <div className="micro">NexStudio</div>
-        <h2>Not open for new productions yet.</h2>
+        <h2>{flow.error ? "Your production couldn't complete." : "Not open for new productions yet."}</h2>
         <p>{flow.error || "This production type is being certified before it opens. Your brief is saved as a draft and nothing was charged."}</p>
-        <div className="mind-actions"><button className="v2-primary" onClick={onClose}>Back to Create</button></div>
+        {onRetry && <p>{changeVoice ? "Your narration is saved. Choose a local voice to retry without the online voice service." : "Your narration and settings are saved. Review them and retry."}</p>}
+        <div className="mind-actions">
+          {onRetry && <button className="v2-primary" onClick={onRetry}>{changeVoice ? "Change voice and retry" : "Review direction and retry"}</button>}
+          <button className="v2-primary" onClick={onClose}>Back to Create</button>
+        </div>
       </div>
     </div>
   );
@@ -225,9 +232,10 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   const costLabel = flow.amountMinor != null ? formatUSD(flow.amountMinor) : "…";
 
   const kind = engineKindOf(flow.family);
+  const narration = flow.script?.trim() || flow.generatedScript?.trim() || "";
   const [engine, setEngine] = useState(() => ({
     wbType: "kinetic-text", wbTheme: "light", wbAccent: "#2f6fb3",
-    style: "tiles", voice: "emma", speed: "1.0",
+    style: "photo_story", voice: "emma", speed: "1.0",
     ...(flow.engine ?? {}),
   }));
   // Studio defaults: saved voice/length fill anything the flow didn't already set.
@@ -243,21 +251,33 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [explainerVoices, setExplainerVoices] = useState<Array<{ id: string; label: string; tag: string; preview: string }>>([]);
+  const voiceOptions = kind === "explainer" ? explainerVoices : MS_VOICES;
   const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const playVoice = (id: string) => {
     const a = audioRef.current ?? (audioRef.current = new Audio());
     if (playingVoice === id) { a.pause(); setPlayingVoice(null); return; }
-    a.src = `/previews/voices/${id}.mp3`;
+    a.src = explainerVoices.find((v) => v.id === id)?.preview ?? `/previews/voices/${id}.mp3`;
     a.onended = () => setPlayingVoice(null);
     void a.play().then(() => setPlayingVoice(id)).catch(() => setPlayingVoice(null));
   };
   const [styles, setStyles] = useState<Array<{ id: string; name: string; tagline?: string }>>([]);
+  const [stylesLoading, setStylesLoading] = useState(true);
   useEffect(() => {
     if (kind !== "explainer") return;
     let alive = true;
     studioApi.explainerCatalog()
-      .then((c) => { if (alive && c.styles?.length) setStyles(c.styles); })
-      .catch(() => {});
+      .then((c) => {
+        if (!alive) return;
+        setExplainerVoices(c.voices.filter((v) => v.engine === "Kokoro" || v.engine === "Microsoft neural").map((v) => ({
+          id: v.id, label: v.name, tag: `${v.accent} · ${v.engine === "Kokoro" ? "local" : "online"}`, preview: v.preview,
+        })));
+        if (!c.styles?.length) return;
+        setStyles(c.styles);
+        setEngine((e) => c.styles.some((s) => s.id === e.style) ? e : { ...e, style: c.styles[0].id });
+      })
+      .catch(() => {})
+      .finally(() => { if (alive) setStylesLoading(false); });
     return () => { alive = false; };
   }, [kind]);
 
@@ -269,7 +289,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     studioApi.script({
       brief: flow.prompt,
       family: flow.family ?? kind,
-      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : kind === "presenter" ? "presenter" : "tiles"),
+      videoType: flow.videoType ?? (kind === "whiteboard" ? "hand-drawn-board" : kind === "presenter" ? "presenter" : "photo_story"),
       duration: flow.duration ?? 45,
       beats: flow.beats?.map((b) => ({ purposeTitle: b.purposeTitle, description: b.description })),
     }).then((r) => {
@@ -314,9 +334,17 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   async function createVideo() {
     setBusy(true);
     try {
+      if (kind && !narration) {
+        api.notify("Narration is unavailable. Paste your narration in Script mode or try again after NexMind is available.");
+        return;
+      }
+      if (kind === "explainer" && !styles.some((s) => s.id === engine.style)) {
+        api.notify("The explainer styles are unavailable. Reopen Create to try again.");
+        return;
+      }
       if (kind) {
         const fd = new FormData();
-        fd.set("script", flow.script ?? flow.generatedScript ?? flow.prompt ?? "");
+        fd.set("script", narration);
         fd.set("voice", engine.voice);
         fd.set("aspects", "16x9,1x1,9x16");
         fd.set("duration", String(flow.duration ?? 45));
@@ -392,16 +420,18 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </div>
           </section>
           <section className="direction-briefline reveal" style={{ ["--d" as string]: ".1s" }}><div><label>{flow.script ? "Your script" : "Your brief"}</label><b>{flow.prompt}</b></div><button onClick={api.closeFlow}>Edit brief</button></section>
-          {kind && !flow.script && (scriptState === "ready" || scriptState === "pending") && (
+          {kind && !flow.script && (
             <section className="direction-script reveal" style={{ ["--d" as string]: ".13s" }}>
               <div className="direction-script-head">
                 <label>Narration, written by NexMind</label>
-                <span>{scriptState === "ready" ? "Read exactly as written" : "Writing…"}</span>
+                <span>{scriptState === "ready" ? "Read exactly as written" : scriptState === "pending" ? "Writing…" : "Unavailable"}</span>
               </div>
               {scriptState === "ready" && flow.generatedScript ? (
                 <ol className="direction-script-lines">
                   {flow.generatedScript.split("\n").filter(Boolean).map((l, i) => <li key={i}>{l}</li>)}
                 </ol>
+              ) : scriptState === "unavailable" ? (
+                <p>NexMind couldn't write your narration. Go back and paste narration in Script mode, or try again when NexMind is available.</p>
               ) : (
                 <div className="direction-script-lines pending"><i /><i /><i /></div>
               )}
@@ -511,22 +541,23 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                   <div className="opt-group">
                     <label>Style <span className="opt-hint">hover to preview · tap to select</span></label>
                     <div className="opt-row previews">
-                      {(styles.length ? styles : [{ id: "tiles", name: "Tiles" }]).map((s) => (
+                      {styles.map((s) => (
                         <PreviewChip key={s.id} video={`/previews/xr-${s.id}.mp4`} label={s.name} desc={s.tagline} selected={engine.style === s.id} onSelect={() => setOpt("style", s.id)} />
                       ))}
+                      {!styles.length && <span>{stylesLoading ? "Loading explainer styles…" : "Explainer styles are unavailable. Reopen Create to try again."}</span>}
                     </div>
                   </div>
                 </section>
               )}
               <section className="options-band pacing open">
                 <div className="band-head">
-                  <span className="band-head-copy"><label>Voice & pacing</label><b>{MS_VOICES.find((v) => v.id === engine.voice)?.label ?? "Emma"} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
+                  <span className="band-head-copy"><label>Voice & pacing</label><b>{voiceOptions.find((v) => v.id === engine.voice)?.label ?? engine.voice} · {flow.duration ?? 45}s · {engine.speed}×</b></span>
                 </div>
                 <div className="band-body">
                     <div className="opt-group">
-                      <label>Voice <span className="opt-hint">Microsoft neural · ▶ plays a sample</span></label>
+                      <label>Voice <span className="opt-hint">{kind === "explainer" ? "Local voices work without an online service" : "Microsoft neural"} · ▶ plays a sample</span></label>
                       <div className="opt-row">
-                        {MS_VOICES.map((v) => (
+                        {voiceOptions.map((v) => (
                           <div key={v.id} className={`voice-chip ${engine.voice === v.id ? "on" : ""}`}>
                             <button type="button" className="voice-name" onClick={() => setOpt("voice", v.id)}><b>{v.label}</b><span>{v.tag}</span></button>
                             <button type="button" aria-label={`Hear ${v.label}`} className="voice-play" onClick={() => playVoice(v.id)}>{playingVoice === v.id ? "■" : "▶"}</button>
@@ -592,7 +623,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         </div>
         <div className="direction-dock-inner">
           <div className="adjuster"><span className="spark">✦</span><input value={adjust} onChange={(e) => setAdjust(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") setAdjust(""); }} placeholder="Tell NexMind what to change…" /><button aria-label="Apply direction change" className="adjust-go" onClick={() => setAdjust("")}>↑</button></div>
-          <button aria-label="Create video" className="credit-next" disabled={busy} onClick={() => void createVideo()}><span className="full">{busy ? "Starting…" : <>Create video {!kind && <span className="cost-label">· <b>{costLabel}</b></span>}</>}</span><span>→</span></button>
+          <button aria-label="Create video" className="credit-next" disabled={busy || (!!kind && !narration) || (kind === "explainer" && !styles.some((s) => s.id === engine.style))} onClick={() => void createVideo()}><span className="full">{busy ? "Starting…" : <>Create video {!kind && <span className="cost-label">· <b>{costLabel}</b></span>}</>}</span><span>→</span></button>
         </div>
       </div>
     </div>

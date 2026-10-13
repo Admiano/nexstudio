@@ -6,12 +6,11 @@ import { json, problem } from "@/lib/http";
 import { getPrisma } from "@/lib/db";
 import { createEngineDraft, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
 import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
+import { engineJobsDir } from "@/lib/engine-paths";
 
 export const runtime = "nodejs";
 
-const ENGINE = process.env.WHITEBOARD_V3_RUNTIME_DIR
-  ?? path.join(process.cwd(), "engine_sources", "whiteboard-v3-runtime");
-const JOBS = path.join(ENGINE, "out", "whiteboard-jobs");
+const JOBS = engineJobsDir("whiteboard");
 
 const TYPES = {
   "kinetic-text": { id: "kinetic-text", name: "Text-Driven Whiteboard", pipeline: "kinetic" },

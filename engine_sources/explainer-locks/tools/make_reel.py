@@ -6,7 +6,7 @@ Pipeline: script/voice-file -> voice.mp3 + alignment.json -> auto-treatment
 media_library) -> regression_pack render -> web file -> poster-framed file.
 
   python3 tools/make_reel.py --script "A few years ago, ..." --voice andrew \
-      --style tiles --media desk.png clip.mp4 --out out/my-reel
+      --style photo_story --media desk.png clip.mp4 --out out/my-reel
   python3 tools/make_reel.py --voice-file vo.mp3 --style sketch --aspects 1x1 --out out/r2
   python3 tools/make_reel.py --treatment fixtures/x/treatment.json --fixture-voice fixtures/x --out out/r3
 
@@ -17,6 +17,8 @@ import argparse, json, os, re, subprocess, sys, uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 TOOLS = ROOT / "tools"
 sys.path.insert(0, str(TOOLS))
 from generate_voice import synth, align, VOICES  # noqa: E402
@@ -1140,7 +1142,7 @@ def main():
     ap.add_argument("--script"); ap.add_argument("--script-file"); ap.add_argument("--voice-file")
     ap.add_argument("--brief", help="topic/brief — authored into a script by tools/write_script.py")
     ap.add_argument("--voice", default="andrew", choices=sorted(VOICES))
-    ap.add_argument("--style", default="tiles")
+    ap.add_argument("--style", default="photo_story")
     ap.add_argument("--media", nargs="*", default=[])
     ap.add_argument("--duration", type=float, default=0,
                     help="target narration seconds (guides --brief script authoring)")
@@ -1186,7 +1188,9 @@ def main():
 
     log(f"rendering {args.aspects} @ {style['id']} ...")
     env = dict(os.environ)
-    env["PATH"] = os.path.expanduser("~/.nvm/versions/node/v24.19.0/bin") + ":" + env["PATH"]
+    node_bin = Path.home() / ".nvm/versions/node/v24.19.0/bin"
+    if node_bin.is_dir():
+        env["PATH"] = str(node_bin) + os.pathsep + env.get("PATH", "")
     r = subprocess.run([sys.executable, str(TOOLS / "regression_pack.py"),
                         "--fixture", fixture_dir.name, "--aspects", args.aspects,
                         "--out", str(out_dir.resolve())],
@@ -1198,8 +1202,7 @@ def main():
     stem = fixture_dir.name
     dims = {"16x9": (1920, 1080), "1x1": (1080, 1080), "9x16": (1080, 1920)}
     manifest = {"film_id": film_id, "style": style["id"], "outputs": {}}
-    for aspect in args.aspects.split(","):
-        a = aspect.strip()
+    def package_format(a):
         rd = out_dir / stem
         web = rd / f"{stem}_{a}_web.mp4"
         frames = rd / f"frames_{a}"
@@ -1212,9 +1215,11 @@ def main():
             w, h = dims[a]
             poster = rd / f"{stem}_{a}_poster.mp4"
             posterize(frames, web, poster, w, h, out_dir)
-            manifest["outputs"][a] = str(poster)
+            return str(poster)
         else:
-            manifest["outputs"][a] = str(web)
+            return str(web)
+    manifest["outputs"] = render_aspects(
+        [a.strip() for a in args.aspects.split(",") if a.strip()], package_format)
     (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=1))
     log("done:")
     for a, p in manifest["outputs"].items():

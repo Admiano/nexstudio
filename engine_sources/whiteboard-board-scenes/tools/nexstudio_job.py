@@ -27,6 +27,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
+from parallel_aspects import render_aspects
 
 VOICES = {
     "emma": "en-US-EmmaMultilingualNeural",
@@ -74,14 +76,20 @@ def build_voice(args, script_text: str | None, work: Path) -> tuple[Path, Path |
         "vo_synth.synth_edge(%r, %r, voice=%r, speed=%r)"
         % (str(ROOT), text, str(vo_wav), VOICES[args.voice], speed)])
     words = work / "vo_words.json"
+    if words.exists():
+        print('[voice] Using Microsoft word timings; local alignment skipped', flush=True)
+        return vo_wav, words
     try:
+        # The timing helper applies an explicit override, or uses available CPUs.
+        timing_env = dict(os.environ)
         sh([WHISPER_PYTHON, "-c",
             "import sys; sys.path.insert(0, %r); import vo_synth; "
-            "vo_synth.word_timings(%r, %r, 'base', %r)"
-            % (str(ROOT), str(vo_wav), str(words), text)])
+            "vo_synth.word_timings(%r, %r, 'small', %r)"
+            % (str(ROOT), str(vo_wav), str(words), text)], env=timing_env)
         return vo_wav, words
-    except Exception:
-        return vo_wav, None
+    except Exception as error:
+        print(str(error), file=sys.stderr)
+        raise RuntimeError('NARRATION_ALIGNMENT_FAILED: could not prepare narration timing') from error
 
 
 def build_plan(args, script_text: str, work: Path, aspects: list[str]) -> Path:
@@ -138,17 +146,19 @@ def main() -> int:
         raise RuntimeError("SCRIPT_REQUIRED: send --script or --voice-file")
 
     aspect_list = [a.strip() for a in args.aspects.split(",") if a.strip()]
+    # Refuse an invalid visual plan before spending time on narration.
+    progress(phase="direction")
+    plan_path = build_plan(args, script_text or "", work, aspect_list)
     progress(phase="voice")
     vo_wav, words_json = build_voice(args, script_text, work)
     if args.word_timings:
         words_json = Path(args.word_timings)
-    progress(phase="direction")
-    plan_path = build_plan(args, script_text or "", work, aspect_list)
 
     pipeline = ROOT / PIPELINES[args.type]
-    outputs: dict[str, str] = {}
-    for ai, aspect in enumerate(aspect_list):
-        progress(phase="render", aspect=aspect, aspectsDone=ai, aspectsTotal=len(aspect_list))
+    active = list(aspect_list)
+    progress(phase="render", aspectsActive=active, aspectsDone=0, aspectsTotal=len(aspect_list))
+
+    def render(aspect):
         ratio_dir = out / aspect.replace(":", "x")
         pipeline_ratio = aspect.replace("x", ":") if args.type == "kinetic" else aspect
         cmd = [sys.executable, str(pipeline), str(plan_path),
@@ -168,8 +178,15 @@ def main() -> int:
                 "WHITEBOARD_V3_SYSTEM_PACKAGE": os.environ.get(
                     "WHITEBOARD_V3_SYSTEM_PACKAGE", "")})
         mp4s = sorted(ratio_dir.glob("*.mp4"))
-        if mp4s:
-            outputs[aspect] = str(mp4s[0])
+        if not mp4s:
+            raise RuntimeError(f"RENDER_OUTPUT_MISSING: {aspect}")
+        return str(mp4s[0])
+
+    def completed(aspect, count, total):
+        active.remove(aspect)
+        progress(phase="render", aspectsActive=list(active), aspectsDone=count, aspectsTotal=total)
+
+    outputs = render_aspects(aspect_list, render, completed)
 
     progress(phase="packaging", aspectsDone=len(outputs), aspectsTotal=len(aspect_list))
     (out / "manifest.json").write_text(json.dumps(

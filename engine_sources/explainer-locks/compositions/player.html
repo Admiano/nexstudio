@@ -27,7 +27,13 @@
     fontBase: '../assets/fonts/',
     peepsBase: '../assets/peeps/',
     // Compiled plans carry absolute media paths; the capture server maps them under a prefix.
-    assetUrl: (p) => (/^https?:|^\//.test(p) && assetPrefix ? assetPrefix + p : p),
+    assetUrl: (p) => {
+      if (!assetPrefix || /^https?:/.test(p)) return p;
+      const nativePath = p.replace(/\\/g, '/');
+      if (!/^(\/|[A-Za-z]:\/)/.test(nativePath)) return p;
+      const absolutePath = nativePath.startsWith('/') ? nativePath : '/' + nativePath;
+      return assetPrefix + encodeURI(absolutePath).replace(/[?#]/g, encodeURIComponent);
+    },
   });
   const hud = document.getElementById('hud');
   if (q.get('hud')) hud.hidden = false;

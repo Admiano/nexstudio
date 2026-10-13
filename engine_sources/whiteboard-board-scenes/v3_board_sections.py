@@ -1142,6 +1142,9 @@ def _sb_fill(group, rect, lane, unit=None, art_cap=0.72, person_cap=0.78,
     uy0 = min(e['box'][1] for e in sol)
     uy1 = max(e['box'][3] for e in sol)
     lane_b = max(lane(e) for e in sol)
+    # A label-free scene still needs visible space between wrapped rows.
+    # Reserving only label height makes adjacent drawings share an edge.
+    row_gap = lane_b + min(w, h) * 0.035
     # a wide union on a tall rect is width-bound: scale can't grow, so
     # elements stay small with void between and around them. Re-wrap the
     # row into the row count whose re-packed union best matches the rect's
@@ -1169,7 +1172,7 @@ def _sb_fill(group, rect, lane, unit=None, art_cap=0.72, person_cap=0.78,
                          min(e['box'][0] for e in r) for r in rows)
                 rh = (sum(max(e['box'][3] for e in r) -
                           min(e['box'][1] for e in r) for r in rows)
-                      + lane_b * (len(rows) - 1))
+                      + row_gap * (len(rows) - 1))
                 return rw / max(1.0, rh)
 
             best = min(range(2, min(4, len(xs)) + 1),
@@ -1188,12 +1191,12 @@ def _sb_fill(group, rect, lane, unit=None, art_cap=0.72, person_cap=0.78,
                              max(e['box'][2] for e in r),
                              max(e['box'][3] for e in r)) for r in rows]
                 total = (sum(u[3] - u[1] for u in r_unions)
-                         + lane_b * (len(rows) - 1))
+                         + row_gap * (len(rows) - 1))
                 y = y0 + max(0.0, (avail_h - total) / 2)
                 for row, (rx0, ry0, rx1, ry1) in zip(rows, r_unions):
                     tx = x0 + w / 2 - (rx0 + rx1) / 2
                     ty = y - ry0
-                    y += (ry1 - ry0) + lane_b
+                    y += (ry1 - ry0) + row_gap
                     for e in row:
                         b = e['box']
                         e['box'] = (b[0] + tx, b[1] + ty,
@@ -2974,14 +2977,17 @@ def _sb_scene(sec, si, plan, W, H, t0, t1, fade, uid, figure_unit=None,
                 dx_ = (tb_[0] - gap_) - pb_[2]
                 lo_ = max((o['box'][2] + gap_ for o in els
                            if o is not e and o.get('box')
-                           and o['box'][2] <= pb_[0] + 1), default=L)
+                           and o['box'][2] <= pb_[0] + 1), default=float('-inf'))
                 dx_ = max(dx_, lo_ - pb_[0])
             else:
                 dx_ = (tb_[2] + gap_) - pb_[0]
                 hi_ = min((o['box'][0] - gap_ for o in els
                            if o is not e and o.get('box')
-                           and o['box'][0] >= pb_[2] - 1), default=R)
+                           and o['box'][0] >= pb_[2] - 1), default=float('inf'))
                 dx_ = min(dx_, hi_ - pb_[2])
+            # This composition may still be wider than the frame. The fill
+            # pass below fits or wraps the whole group; clamping one figure
+            # to L/R here can push it into the target it is pointing at.
             if dx_ * ((tb_[0] + tb_[2]) - (pb_[0] + pb_[2])) > 0:
                 e['box'] = (pb_[0] + dx_, pb_[1], pb_[2] + dx_, pb_[3])
             if act_ == 'climb' and e['kind'] == 'person':

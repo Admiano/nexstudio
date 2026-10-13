@@ -44,7 +44,10 @@ function serve() {
     const srv = http.createServer((req, res) => {
       const url = decodeURIComponent(req.url.split('?')[0]);
       // /fs/<absolute path> exposes compiled-plan asset paths; everything else is the package tree.
-      const file = url.startsWith('/fs/') ? url.slice(3) : path.join(ROOT, url);
+      const nativePath = url.startsWith('/fs/') ? url.slice(3) : null;
+      const file = nativePath
+        ? (process.platform === 'win32' && /^\/[A-Za-z]:\//.test(nativePath) ? nativePath.slice(1) : nativePath)
+        : path.join(ROOT, url);
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) { res.writeHead(404); res.end(); return; }
       const stat = fs.statSync(file);
       const type = MIME[path.extname(file)] || 'application/octet-stream';
@@ -322,11 +325,20 @@ async function main() {
 
   const srv = await serve();
   const port = srv.address().port;
-  const url = `http://127.0.0.1:${port}/compositions/player.html?plan=/fs${planPath}&assets=/fs&v=${fs.statSync(planPath).mtimeMs}`;
+  const planFile = planPath.replace(/\\/g, '/');
+  const query = new URLSearchParams({
+    plan: `/fs${planFile.startsWith('/') ? '' : '/'}${planFile}`,
+    assets: '/fs', v: String(fs.statSync(planPath).mtimeMs),
+  });
+  const url = `http://127.0.0.1:${port}/compositions/player.html?${query}`;
   const chromePath = findChrome(arg('--chrome', ''));
-  // Headless workers each own a browser process, so they scale with cores. The desktop CDP browser
-  // has one foreground tab — background tabs are throttled — so it only ever gets one worker.
-  const workers = chromePath ? Math.max(1, Number(arg('--workers', Math.min(8, os.cpus().length)))) : 1;
+  // Auto uses available CPUs without a fixed maximum or memory-based cap.
+  const setting = String(arg('--workers', process.env.RENDER_FRAME_WORKERS || 'auto')).trim().toLowerCase();
+  const requestedWorkers = setting === 'auto' ? os.availableParallelism() : Number(setting);
+  if (!Number.isSafeInteger(requestedWorkers) || requestedWorkers < 1) {
+    throw new Error('RENDER_FRAME_WORKERS / --workers must be auto or a positive integer');
+  }
+  const workers = chromePath ? requestedWorkers : 1;
   const errors = [];
   const total = Math.ceil(((limit || plan.duration_ms) * fps) / 1000);
   const t0 = Date.now();
@@ -347,7 +359,7 @@ async function main() {
     await page.setViewportSize({ width: plan.output.w, height: plan.output.h });
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
     page.on('pageerror', (e) => errors.push(String(e)));
-    await page.goto(url, { waitUntil: 'networkidle' });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await page.waitForFunction('window.__em2Ready === true || window.__em2Error', null, { timeout: 60000 }).catch(() => {});
     const err = await page.evaluate(() => window.__em2Error || (window.__em2Ready ? null : 'runtime never became ready'));
     if (err) throw new Error(`${err}\n${errors.join('\n')}`);

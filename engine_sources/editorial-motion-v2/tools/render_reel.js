@@ -331,7 +331,7 @@ async function main() {
   {
     const { execFileSync } = require('child_process');
     const bake = path.join(__dirname, 'bake_motion.cjs');
-    const motionDir = path.join(outDir, 'work');
+    const motionDir = path.join(outDir, `work_${plan.aspect}`);
     let baked = 0;
     plan.beats.forEach((b, i) => {
       const m = b.figure && b.figure.motion;
@@ -375,7 +375,12 @@ async function main() {
   const chromePath = findChrome(arg('--chrome', ''));
   // Headless workers each own a browser process, so they scale with cores. The desktop CDP browser
   // has one foreground tab — background tabs are throttled — so it only ever gets one worker.
-  const workers = chromePath ? Math.max(1, Number(arg('--workers', Math.min(8, os.cpus().length)))) : 1;
+  const setting = String(arg('--workers', process.env.RENDER_FRAME_WORKERS || 'auto')).trim().toLowerCase();
+  const requestedWorkers = setting === 'auto' ? os.availableParallelism() : Number(setting);
+  if (!Number.isSafeInteger(requestedWorkers) || requestedWorkers < 1) {
+    throw new Error('RENDER_FRAME_WORKERS / --workers must be auto or a positive integer');
+  }
+  const workers = chromePath ? requestedWorkers : 1;
   const errors = [];
   const total = Math.ceil(((limit || plan.duration_ms) * fps) / 1000);
   const t0 = Date.now();
