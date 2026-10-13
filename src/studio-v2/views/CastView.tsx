@@ -9,7 +9,7 @@ import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
 import LiveCastStage from "../cast/LiveCastStage";
 import {castRenderConfig} from "../cast/render-config";
 import {
-  DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
+  DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEMALE_FORMAL_OUTFITS, MALE_FORMAL_OUTFITS, FORMAL_SUIT_COLORS,FORMAL_TIE_COLORS,isFormalOutfit, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
   MALE_BOTTOMS, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
   MALE_OUTFIT_PIECES, malePieces, maleWatchAvailable, normalizeCastSpec,
   type CastMember, type CastSpec,
@@ -39,9 +39,9 @@ function specSummary(s0: CastSpec): string {
   }
   if (s.outfit?.kind) {
     const label = s.character === "female"
-      ? FEM_DRESSES.find((x) => x.key === s.outfit!.kind)?.label
-      : MALE_OUTFITS.find((x) => x.key === s.outfit!.kind)?.label;
-    const colour = s.character === "female"
+      ? [...FEM_DRESSES,...FEMALE_FORMAL_OUTFITS].find((x) => x.key === s.outfit!.kind)?.label
+      : [...MALE_OUTFITS,...MALE_FORMAL_OUTFITS].find((x) => x.key === s.outfit!.kind)?.label;
+    const colour = isFormalOutfit(s.outfit!.kind) ? FORMAL_SUIT_COLORS.find((x) => x.key === s.outfit!.color)?.label : s.character === "female"
       ? FEM_DRESS_COLORS.find((x) => x.key === s.outfit!.color)?.label
       : MALE_TOP_COLORS.find((x) => x.key === s.outfit!.color)?.label;
     bits.push(`${(colour ?? "").toLowerCase()} ${(label ?? s.outfit.kind).toLowerCase()}`.trim());
@@ -103,7 +103,10 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
   const patchOutfitKind = (kind: string) => {
     setSpec((s) => normalizeCastSpec({
       ...s,
-      outfit: { kind, color: s.outfit?.color ?? undefined, ...(s.character==="male"&&MALE_OUTFIT_PIECES[kind]?{pieces:{...MALE_OUTFIT_PIECES[kind]}}:{}) },
+      outfit: isFormalOutfit(kind)
+        ? { kind, color: isFormalOutfit(s.outfit?.kind) ? s.outfit?.color : "navy",
+            pieces: { tieColor: isFormalOutfit(s.outfit?.kind) ? s.outfit?.pieces?.tieColor ?? "burgundy" : "burgundy" } }
+        : { kind, color: undefined, ...(s.character==="male"&&MALE_OUTFIT_PIECES[kind]?{pieces:{...MALE_OUTFIT_PIECES[kind]}}:{}) },
     }, s.character));
   };
 
@@ -114,6 +117,7 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
     }, s.character));
   };
 
+  const patchTieColor=(tieColor:string)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{tieColor}}}));
   const patchPieces=(values:Record<string,string>)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{...malePieces(s),...values}}}));
 
   const save = async () => {
@@ -317,7 +321,34 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                 </div>
               )}
 
-              {spec.character === "female" ? (
+              <div className="identity-group">
+                <div className="identity-group-head"><label>Formal wear</label><span>Tailored looks for hosts, interviews and presentations</span></div>
+                <div className="cast-image-options">
+                  {(spec.character === "female" ? FEMALE_FORMAL_OUTFITS : MALE_FORMAL_OUTFITS).map(o => (
+                    <OptionImage key={o.key} character={spec.character} category="formal" option={o.key} label={o.label}
+                      selected={spec.outfit?.kind===o.key} onSelect={()=>patchOutfitKind(o.key)} />
+                  ))}
+                </div>
+              </div>
+              {isFormalOutfit(spec.outfit?.kind) && (
+                <>
+                  <div className="identity-group">
+                    <div className="identity-group-head"><label>Suit colour</label><span>Independent of the tie</span></div>
+                    <div className="identity-color-row">
+                      {FORMAL_SUIT_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Suit ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.color===c.key} onClick={()=>patchOutfitColor(c.key)}/>)}
+                      <CustomColour label="Custom suit colour" value={colourValue(spec.outfit?.color,FORMAL_SUIT_COLORS)} onChange={patchOutfitColor}/>
+                    </div>
+                  </div>
+                  <div className="identity-group">
+                    <div className="identity-group-head"><label>Tie colour</label><span>Independent of the suit</span></div>
+                    <div className="identity-color-row">
+                      {FORMAL_TIE_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Tie ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.pieces?.tieColor===c.key} onClick={()=>patchTieColor(c.key)}/>)}
+                      <CustomColour label="Custom tie colour" value={colourValue(spec.outfit?.pieces?.tieColor,FORMAL_TIE_COLORS)} onChange={patchTieColor}/>
+                    </div>
+                  </div>
+                </>
+              )}
+              {isFormalOutfit(spec.outfit?.kind) ? null : spec.character === "female" ? (
                 <>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Dress style</label><span>shape and cut</span></div>

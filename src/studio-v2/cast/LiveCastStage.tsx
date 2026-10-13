@@ -5,7 +5,7 @@ import {GLTFLoader,type GLTF} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import AvatarStage,{type AvatarPreviewState} from './AvatarStage';
 import {environmentImage,environmentAspect} from './environments';
 import {hairShadeRatio,hairTint,liveColours,luminance,selectLiveParts,tintRatio,type LiveManifest,type LivePart,type LiveSelection} from './live3d-parts';
-import {normalizeCastSpec,type CastSpec} from './spec';
+import {normalizeCastSpec,isFormalOutfit,type CastSpec} from './spec';
 
 const BASE='/api/v1/studio/cast/live3d/';
 const FRAME={x:-0.42,y:1.16,height:1.36,aspect:3/4};
@@ -109,7 +109,7 @@ async function assemble(spec:CastSpec,manifest:LiveManifest,selection:LiveSelect
  return group;
 }
 
-export default function LiveCastStage({spec,className,onStatus}:{spec:CastSpec;className?:string;onStatus?:(state:AvatarPreviewState)=>void}){
+function LiveCastStageImpl({spec,className,onStatus}:{spec:CastSpec;className?:string;onStatus?:(state:AvatarPreviewState)=>void}){
  const host=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),state=useRef<{renderer:THREE.WebGLRenderer;scene:THREE.Scene;camera:THREE.OrthographicCamera;outline:Outline;style:LiveManifest['outline']}|null>(null);
  const [noWebgl,setNoWebgl]=useState(false),[failedKey,setFailedKey]=useState<string|null>(null),[readyKey,setReadyKey]=useState<string|null>(null);
  const statusRef=useRef(onStatus);statusRef.current=onStatus;
@@ -141,4 +141,11 @@ export default function LiveCastStage({spec,className,onStatus}:{spec:CastSpec;c
   <canvas ref={canvas} role="img" aria-label={`${spec.character==='female'?'Female':'Male'} presenter preview`} style={{position:'absolute',inset:0,width:'100%',height:'100%'}}/>
   {!ready&&<div className="cast-preview-status cast-preview-status-pending" role="status"><span className="cast-preview-spinner"/><span>Loading presenter…</span></div>}
  </div></>;
+}
+
+/** New formal suits are rendered by the same Blender renderer as the final film.
+ * Do not substitute an unrelated 3D garment or an outdated cached GLB. */
+export default function LiveCastStage(props:{spec:CastSpec;className?:string;onStatus?:(state:AvatarPreviewState)=>void}){
+ if(isFormalOutfit(props.spec.outfit?.kind))return <AvatarStage {...props}/>;
+ return <LiveCastStageImpl {...props}/>;
 }

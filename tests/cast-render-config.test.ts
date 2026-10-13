@@ -39,4 +39,24 @@ for(const skin of SKINS){
  assert.equal(castRenderConfig({...DEFAULT_SPEC.female,skin:skin.key,lip:'rose'}).env.CAST_LIP_HEX,'');
  assert.equal(castRenderConfig({...DEFAULT_SPEC.female,skin:skin.key,lip:'red'}).env.CAST_LIP_HEX,'B3202A');
 }
-assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-corrected-original-performance-v20-upper-thigh');
+assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-formalwardrobe-v21-upper-thigh');
+
+const fFormal=normalizeCastSpec({...DEFAULT_SPEC.female,outfit:{kind:'formal-statement',color:'burgundy',pieces:{tieColor:'#bb4422'}}});
+assert.equal(fFormal.outfit!.kind,'formal-statement');
+assert.equal(fFormal.outfit!.pieces?.tieColor,'#BB4422');
+assert.equal(fFormal.neck,null);
+assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_ID,'female-statement');
+assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_SUIT_HEX,'602D3E');
+assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_TIE_HEX,'BB4422');
+const mFormal=normalizeCastSpec({...DEFAULT_SPEC.male,outfit:{kind:'formal-double-breasted',color:'#334455',pieces:{tieColor:'champagne'}}});
+assert.equal(castRenderConfig(mFormal).env.CAST_FORMAL_ID,'male-double-breasted');
+assert.equal(castRenderConfig(mFormal).env.CAST_MALE_LOOK,'O3');
+assert.equal(castRenderConfig(mFormal).env.CAST_FORMAL_SUIT_HEX,'334455');
+assert.equal(castRenderConfig(mFormal).env.CAST_FORMAL_TIE_HEX,'BEA479');
+assert.equal(castRenderConfig({...mFormal,outfit:{...mFormal.outfit!,pieces:{tieColor:'black'}}}).env.CAST_FORMAL_SUIT_HEX,'334455');
+assert.notEqual(castRenderConfig(mFormal).env.CAST_FORMAL_TIE_HEX,castRenderConfig({...mFormal,outfit:{...mFormal.outfit!,pieces:{tieColor:'black'}}}).env.CAST_FORMAL_TIE_HEX);
+assert.equal(castSpecSchema.safeParse(mFormal).success,true);
+assert.equal(castSpecSchema.safeParse({...mFormal,outfit:{...mFormal.outfit!,pieces:{tieColor:'not-hex'}}}).success,false);
+assert.equal(castSpecSchema.safeParse({...mFormal,outfit:{...mFormal.outfit!,pieces:{tieColor:'black',bottom:'chinos'}}}).success,false);
+assert.equal(normalizeCastSpec({...mFormal,outfit:{kind:'formal-bogus',color:'black'}}).outfit!.kind,'o3');
+console.log('PASS formal cast wardrobe, independently persisted suit/tie colours and gender-safe catalog');
