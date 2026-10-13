@@ -119,6 +119,7 @@ def main():
     output=args.output_dir.expanduser().resolve()
     output.mkdir(parents=True,exist_ok=True)
     for path in [EXPERIMENT/"donor_suit_fit_uv.py",
+                 EXPERIMENT/"hide_original_formal_competitors.py",
                  EXPERIMENT/"shoe_female_cc0_fit.py",
                  EXPERIMENT/"suit_illustrated_finish_trial.py",
                  EXPERIMENT/"wardrobe_threeq.py",
@@ -141,6 +142,7 @@ def main():
         command=[
             str(blender),"-b",str(scene),"-t","4","--python-exit-code","1",
             "--python",str(EXPERIMENT/"donor_suit_fit_uv.py"),
+            "--python",str(EXPERIMENT/"hide_original_formal_competitors.py"),
             "--python",str(EXPERIMENT/"shoe_female_cc0_fit.py"),
             "--python",str(EXPERIMENT/"suit_illustrated_finish_trial.py"),
             "--python",str(PREVIEW),
