@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { castSpecSchema } from "@/lib/cast-spec-schema";
+import {formalSpecAvailable} from "@/lib/cast-formal-wardrobe";
 import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
 import { CAST_PRESETS } from "@/lib/cast-presets";
 import type { Prisma } from "@/generated/prisma/client";
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
   const origin = requireTrustedOrigin(request, auth.id); if (origin) return origin;
   const body = schema.safeParse(await request.json().catch(() => null));
   if (!body.success) return zodProblem(auth.id, body.error);
+  if(body.data.spec&&!formalSpecAvailable(body.data.spec))return problem(auth.id,409,"FORMAL_ASSETS_UNVERIFIED","Outfit unavailable","The verified SceneBam garment assets are not installed yet.");
   const prisma = getPrisma()!;
   if (body.data.brandId && !await prisma.studioBrand.findFirst({ where: { id: body.data.brandId, ownerUserId: auth.session!.userId } })) {
     return problem(auth.id, 404, "BRAND_NOT_FOUND", "Brand not found", "Cast member was not saved.");

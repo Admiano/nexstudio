@@ -1,0 +1,81 @@
+name: SceneBam true suit and tie palette proofs
+on:
+  push:
+    branches: [work/scenebam-formal-cast-wardrobe-20261013]
+    paths:
+      - scripts/scenebam-formal-material-author.py
+      - .github/workflows/scenebam-formal-palette-proofs.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  material-author:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/scenebam-formal-material-author.py
+      - name: Install certified Blender 5.2.0 and Pillow
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Fetch genuine production-assembled six Blender suits (not V17)
+        run: |
+          mkdir -p production-proof
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir production-proof
+          test -s production-proof/female-statement/female-statement-production-assembled.blend
+      - name: Split exact UV-textured garment islands into independent suit and tie roles
+        run: |
+          set -euo pipefail
+          mkdir -p palettes
+          for look in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            mkdir -p "palettes/$look"
+            "$BLENDER_BIN" -b "production-proof/$look/$look-production-assembled.blend" -t 4 --python-exit-code 1 --python scripts/scenebam-formal-material-author.py -- "$look" "palettes/$look" >"palettes/$look/run.log" 2>&1 || { tail -n 120 "palettes/$look/run.log"; exit 1; }
+            test -s "palettes/$look/$look-palette-report.json"
+            echo "AUTHORED $look"
+          done
+      - name: Build visual color A/B gallery and fail-closed installation manifest
+        run: |
+          python3 - <<'PY'
+          from PIL import Image,ImageDraw
+          import json
+          from pathlib import Path
+          names='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          board=Image.new('RGB',(1800,1520),'#F5F4F0')
+          pen=ImageDraw.Draw(board)
+          pen.text((20,15),'SceneBam production assembled: independently masked suit and tie colours — experimental Blender evidence',fill='#171717')
+          pen.text((20,40),'A navy suit/burgundy tie; B same suit/cream tie; C burgundy suit/same cream tie. Art and live VM NOT certified.',fill='#454545')
+          manifest={'castSourceVersion':'bf88447b8f898bea078c44b9202cfe2b7ff13be5','liveVmHashMatched':False,'validated':{}}
+          for k,n in enumerate(names):
+            report=json.loads((Path('palettes')/n/(n+'-palette-report.json')).read_text())
+            gender=n.split('-')[0];kind='formal-'+n.split('-',1)[1]
+            manifest['validated'][gender+':'+kind]={'sha256':report['blendSHA256'],'independentSuitAndTie':True,'rigAndMotion':False}
+            for row,c in enumerate('ABC'):
+              image=Image.open(Path('palettes')/n/(n+'-'+c+'.png')).convert('RGBA')
+              image.thumbnail((260,440))
+              x=20+k*295+(260-image.width)//2
+              y=80+row*480+(440-image.height)//2
+              board.paste(image,(x,y),image)
+              pen.text((x,y+image.height+6),n+' '+c,fill='#111111')
+          board.save('palettes/SCENEBAM_TRUE_SUIT_TIE_COLOR_VARIANTS.png')
+          (Path('palettes')/'manifest.NOT_CERTIFIED.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print('REAL_PALETTE_GALLERY_COMPLETE')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_SIX_INDEPENDENT_SUIT_TIE_BLENDER_MATERIALS
+          path: palettes/
+          compression-level: 2
+          retention-days: 14

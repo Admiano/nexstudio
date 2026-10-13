@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {environmentImage,environmentAspect} from './environments';
 import {castRenderConfig} from './render-config';
-import {normalizeCastSpec,type CastSpec} from './spec';
+import {normalizeCastSpec,isFormalOutfit,type CastSpec} from './spec';
 export type AvatarPreviewState='loading'|'ready'|'failed';
 type Preview={key:string;status:'queued'|'rendering'|'ready'|'failed';imageUrl?:string;message?:string};
 const COMPLETE=new Map<string,string>(),REQUESTS=new Map<string,Promise<string>>();
@@ -41,7 +41,7 @@ export default function AvatarStage({spec,className,onStatus}:{spec:CastSpec;cla
  },[visualKey,retry]);
  return <div className={`cast-render-stage ${className??''}`} aria-busy={!ready&&!error} style={spec.environment?{aspectRatio:environmentAspect[spec.environmentFormat??'square'],height:'auto',maxHeight:'100%'}:undefined} data-preview-state={error?'failed':ready?'ready':'loading'}>
   {spec.environment&&<img key={backgroundKey+retry} className="cast-environment-plate" onLoad={()=>setLoadedBackground(backgroundKey)} onError={()=>setError('Environment image unavailable. Retry preview.')} src={environmentImage(spec.environment,spec.environmentFormat??'square')} alt=""/>}
-  <img className="cast-presenter-overlay" style={spec.environment&&spec.environmentFormat==='portrait'?{objectFit:'cover'}:undefined} src={image?.character===spec.character?image.src:`/cast/default-${spec.character}-v20.webp`} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`} fetchPriority={onStatus?'high':'auto'} decoding="sync"/>
+  {!isFormalOutfit(spec.outfit?.kind)||image?.key===visualKey?<img className="cast-presenter-overlay" style={spec.environment&&spec.environmentFormat==='portrait'?{objectFit:'cover'}:undefined} src={image?.character===spec.character?image.src:`/cast/default-${spec.character}-v20.webp`} alt={`${spec.character==='female'?'Female':'Male'} presenter preview`} fetchPriority={onStatus?'high':'auto'} decoding="sync"/>:null}
   {!ready&&<div className="cast-preview-status cast-preview-status-pending" role="status">{error?<><span>{error}</span><button type="button" onClick={()=>setRetry(n=>n+1)}>Retry preview</button></>:<><span className="cast-preview-spinner"/><span>Rendering your selected look… This can take a few minutes.</span></>}</div>}
  </div>;
 }

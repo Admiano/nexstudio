@@ -5,7 +5,7 @@ import {GLTFLoader,type GLTF} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import AvatarStage,{type AvatarPreviewState} from './AvatarStage';
 import {environmentImage,environmentAspect} from './environments';
 import {hairShadeRatio,hairTint,liveColours,luminance,selectLiveParts,tintRatio,type LiveManifest,type LivePart,type LiveSelection} from './live3d-parts';
-import {normalizeCastSpec,type CastSpec} from './spec';
+import {normalizeCastSpec,isFormalOutfit,type CastSpec} from './spec';
 
 const BASE='/api/v1/studio/cast/live3d/';
 const FRAME={x:-0.42,y:1.16,height:1.36,aspect:3/4};
@@ -113,7 +113,7 @@ export default function LiveCastStage({spec,className,onStatus}:{spec:CastSpec;c
  const host=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null),state=useRef<{renderer:THREE.WebGLRenderer;scene:THREE.Scene;camera:THREE.OrthographicCamera;outline:Outline;style:LiveManifest['outline']}|null>(null);
  const [noWebgl,setNoWebgl]=useState(false),[failedKey,setFailedKey]=useState<string|null>(null),[readyKey,setReadyKey]=useState<string|null>(null);
  const statusRef=useRef(onStatus);statusRef.current=onStatus;
- const key=JSON.stringify(normalizeCastSpec(spec)),fallback=noWebgl||failedKey===key,ready=readyKey===key;
+ const key=JSON.stringify(normalizeCastSpec(spec)),fallback=isFormalOutfit(spec.outfit?.kind)||noWebgl||failedKey===key,ready=readyKey===key;
  const draw=()=>{const st=state.current,el=host.current;if(!st||!el)return;const w=Math.max(1,el.clientWidth),h=Math.max(1,el.clientHeight);st.renderer.setSize(w,h,false);
   const half=FRAME.height/2,aspect=w/h,hw=aspect>FRAME.aspect?half*aspect:half*FRAME.aspect,hh=aspect>FRAME.aspect?half:half*FRAME.aspect/aspect;
   Object.assign(st.camera,{left:-hw,right:hw,top:hh,bottom:-hh});st.camera.updateProjectionMatrix();

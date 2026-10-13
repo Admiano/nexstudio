@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { castSpecSchema } from "@/lib/cast-spec-schema";
+import {formalSpecAvailable} from "@/lib/cast-formal-wardrobe";
 import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireSession, requireTrustedOrigin } from "@/lib/route-auth";
@@ -22,6 +23,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const { id } = await context.params;
   const body = schema.safeParse(await request.json().catch(() => null));
   if (!body.success) return zodProblem(auth.id, body.error);
+  if(body.data.spec&&!formalSpecAvailable(body.data.spec))return problem(auth.id,409,"FORMAL_ASSETS_UNVERIFIED","Outfit unavailable","The verified SceneBam garment assets are not installed yet.");
   const prisma = getPrisma()!;
   const member = await prisma.studioCastMember.findFirst({ where: { id, ownerUserId: auth.session!.userId } });
   if (!member) return problem(auth.id, 404, "CAST_NOT_FOUND", "Cast member not found", "No cast was changed.");

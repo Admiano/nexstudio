@@ -1,0 +1,69 @@
+name: SceneBam genuine Blender formal Cast cards
+on:
+  push:
+    branches: [work/scenebam-formal-cast-wardrobe-20261013]
+    paths:
+      - .github/workflows/scenebam-formal-thumbnails.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  thumbnails:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            public/cast/options/v21
+      - name: Recover only actual approved-source SceneBam Blender frames
+        run: |
+          mkdir -p sourced-renders
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir sourced-renders
+          test -s sourced-renders/male-dinner-jacket/male-dinner-jacket-front.png
+      - name: Install Pillow for exact Blender image crops
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil
+      - name: Crop six genuine wardrobe cards (not AI-generated)
+        run: |
+          python3 - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          names=('female-double-breasted','female-statement','male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket')
+          for name in names:
+            gender=name.split('-')[0]
+            kind='formal-'+name.split('-',1)[1]
+            source=Path('sourced-renders')/name/(name+'-front.png')
+            out=Path('public/cast/options/v21')/gender/'formal'/(kind+'.webp')
+            out.parent.mkdir(parents=True,exist_ok=True)
+            image=Image.open(source).convert('RGBA')
+            alpha=image.getchannel('A')
+            box=alpha.getbbox()
+            if not box:raise RuntimeError('Genuine source render has no pixels: '+name)
+            image=image.crop(box)
+            image.thumbnail((185,205),Image.Resampling.LANCZOS)
+            canvas=Image.new('RGBA',(224,224),'#F5F4F0')
+            canvas.alpha_composite(image,((224-image.width)//2,(224-image.height)//2))
+            canvas.convert('RGB').save(out,'WEBP',quality=92,method=6)
+            print('REAL_BLENDER_CARD',name,source,out,out.stat().st_size)
+          PY
+      - name: Commit 6 source-grounded garment cards to isolated PR branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --sparse public/cast/options/v21/*/formal/*.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "assets(cast): six production-assembled formal wardrobe thumbnails"
+            git push origin HEAD:work/scenebam-formal-cast-wardrobe-20261013
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_REAL_FORMAL_CAST_CARD_PREVIEWS
+          path: public/cast/options/v21/*/formal/*.webp
+          retention-days: 14
