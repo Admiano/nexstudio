@@ -259,7 +259,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
   return (
     <div id="publicSite">
       <header className="pw-nav">
-        <a aria-label="SceneBam" className="pw-logo" href="#top"><span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
+        <a aria-label="SceneBam" className="pw-logo" href="#top"><span className="brand-mark sb-mark"><SceneBamMark aria-hidden="true" focusable="false" /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
         <nav aria-label="Public navigation" className="pw-links"><a href="#make">Create</a><a href="#proof">Explore</a><a href="#bam">How it works</a></nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
@@ -293,7 +293,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
             <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Production families</div></div><div><h2>Choose a direction. Or don’t.</h2><p>Bam can infer the right production treatment from the brief. When you already know what you want, give it a nudge. Either way, you stay in one flow.</p></div></div>
             <div className="pw-families">
               {FAMILIES.map((f, i) => (
-                <button key={f.key} aria-label={`Choose ${f.name}`} className={`pw-family pw-reveal ${f.soon ? "soon" : ""}`} data-delay={String(i)} onClick={() => { if (f.soon) return; sessionStorage.setItem("nx.family", f.key); enter(); }}>
+                <button key={f.key} disabled={Boolean(f.soon)} aria-label={`Choose ${f.name}`} className={`pw-family pw-reveal ${f.soon ? "soon" : ""}`} data-delay={String(i)} onClick={() => { if (f.soon) return; sessionStorage.setItem("nx.family", f.key); enter(); }}>
                   {f.soon && <em className="pw-soon-tag">Coming soon</em>}
                   <div aria-hidden="true" className="pw-family-media"><div className="pw-family-frame"><div className={`family-native family-native-${f.art}`}>{FAMILY_ART[f.art]}</div></div></div>
                   <div className="pw-family-copy"><b>{f.name}</b><span>{f.desc}</span></div>

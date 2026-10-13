@@ -36,7 +36,7 @@ export function PublicDoc({ slug }: { slug: keyof typeof DOCS }) {
   return (
     <div id="publicSite">
       <header className="pw-nav">
-        <a aria-label="SceneBam" className="pw-logo" href="/"><span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
+        <a aria-label="SceneBam" className="pw-logo" href="/"><span className="brand-mark sb-mark"><SceneBamMark aria-hidden="true" focusable="false" /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
         <nav aria-label="Public navigation" className="pw-links">
           <a href="/#make">Create</a><a href="/#proof">Explore</a><a href="/#bam">How it works</a>
         </nav>

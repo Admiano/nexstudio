@@ -128,7 +128,7 @@ export default function Shell({ view }: { view: ViewId }) {
     <div className="shell">
       <header className="topbar">
         <button aria-label="SceneBam home" className="brand" onClick={() => route("create")} style={{ border: 0, background: "none", padding: 0 }}>
-          <span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span>
+          <span className="brand-mark sb-mark"><SceneBamMark aria-hidden="true" focusable="false" /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span>
         </button>
         <nav aria-label="Primary" className="nav">
           {(["create", "work", "cast", "brand", "library"] as const).map((v) => (
