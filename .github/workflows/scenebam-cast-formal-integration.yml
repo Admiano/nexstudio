@@ -8,6 +8,7 @@ on:
       - src/lib/cast-spec-schema.ts
       - scripts/cast-apply-formal.py
       - scripts/cast-formal-material-audit.py
+      - scripts/cast-formal-colour-proof.py
       - scripts/cast-render-assembled.py
       - scripts/cast-preview-worker.py
       - scripts/install-cast-formals.py
@@ -98,19 +99,40 @@ jobs:
           git commit -m 'audit(cast): true Blender UV and mesh-region diagnostics for six suits' || true
           git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
           git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
-      - name: Gate independently editable suit and tie geometry
+      - name: Validate real tie islands, UV shaders and independent suit/tie colours in Blender
+        run: |
+          set -euo pipefail
+          mkdir -p donor/formal production-colour
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${v%%-*}
+            cp "donor/$v/$v-production-assembled.blend" "donor/formal/$v.blend"
+            for setting in '222C46 A33B50' '222C46 BEA479' '602D3E A33B50'; do
+              set -- $setting
+              "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-formal-colour-proof.py -- "$v" "$1" "$2" production-colour >"production-colour/$v-$1-$2.log" 2>&1 || { tail -n 100 "production-colour/$v-$1-$2.log"; exit 1; }
+            done
+          done
+      - name: Gate genuinely independent render output and materials
         run: |
           python3 - <<'PY'
           import json
           from pathlib import Path
-          for p in Path('production-qa').glob('*.json'):
-            data=json.loads(p.read_text())
-            # The old CC0 asset uses one UV-textured material for all clothing.
-            # A per-region/tie isolation adapter must be certified before release.
-            separate=len(data['materials']) >= 2 and any(
-              'tie' in m['material'].lower() or 'bow' in m['material'].lower() for m in data['materials'])
-            if not separate:
-              raise SystemExit('FORMAL_TIE_REGION_NOT_CERTIFIED: '+data['kind'])
+          from PIL import Image,ImageChops,ImageStat
+          root=Path('production-colour')
+          variants='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          for variant in variants:
+            def proof(suit,tie):
+              data=json.loads((root/f'{variant}-{suit}-{tie}.json').read_text())
+              assert data['materialsByRole']['tie'] and data['materialsByRole']['suit'],variant
+              assert data['rigPreserved'] and data['restError']<1e-4
+              return Image.open(root/f'{variant}-{suit}-{tie}.png').convert('RGB')
+            base=proof('222C46','A33B50')
+            tie=proof('222C46','BEA479')
+            suit=proof('602D3E','A33B50')
+            td=ImageStat.Stat(ImageChops.difference(base,tie)).sum
+            sd=ImageStat.Stat(ImageChops.difference(base,suit)).sum
+            if sum(td)<4000 or sum(sd)<10000:
+              raise SystemExit('CAST_FORMAL_RENDER_COLOUR_DIFFERENCE_FAILED:'+variant+':'+str([sum(td),sum(sd)]))
+            print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),flush=True)
           PY
       - name: Pack real rigged assets; verify release archive and six front images
         run: |
@@ -163,5 +185,7 @@ jobs:
         if: always()
         with:
           name: SCENEBAM_FORMAL_CAST_INTEGRATION_QA
-          path: production-qa/
+          path: |
+            production-qa/
+            production-colour/
           retention-days: 14
