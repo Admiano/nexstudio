@@ -1,0 +1,39 @@
+name: Walking People animation adapter source kit
+on:
+  push:
+    branches: [work/walking-people-preserve-original-20261012]
+    paths: [.github/workflows/walking-motion-adapter-kit.yml]
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Prepare original motions and adapter code
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p motion_kit
+        cp engine_sources/makehuman-lineart/character_system/mixamo-clips.json.gz motion_kit/
+        cp engine_sources/makehuman-lineart/character_system/gesture-clips.json motion_kit/
+        cp engine_sources/makehuman-lineart/character_system/rokoko-sources.json motion_kit/
+        cp engine_sources/makehuman-lineart/character_system/gesture-meanings.json motion_kit/
+        cp scripts/cast_mixamo_retarget.py motion_kit/
+        cp scripts/cast-gesture-timeline.py motion_kit/
+        cp scripts/cast-gesture-plan.py motion_kit/
+        (cd motion_kit; sha256sum * > SHA256SUMS.txt)
+        python3 - <<'PY'
+        import gzip,json
+        from pathlib import Path
+        p=Path('motion_kit')
+        with gzip.open(p/'mixamo-clips.json.gz','rt') as f:j=json.load(f)
+        with (p/'gesture-clips.json').open() as f:g=json.load(f)
+        print('MOTION_KIT_QA', len(j['clips']),len(g['clips']))
+        assert len(j['clips'])>200 and len(g['clips'])>350
+        PY
+    - uses: actions/upload-artifact@v4
+      with:
+        name: NEXSTUDIO_V1_MIXAMO_ROKOKO_MOTION_ADAPTER_SOURCE
+        path: motion_kit/
+        retention-days: 14
+        compression-level: 0
