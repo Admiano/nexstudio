@@ -43,8 +43,29 @@ def _recolor(material,colour,role):
         # Texture-driven materials require authoring an explicit color-mask
         # palette interface rather than silently ignoring the user's color.
         if input_socket.is_linked:
-            raise RuntimeError('FORMAL_MATERIAL_TINT_INPUT_LINKED:'+material.name)
-        input_socket.default_value=(*_linear(colour),1)
+            old_link=input_socket.links[0]
+            upstream=old_link.from_socket
+            mat.node_tree.links.remove(old_link)
+            gray=nodes.new('ShaderNodeRGBToBW')
+            gray.name='SceneBam original texture luminance'
+            mat.node_tree.links.new(upstream,gray.inputs['Color'])
+            shades=nodes.new('ShaderNodeMapRange')
+            shades.name='SceneBam original cloth detail'
+            shades.clamp=True
+            shades.inputs['From Min'].default_value=.02
+            shades.inputs['From Max'].default_value=.8
+            shades.inputs['To Min'].default_value=.36
+            shades.inputs['To Max'].default_value=1.05
+            mat.node_tree.links.new(gray.outputs['Val'],shades.inputs['Value'])
+            mix=nodes.new('ShaderNodeMixRGB')
+            mix.name='SceneBam independent '+role+' colour'
+            mix.blend_type='MULTIPLY'
+            mix.inputs[0].default_value=1
+            mix.inputs[1].default_value=(*_linear(colour),1)
+            mat.node_tree.links.new(shades.outputs['Result'],mix.inputs[2])
+            mat.node_tree.links.new(mix.outputs['Color'],input_socket)
+        else:
+            input_socket.default_value=(*_linear(colour),1)
     mat['scenebamColorRole']=role
     mat['scenebamHex']=colour
     return mat
