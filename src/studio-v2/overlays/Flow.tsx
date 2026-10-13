@@ -77,7 +77,7 @@ function PreviewChip({ video, label, desc, selected, onSelect }: { video: string
 const MIND_STEPS = [
   { key: "understand", title: "Understanding the brief", copy: "Bringing your intent, context and production direction together." },
   { key: "shape", title: "Shaping the production direction", copy: "Choosing the family, format and structure before anything is made." },
-  { key: "write", title: "Writing your narration", copy: "NexMind is turning your intent into a spoken script for the boards." },
+  { key: "write", title: "Writing your narration", copy: "Bam is turning your intent into a spoken script for the boards." },
   { key: "ready", title: "Direction is ready", copy: "Review every part of it. Nothing has been made yet." },
 ];
 
@@ -132,7 +132,7 @@ export function FlowOverlay({ flow, api }: { flow: FlowState; api: FlowApi }) {
           if (!productionId) { api.patchFlow({ stage: "closed", error: "The draft could not be created." }); return; }
         }
         api.patchFlow({ productionId, family, videoType });
-        // Brief → NexMind narration (script mode stays verbatim). Part of the mind
+        // Brief → Bam narration (script mode stays verbatim). Part of the mind
         // pipeline so direction lands with the finished script, not a pending card.
         let generatedScript: string | undefined;
         if (engineKind && !flow.script) {
@@ -199,7 +199,7 @@ function MindStage({ step }: { step: number }) {
         <div aria-hidden="true" className="nx-field-core nx-presence nx-presence--core" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></div>
         <div className="nx-field-word w1">CONTEXT</div><div className="nx-field-word w2">DIRECTION</div>
       </div>
-      <div className="mind-wrap"><div className="micro">NexMind</div><h2>{s.title}</h2><p>{s.copy}</p><div className="mind-progress">{MIND_STEPS.map((m, i) => <i key={m.key} className={i <= step ? "active" : ""} />)}</div></div>
+      <div className="mind-wrap"><div className="micro">Bam</div><h2>{s.title}</h2><p>{s.copy}</p><div className="mind-progress">{MIND_STEPS.map((m, i) => <i key={m.key} className={i <= step ? "active" : ""} />)}</div></div>
     </div>
   );
 }
@@ -208,7 +208,7 @@ function ClosedStage({ flow, onClose }: { flow: FlowState; onClose: () => void }
   return (
     <div className="mind-stage open" data-step="understand">
       <div className="mind-wrap">
-        <div className="micro">NexStudio</div>
+        <div className="micro">SceneBam</div>
         <h2>Not open for new productions yet.</h2>
         <p>{flow.error || "This production type is being certified before it opens. Your brief is saved as a draft and nothing was charged."}</p>
         <div className="mind-actions"><button className="v2-primary" onClick={onClose}>Back to Create</button></div>
@@ -261,7 +261,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     return () => { alive = false; };
   }, [kind]);
 
-  // Brief mode: NexMind writes the narration script. Script mode stays verbatim.
+  // Brief mode: Bam writes the narration script. Script mode stays verbatim.
   const [scriptState, setScriptState] = useState<"pending" | "ready" | "unavailable">(() => (flow.generatedScript || flow.script ? "ready" : "pending"));
   useEffect(() => {
     if (!kind || flow.script || flow.generatedScript || !flow.prompt) return;
@@ -379,14 +379,14 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
       <div className="direction-shell">
         <header className="direction-top">
           <button className="direction-back" onClick={api.closeFlow}>← <span className="direction-back-full">Back to brief</span><span className="direction-back-short">Brief</span></button>
-          <div className="direction-id"><span className="direction-id-full">NexMind · Creative direction</span><span className="direction-id-short">NexMind</span></div>
+          <div className="direction-id"><span className="direction-id-full">Bam · Creative direction</span><span className="direction-id-short">Bam</span></div>
           <div className="direction-status"><i /><span>Ready to adjust</span></div>
         </header>
         <main className="direction-content">
           <section className="direction-hero reveal" style={{ ["--d" as string]: ".04s" }}>
             <div className="direction-kicker"><span>Direction ready</span><span>Nothing has been produced yet</span></div>
             <h1>{flow.thesis || "A clear story with a strong visual pulse."}</h1>
-            <p>NexMind has shaped a production direction from your brief. You can change any part naturally before credits are used.</p>
+            <p>Bam has shaped a production direction from your brief. You can change any part naturally before credits are used.</p>
             <div className="direction-context">
               {(flow.contexts ?? []).map((c) => <span key={`${c.kind}:${c.refId}`} className="ctx-pill">{c.label}</span>)}
             </div>
@@ -395,7 +395,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           {kind && !flow.script && (scriptState === "ready" || scriptState === "pending") && (
             <section className="direction-script reveal" style={{ ["--d" as string]: ".13s" }}>
               <div className="direction-script-head">
-                <label>Narration, written by NexMind</label>
+                <label>Narration, written by Bam</label>
                 <span>{scriptState === "ready" ? "Read exactly as written" : "Writing…"}</span>
               </div>
               {scriptState === "ready" && flow.generatedScript ? (
@@ -408,7 +408,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             </section>
           )}
           <section className="decision-row two reveal" style={{ ["--d" as string]: ".16s" }}>
-            <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "NexMind selected"}</span></div>
+            <div className="decision"><label>Production</label><strong>{FAMILY_LABEL[flow.family ?? ""] ?? flow.family ?? "Explainer"}</strong><span>{flow.family ? "Your selection" : "Bam selected"}</span></div>
             <div className="decision"><label>Format</label><strong>All screens</strong><span>16:9 · 9:16 · 1:1</span></div>
           </section>
           {kind && (
@@ -572,7 +572,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
             <aside className="creative-side">
               <h2>Creative treatment</h2>
               <div className="creative-sticky">
-                <div className="direction-preview"><div className="preview-grid" /><div className="preview-orbit" /><div className="preview-type"><small>NexMind treatment</small><b>Clarity with motion.</b></div></div>
+                <div className="direction-preview"><div className="preview-grid" /><div className="preview-orbit" /><div className="preview-type"><small>Bam treatment</small><b>Clarity with motion.</b></div></div>
                 <div className="creative-list">
                   <div className="creative-item"><label>Look</label><b>Editorial, restrained and spatially clean</b></div>
                   <div className="creative-item"><label>Rhythm</label><b>Confident pacing with room for ideas to land</b></div>
@@ -591,7 +591,7 @@ function DirectionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
           ))}
         </div>
         <div className="direction-dock-inner">
-          <div className="adjuster"><span className="spark">✦</span><input value={adjust} onChange={(e) => setAdjust(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") setAdjust(""); }} placeholder="Tell NexMind what to change…" /><button aria-label="Apply direction change" className="adjust-go" onClick={() => setAdjust("")}>↑</button></div>
+          <div className="adjuster"><span className="spark">✦</span><input value={adjust} onChange={(e) => setAdjust(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") setAdjust(""); }} placeholder="Tell Bam what to change…" /><button aria-label="Apply direction change" className="adjust-go" onClick={() => setAdjust("")}>↑</button></div>
           <button aria-label="Create video" className="credit-next" disabled={busy} onClick={() => void createVideo()}><span className="full">{busy ? "Starting…" : <>Create video {!kind && <span className="cost-label">· <b>{costLabel}</b></span>}</>}</span><span>→</span></button>
         </div>
       </div>
@@ -716,7 +716,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         <button aria-label="Leave production and return to Work" className="production-exit" onClick={api.closeFlow}>← <span>Work</span></button>
         <div className="production-brand">
           <span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></span>
-          <span className="production-brand-full">NexStudio · Production</span>
+          <span className="production-brand-full">SceneBam · Production</span>
           <span className="production-brand-short">Production</span>
         </div>
         <div className="production-credit"><i /><span>Credits secured</span></div>
@@ -736,7 +736,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
                 ))}
               </div>
               <div aria-hidden="true" className="nx-composition">
-                <div className="nx-comp-kicker">NexMind direction</div>
+                <div className="nx-comp-kicker">Bam direction</div>
                 <div className="nx-comp-title">One idea.<br />Fully resolved.</div>
                 <div className="nx-comp-rule" />
                 <div className="nx-comp-object"><i /><i /><i /></div>
@@ -759,7 +759,7 @@ function ProductionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
         <aside className="production-side">
           <div className="production-mind-status">
             <span aria-hidden="true" className="nx-presence nx-presence--status" data-mode="matrix" data-nx-presence="" data-state="thinking"><canvas /></span>
-            <div className="micro">NexMind is making your video</div>
+            <div className="micro">Bam is making your video</div>
           </div>
           <h1 id="productionTitle">{jobCopy?.title ?? proj?.title ?? "Preparing the production."}</h1>
           <p id="productionCopy">{jobDetail ?? proj?.detail ?? "The Studio is checking the approved brief and what the production system can safely make."}</p>
@@ -798,7 +798,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
     try {
       await studioApi.review(flow.productionId, action === "approve" ? { action: "approve" } : { action: "revision", note: note || "Please revise" });
       await refresh();
-      api.notify(action === "approve" ? "Approved. Moved to publish." : "Revision queued with NexMind.");
+      api.notify(action === "approve" ? "Approved. Moved to publish." : "Revision queued with Bam.");
       api.patchFlow({ stage: action === "approve" ? "publish" : "revision" });
     } catch (e) {
       api.notify(e instanceof Error ? e.message : "That action is not available yet.");
@@ -810,7 +810,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
     <div aria-hidden="true" className="finished-stage open" id="finishedStage">
       <header className="review-top">
         <button aria-label="Back to Work" className="review-back" onClick={api.closeFlow}>← <span>Work</span></button>
-        <div className="review-brand"><span className="mind-spark">✦</span><span className="review-brand-full">NexStudio · Review</span><span className="review-brand-short">Review</span></div>
+        <div className="review-brand"><span className="mind-spark">✦</span><span className="review-brand-full">SceneBam · Review</span><span className="review-brand-short">Review</span></div>
         <div className="review-state"><i /><span className="review-state-full">Ready for your call</span><span className="review-state-short">Ready</span></div>
       </header>
       <div className="review-wrap">
@@ -839,7 +839,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
         <aside className="review-side">
           <div className="micro">{videoFailed ? "Your video isn't here" : "Your video is ready"}</div>
           <h1>{videoFailed ? "This render is no longer available." : "Review the finished video."}</h1>
-          <p>{videoFailed ? "The render file for this production was removed from the server. Your brief and direction are safe. Start a new render for a fresh file." : "Watch the version NexStudio made from your approved direction. Download it, publish it, or ask NexMind for a revision."}</p>
+          <p>{videoFailed ? "The render file for this production was removed from the server. Your brief and direction are safe. Start a new render for a fresh file." : "Watch the version SceneBam made from your approved direction. Download it, publish it, or ask Bam for a revision."}</p>
           <div className="review-meta">
             <span><b>{ASPECT_LABEL[activeAspect] ?? "16:9"}</b> shown</span>
             <span><b>{outputs ? outputKeys.length : 1}</b> screens</span>
@@ -852,7 +852,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
           </div>
           {outputs
             ? <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "direction", jobId: undefined, jobOutputs: undefined })}><span className="spark">✦</span> Revise brief</button>
-            : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}><span className="spark">✦</span> Revise with NexMind</button>}
+            : <button className="review-revise" disabled={busy} onClick={() => api.patchFlow({ stage: "revision" })}><span className="spark">✦</span> Revise with Bam</button>}
           {(() => { const seriesChip = (flow.contexts ?? []).find((c) => c.kind === "series"); return (
           <div className="review-next">
             <span>What's next</span>
@@ -863,7 +863,7 @@ function ReviewStage({ flow, api, refresh }: { flow: FlowState; api: FlowApi; re
             </div>
           </div>
           ); })()}
-          <div className="review-privacy">No social accounts to connect. NexStudio prepares the file and hands it to you.</div>
+          <div className="review-privacy">No social accounts to connect. SceneBam prepares the file and hands it to you.</div>
         </aside>
       </div>
     </div>
@@ -878,7 +878,7 @@ function PublishStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   return (
     <div aria-hidden="true" className="publish-overlay open" id="publishOverlay" onClick={(e) => { if (e.target === e.currentTarget) api.closeFlow(); }}>
       <section className="publish-shell" role="dialog" aria-modal="true">
-        <div className="sheet-head"><div><div className="micro">Publish · Privacy first</div><h2>Take it everywhere.</h2><p>NexStudio prepares the file and caption for each destination. You keep your own accounts, and nothing is ever posted without you.</p></div><button aria-label="Close publish" className="sheet-close" onClick={api.closeFlow}>×</button></div>
+        <div className="sheet-head"><div><div className="micro">Publish · Privacy first</div><h2>Take it everywhere.</h2><p>SceneBam prepares the file and caption for each destination. You keep your own accounts, and nothing is ever posted without you.</p></div><button aria-label="Close publish" className="sheet-close" onClick={api.closeFlow}>×</button></div>
         <div className="platform-grid">
           {DESTINATIONS.map((d) => (
             <a key={d} className="platform" href={outputUrl} download>
@@ -908,7 +908,7 @@ function RevisionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
     setBusy(true);
     try {
       await studioApi.review(flow.productionId, { action: "revision", note: note.trim(), timestampSeconds: ts ? Number(ts) : undefined });
-      api.notify("Revision queued. NexMind will take another pass.");
+      api.notify("Revision queued. Bam will take another pass.");
       api.patchFlow({ stage: "production" });
     } catch (e) {
       api.notify(e instanceof Error ? e.message : "Revision could not be queued.");
@@ -919,7 +919,7 @@ function RevisionStage({ flow, api }: { flow: FlowState; api: FlowApi }) {
   return (
     <div aria-hidden="true" className="revision-overlay open" id="revisionOverlay" onClick={(e) => { if (e.target === e.currentTarget) api.closeFlow(); }}>
       <section className="revision-shell" role="dialog" aria-modal="true">
-        <div className="sheet-head"><div><div className="revision-nexmind-label"><MindSpark /><div className="micro">NexMind · Revision</div></div><h2>What should change?</h2><p>Describe the result you want. NexMind keeps the approved production context and changes only what is necessary.</p></div><button aria-label="Close revision" className="sheet-close" onClick={api.closeFlow}>×</button></div>
+        <div className="sheet-head"><div><div className="revision-nexmind-label"><MindSpark /><div className="micro">Bam · Revision</div></div><h2>What should change?</h2><p>Describe the result you want. Bam keeps the approved production context and changes only what is necessary.</p></div><button aria-label="Close revision" className="sheet-close" onClick={api.closeFlow}>×</button></div>
         <div className="revision-composer">
           <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="Make the opening faster and remove the long middle section." />
           <div className="revision-composer-foot"><span>The current version stays available.</span><input inputMode="numeric" value={ts} onChange={(e) => setTs(e.target.value)} placeholder="Timestamp (sec, optional)" /><button className="revision-review-btn" disabled={busy || !note.trim()} onClick={() => void submit()}>{busy ? "Sending…" : "Review change →"}</button></div>

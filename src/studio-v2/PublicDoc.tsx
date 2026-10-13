@@ -1,4 +1,5 @@
 "use client";
+import { SceneBamMark } from "./SceneBamMark";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -35,9 +36,9 @@ export function PublicDoc({ slug }: { slug: keyof typeof DOCS }) {
   return (
     <div id="publicSite">
       <header className="pw-nav">
-        <a aria-label="NexStudio" className="pw-logo" href="/"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
+        <a aria-label="SceneBam" className="pw-logo" href="/"><span className="brand-mark sb-mark"><SceneBamMark aria-hidden="true" focusable="false" /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
         <nav aria-label="Public navigation" className="pw-links">
-          <a href="/#make">Make</a><a href="/#proof">What it makes</a><a href="/#nexmind">NexMind</a>
+          <a href="/#make">Create</a><a href="/#proof">Explore</a><a href="/#bam">How it works</a>
         </nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
@@ -72,9 +73,9 @@ export function PublicDoc({ slug }: { slug: keyof typeof DOCS }) {
             </div>
           </article>
         </section>
-        <section className="pw-final"><div className="pw-final-inner"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind will take it from there, and show you the direction before production begins.</p><button className="pw-solid" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Open NexStudio →</button></div></section>
+        <section className="pw-final"><div className="pw-final-inner"><div className="pw-kicker"><i /> SceneBam</div><h2>Make something worth watching.</h2><p>Start with the brief. Bam will take it from there, and show you the direction before production begins.</p><button className="pw-solid" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Open SceneBam →</button></div></section>
       </main>
-      <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
+      <footer className="pw-footer"><span>© 2026 SceneBam · Meet Bam, your creative director</span><div className="pw-footer-links"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
       {signIn && <PublicDocSignIn onClose={() => setSignIn(false)} />}
     </div>
   );

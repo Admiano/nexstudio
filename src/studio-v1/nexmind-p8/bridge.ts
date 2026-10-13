@@ -18,7 +18,7 @@ function timeoutMs() {
 }
 
 function disabledResult(code = "STUDIO_NEXMIND_P8_BRIDGE_DISABLED"): NexMindP8Result {
-  return { schema: "StudioNexMindP8ResultV1", status: "PROVIDER_UNAVAILABLE", code, detail: "The paid NexMind bridge is not configured on this server." };
+  return { schema: "StudioNexMindP8ResultV1", status: "PROVIDER_UNAVAILABLE", code, detail: "The Bam production engine is not configured on this server." };
 }
 
 async function processBridge(request: StudioNexMindP8BridgeRequest, onProgress?: ProgressHandler): Promise<NexMindP8Result> {
@@ -67,7 +67,7 @@ async function processBridge(request: StudioNexMindP8BridgeRequest, onProgress?:
   try {
     return nexMindP8ResultSchema.parse(JSON.parse(stdout));
   } catch {
-    return { schema: "StudioNexMindP8ResultV1", status: "BLOCKED", code: "STUDIO_NEXMIND_P8_INVALID_PROCESS_RESPONSE", detail: stderrTail ? "The internal NexMind worker returned an invalid response." : "The internal NexMind worker returned no valid response." };
+    return { schema: "StudioNexMindP8ResultV1", status: "BLOCKED", code: "STUDIO_NEXMIND_P8_INVALID_PROCESS_RESPONSE", detail: stderrTail ? "The internal Bam production worker returned an invalid response." : "The internal Bam production worker returned no valid response." };
   }
 }
 

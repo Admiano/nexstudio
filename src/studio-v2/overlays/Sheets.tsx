@@ -60,7 +60,7 @@ function ReferenceSheet({ onClose, addContext }: { onClose: () => void; addConte
   const [url, setUrl] = useState("");
   return (
     <Overlay onClose={onClose}>
-      <SheetHead eyebrow="Reference" title="Add something NexMind should understand." onClose={onClose} />
+      <SheetHead eyebrow="Reference" title="Add something Bam should understand." onClose={onClose} />
       <div className="field"><label>URL</label><input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/video-or-page" type="url" /></div>
       <button className="sheet-action" disabled={!url.trim()} onClick={() => { addContext({ kind: "reference", refId: url.trim(), label: url.trim() }); onClose(); }}>Add reference</button>
     </Overlay>
@@ -134,7 +134,7 @@ function SeriesSheet({ onClose, addContext, openSeries, notify }: { onClose: () 
   }
   return (
     <Overlay onClose={onClose}>
-      <SheetHead eyebrow="Series" title="Continue a series." sub="Choose one. NexMind loads both episode continuity and the production identity that defines how the series looks and sounds." onClose={onClose} />
+      <SheetHead eyebrow="Series" title="Continue a series." sub="Choose one. Bam loads both episode continuity and the production identity that defines how the series looks and sounds." onClose={onClose} />
       <div className="series-choice-list">
         {series.map((s) => (
           <button key={s.id} className="choice" onClick={() => { addContext({ kind: "series", refId: s.id, label: s.name, meta: `${s.episodes?.length ?? 0} episodes` }); onClose(); }}>

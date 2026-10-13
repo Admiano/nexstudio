@@ -104,7 +104,7 @@ export function LibraryView({ openSheet, notify, addContext }: { openSheet: (s: 
   return (
     <div className="library-v2">
       <div className="v2-page-head">
-        <div><Eyebrow>Reusable production context</Eyebrow><h1>Everything NexStudio can use.</h1><p>Files, references and brand material stay reusable without turning creation into file management. Open an asset to see where it belongs, or send it straight into a new production.</p></div>
+        <div><Eyebrow>Reusable production context</Eyebrow><h1>Everything SceneBam can use.</h1><p>Files, references and brand material stay reusable without turning creation into file management. Open an asset to see where it belongs, or send it straight into a new production.</p></div>
         <div className="v2-page-actions"><button className="v2-primary" onClick={() => fileRef.current?.click()} disabled={busy}>{busy ? "Uploading…" : "+ Add to Library"}</button></div>
       </div>
       <div className="library-toolbar">
