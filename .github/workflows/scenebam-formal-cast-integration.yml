@@ -36,7 +36,7 @@ jobs:
       - name: Syntax-check real Blender importer and preview worker
         run: python3 -m py_compile scripts/cast-formal-wardrobe.py scripts/cast-render-assembled.py scripts/cast-preview-worker.py
       - name: Cast normalization, palette, worker and preview regressions
-        run: npm run test:cast
+        run: npm run test:cast && node --import tsx tests/cast-formal-wardrobe.test.ts
       - name: Generate Prisma types
         run: npm run db:generate
       - name: Type check full application
