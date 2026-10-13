@@ -25,7 +25,7 @@ export async function POST(request:Request){
   const challenge=await prisma.authChallenge.create({data:{userId:current?.userId,purpose:"EMAIL_MAGIC",identifier:email,secretHash:secretHash("email-magic",token),payload:{next:safeNext(parsed.data.next)},expiresAt:new Date(Date.now()+15*60000)}});
   const verifyOrigin=new URL(env.appOrigin).origin;
   const url=`${verifyOrigin}/api/v1/auth/email/verify?token=${encodeURIComponent(token)}`;
-  const mail=await sendMail({to:email,subject:"Your Studio sign-in link",html:`<p>Continue to your Studio:</p><p><a href="${url}">Open Studio</a></p><p>This link expires in 15 minutes and can be used once.</p>`,text:`Continue to your Studio: ${url}`});
+  const mail=await sendMail({to:email,subject:"Your SceneBam sign-in link",html:`<p>Continue to SceneBam:</p><p><a href="${url}">Open SceneBam</a></p><p>This link expires in 15 minutes and can be used once.</p>`,text:`Continue to SceneBam: ${url}`});
   if(!mail.sent){await prisma.authChallenge.delete({where:{id:challenge.id}}).catch(()=>undefined);await appendAuditEvent({request,requestId:id,actorUserId:current?.userId,action:"AUTH_EMAIL_DELIVERY_FAILED",entityType:"AuthChallenge",entityId:challenge.id});return problem(id,503,"EMAIL_DELIVERY_FAILED","Email could not be sent","Try again without changing your saved production.");}
   await appendAuditEvent({request,requestId:id,actorUserId:current?.userId,action:"AUTH_EMAIL_REQUESTED",entityType:"AuthChallenge",entityId:challenge.id,after:{identifierHash:secretHash("email-audit",email),expiresAt:challenge.expiresAt.toISOString()}});
   return json({sent:true,expiresAt:challenge.expiresAt.toISOString()},id);

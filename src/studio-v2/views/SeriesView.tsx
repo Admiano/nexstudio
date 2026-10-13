@@ -129,7 +129,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
           <div className="series-stage-meta"><span>{episodes.length} episode{episodes.length === 1 ? "" : "s"}</span>{linkedBrand ? <span>Brand · {linkedBrand.name}</span> : null}</div>
         </div>
         <aside className="series-next-card">
-          <div><span>Next production</span><strong>Episode {String(nextOrdinal).padStart(2, "0")}</strong><p>NexMind will carry the continuity forward automatically.</p></div>
+          <div><span>Next production</span><strong>Episode {String(nextOrdinal).padStart(2, "0")}</strong><p>Bam will carry the continuity forward automatically.</p></div>
           <button onClick={() => void makeNextEpisode()}>Make next episode →</button>
         </aside>
       </section>
@@ -142,7 +142,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
       </section>
       <div className="series-memory-grid">
         <section className="series-memory-card">
-          <div className="series-card-head"><h3>NexMind continuity memory</h3><button onClick={() => setEditor({ mode: "continuity" })}>Teach NexMind</button></div>
+          <div className="series-card-head"><h3>Bam continuity memory</h3><button onClick={() => setEditor({ mode: "continuity" })}>Teach Bam</button></div>
           <p>{continuityText}</p>
           <div className="series-memory-source"><i /><span>Continuity is attached to every episode.</span></div>
         </section>
@@ -173,7 +173,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
                 <span className="ep-date">{new Date(ep.createdAt).toLocaleDateString()}</span>
               </button>
             ))}
-            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and NexMind will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
+            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and Bam will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
           </div>
         ) : (
           <div className="episode-list">
@@ -185,7 +185,7 @@ export function SeriesView({ focusId, openSheet, notify, onOpenHistory }: { focu
                 <button onClick={() => onOpenHistory(ep.productionId)}>Open</button>
               </div>
             ))}
-            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and NexMind will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
+            {episodes.length === 0 && <div className="episode-row"><span className="episode-num">EP <b>01</b></span><div className="episode-copy"><h4>No episode yet</h4><p>Make the first episode and Bam will begin building continuity from real work.</p></div><div className="episode-status"><b>Ready</b><span>Continuity prepared</span></div><button onClick={() => void makeNextEpisode()}>Create</button></div>}
           </div>
         )}
       </section>
@@ -213,7 +213,7 @@ function SeriesEditor({ mode, series, brands, onClose, onCreate, onTeach, onIden
   const isTeach = mode === "continuity";
   const isBrand = mode === "brand";
   const isIdentity = mode === "identity" || isNew;
-  const title = isNew ? "New series" : isTeach ? "Teach NexMind continuity" : isBrand ? "Linked brand" : "Adjust identity";
+  const title = isNew ? "New series" : isTeach ? "Teach Bam continuity" : isBrand ? "Linked brand" : "Adjust identity";
   const canSave = isTeach ? note.trim().length > 0 : isBrand ? true : name.trim().length > 0;
   return (
     <div aria-hidden="true" className="series-edit-overlay open" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>

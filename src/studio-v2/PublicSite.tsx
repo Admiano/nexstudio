@@ -1,4 +1,5 @@
 "use client";
+import { SceneBamMark } from "./SceneBamMark";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -135,12 +136,12 @@ function PresenterScene() {
         </div>
       </div>
       <div className="pw-scene-frame">
-        <video className="pw-scene-video" src="/home/cast-host.mp4?v=2" autoPlay muted loop playsInline preload="auto" aria-label="Daniel, a NexStudio presenter, speaking in the studio" />
+        <video className="pw-scene-video" src="/home/cast-host.mp4?v=2" autoPlay muted loop playsInline preload="auto" aria-label="Daniel, a SceneBam presenter, speaking in the studio" />
         <div className={`pw-scene-voice${phase === 0 ? " on" : ""}`} aria-hidden="true"><i /><i /><i /><i /></div>
         <div className={`pw-lt${phase === 1 ? " on" : ""}`} aria-hidden="true">
           <i className="pw-lt-bar" />
           <div className="pw-lt-plate">
-            <span>host · nexstudio</span>
+            <span>host · scenebam</span>
             <b>Daniel Cole</b>
           </div>
           <div className="pw-lt-slot"><i>presented with a brand here</i></div>
@@ -205,8 +206,8 @@ function CastScene() {
   return (
     <div className="pw-cast-scene" aria-label="Two presenters handing the same scene to each other">
       <div className="pw-cast-frame">
-        <img className={speaker === 0 ? "on" : ""} src="/cast/default-female-v20.webp" alt="Maya, a NexStudio presenter" />
-        <img className={speaker === 1 ? "on" : ""} src="/cast/default-male-v20.webp" alt="Daniel, a NexStudio presenter" />
+        <img className={speaker === 0 ? "on" : ""} src="/cast/default-female-v20.webp" alt="Maya, a SceneBam presenter" />
+        <img className={speaker === 1 ? "on" : ""} src="/cast/default-male-v20.webp" alt="Daniel, a SceneBam presenter" />
         <div className="pw-cast-voice" aria-hidden="true"><i /><i /><i /><i /></div>
       </div>
       <div className="pw-cast-take">
@@ -231,7 +232,7 @@ const FAMILIES = [
 
 export function PublicSite({ authed }: { authed: boolean }) {
   const router = useRouter();
-  const [brief, setBrief] = useState("Make a 30-second launch video for a new agent-payment product. Clear, premium, and built for social.");
+  const [brief, setBrief] = useState("Make a 30-second explainer for a language-learning app. Friendly, memorable, and built for social.");
   const [demo, setDemo] = useState<"compose" | "thinking" | "direction">("compose");
   const [signIn, setSignIn] = useState(false);
 
@@ -259,8 +260,8 @@ export function PublicSite({ authed }: { authed: boolean }) {
   return (
     <div id="publicSite">
       <header className="pw-nav">
-        <a aria-label="NexStudio" className="pw-logo" href="#top"><span className="brand-mark"><i /></span><span>NexStudio</span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#nexmind">NexMind</a></nav>
+        <a aria-label="SceneBam" className="pw-logo" href="#top"><span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
+        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#bam">Bam</a></nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
           <button className="pw-solid" onClick={enter}>Open Studio</button>
@@ -269,21 +270,21 @@ export function PublicSite({ authed }: { authed: boolean }) {
       <main id="top">
         <section className="pw-wrap pw-hero">
           <div className="pw-hero-main pw-reveal in">
-            <div className="pw-kicker"><i /> Creative production, directed by NexMind</div>
+            <div className="pw-kicker"><i /> Your creative studio · Meet Bam</div>
             <h1>From brief to <em>finished video.</em></h1>
-            <p className="pw-hero-copy">Tell NexMind what you want. Approve the direction. NexStudio makes it, lets you revise it, then download or publish. No editor. No timeline. Just the film you asked for.</p>
+            <p className="pw-hero-copy">Tell Bam what you want to make. Approve the creative direction. SceneBam produces the video, and you can revise, download, or publish it. No timeline. No complex editing. Just the production you asked for.</p>
             <div className="pw-hero-actions"><button className="pw-solid" onClick={() => document.getElementById("pwBrief")?.focus()}>Make a video →</button><button className="pw-ghost" onClick={() => document.getElementById("make")?.scrollIntoView({ behavior: "smooth" })}>See what it makes</button></div>
-            <div className="pw-small-proof"><span>Direction before production</span><span>Card + USDC credits</span><span>Download or publish</span></div>
+            <div className="pw-small-proof"><span>Direction before production</span><span>Made for every screen</span><span>Download or publish</span></div>
           </div>
           <div className="pw-live pw-reveal in">
             <div className="pw-demo">
-              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state={demo === "thinking" ? "thinking" : demo === "direction" ? "ready" : "idle"}><canvas /></span> NexMind</div><span className="pw-demo-status">{demo === "compose" ? "Waiting for your brief" : demo === "thinking" ? "Shaping the production" : "Direction ready"}</span></div>
+              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state={demo === "thinking" ? "thinking" : demo === "direction" ? "ready" : "idle"}><canvas /></span> Bam</div><span className="pw-demo-status">{demo === "compose" ? "Waiting for your brief" : demo === "thinking" ? "Shaping the production" : "Direction ready"}</span></div>
               <div className="pw-demo-body">
                 {demo === "compose" && (
                   <div className="pw-demo-state">
-                    <textarea id="pwBrief" value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Make a 30-second launch video for a new agent-payment product…" />
+                    <textarea id="pwBrief" value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Make a 30-second explainer for a language-learning app…" />
                     <div className="pw-demo-chips"><span className="pw-demo-chip">+ Files</span><span className="pw-demo-chip">+ Brand</span><span className="pw-demo-chip">+ Reference</span><span className="pw-demo-chip">+ Series</span></div>
-                    <div className="pw-demo-foot"><span>NexMind will show you the direction first.</span><button className="pw-demo-go" onClick={() => { setDemo("thinking"); setTimeout(() => setDemo("direction"), 1400); }}>Ask NexMind <b>→</b></button></div>
+                    <div className="pw-demo-foot"><span>Bam will show you the direction first.</span><button className="pw-demo-go" onClick={() => { setDemo("thinking"); setTimeout(() => setDemo("direction"), 1400); }}>Ask Bam <b>→</b></button></div>
                   </div>
                 )}
                 {demo === "thinking" && (
@@ -304,7 +305,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
         </section>
         <section className="pw-section" id="make">
           <div className="pw-wrap">
-            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Production families</div></div><div><h2>Choose a direction. Or don’t.</h2><p>NexMind can infer the right production treatment from the brief. When you already know what you want, give it a nudge. Either way, you stay in one flow.</p></div></div>
+            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Production families</div></div><div><h2>Choose a direction. Or don’t.</h2><p>Bam can infer the right production treatment from the brief. When you already know what you want, give it a nudge. Either way, you stay in one flow.</p></div></div>
             <div className="pw-families">
               {FAMILIES.map((f, i) => (
                 <button key={f.key} aria-label={`Choose ${f.name}`} className={`pw-family pw-reveal ${f.soon ? "soon" : ""}`} data-delay={String(i)} onClick={() => { if (f.soon) return; sessionStorage.setItem("nx.family", f.key); enter(); }}>
@@ -334,7 +335,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
               </article>
               <article className="pw-proof-card production pw-reveal" data-delay="1">
                 <div className="pw-proof-visual"><div className="build-artboard" aria-hidden="true"><div className="build-ghost g1">{GHOST_LAYERS}</div><div className="build-ghost g2">{GHOST_LAYERS}</div><div className="build-ghost g3">{GHOST_LAYERS}</div><div className="build-work"><div className="build-preview"><i className="bp-line" /><i className="bp-mass" /><i className="bp-signal" /></div><div className="build-meta"><div className="build-meta-top"><span>Same work</span><b>V3 · Ready</b></div><div className="build-meta-signal"><i /><i /><i /></div><div className="build-lineage"><span>V1</span><i /><em /><span>V2</span><i /><em /><span>V3</span><i /></div></div></div></div></div>
-                <div className="pw-proof-copy"><span className="pw-proof-label">Production, not editing</span><h3>You direct. NexStudio builds.</h3><p>You approve the creative direction, then review the result. Revisions go back through NexMind instead of forcing you into a timeline editor.</p></div>
+                <div className="pw-proof-copy"><span className="pw-proof-label">Production, not editing</span><h3>You direct. SceneBam builds.</h3><p>You approve the creative direction, then review the result. Revisions go back through Bam instead of forcing you into a timeline editor.</p></div>
               </article>
             </div>
           </div>
@@ -355,24 +356,24 @@ export function PublicSite({ authed }: { authed: boolean }) {
             </div>
           </div>
         </section>
-        <section className="pw-section" id="nexmind">
+        <section className="pw-section" id="bam">
           <div className="pw-wrap">
-            <div className="pw-section-head pw-reveal"><div className="pw-kicker"><i /> NexMind intelligence</div><h2>Context becomes creative direction.</h2><p>NexMind reads the brief alongside Brand, Series, references and previous work, then resolves a production direction you can inspect before anything is produced.</p></div>
+            <div className="pw-section-head pw-reveal"><div className="pw-kicker"><i /> Meet Bam</div><h2>Context becomes creative direction.</h2><p>Bam reads the brief alongside Brand, Series, references and previous work, then resolves a production direction you can inspect before anything is produced.</p></div>
             <div className="pw-mind-stage pw-reveal">
-              <div className="mind-context-stack"><div className="mind-context-label">Context NexMind understands</div>
-                <div className="mind-context-card"><div className="mind-context-ico">B</div><div className="mind-context-copy"><b>Brief</b><span>30-second agent-payment launch video</span></div><i className="mind-context-check" /></div>
+              <div className="mind-context-stack"><div className="mind-context-label">What Bam understands</div>
+                <div className="mind-context-card"><div className="mind-context-ico">B</div><div className="mind-context-copy"><b>Brief</b><span>30-second language-learning app explainer</span></div><i className="mind-context-check" /></div>
                 <div className="mind-context-card"><div className="mind-context-ico">N</div><div className="mind-context-copy"><b>Brand</b><span>Identity, voice and visual guidance</span></div><i className="mind-context-check" /></div>
                 <div className="mind-context-card"><div className="mind-context-ico">S</div><div className="mind-context-copy"><b>Series</b><span>Continuity preserved across episodes</span></div><i className="mind-context-check" /></div>
                 <div className="mind-context-card"><div className="mind-context-ico">↗</div><div className="mind-context-copy"><b>Reference</b><span>Links and uploads become production context</span></div><i className="mind-context-check" /></div>
               </div>
-              <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-nx-presence="" data-state="listening"><canvas /></span><b>NexMind</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
+              <div className="mind-core-shell"><div className="mind-core-unit"><span aria-hidden="true" className="nx-presence nx-presence--hero" data-mode="fluid" data-nx-presence="" data-state="listening"><canvas /></span><b>Bam</b><span>resolving the production</span></div><i className="mind-core-arrow" /></div>
               <div className="mind-direction-card"><div className="mind-direction-label">Creative direction</div><h3>Start with the friction. Make the mechanism visible.</h3><div className="mind-direction-meta"><span>Explainer</span><span>30 sec</span><span>All screens</span></div><div className="mind-decision"><label>Opening</label><b>Lead with the problem people already feel.</b></div><div className="mind-decision"><label>Treatment</label><b>Clear staged visuals + typed motion + one dominant visual system.</b></div><div className="mind-decision"><label>Voice</label><b>Confident, direct, no unnecessary performance.</b></div><div className="mind-direction-ready"><i /> Ready for your approval</div></div>
             </div>
           </div>
         </section>
-        <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> NexStudio</div><h2>Make something worth watching.</h2><p>Start with the brief. NexMind takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open NexStudio →</button></div></section>
+        <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> SceneBam</div><h2>Make something worth watching.</h2><p>Start with the brief. Bam takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open SceneBam →</button></div></section>
       </main>
-      <footer className="pw-footer"><span>© 2026 NexStudio · Powered by NexMind</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#nexmind">NexMind</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
+      <footer className="pw-footer"><span>© 2026 SceneBam · Meet Bam, your creative director</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#bam">Bam</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
       {signIn && <SignInSheet onClose={() => setSignIn(false)} />}
     </div>
   );

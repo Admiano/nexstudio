@@ -94,16 +94,16 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
   return (
     <div className="create-wrap">
       <div className="hero">
-        <div className="eyebrow"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="idle"><canvas /></span> NexMind · Creative production</div>
+        <div className="eyebrow"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="idle"><canvas /></span> Bam · Creative production</div>
         <h1>What do you want to make?</h1>
-        <p className="lead">Describe it naturally. Add anything useful. NexMind will shape the production and show you the direction before anything is made.</p>
+        <p className="lead">Describe it naturally. Add anything useful. Bam will shape the production and show you the direction before anything is made.</p>
       </div>
       {!welcomed && (
         <div className="onboard">
           <div className="onboard-head"><div><span className="onboard-tag">First time here</span><b>Four steps to a finished video</b></div><button aria-label="Dismiss intro" className="onboard-x" onClick={dismissOnboard}>×</button></div>
           <div className="onboard-steps">
             <div className="onboard-step"><i>1</i><span><b>Describe it</b>Your own words, or paste a ready script</span></div>
-            <div className="onboard-step"><i>2</i><span><b>NexMind writes</b>The story and the direction</span></div>
+            <div className="onboard-step"><i>2</i><span><b>Bam writes</b>The story and the direction</span></div>
             <div className="onboard-step"><i>3</i><span><b>You approve</b>Nothing renders without your yes</span></div>
             <div className="onboard-step"><i>4</i><span><b>It renders</b>16:9, 9:16 and 1:1 in one pass</span></div>
           </div>
@@ -115,10 +115,10 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
           <div className="composer-head">
             <div className="composer-head-copy">
               <span className="composer-eyebrow">{composer.mode === "script" ? "Your script" : "Your brief"}</span>
-              <b>{composer.mode === "script" ? "Finished narration, voiced and drawn exactly as written" : "Describe the video. NexMind writes the story and direction"}</b>
+              <b>{composer.mode === "script" ? "Finished narration, voiced and drawn exactly as written" : "Describe the video. Bam writes the story and direction"}</b>
             </div>
             <div className="composer-mode" role="group" aria-label="Input mode">
-              <button type="button" className={composer.mode !== "script" ? "on" : ""} onClick={() => setMode("brief")} title="Describe the idea, NexMind writes it">
+              <button type="button" className={composer.mode !== "script" ? "on" : ""} onClick={() => setMode("brief")} title="Describe the idea, Bam writes it">
                 <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
                 Brief
               </button>
@@ -137,7 +137,7 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
               </button>
             ))}
           </div>
-          <textarea aria-label="Describe your video" className="prompt" value={composer.prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={onKey} placeholder={composer.mode === "script" ? "Paste your script. NexStudio voices it and draws it exactly as written…" : "Make a 45-second launch video explaining why agent payments need a better primitive…"} />
+          <textarea aria-label="Describe your video" className="prompt" value={composer.prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={onKey} placeholder={composer.mode === "script" ? "Paste your script. SceneBam voices it and draws it exactly as written…" : "Make a 45-second whiteboard explainer showing how solar energy works…"} />
           <div className="composer-foot">
             <div aria-label="Add context" className="tools">
               <button className="tool" onClick={() => openSheet("files")} title="Add files"><svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg><span>Files</span></button>
@@ -156,7 +156,7 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
               <span className="series-carry-eyebrow">Series loaded</span>
               <b>{seriesObj.name}</b>
               <small className="series-carry-identity">Production identity loads with continuity.</small>
-              <small className="series-carry-previous">Previous episode context will flow into NexMind.</small>
+              <small className="series-carry-previous">Previous episode context will flow into Bam.</small>
             </span>
             <button onClick={() => openSeries(seriesObj.id)}>View series →</button>
           </div>
@@ -164,7 +164,7 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
         <span className="kbd">⌘ ↵ to create</span>
       </div>
       <div className="start-block">
-        <div className="section-head"><h2>Or give NexMind a direction</h2><p>Optional · it can infer this for you</p></div>
+        <div className="section-head"><h2>Or give Bam a direction</h2><p>Optional · it can infer this for you</p></div>
         <div className="directions">
           {FAMILIES.map((f) => (
             <button key={f.key} aria-pressed={composer.family === f.key} aria-disabled={f.soon} className={`direction ${composer.family === f.key ? "active" : ""} ${f.soon ? "soon" : ""}`} data-family={f.key}

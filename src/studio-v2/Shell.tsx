@@ -1,4 +1,5 @@
 "use client";
+import { SceneBamMark } from "./SceneBamMark";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CreateView } from "./views/CreateView";
@@ -126,8 +127,8 @@ export default function Shell({ view }: { view: ViewId }) {
   return (
     <div className="shell">
       <header className="topbar">
-        <button aria-label="NexStudio home" className="brand" onClick={() => route("create")} style={{ border: 0, background: "none", padding: 0 }}>
-          <span className="brand-mark"><i /></span><span>NexStudio</span>
+        <button aria-label="SceneBam home" className="brand" onClick={() => route("create")} style={{ border: 0, background: "none", padding: 0 }}>
+          <span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span>
         </button>
         <nav aria-label="Primary" className="nav">
           {(["create", "work", "cast", "brand", "library"] as const).map((v) => (

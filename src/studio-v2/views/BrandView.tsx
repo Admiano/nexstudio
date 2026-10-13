@@ -119,7 +119,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
           voiceDetail: "Use clear, human language.",
           keep: ["Clear language"],
           avoid: ["Generic treatment"],
-          memory: "NexMind is still learning this brand. Add a few rules and references as you use it.",
+          memory: "Bam is still learning this brand. Add a few rules and references as you use it.",
         }),
       });
       await refresh(["brands"]);
@@ -146,7 +146,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
   async function saveVoice(input: { voice: string; voiceDetail: string }) {
     try {
       await writeAuthority({ voice: input.voice, voiceDetail: input.voiceDetail });
-      notify("Voice saved. NexMind will use it in narration.");
+      notify("Voice saved. Bam will use it in narration.");
       setEditor(null);
     } catch (e) {
       notify(e instanceof Error ? e.message : "Couldn't save voice.");
@@ -156,7 +156,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
   async function saveMemory(input: { memory: string; keep: string[]; avoid: string[] }) {
     try {
       await writeAuthority({ memory: input.memory, keep: input.keep, avoid: input.avoid });
-      notify("NexMind will carry that forward.");
+      notify("Bam will carry that forward.");
       setEditor(null);
     } catch (e) {
       notify(e instanceof Error ? e.message : "Memory could not be saved.");
@@ -172,7 +172,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
     return (
       <div className="brand-v2">
         <div className="v2-page-head">
-          <div><Eyebrow>Brand memory</Eyebrow><h1>What NexStudio knows.</h1><p>Your brand is not a settings form. It is reusable production context: identity, voice, visual rules and guidance NexMind carries into every video you attach it to.</p></div>
+          <div><Eyebrow>Brand memory</Eyebrow><h1>What SceneBam knows.</h1><p>Your brand is not a settings form. It is reusable production context: identity, voice, visual rules and guidance Bam carries into every video you attach it to.</p></div>
         </div>
         {loading ? (
           <div className="work-list rise">{[0, 1].map((i) => (
@@ -183,7 +183,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
             </div>
           ))}</div>
         ) : (
-          <div className="library-drop"><span><b>No brands yet.</b> Create one and NexMind starts learning what it should sound and look like.</span><button onClick={() => setEditor({ mode: "new" })}>+ New brand</button></div>
+          <div className="library-drop"><span><b>No brands yet.</b> Create one and Bam starts learning what it should sound and look like.</span><button onClick={() => setEditor({ mode: "new" })}>+ New brand</button></div>
         )}
         {editor?.mode === "new" && <BrandEditor mode="new" onClose={() => setEditor(null)} onNew={createBrand} />}
       </div>
@@ -193,7 +193,7 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
   return (
     <div className="brand-v2">
       <div className="v2-page-head">
-        <div><Eyebrow>Brand memory</Eyebrow><h1>What NexStudio knows.</h1><p>Your brand is not a settings form. It is reusable production context: identity, voice, visual rules and guidance NexMind carries into every video you attach it to.</p></div>
+        <div><Eyebrow>Brand memory</Eyebrow><h1>What SceneBam knows.</h1><p>Your brand is not a settings form. It is reusable production context: identity, voice, visual rules and guidance Bam carries into every video you attach it to.</p></div>
         <div className="v2-page-actions"><button className="v2-secondary" onClick={() => setEditor({ mode: "new" })}>+ New brand</button><button className="v2-primary" onClick={useInVideo}>Use in a video</button></div>
       </div>
       <div className="brand-switcher">
@@ -227,8 +227,8 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
       </section>
       <div className="brand-memory-grid">
         <section className="memory-card">
-          <div className="memory-card-head"><h3>NexMind’s memory</h3><button className="text-button" onClick={() => setEditor({ mode: "memory" })}>Teach NexMind</button></div>
-          <p className="memory-summary">{auth.memory || (memory.length > 0 ? `${memory.length} remembered item${memory.length > 1 ? "s" : ""}, kept as append-only versions.` : "Nothing remembered yet. Teach NexMind what this brand should know.")}</p>
+          <div className="memory-card-head"><h3>Bam’s memory</h3><button className="text-button" onClick={() => setEditor({ mode: "memory" })}>Teach Bam</button></div>
+          <p className="memory-summary">{auth.memory || (memory.length > 0 ? `${memory.length} remembered item${memory.length > 1 ? "s" : ""}, kept as append-only versions.` : "Nothing remembered yet. Teach Bam what this brand should know.")}</p>
           <div className="memory-confidence">{[0, 1, 2, 3, 4].map((i) => <i key={i} className={i < Math.min(5, memory.length) ? "on" : ""} />)}</div>
           <div className="memory-meta"><span>{memory.length > 0 ? "Working context" : "Strong working context"}</span><span>{brand?.updatedAt ? `Updated ${new Date(brand.updatedAt).toLocaleDateString()}` : "Updated recently"}</span></div>
         </section>
@@ -253,13 +253,13 @@ export function BrandView({ openSheet, notify, openSeries, onOpenWork }: {
         </section>
       </div>
       <div className="guidance-row">
-        <section className="guide-card"><div className="guide-title"><h3>Keep</h3><span className="guide-dot" /></div><div className="guide-chips">{keep.map((k) => <span key={k} className="guide-chip">{k}</span>)}{keep.length === 0 && <span className="guide-chip">Add via Teach NexMind</span>}</div></section>
-        <section className="guide-card avoid"><div className="guide-title"><h3>Avoid</h3><span className="guide-dot" /></div><div className="guide-chips">{avoid.map((k) => <span key={k} className="guide-chip">{k}</span>)}{avoid.length === 0 && <span className="guide-chip">Add via Teach NexMind</span>}</div></section>
+        <section className="guide-card"><div className="guide-title"><h3>Keep</h3><span className="guide-dot" /></div><div className="guide-chips">{keep.map((k) => <span key={k} className="guide-chip">{k}</span>)}{keep.length === 0 && <span className="guide-chip">Add via Teach Bam</span>}</div></section>
+        <section className="guide-card avoid"><div className="guide-title"><h3>Avoid</h3><span className="guide-dot" /></div><div className="guide-chips">{avoid.map((k) => <span key={k} className="guide-chip">{k}</span>)}{avoid.length === 0 && <span className="guide-chip">Add via Teach Bam</span>}</div></section>
       </div>
       <section className="brand-voice">
         <label>Voice</label>
         <strong>{auth.voice || "Not tuned yet"}</strong>
-        <span>{auth.voiceDetail || "Teach NexMind how the brand should sound."}</span>
+        <span>{auth.voiceDetail || "Teach Bam how the brand should sound."}</span>
         <button className="text-button" onClick={() => setEditor({ mode: "voice" })}>Adjust</button>
       </section>
       {editor && (
@@ -299,8 +299,8 @@ function BrandEditor({ mode, brand, authority, onClose, onNew, onIdentity, onVoi
   const [avoidText, setAvoidText] = useState((authority?.avoid ?? []).join("\n"));
   const [busy, setBusy] = useState(false);
 
-  const title = mode === "new" ? "Add a brand" : mode === "identity" ? "Edit identity" : mode === "voice" ? "Adjust how it sounds" : "Teach NexMind";
-  const eyebrow = mode === "new" ? "New production identity" : mode === "identity" ? "Production identity" : mode === "voice" ? "Voice" : "NexMind memory";
+  const title = mode === "new" ? "Add a brand" : mode === "identity" ? "Edit identity" : mode === "voice" ? "Adjust how it sounds" : "Teach Bam";
+  const eyebrow = mode === "new" ? "New production identity" : mode === "identity" ? "Production identity" : mode === "voice" ? "Voice" : "Bam memory";
 
   async function save() {
     setBusy(true);
@@ -336,12 +336,12 @@ function BrandEditor({ mode, brand, authority, onClose, onNew, onIdentity, onVoi
           {mode === "voice" && (
             <>
               <div className="focus-field"><label>Voice shorthand</label><input value={voice} onChange={(e) => setVoice(e.target.value)} placeholder="e.g. Warm, precise, never salesy" /></div>
-              <div className="focus-field"><label>How NexMind should interpret it</label><textarea value={voiceDetail} onChange={(e) => setVoiceDetail(e.target.value)} placeholder="e.g. Short sentences. Confident but never loud. Explain, don't sell." /></div>
+              <div className="focus-field"><label>How Bam should interpret it</label><textarea value={voiceDetail} onChange={(e) => setVoiceDetail(e.target.value)} placeholder="e.g. Short sentences. Confident but never loud. Explain, don't sell." /></div>
             </>
           )}
           {mode === "memory" && (
             <>
-              <div className="focus-field"><label>What should NexMind remember?</label><textarea value={mem} onChange={(e) => setMem(e.target.value)} placeholder="e.g. Always say 'agent payments', never 'crypto payments'. Avoid jargon." /></div>
+              <div className="focus-field"><label>What should Bam remember?</label><textarea value={mem} onChange={(e) => setMem(e.target.value)} placeholder="e.g. Always say 'agent payments', never 'crypto payments'. Avoid jargon." /></div>
               <div className="focus-field"><label>Keep, one per line</label><textarea value={keepText} onChange={(e) => setKeepText(e.target.value)} /></div>
               <div className="focus-field"><label>Avoid, one per line</label><textarea value={avoidText} onChange={(e) => setAvoidText(e.target.value)} /></div>
             </>
