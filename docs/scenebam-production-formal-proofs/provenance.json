@@ -1,0 +1,9 @@
+{
+  "femaleSourceSHA256": "3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4",
+  "maleSourceSHA256": "78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe",
+  "workerVersion": "approved-v3-v6-corrected-original-performance-v20-upper-thigh",
+  "workerSHA256": "975f5653537897e22c445523f3c0ed5adaa4b998bf821900082a84bc83e66177",
+  "gitCommit": "a01d0e3e6776e63ee73e946a1db9bd2b826b4446",
+  "liveVMHashVerified": false,
+  "deploymentParityCertified": false
+}
