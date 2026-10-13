@@ -1,0 +1,125 @@
+name: SceneBam selectable formal wardrobe CI
+on:
+  push:
+    branches: [work/scenebam-cast-formals-selectable-20261014]
+    paths:
+      - src/studio-v2/cast/**
+      - src/studio-v2/views/CastView.tsx
+      - src/lib/cast-spec-schema.ts
+      - scripts/cast-apply-formal.py
+      - scripts/cast-formal-material-audit.py
+      - scripts/cast-render-assembled.py
+      - scripts/cast-preview-worker.py
+      - scripts/install-cast-formals.py
+      - tests/cast-*.test.*
+      - .github/workflows/scenebam-cast-formal-integration.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  types-and-unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:cast
+      - run: python3 -m py_compile scripts/cast-apply-formal.py scripts/cast-formal-material-audit.py scripts/install-cast-formals.py scripts/cast-preview-worker.py
+  package-real-formals:
+    needs: types-and-unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve completed production-assembled V3/V6 Blender proofs
+        run: |
+          mkdir -p donor
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir donor
+          test -s donor/provenance.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('donor/provenance.json').read_text())
+          assert p['femaleSourceSHA256']=='3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4'
+          assert p['maleSourceSHA256']=='78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe'
+          assert p['liveVMHashVerified']==False
+          PY
+      - name: Install audited Blender 5.2.0 and thumbnails dependency
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil libegl1 libgl1 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p /tmp/scenebam-blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/scenebam-blender
+          echo "BLENDER_BIN=$(find /tmp/scenebam-blender -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Inventory actual tailored fabric and independent tie materials
+        run: |
+          set -euo pipefail
+          mkdir -p production-qa
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            test -s "donor/$v/$v-production-assembled.blend"
+            "$BLENDER_BIN" -b "donor/$v/$v-production-assembled.blend" --python-exit-code 1 --python scripts/cast-formal-material-audit.py -- "$v" "production-qa/$v.json" >"production-qa/$v.log" 2>&1 || { cat "production-qa/$v.log"; exit 1; }
+            cat "production-qa/$v.json"
+          done
+      - name: Pack real rigged assets; verify release archive and six front images
+        run: |
+          set -euo pipefail
+          mkdir -p package public/cast/options/formal
+          python3 - <<'PY'
+          import hashlib,json,tarfile,io
+          from pathlib import Path
+          from PIL import Image
+          variants='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          root=Path('donor')
+          files={}
+          archive=Path('package/scenebam-formal-v3v6-20261014.tar.gz')
+          with tarfile.open(archive,'w:gz',compresslevel=3) as tar:
+            for variant in variants:
+              source=root/variant/(variant+'-production-assembled.blend')
+              assert source.is_file() and source.stat().st_size>1000000,variant
+              files[variant]=hashlib.sha256(source.read_bytes()).hexdigest()
+              tar.add(source,arcname=variant+'.blend')
+              frame=root/variant/(variant+'-front.png')
+              assert frame.is_file(),frame
+              with Image.open(frame) as im:
+                im.thumbnail((400,520))
+                im.convert('RGB').save(Path('public/cast/options/formal')/(variant+'.webp'),format='WEBP',quality=88)
+          sha=hashlib.sha256(archive.read_bytes()).hexdigest()
+          manifest={'url':'https://github.com/Admiano/nexstudio/releases/download/scenebam-formal-v3v6-20261014/scenebam-formal-v3v6-20261014.tar.gz',
+            'archiveSha256':sha,'files':files,'provenance':'GitHub Actions run 38480065233; production V3/V6 assembly; live VM parity not certified'}
+          Path('config/scenebam-formal-assets.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          print('PINNED_FORMAL_ARCHIVE_SHA256',sha,flush=True)
+          PY
+      - name: Publish immutable development asset release (not deploy)
+        run: |
+          set -euo pipefail
+          tag=scenebam-formal-v3v6-20261014
+          if gh release view "$tag" --repo Admiano/nexstudio >/dev/null 2>&1; then
+            echo 'Release already exists. Do not silently overwrite versioned garment assets.'
+            exit 1
+          fi
+          gh release create "$tag" package/scenebam-formal-v3v6-20261014.tar.gz --repo Admiano/nexstudio --target "$GITHUB_SHA" --title 'SceneBam six rigged formal outfits — V3/V6 QA source' --notes 'Isolated integration assets. Structural assembly proof only; not a live VM parity or collision certification.' --prerelease
+      - name: Commit six Blender-derived previews and exact asset digests to integration branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/cast/options/formal config/scenebam-formal-assets.json
+          git commit -m 'assets(cast): pin six production-assembled formal blends and genuine thumbnails'
+          git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
+          git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_FORMAL_CAST_INTEGRATION_QA
+          path: production-qa/
+          retention-days: 14
