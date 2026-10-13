@@ -38,7 +38,7 @@ export function PublicDoc({ slug }: { slug: keyof typeof DOCS }) {
       <header className="pw-nav">
         <a aria-label="SceneBam" className="pw-logo" href="/"><span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
         <nav aria-label="Public navigation" className="pw-links">
-          <a href="/#make">Make</a><a href="/#proof">What it makes</a><a href="/#bam">Bam</a>
+          <a href="/#make">Create</a><a href="/#proof">Explore</a><a href="/#bam">How it works</a>
         </nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>

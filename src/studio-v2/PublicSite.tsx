@@ -233,7 +233,6 @@ const FAMILIES = [
 export function PublicSite({ authed }: { authed: boolean }) {
   const router = useRouter();
   const [brief, setBrief] = useState("Make a 30-second explainer for a language-learning app. Friendly, memorable, and built for social.");
-  const [demo, setDemo] = useState<"compose" | "thinking" | "direction">("compose");
   const [signIn, setSignIn] = useState(false);
 
   useEffect(() => {
@@ -261,7 +260,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
     <div id="publicSite">
       <header className="pw-nav">
         <a aria-label="SceneBam" className="pw-logo" href="#top"><span className="brand-mark sb-mark"><SceneBamMark /></span><span className="sb-wordmark">Scene<strong>Bam</strong></span></a>
-        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Make</a><a href="#proof">What it makes</a><a href="#bam">Bam</a></nav>
+        <nav aria-label="Public navigation" className="pw-links"><a href="#make">Create</a><a href="#proof">Explore</a><a href="#bam">How it works</a></nav>
         <div className="pw-actions">
           <button className="pw-ghost" onClick={() => { if (authed) router.push("/studio"); else setSignIn(true); }}>Sign in</button>
           <button className="pw-solid" onClick={enter}>Open Studio</button>
@@ -278,27 +277,13 @@ export function PublicSite({ authed }: { authed: boolean }) {
           </div>
           <div className="pw-live pw-reveal in">
             <div className="pw-demo">
-              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state={demo === "thinking" ? "thinking" : demo === "direction" ? "ready" : "idle"}><canvas /></span> Bam</div><span className="pw-demo-status">{demo === "compose" ? "Waiting for your brief" : demo === "thinking" ? "Shaping the production" : "Direction ready"}</span></div>
+              <div className="pw-demo-top"><div className="pw-demo-brand"><span aria-hidden="true" className="nx-presence nx-presence--mini" data-mode="matrix" data-nx-presence="" data-state="idle"><canvas /></span> Bam</div><span className="pw-demo-status">Your brief · Start with Bam</span></div>
               <div className="pw-demo-body">
-                {demo === "compose" && (
-                  <div className="pw-demo-state">
-                    <textarea id="pwBrief" value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Make a 30-second explainer for a language-learning app…" />
-                    <div className="pw-demo-chips"><span className="pw-demo-chip">+ Files</span><span className="pw-demo-chip">+ Brand</span><span className="pw-demo-chip">+ Reference</span><span className="pw-demo-chip">+ Series</span></div>
-                    <div className="pw-demo-foot"><span>Bam will show you the direction first.</span><button className="pw-demo-go" onClick={() => { setDemo("thinking"); setTimeout(() => setDemo("direction"), 1400); }}>Ask Bam <b>→</b></button></div>
-                  </div>
-                )}
-                {demo === "thinking" && (
-                  <div className="pw-thinking on"><div><div aria-hidden="true" className="pw-orbit" /><b>Shaping the production</b><small>Brief · format · story · visual language · sound</small></div></div>
-                )}
-                {demo === "direction" && (
-                  <div className="pw-direction on">
-                    <div className="pw-dir-label">Here’s what I’d build</div>
-                    <h3>A sharp 30-second Explainer with a hard opening and three visual turns.</h3>
-                    <div className="pw-dir-meta"><div><span>Treatment</span><b>Explainer</b></div><div><span>Format</span><b>All screens</b></div><div><span>Length</span><b>30 sec</b></div></div>
-                    <div className="pw-dir-beats"><div><i>01</i><span>Open on the friction people already feel.</span></div><div><i>02</i><span>Turn the problem into a visual system.</span></div><div><i>03</i><span>Reveal the product as the clean resolution.</span></div></div>
-                    <div className="pw-dir-actions"><button className="accept" onClick={enter}>Use this direction →</button><button className="change" onClick={() => setDemo("compose")}>Change request</button></div>
-                  </div>
-                )}
+                <div className="pw-demo-state">
+                  <textarea id="pwBrief" aria-label="Describe the video you want to make" value={brief} onChange={(e) => setBrief(e.target.value)} placeholder="Make a 30-second explainer for a language-learning app…" />
+                  <div className="pw-demo-chips" aria-label="Context available inside the Studio"><span className="pw-demo-chip">Files</span><span className="pw-demo-chip">Brand</span><span className="pw-demo-chip">References</span><span className="pw-demo-chip">Series</span></div>
+                  <div className="pw-demo-foot"><span>Your brief carries into the Studio for Bam to develop.</span><button className="pw-demo-go" onClick={enter}>Continue in Studio <b>→</b></button></div>
+                </div>
               </div>
             </div>
           </div>
@@ -342,11 +327,11 @@ export function PublicSite({ authed }: { authed: boolean }) {
         </section>
         <section className="pw-section" id="cast">
           <div className="pw-wrap">
-            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Your cast</div></div><div><h2>Characters that stay in character.</h2><p>Every presenter is put together from parts: face, hair, wardrobe, voice. They can hand a scene to each other, carry a lower third, or make room for a squeeze-back, and nothing about the film blinks. Build one once and they show up in every film, still recognizably yours.</p></div></div>
+            <div className="pw-section-head pw-reveal"><div><div className="pw-kicker"><i /> Your cast</div></div><div><h2>Characters that stay in character.</h2><p>Build a recognizable presenter using face, hair, wardrobe and voice. Explore scene treatments and casting possibilities as the presenter system develops.</p></div></div>
             <div className="pw-cast-bento">
               <div className="pw-cast-tile pw-cast-main pw-reveal">
                 <PresenterScene />
-                <div className="pw-cast-cap"><span className="pw-work-chip">In scene</span><span>Lower thirds and squeeze-backs are the moments in a film that can work for you.</span></div>
+                <div className="pw-cast-cap"><span className="pw-work-chip">Presenter preview</span><span>Lower thirds and squeeze-backs are the moments in a film that can work for you.</span></div>
               </div>
               <div className="pw-cast-tile pw-cast-swap pw-reveal" data-delay="1"><CastScene /></div>
               <div className="pw-cast-tile pw-cast-parts pw-reveal" data-delay="2">
@@ -373,7 +358,7 @@ export function PublicSite({ authed }: { authed: boolean }) {
         </section>
         <section className="pw-final"><div className="pw-final-inner pw-reveal"><div className="pw-kicker"><i /> SceneBam</div><h2>Make something worth watching.</h2><p>Start with the brief. Bam takes it from there, and you see the direction before anything is made.</p><button className="pw-solid" onClick={enter}>Open SceneBam →</button></div></section>
       </main>
-      <footer className="pw-footer"><span>© 2026 SceneBam · Meet Bam, your creative director</span><div className="pw-footer-links"><a href="#make">Make</a><a href="#bam">Bam</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
+      <footer className="pw-footer"><span>© 2026 SceneBam · Meet Bam, your creative director</span><div className="pw-footer-links"><a href="#make">Create</a><a href="#bam">How it works</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/faq">FAQ</a></div></footer>
       {signIn && <SignInSheet onClose={() => setSignIn(false)} />}
     </div>
   );

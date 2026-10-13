@@ -107,7 +107,7 @@ export function CreateView({ composer, setPrompt, setFamily, setMode, removeCont
             <div className="onboard-step"><i>3</i><span><b>You approve</b>Nothing renders without your yes</span></div>
             <div className="onboard-step"><i>4</i><span><b>It renders</b>16:9, 9:16 and 1:1 in one pass</span></div>
           </div>
-          <div className="onboard-foot"><button className="onboard-try" onClick={tryExample}>Try this brief →</button><span className="onboard-note">First video takes about 3 to 6 minutes to render.</span></div>
+          <div className="onboard-foot"><button className="onboard-try" onClick={tryExample}>Try this brief →</button><span className="onboard-note">Render time varies with production complexity.</span></div>
         </div>
       )}
       <div className="composer-shell">
