@@ -21,7 +21,7 @@ for i,name in enumerate(names):
     for j,shot in enumerate(("front","threeq","pose-338","pose-891")):
         path=folder/(name+"-"+shot+".png")
         raw=path.read_bytes()
-        assert raw.startswith(b"\\x89PNG\\r\\n\\x1a\\n")
+        assert raw.startswith(b"\x89PNG\r\n\x1a\n")
         images.append({"name":path.name,"sha256":hashlib.sha256(raw).hexdigest()})
         if j<2:
             im=Image.open(path).convert("RGBA")
