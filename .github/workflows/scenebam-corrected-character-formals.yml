@@ -2,7 +2,7 @@ name: SceneBam corrected-character formalwear refit
 on:
   push:
     branches: [work/scenebam-corrected-cast-formals-20261013]
-    paths: ['.github/workflows/scenebam-corrected-character-formals.yml', 'scripts/scenebam-corrected-character-formal-bank.py', 'scripts/scenebam-corrected-character-contact-sheet.py', 'experiments/illustrated-family/donor_suit_fit_uv.py']
+    paths: ['.github/workflows/scenebam-corrected-character-formals.yml', 'scripts/scenebam-corrected-character-formal-bank.py', 'scripts/scenebam-corrected-character-contact-sheet.py', 'experiments/illustrated-family/donor_suit_fit_uv.py', 'experiments/illustrated-family/donor_suit_pose_qa.py', 'scripts/scenebam-formal-qa.py']
 permissions:
   contents: read
 jobs:
