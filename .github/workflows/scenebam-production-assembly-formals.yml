@@ -1,0 +1,119 @@
+name: SceneBam production-assembled six formal proofs
+on:
+  push:
+    branches: [work/scenebam-production-assembly-formals-20261013]
+    paths:
+      - .github/workflows/scenebam-production-assembly-formals.yml
+      - scripts/scenebam-production-formal-proof.py
+permissions:
+  actions: read
+  contents: write
+jobs:
+  proof:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            docs/cast-quality-reference
+            engine_sources/makehuman-lineart/presenters_v1
+            engine_sources/makehuman-lineart/assets
+            engine_sources/makehuman-lineart/NexStudio_Presenter_Reference
+            engine_sources/makehuman-lineart/approved-polish.json
+      - name: Install certified Blender 5.2.0
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil zstd libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59a7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Hash-pin approved V3/V6 sources and record worker version
+        run: |
+          set -euo pipefail
+          mkdir -p production-proof
+          echo '3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4  engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_FEMALE_v3.blend' | sha256sum -c -
+          echo '78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe  engine_sources/makehuman-lineart/NexStudio_Presenter_Reference/characters/NEXSTUDIO_V1_MALE_v6.blend' | sha256sum -c -
+          python - <<'PY'
+          import json,hashlib,pathlib,re,subprocess
+          s=pathlib.Path('scripts/cast-preview-worker.py').read_bytes()
+          m=re.search(rb"RENDER_VERSION='([^']+)'",s)
+          pathlib.Path('production-proof/provenance.json').write_text(json.dumps({
+            'femaleSourceSHA256':'3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4',
+            'maleSourceSHA256':'78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe',
+            'workerVersion':m.group(1).decode() if m else 'unknown',
+            'workerSHA256':hashlib.sha256(s).hexdigest(),
+            'gitCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+            'liveVMHashVerified':False,'deploymentParityCertified':False},indent=2))
+          PY
+      - name: Fetch genuine six V3/V6 Blender outfit refits
+        run: |
+          set -euo pipefail
+          mkdir -p donor-refits
+          gh run download 38467452220 --repo Admiano/nexstudio --name SCENEBAM_CURRENT_CAST_REAL_REFITS_AND_PREVIEWS --dir donor-refits
+          test -s donor-refits/female-double-breasted/female-double-breasted-front.blend
+      - name: Assemble actual production-worker appearance from repository
+        run: |
+          set -euo pipefail
+          for sex in female male; do
+            mkdir -p "production-proof/$sex"
+            python scripts/cast-quality-reference.py --character "$sex" --output-dir "production-proof/$sex" --blender "$BLENDER_BIN" --assemble-only
+            test -s "production-proof/$sex/$sex-candidate.blend"
+          done
+      - name: Retarget the six original formal suits to production assembled cast and rerender
+        run: |
+          set -euo pipefail
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${variant%%-*}
+            mkdir -p "production-proof/$variant"
+            "$BLENDER_BIN" -b "production-proof/$sex/$sex-candidate.blend" -t 4 --python-exit-code 1 --python scripts/scenebam-production-formal-proof.py -- "$variant" "donor-refits/$variant/$variant-front.blend" "production-proof/$variant" >"production-proof/$variant/run.log" 2>&1 || { tail -n 100 "production-proof/$variant/run.log"; exit 1; }
+            test -s "production-proof/$variant/production-proof.json"
+            echo "PASS: $variant"
+          done
+      - name: Assemble review boards from true Blender PNG frames
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image,ImageDraw
+          root=Path('production-proof')
+          names='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          for tags,file in [(['front','threeq'],'SCENEBAM_PRODUCTION_FORMAL_FRONT_3Q.png'),(['pose-338','pose-891'],'SCENEBAM_PRODUCTION_FORMAL_GESTURES.png')]:
+            sheet=Image.new('RGB',(2220,660),'#F4F3EF')
+            draw=ImageDraw.Draw(sheet)
+            draw.text((20,15),'SceneBam production-assembled cast | genuine Blender formalwear proof',fill='#161616')
+            draw.text((20,38),'Approved V3/V6 base source; LIVE VM parity / collision and art approval NOT certified',fill='#555555')
+            for n,name in enumerate(names):
+              for k,tag in enumerate(tags):
+                im=Image.open(root/name/(name+'-'+tag+'.png')).convert('RGBA')
+                im.thumbnail((175,540))
+                sheet.paste(im,(20+n*365+k*178+(175-im.width)//2,72+(540-im.height)//2),im)
+              draw.text((20+n*365,625),name,fill='#111111')
+            sheet.save(root/file)
+          PY
+      - name: Publish visual evidence to isolated branch, never live deployment
+        if: success()
+        run: |
+          set -euo pipefail
+          mkdir -p docs/scenebam-production-formal-proofs
+          cp production-proof/SCENEBAM_PRODUCTION_FORMAL_*.png docs/scenebam-production-formal-proofs/
+          cp production-proof/provenance.json docs/scenebam-production-formal-proofs/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse docs/scenebam-production-formal-proofs/
+          git commit -m 'proof: real six suits on assembled SceneBam production cast'
+          git push origin HEAD:work/scenebam-production-assembly-formals-20261013
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS
+          path: production-proof/
+          retention-days: 14
+          compression-level: 3
+          if-no-files-found: warn
