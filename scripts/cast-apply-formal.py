@@ -144,9 +144,10 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
             # Cast male's approved Host.body can mask its clothed torso while
             # retaining the bare head/neck mesh. Use its head-axis as a stable
             # lateral registration fallback rather than declaring body absent.
-            for lo,hi in ((1.05,1.43),(1.43,1.92),(0.80,2.10)):
+            bands=((1.52,1.84,30),(1.43,1.92,25),(1.05,1.43,25)) if obj is body and sex=='male' else ((1.05,1.43,100),(1.43,1.92,25),(0.80,2.10,25))
+            for lo,hi,min_points in bands:
                 sample=[p for p in positions if lo <= p.z <= hi]
-                if len(sample)>=25:
+                if len(sample)>=min_points:
                     return (median(float(p.x) for p in sample),median(float(p.y) for p in sample))
             raise RuntimeError('CAST_FORMAL_BODY_ANCHOR_MISSING:'+obj.name+':'+str(len(positions)))
         finally:
