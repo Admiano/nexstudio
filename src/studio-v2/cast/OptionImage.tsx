@@ -1,8 +1,9 @@
 import type { CastCharacter } from './spec';
 
-export type CastImageCategory = 'character' | 'face' | 'hair' | 'neck' | 'dress' | 'top' | 'bottom' | 'shoes' | 'watch';
+export type CastImageCategory = 'character' | 'face' | 'hair' | 'neck' | 'dress' | 'top' | 'bottom' | 'shoes' | 'watch' | 'formal';
 
 export function castOptionImage(character: CastCharacter, category: CastImageCategory, key: string | number) {
+  if (category === 'formal') return '/cast/options/v21/' + character + '/formal/' + key + '.webp';
   if (category === 'character' || category === 'face' || category === 'hair' || category === 'dress' || category === 'top' || category === 'bottom') {
     return '/cast/options/v21/' + character + '/' + category + '/' + key + '.webp';
   }
