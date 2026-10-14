@@ -22,6 +22,7 @@ jobs:
           filter: blob:none
           sparse-checkout: |
             engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
             services/studio-family-engines
           sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
