@@ -130,6 +130,29 @@ def unit_anchor(unit_text: str, anchor_word: Optional[str]) -> str:
     return m.group(0) if m else unit_text
 
 
+def illustration_op_start(clock: 'BeatClock', op: Any, cursor: int):
+    from .contracts import TreatmentError
+
+    if 'word' in op.at:
+        idx = op.params.get('word_index')
+        if idx is not None:
+            if idx >= len(clock.words) or clock.words[idx].key != normalise(op.at['word']):
+                raise TreatmentError('OP_WORD_INDEX_MISMATCH', op.at['word'], clock.beat_id)
+        else:
+            idx = find_landing(clock.words, op.at['word'], cursor)
+        if idx is None:
+            return None, cursor
+        if op.params.get('end_on_word'):
+            end = idx + op.params.get('word_span', 1) - 1
+            if end >= len(clock.words):
+                raise TreatmentError('OP_WORD_SPAN_OUT_OF_RANGE', op.at['word'], clock.beat_id)
+            return clock.words[end].end_ms - op.duration_ms, idx
+        return clock.words[idx].start_ms - 60, idx
+    if 'unit' in op.at:
+        return clock.landings_ms[op.at['unit']], cursor
+    return LEAD_IN_MS + op.at['offset_ms'], cursor
+
+
 @dataclass
 class BeatClock:
     beat_id: str
