@@ -107,6 +107,7 @@ def main() -> int:
     ap.add_argument('--fixture', action='append')
     ap.add_argument('--aspects', default='16x9,1x1,9x16')
     ap.add_argument('--fps', type=int, default=15)
+    ap.add_argument('--kinetic-captions', action='store_true')
     ap.add_argument('--out', default=str(ROOT / 'out' / 'regression'))
     ap.add_argument('--skip-render', action='store_true')
     args = ap.parse_args()
@@ -126,6 +127,12 @@ def main() -> int:
         film_out = root_out / name
         gate = compile_fixture(treatment, film_out)
         film = {'film': name, 'aspects': {}, 'gate': gate['status']}
+            if args.kinetic_captions:
+                compiled = json.loads(plan.read_text())
+                if not all(b['typography']['blocks'] for b in compiled['beats']):
+                    raise ValueError('Kinetic captions require on-canvas text in every beat')
+                compiled['captions_policy'] = 'kinetic'
+                plan.write_text(json.dumps(compiled, indent=2))
         def render_format(aspect):
             plan = film_out / f'plan_{aspect}.json'
             manifest_path = film_out / f'render_{aspect}.json'
