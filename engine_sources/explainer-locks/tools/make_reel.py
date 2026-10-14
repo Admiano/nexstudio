@@ -922,21 +922,27 @@ def sketch_groups(words):
             group = []
     if group:
         groups.append(group)
-    i = 0
-    while i < len(groups) - 1:
-        last, following = groups[i][-1], groups[i + 1][0]
-        pause = max(0, following["start_ms"] - last["end_ms"])
-        hold = (last["end_ms"] - last["start_ms"] + int(pause * OUTGOING_SHARE)
-                - _cascade_settle_ms("PRODUCT_COLLAGE") - exit_for_pause(pause))
-        combined = groups[i] + groups[i + 1]
-        if hold < readable_close_floor(pause) * 0.6 and len(combined) <= 20:
-            contexts = [set(re.sub(r"^(?:a|an|the|another|each|every|this|that) ", "", p.lower())
-                            for p in sketch_noun_phrases(" ".join(w["text"] for w in g)))
-                        for g in groups[i:i + 2]]
-            if contexts[0] & contexts[1]:
-                groups[i:i + 2] = [combined]
-                continue
-        i += 1
+    # Merge adjacent related claims only when the second action depends on
+    # context from the first. Retain an initial setup cut for three-claim arcs.
+    def nouns(group):
+        return {re.sub(r"^(?:another|different) ", "", p.lower())
+                for p in sketch_noun_phrases(" ".join(w["text"] for w in group))}
+    if len(groups) >= 3:
+        i = 1
+        while i < len(groups) - 1:
+            if len(groups[i] + groups[i + 1]) <= 20 and nouns(groups[i]) & nouns(groups[i + 1]):
+                groups[i:i + 2] = [groups[i] + groups[i + 1]]
+            else:
+                i += 1
+    elif len(groups) == 2:
+        text_a = " ".join(w["text"] for w in groups[0]).lower()
+        text_b = " ".join(w["text"] for w in groups[1]).lower()
+        # Attachment -> transfer is one continuous visual argument.
+        if (len(groups[0] + groups[1]) <= 20
+                and re.search(r"\b(sticks? to|attaches? to)\b", text_a)
+                and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b)
+                and nouns(groups[0]) & nouns(groups[1])):
+            groups = [groups[0] + groups[1]]
     return groups
 
 
@@ -954,6 +960,13 @@ _SKETCH_FALSE_FRIEND_ASSETS = {
 
 
 def sketch_noun_phrases(text):
+    """Extract source-mentioned actors/objects without requiring a spaCy model.
+
+    In production the small English model is optional, so a fallback must not
+    accidentally turn articles or conjunctions into drawable entities. It
+    takes subjects, determiner phrases and objects of source action verbs,
+    preserving source order and never inventing unnamed objects.
+    """
     global _SKETCH_NLP
     if _SKETCH_NLP is None:
         try:
@@ -963,10 +976,69 @@ def sketch_noun_phrases(text):
             _SKETCH_NLP = False
     if _SKETCH_NLP:
         return [chunk.text for chunk in _SKETCH_NLP(text).noun_chunks]
-    return re.findall(
-        r"\b(?:a|an|the|each|every|some|this|that|same|of|against|into|to) "
-        r"([a-z]+)\b", text, re.I
-    )
+    articles = {"a", "an", "the", "this", "that", "each", "every", "some"}
+    qualifiers = {"another", "different"}
+    modifiers = {"better", "lower", "unknown", "paper"}
+    verbs = {"sends", "send", "feeds", "feed", "flows", "flow", "transfers",
+             "transfer", "carries", "carry", "carried", "sticks", "stick",
+             "attaches", "attach", "connects", "connect", "helps", "help",
+             "makes", "make", "produces", "produce", "improves", "improve",
+             "reduces", "reduce", "increases", "increase", "enables", "enable",
+             "becomes", "become", "changes", "change", "prints", "print",
+             "visits", "visit", "enters", "enter", "goes", "go", "holds",
+             "hold", "stores", "store", "dries", "dry", "means", "mean",
+             "solving", "solve", "succeeds", "succeed", "grows", "grow"}
+    preps = {"to", "for", "from", "into", "with", "without", "of", "than"}
+    stop = articles | {"and", "or", "but", "not", "no", "never", "necessarily",
+                       "can", "cannot", "does", "do", "is", "are", "was",
+                       "were", "then", "every", "so", "in", "on", "at",
+                       "by", "its", "it", "their", "more", "less"}
+    matches = []
+    for clause in re.split(r"[.!?;]+", text.lower()):
+        tokens = re.findall(r"[a-z]+(?:'[a-z]+)?", clause)
+        if not tokens:
+            continue
+        candidates = []
+        def emit(start, word, phrase=None):
+            if word in stop or word in verbs or word in preps or word in qualifiers:
+                return
+            candidates.append((start, phrase or word))
+        for i, token in enumerate(tokens):
+            if token in articles | qualifiers and i + 1 < len(tokens):
+                j = i + 1
+                if tokens[j] in articles or tokens[j] in preps or tokens[j] in verbs:
+                    continue
+                # An adjectival modifier is not an independent object.
+                if tokens[j] in modifiers and j + 1 < len(tokens) and tokens[j+1] not in verbs | stop:
+                    j += 1
+                name = tokens[j]
+                phrase = ("another " + name) if token in qualifiers else (
+                    ("better " + name) if i + 1 < j and tokens[i+1] == "better" else name)
+                emit(i, name, phrase)
+            if token in verbs:
+                j = i+1
+                while j < len(tokens) and tokens[j] in articles | preps | stop:
+                    j += 1
+                if j < len(tokens):
+                    if tokens[j] in modifiers and j + 1 < len(tokens) and tokens[j+1] not in verbs | stop:
+                        j += 1
+                    emit(j, tokens[j], ("better " + tokens[j]) if j>0 and tokens[j-1]=="better" else None)
+        first = 0
+        while first < len(tokens) and tokens[first] in articles:
+            first += 1
+        if first < len(tokens):
+            subj = first
+            if tokens[subj] in modifiers and subj+1<len(tokens) and tokens[subj+1] not in verbs:
+                subj += 1
+            emit(subj, tokens[subj])
+        matches.extend(candidates)
+    # Stable order; preserve repeated noun with only one graph identity.
+    result, seen = [], set()
+    for _, name in sorted(matches, key=lambda p: p[0]):
+        if name not in seen:
+            result.append(name)
+            seen.add(name)
+    return result
 
 
 def sketch_asset(phrase, text):
@@ -1019,6 +1091,8 @@ def sketch_entities(gwords, media):
         if re.search(r"\bof\b", phrase, re.I):
             phrase = re.split(r"\bof\b", phrase, flags=re.I)[-1].strip()
         phrase = phrase.strip(" ,.;:!?\"'").lower()
+        if phrase in {"a", "an", "the", "to", "of", "and", "but", "not", "every"}:
+            continue
         entity_id = ("sk_another_" if distinct else "sk_") + re.sub(r"\W+", "_", phrase)
         if len(phrase.split()) > 3 or not phrase or entity_id in seen:
             continue
@@ -1073,7 +1147,10 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
                             mentioned(e, " ".join(t.text for t in head.subtree)) for head in heads)]
             if not subjects or not objects:
                 continue
-            source = subjects[-1]
+            # Conjoined verbs inherit the clause's subject, not the preceding
+            # verb's destination. Use the earliest actor before the first verb.
+            clause_subject = [e for e in entities if mentioned(e, clause[:actions[0].start()])]
+            source = clause_subject[-1] if i > 0 and clause_subject else subjects[-1]
             target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
             if source is target:
                 continue
