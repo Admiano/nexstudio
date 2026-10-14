@@ -51,7 +51,7 @@ jobs:
           python tools/test_sketch_authoring.py -q
       - name: Render Data Viz in all aspects
         working-directory: engine_sources/explainer-locks
-        run: python tools/recovery_video_proof.py --style dataviz --aspects 16x9,9x16,1x1 --fps 15 --workers 2
+        run: python tools/recovery_video_proof.py --style dataviz --aspects 16x9,9x16,1x1 --fps 24 --workers 2
       - name: Render Sketch in all aspects
         working-directory: engine_sources/explainer-locks
         run: python tools/recovery_video_proof.py --style sketch --aspects 16x9,9x16,1x1 --fps 15 --workers 2
