@@ -223,10 +223,38 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     # Require exact partition of all polygons and physical separation.
     assert sum(sum(len(ids) for ids,_ in group) for group in (suits,tie,other))==len(mesh.polygons)
     assert all(mesh.polygons[i].material_index==2 for ids,_ in tie for i in ids)
-    scene.view_layers.update() if hasattr(scene.view_layers,'update') else bpy.context.view_layer.update()
+    # Wardrobe-only body occlusion: keep original body topology, shape keys,
+    # rig, face, neck, hands and feet. Mask only skin that is INSIDE a fully
+    # covered suit/trouser area. This is a per-render reversible modifier on
+    # the assembled performer, never an edit to the approved source body.
+    # The raw CC0 trousers otherwise expose original leg skin at the thigh.
+    visible=body.vertex_groups.get('SCENEBAM_FORMAL_VISIBLE_SKIN')
+    if visible is None: visible=body.vertex_groups.new(name='SCENEBAM_FORMAL_VISIBLE_SKIN')
+    hand_ids=set()
+    for i,v in enumerate(body.data.vertices):
+        if any(('hand' in body.vertex_groups[g.group].name.lower()
+                or 'finger' in body.vertex_groups[g.group].name.lower()
+                or 'wrist' in body.vertex_groups[g.group].name.lower()
+                or 'thumb' in body.vertex_groups[g.group].name.lower()
+                or 'palm' in body.vertex_groups[g.group].name.lower())
+               and g.weight>0.08 for g in v.groups):
+            hand_ids.add(i)
+    if len(hand_ids)<40:
+        raise RuntimeError('CAST_FORMAL_HAND_SKIN_PROTECTION_UNVERIFIED:'+str(len(hand_ids)))
+    exposed=[v.index for v in body.data.vertices
+             if v.index in hand_ids or (body.matrix_world@v.co).z >= 1.43
+             or (body.matrix_world@v.co).z < 0.14]
+    if len(exposed)<len(hand_ids)+80:
+        raise RuntimeError('CAST_FORMAL_FACE_SKIN_PROTECTION_UNVERIFIED')
+    visible.add(exposed,1.0,'REPLACE')
+    modifier=body.modifiers.new('SCENEBAM_FORMAL_CLOTHING_UNDERLAY','MASK')
+    modifier.vertex_group=visible.name
+    modifier.invert_vertex_group=False
+    bpy.context.view_layer.update()
     return {'enabled':True,'variant':variant,'sourceFile':file.name,
             'restError':max_error,'garmentVertices':len(donor.data.vertices),
             'hiddenOriginalGarments':hidden,'materialsByRole':roles,
             'suitHex':suit_hex.upper(),'tieHex':tie_hex.upper(),
             'rigPreserved':True,'collisionCertified':False,
+            'bodySkinOcclusion':{'preservedHandVertices':len(hand_ids),'preservedSkinVertices':len(exposed),'originalBodyShapeKeys':len(body.data.shape_keys.key_blocks)},
             'garmentTorsoCenter':garment_center,'bodyTorsoCenter':body_center,'torsoXDeviation':torso_dx}
