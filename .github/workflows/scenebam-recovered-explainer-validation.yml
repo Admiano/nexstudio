@@ -1,0 +1,36 @@
+name: SceneBam recovered explainer validation
+on:
+  pull_request:
+    paths:
+      - "engine_sources/explainer-locks/**"
+      - ".github/workflows/scenebam-recovered-explainer-validation.yml"
+  push:
+    branches:
+      - recovery/devin-dataviz-sketch-20261014
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovered-authoring-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lightweight runtime dependencies
+        run: python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+      - name: Compile changed Python modules
+        run: |
+          python -m py_compile \
+            engine_sources/explainer-locks/compiler/editorial_plan_compiler/{schemas,illustration,compiler,contracts,timing}.py \
+            engine_sources/explainer-locks/tools/{make_reel,regression_pack,test_dataviz_authoring,test_sketch_authoring}.py
+      - name: Data Viz authoring tests
+        working-directory: engine_sources/explainer-locks
+        run: python tools/test_dataviz_authoring.py -v
+      - name: Sketch authoring and preview tests
+        working-directory: engine_sources/explainer-locks
+        run: python tools/test_sketch_authoring.py -v
