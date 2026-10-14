@@ -1157,13 +1157,13 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
                 # "becomes stiffer" describes a state, not a named object.
                 # Transformation drawings need an explicit nominal referent.
                 trailing = after.strip().lower()
-                if not re.match(r"^(?:a|an|the|another|different|this|that)\\b", trailing):
+                if not re.match(r"^(?:a|an|the|another|different|this|that)\b", trailing):
                     continue
             # Conjoined verbs inherit the clause's subject, not the preceding
             # verb's destination. Use the earliest actor before the first verb.
             clause_subject = [e for e in entities if mentioned(e, clause[:actions[0].start()])]
             between = clause[actions[i-1].end():action.start()] if i else ""
-            inherited = bool(i and re.search(r"\\band\\s*$", between, re.I))
+            inherited = bool(i and re.search(r"\band\s*$", between, re.I))
             source = clause_subject[-1] if inherited and clause_subject else subjects[-1]
             target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
             if source is target:
