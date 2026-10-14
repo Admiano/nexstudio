@@ -204,8 +204,9 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
             other.append((indices,stats))
     if expected or not tie or not suits or len(suits)<2:
         raise RuntimeError('CAST_FORMAL_UV_ISLAND_CONTRACT_FAILED:'+variant+':'+repr(expected))
-    mesh.materials.append(_colour_material(source,'suit',_colour(suit_hex),variant))
-    mesh.materials.append(_colour_material(source,'tie',_colour(tie_hex),variant))
+    # ORIGINAL is an exact native UV-atlas reset, not an approximated palette hex.
+    mesh.materials.append(source.copy() if suit_hex=='ORIGINAL' else _colour_material(source,'suit',_colour(suit_hex),variant))
+    mesh.materials.append(source.copy() if tie_hex=='ORIGINAL' else _colour_material(source,'tie',_colour(tie_hex),variant))
     for indices,_ in suits:
         for index in indices:mesh.polygons[index].material_index=1
     for indices,_ in tie:

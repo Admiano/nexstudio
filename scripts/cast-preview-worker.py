@@ -20,7 +20,7 @@ def validate(config):
     if env['CAST_FORMAL_ID']:
         valid={'female-double-breasted','female-statement','male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket'}
         if env['CAST_FORMAL_ID'] not in valid or not env['CAST_FORMAL_ID'].startswith(env['CAST_CHARACTER']+'-'):raise ValueError('CAST_FORMAL_ID_INVALID')
-        if not re.fullmatch('[0-9A-Fa-f]{6}',env['CAST_FORMAL_SUIT_HEX']) or not re.fullmatch('[0-9A-Fa-f]{6}',env['CAST_FORMAL_TIE_HEX']):raise ValueError('CAST_FORMAL_COLOUR_INVALID')
+        if any(v!='ORIGINAL' and not re.fullmatch('[0-9A-Fa-f]{6}',v) for v in (env['CAST_FORMAL_SUIT_HEX'],env['CAST_FORMAL_TIE_HEX'])):raise ValueError('CAST_FORMAL_COLOUR_INVALID')
     elif env['CAST_FORMAL_SUIT_HEX'] or env['CAST_FORMAL_TIE_HEX']:raise ValueError('CAST_FORMAL_SELECTION_INCOMPLETE')
 def render(job):
     config=json.loads((job/'request.json').read_text())['config'];validate(config)

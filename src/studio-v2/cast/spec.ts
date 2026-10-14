@@ -136,6 +136,7 @@ export const MALE_FORMAL_OUTFITS = [
  { key: "formal-dinner-jacket", label: "Dinner jacket" },
 ] as const;
 export const FORMAL_SUIT_COLORS = [
+ { key: "original", label: "Original garment", hex: "#777777" },
  { key: "charcoal", label: "Charcoal", hex: "#35343B" },
  { key: "navy", label: "Midnight navy", hex: "#222C46" },
  { key: "black", label: "Black", hex: "#16171B" },
@@ -143,6 +144,7 @@ export const FORMAL_SUIT_COLORS = [
  { key: "ivory", label: "Ivory", hex: "#E7E1D8" },
 ] as const;
 export const FORMAL_TIE_COLORS = [
+ { key: "original", label: "Original tie", hex: "#777777" },
  { key: "burgundy", label: "Burgundy", hex: "#A33B50" },
  { key: "navy", label: "Navy", hex: "#283A62" },
  { key: "champagne", label: "Champagne", hex: "#BEA479" },
@@ -153,8 +155,8 @@ export const isFormalOutfit = (kind: string | undefined | null) =>
   !!kind && [...FEMALE_FORMAL_OUTFITS, ...MALE_FORMAL_OUTFITS].some(o => o.key === kind);
 export const formalOutfitId = (character: CastCharacter, kind: string) =>
   isFormalOutfit(kind) ? character + "-" + kind.slice("formal-".length) : "";
-export const FORMAL_DEFAULT_SUIT = "navy";
-export const FORMAL_DEFAULT_TIE = "burgundy";
+export const FORMAL_DEFAULT_SUIT = "original";
+export const FORMAL_DEFAULT_TIE = "original";
 
 export const MALE_OUTFITS = [
   { key: "o1", label: "Polo", note: "charcoal trousers" },

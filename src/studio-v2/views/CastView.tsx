@@ -119,8 +119,8 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
     setSpec((s) => normalizeCastSpec({
       ...s,
       outfit: isFormalOutfit(kind)
-        ? { kind, color: isFormalOutfit(s.outfit?.kind) ? s.outfit?.color : "navy",
-            pieces: { tieColor: isFormalOutfit(s.outfit?.kind) ? s.outfit?.pieces?.tieColor ?? "burgundy" : "burgundy" } }
+        ? { kind, color: isFormalOutfit(s.outfit?.kind) ? s.outfit?.color : FORMAL_DEFAULT_SUIT,
+            pieces: { tieColor: isFormalOutfit(s.outfit?.kind) ? s.outfit?.pieces?.tieColor ?? FORMAL_DEFAULT_TIE : FORMAL_DEFAULT_TIE } }
         : { kind, color: undefined, ...(s.character==="male"&&MALE_OUTFIT_PIECES[kind]?{pieces:{...MALE_OUTFIT_PIECES[kind]}}:{}) },
     }, s.character));
   };
@@ -353,14 +353,16 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Suit colour</label><span>Independent of the tie</span></div>
                     <div className="identity-color-row">
-                      {FORMAL_SUIT_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Suit ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.color===c.key} onClick={()=>patchOutfitColor(c.key)}/>)}
+                      <button type="button" className="identity-option" aria-pressed={spec.outfit?.color==='original'} onClick={()=>patchOutfitColor('original')}>Original fabric</button>
+                      {FORMAL_SUIT_COLORS.filter(c=>c.key!=='original').map(c=><button key={c.key} title={c.label} aria-label={`Suit ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.color===c.key} onClick={()=>patchOutfitColor(c.key)}/>)}
                       <CustomColour label="Custom suit colour" value={colourValue(spec.outfit?.color,FORMAL_SUIT_COLORS)} onChange={patchOutfitColor} withHexInput/> 
                     </div>
                   </div>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Tie colour</label><span>Independent of the suit</span></div>
                     <div className="identity-color-row">
-                      {FORMAL_TIE_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Tie ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.pieces?.tieColor===c.key} onClick={()=>patchTieColor(c.key)}/>)}
+                      <button type="button" className="identity-option" aria-pressed={spec.outfit?.pieces?.tieColor==='original'} onClick={()=>patchTieColor('original')}>Original tie</button>
+                      {FORMAL_TIE_COLORS.filter(c=>c.key!=='original').map(c=><button key={c.key} title={c.label} aria-label={`Tie ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.pieces?.tieColor===c.key} onClick={()=>patchTieColor(c.key)}/>)}
                       <CustomColour label="Custom tie colour" value={colourValue(spec.outfit?.pieces?.tieColor,FORMAL_TIE_COLORS)} onChange={patchTieColor} withHexInput/>
                     </div>
                   </div>

@@ -74,3 +74,10 @@ assert.equal(watchFormal.watch,'chrono');
 assert.equal(castRenderConfig(watchFormal).env.CAST_WATCH,'none');
 if(originalGate===undefined)delete process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED;else process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED=originalGate;
 console.log('PASS formal availability gate and accessor continuity');
+
+const nativeColours=normalizeCastSpec({...DEFAULT_SPEC.male,outfit:{kind:'formal-dinner-jacket',color:'original',pieces:{tieColor:'original'}}});
+assert.equal(castSpecSchema.safeParse(nativeColours).success,true);
+assert.equal(castRenderConfig(nativeColours).env.CAST_FORMAL_SUIT_HEX,'ORIGINAL');
+assert.equal(castRenderConfig(nativeColours).env.CAST_FORMAL_TIE_HEX,'ORIGINAL');
+assert.equal(normalizeCastSpec({...nativeColours,outfit:{kind:'formal-dinner-jacket'}}).outfit!.color,'original');
+console.log('PASS native UV atlas restoration on suit and tie reset');

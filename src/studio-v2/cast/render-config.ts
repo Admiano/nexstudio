@@ -5,6 +5,7 @@ const DRESSES: Record<string,string> = {sheath:'mindfront_f_dress_11',maxi:'mind
 const TOPS: Record<string,string> = {o1:'namuhekam_male_polo_shirt',o2:'toigo_basic_tucked_t-shirt',o3:'elvs_male_shirt_untucked_bd1',o4:'mindfront_knitted_sweater_01',o5:'toigo_fisherman_sweater'};
 const HAIR: Record<string,string> = {bald:'elvs_maxwell_hair',afro:'afro01',crop:'short01',quiff:'elvs_maxwell_hair',braids:'elvs_braided_rows',swept:'elvs_grump_hair'};
 const hex = (v:string,set:readonly {key:string;hex:string}[]) => (set.find(x=>x.key===v)?.hex??v).replace(/^#/,'').toUpperCase();
+const formalColour = (v:string,set:readonly {key:string;hex:string}[]) => v==='original'?'ORIGINAL':hex(v,set);
 export function castRenderConfig(raw:CastSpec,frame=CAST_PREVIEW_FRAME){
  const s=normalizeCastSpec(raw),f=s.character==='female',p=malePieces(s),formal=isFormalOutfit(s.outfit?.kind),baseKind=formal?(f?'sheath':'o3'):s.outfit!.kind;
  const env:Record<string,string>={
@@ -15,8 +16,8 @@ export function castRenderConfig(raw:CastSpec,frame=CAST_PREVIEW_FRAME){
   CAST_MALE_LOOK:f?'':baseKind.toUpperCase(),CAST_MALE_HAIR:f?'':HAIR[s.hair!.style],CAST_HAIR_DYE:!f&&s.hair!.color==='dye'?'8A1F3C':'',
   CAST_GARMENTS:f?'':[`${TOPS[baseKind]}=${hex(formal?'blue':s.outfit!.color!,MALE_TOP_COLORS)}`,`${MALE_BOTTOMS.find(b=>b.key===p.bottom)!.asset}=${hex(p.bottomColor,[])}`,`${MALE_SHOES.find(b=>b.key===p.shoes)!.asset}=${hex(p.shoesColor,[])}`].join(','),
   CAST_FORMAL_ID:formal?formalOutfitId(s.character,s.outfit!.kind):'',
-  CAST_FORMAL_SUIT_HEX:formal?hex(s.outfit!.color!,FORMAL_SUIT_COLORS):'',
-  CAST_FORMAL_TIE_HEX:formal?hex(s.outfit?.pieces?.tieColor??FORMAL_DEFAULT_TIE,FORMAL_TIE_COLORS):'',
+  CAST_FORMAL_SUIT_HEX:formal?formalColour(s.outfit!.color!,FORMAL_SUIT_COLORS):'',
+  CAST_FORMAL_TIE_HEX:formal?formalColour(s.outfit?.pieces?.tieColor??FORMAL_DEFAULT_TIE,FORMAL_TIE_COLORS):'',
  };
  const coverageProfile=!f&&['o3','o4','o5'].includes(baseKind)?{garmentCoverageProfile:'intact-wrists-v1'}:{};
  return {sourceVersion:CAST_SOURCE_VERSION,renderVersion:CAST_RENDER_VERSION,oralProfile:'anatomical-mouth-v13',...coverageProfile,frame,framing:'upper-thigh',resolutionPercentage:50,env};
