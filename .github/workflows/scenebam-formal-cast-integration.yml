@@ -62,6 +62,16 @@ jobs:
           export CAST_FORMAL_SCENE_DIR="$PWD/proof-scenes"
           for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
             sex=${variant%%-*}
+            # Distinct reference palettes make each *actual* tailored silhouette
+            # identifiable in Cast. Users can then independently recolor it.
+            case "$variant" in
+              female-double-breasted) export CAST_SUIT_HEX=34353C CAST_TIE_HEX= ;;
+              female-statement) export CAST_SUIT_HEX=D274BD CAST_TIE_HEX= ;;
+              male-jacket-tie) export CAST_SUIT_HEX=34353C CAST_TIE_HEX=AA8533 ;;
+              male-double-breasted) export CAST_SUIT_HEX=263951 CAST_TIE_HEX=171719 ;;
+              male-navy-classic) export CAST_SUIT_HEX=263951 CAST_TIE_HEX=7C2939 ;;
+              male-dinner-jacket) export CAST_SUIT_HEX=F0EBE3 CAST_TIE_HEX=171719 ;;
+            esac
             mkdir -p "proof-output/$variant"
             "$BLENDER_BIN" -b "proof-scenes/$sex/$sex-candidate.blend" -t 4 --python-exit-code 1 --python scripts/cast-formal-integration-proof.py -- "$variant" "proof-output/$variant/front.png" >"proof-output/$variant/render.log" 2>&1 || { tail -n 100 "proof-output/$variant/render.log"; exit 1; }
             test -s "proof-output/$variant/front.png"
