@@ -330,13 +330,6 @@ class IllustrationEntity:
                                  'sub': ' '.join(str(e.get('sub') or '').split())[:24]}
                                 for e in events if isinstance(e, dict)]
             _need(len(params['events']) >= 2 and all(e['label'] for e in params['events']), 'TIMELINE_LABEL',
-        if 'end_on_word' in params:
-            _need(isinstance(params['end_on_word'], bool) and 'word' in at,
-                  'OP_WORD_END_INVALID', 'end_on_word requires a word anchor and boolean', beat_id)
-        for key, minimum in (('word_index', 0), ('word_span', 1)):
-            if key in params:
-                _need('word' in at and isinstance(params[key], int) and not isinstance(params[key], bool)
-                      and params[key] >= minimum, 'OP_WORD_RANGE_INVALID', key, beat_id)
                   f'{eid}: every event needs a label', beat_id)
             axis = str(params.get('axis') or 'auto')
             _need(axis in ('auto', 'h', 'v'), 'TIMELINE_AXIS', axis, beat_id)
@@ -358,8 +351,6 @@ class IllustrationEntity:
             cells = params.get('cells')
             _need(isinstance(cells, list) and 2 <= len(cells) <= 9, 'LOGO_GRID_CELLS', f'{eid}: LOGO_GRID needs 2-9 cells', beat_id)
             out_cells = []
-    confirmation: bool = True
-    label_space: bool = False
             for c in cells:
                 _need(isinstance(c, dict), 'LOGO_GRID_CELL', f'{eid}: each cell must be an object', beat_id)
                 name = ' '.join(str(c.get('name') or '').split())[:20]
@@ -373,13 +364,6 @@ class IllustrationEntity:
             steps = params.get('steps')
             _need(isinstance(steps, list) and 2 <= len(steps) <= 5, 'FLOW_STEPS_N', f'{eid}: FLOW_STEPS needs 2-5 steps', beat_id)
             params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
-        for o in ops:
-            if 'point_index' in o.params:
-                e = next((e for e in ents if e.id == o.target), None)
-                i = o.params['point_index']
-                _need(o.op == 'GROW' and e is not None and e.glyph == 'CHART_LINE' and isinstance(i, int)
-                      and not isinstance(i, bool) and 0 <= i < len(e.params['points']),
-                      'CHART_POINT_INDEX_INVALID', str(i), beat_id)
                                for s in steps]
             _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
         if glyph == 'PROGRESS':
@@ -454,6 +438,13 @@ class IllustrationOp:
         dur = int(d.get('duration_ms') or OP_DEFAULT_MS[op])
         _need(120 <= dur <= 4000, 'OP_DURATION_OUT_OF_RANGE', f'{op}:{dur}', beat_id)
         params = dict(d.get('params') or {})
+        if 'end_on_word' in params:
+            _need(isinstance(params['end_on_word'], bool) and 'word' in at,
+                  'OP_WORD_END_INVALID', 'end_on_word requires a word anchor and boolean', beat_id)
+        for key, minimum in (('word_index', 0), ('word_span', 1)):
+            if key in params:
+                _need('word' in at and isinstance(params[key], int) and not isinstance(params[key], bool)
+                      and params[key] >= minimum, 'OP_WORD_RANGE_INVALID', key, beat_id)
         if params.get('wipe'):
             _need(op in ('DRAW', 'CONNECT'), 'WIPE_ON_NON_STROKE_OP', f'{op}:{target}', beat_id)
         if op == 'TRAVEL':
@@ -475,6 +466,8 @@ class IllustrationDirective:
     carry_from: Optional[str] = None            # beat_id whose entities (below) persist into this beat
     carry_entities: List[str] = field(default_factory=list)
     persist_to: Optional[str] = None            # beat_id through which this illustration stays on stage
+    confirmation: bool = True
+    label_space: bool = False
 
     @classmethod
     def parse(cls, d: Dict[str, Any], n_units: int, beat_id: str) -> 'IllustrationDirective':
@@ -490,6 +483,13 @@ class IllustrationDirective:
         ops = [IllustrationOp.parse(o, idset, rels, n_units, beat_id) for o in (d.get('program') or [])]
         _need(bool(ops), 'ILLUSTRATION_WITHOUT_PROGRAM', 'an illustration must change state at least once while the beat speaks', beat_id)
         _need(len(ops) <= 10, 'ILLUSTRATION_PROGRAM_TOO_LONG', 'more than ten ops in one beat', beat_id)
+        for o in ops:
+            if 'point_index' in o.params:
+                e = next((e for e in ents if e.id == o.target), None)
+                i = o.params['point_index']
+                _need(o.op == 'GROW' and e is not None and e.glyph == 'CHART_LINE' and isinstance(i, int)
+                      and not isinstance(i, bool) and 0 <= i < len(e.params['points']),
+                      'CHART_POINT_INDEX_INVALID', str(i), beat_id)
         if form == 'DATA_VISUAL':
             _need(any(e.glyph in ('CHART_LINE', 'BAR') for e in ents), 'DATA_VISUAL_WITHOUT_CHART', 'DATA_VISUAL needs a CHART_LINE or BAR entity', beat_id)
         if form == 'CALLOUT_LENS':
