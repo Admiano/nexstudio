@@ -21,7 +21,7 @@ from .contracts import (
     IllustrationDirective, IllustrationEntity, STATE_CHANGE_OPS, TreatmentError,
 )
 from .authorities.native_three_aspect_composition_authority_v2 import ASPECTS as _NATIVE_ASPECTS
-from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, find_landing
+from .timing import BeatClock, EXIT_MS, LEAD_IN_MS, illustration_op_start
 from .typefit import FLOOR_FRACTION, TRACKING, _face, fit_text, measure
 
 REGISTRY_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'illustration' / 'registry.json'
@@ -370,7 +370,7 @@ class IllustrationSolver:
             cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
                      else self._collage_layout(il, top, zone))
         elif il.form == 'DATA_VISUAL':
-            cells = self._data_layout(top, zone, vertical)
+            cells = self._data_layout(top, zone, vertical, il.label_space)
         else:
             order = self._order(il, top)
             top_ids = {e.id for e in top}
@@ -380,6 +380,14 @@ class IllustrationSolver:
         for e in il.entities:
             if e.id in contained or e.id in lenses or e.id in prohibits or e.id in mark_circles:
                 continue
+        if il.label_space:
+            chart = next((p for p in placed.values() if p['glyph'] == 'CHART_LINE'), None)
+            labels = [placed[e.id] for e in top if e.glyph == 'PILL']
+            if chart and len(labels) == len(chart['params']['points']):
+                left, right = _centre(labels[0]['bbox'])[0], _centre(labels[-1]['bbox'])[0]
+                b = chart['bbox']
+                chart['bbox'] = _box(left, b['y'], right - left, b['h'])
+                chart['art_bbox'] = dict(chart['bbox'])
             bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
             placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
         for e in il.entities:
@@ -767,7 +775,7 @@ class IllustrationSolver:
             cells.update(self._wrap_cells(row, sats, False))
         return cells
 
-    def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool) -> Dict[str, Dict[str, float]]:
+    def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool, label_space: bool = False) -> Dict[str, Dict[str, float]]:
         if all(e.glyph == 'BAR' for e in top):
             return self._cells(zone, top, False)
         chart = next((e for e in top if e.glyph == 'CHART_LINE'), None)
@@ -778,8 +786,10 @@ class IllustrationSolver:
         if not others:
             return {chart.id: dict(zone)}
         strip = zone['h'] * 0.22
-        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], zone['h'] - strip - zone['h'] * 0.04)}
-        row = _box(zone['x'], zone['y'] + zone['h'] - strip, zone['w'], strip)
+        bottom = min(zone['y'] + zone['h'], self.caption_floor) if label_space else zone['y'] + zone['h']
+        row_y = bottom - strip
+        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], row_y - zone['y'] - zone['h'] * 0.04)}
+        row = _box(zone['x'], row_y, zone['w'], strip)
         cells.update(self._cells(row, others, False))
         return cells
 
@@ -962,22 +972,24 @@ class IllustrationSolver:
         ops: List[Dict[str, Any]] = []
         cursor = 0
         for op in il.program:
-            if 'word' in op.at:
-                idx = find_landing(clock.words, op.at['word'], cursor)
-                if idx is None:
-                    raise TreatmentError('OP_ANCHOR_WORD_NOT_IN_NARRATION', f"{op.op} {op.target} @ '{op.at['word']}'", beat_id)
-                start = clock.words[idx].start_ms - 60
-                cursor = idx
-            elif 'unit' in op.at:
-                start = clock.landings_ms[op.at['unit']]
-            else:
-                start = LEAD_IN_MS + op.at['offset_ms']
+            start, cursor = illustration_op_start(clock, op, cursor)
+            if start is None:
+                raise TreatmentError('OP_ANCHOR_WORD_NOT_IN_NARRATION', f"{op.op} {op.target} @ '{op.at['word']}'", beat_id)
             start = max(LEAD_IN_MS // 2, start)
             end = start + op.duration_ms
             if end > latest_end:
                 end = latest_end
                 start = max(LEAD_IN_MS // 2, end - op.duration_ms)
-            ops.append({'op': op.op, 'target': op.target, 'start_ms': int(start), 'end_ms': int(end), 'from': op.value_from, 'to': op.value_to,
+            value_from, value_to = op.value_from, op.value_to
+            if 'point_index' in op.params:
+                e = next(e for e in ents if e['id'] == op.target)
+                points, b = e['params']['points'], e['bbox']
+                distances = [math.hypot(b['w'] / (len(points) - 1), (v - u) * b['h'] * 0.9)
+                             for u, v in zip(points, points[1:])]
+                i = op.params['point_index']
+                value_from = sum(distances[:max(0, i - 1)]) / sum(distances)
+                value_to = sum(distances[:i]) / sum(distances)
+            ops.append({'op': op.op, 'target': op.target, 'start_ms': int(start), 'end_ms': int(end), 'from': value_from, 'to': value_to,
                         'params': op.params, 'state_change': op.op in STATE_CHANGE_OPS, 'anchor': op.at})
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
         # Entrance: every entity is on stage before its first op, in layout order, before the first landing.
@@ -1026,14 +1038,15 @@ class IllustrationSolver:
                     extra.append({'op': 'TRACE', 'target': r['id'], 'start_ms': st, 'end_ms': st + dur,
                                   'from': 0.0, 'to': 1.0, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
         sc = [o for o in ops if o['state_change'] and o['target'] in ent_ids]
-        if sc:
+        confirmation = il is None or il.confirmation
+        if confirmation and sc:
             last = max(sc, key=lambda o: o['end_ms'])
             if not any(o['op'] == 'EMIT' and o['target'] == last['target'] for o in ops):
                 st = last['end_ms'] + 120
                 if st + 300 <= latest_end:
                     extra.append({'op': 'EMIT', 'target': last['target'], 'start_ms': st, 'end_ms': st + 420,
                                   'from': 0.0, 'to': 0.7, 'params': {}, 'state_change': True, 'anchor': {'offset_ms': st}, 'synthesized': True})
-        elif ents:
+        elif confirmation and ents:
             # Even a quiet scene lands one confirmation — the dominant entity emits on its settle.
             hero = max(ents, key=lambda e: e['bbox']['w'] * e['bbox']['h'])
             st = hero['enter_ms'] + hero.get('enter_duration_ms', 0) + 120
