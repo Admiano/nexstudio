@@ -9,7 +9,7 @@ import AvatarStage, {type AvatarPreviewState} from "../cast/AvatarStage";
 import LiveCastStage from "../cast/LiveCastStage";
 import {castRenderConfig} from "../cast/render-config";
 import {
-  DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEMALE_FORMAL_OUTFITS, MALE_FORMAL_OUTFITS, FORMAL_SUIT_COLORS,FORMAL_TIE_COLORS,isFormalOutfit, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
+  DEFAULT_SPEC, FACES, FEM_DRESSES, FEM_DRESS_COLORS, FEMALE_FORMAL_OUTFITS, MALE_FORMAL_OUTFITS, FORMAL_SUIT_COLORS,FORMAL_TIE_COLORS,FORMAL_DEFAULT_SUIT,FORMAL_DEFAULT_TIE,isFormalOutfit, FEM_HAIRSTYLES, FEM_HAIR_COLORS, LIPS,
   MALE_BOTTOMS, MALE_HAIRSTYLES, MALE_HAIR_COLORS, MALE_OUTFITS, MALE_TOP_COLORS, NECKS, SKINS, VOICES, WATCHES,
   MALE_OUTFIT_PIECES, malePieces, maleWatchAvailable, normalizeCastSpec,
   type CastMember, type CastSpec,
@@ -21,8 +21,16 @@ const hairStyles = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIRSTYLE
 const hairColors = (c: CastSpec["character"]) => (c === "female" ? FEM_HAIR_COLORS : MALE_HAIR_COLORS);
 const voiceOf = (id: string | null) => VOICES.find((v) => v.id === id)?.label ?? "No voice yet";
 
-function CustomColour({label,value,onChange}:{label:string;value:string;onChange:(hex:string)=>void}){
- return <label className="identity-custom-hex"><input type="color" aria-label={label} value={value} onChange={e=>onChange(e.target.value)}/><span>Custom colour</span></label>;
+function CustomColour({label,value,onChange,withHexInput=false}:{label:string;value:string;onChange:(hex:string)=>void;withHexInput?:boolean}){
+ const [draft,setDraft]=useState(value.toUpperCase());
+ useEffect(()=>{setDraft(value.toUpperCase());},[value]);
+ return <span style={{display:"inline-flex",alignItems:"center",gap:8}}>
+  <label className="identity-custom-hex"><input type="color" aria-label={label} value={value} onChange={e=>onChange(e.target.value)}/><span>Custom colour</span></label>
+  {withHexInput&&<input type="text" aria-label={label+" HEX"} value={draft} inputMode="text" maxLength={7}
+   pattern="#?[0-9a-fA-F]{6}" spellCheck={false} autoComplete="off" style={{width:"8.5ch",fontFamily:"monospace"}}
+   onChange={e=>{const next=e.target.value.toUpperCase();setDraft(next);if(/^#?[0-9A-F]{6}$/.test(next))onChange("#"+next.replace(/^#/,""));}}
+   onBlur={()=>{if(!/^#?[0-9A-F]{6}$/.test(draft))setDraft(value.toUpperCase());}}/>}
+ </span>;
 }
 const colourValue=(v:string|null|undefined,choices:readonly {key:string;hex:string}[])=>v&&/^#?[0-9a-f]{6}$/i.test(v)?"#"+v.replace(/^#/,""):choices.find(x=>x.key===v)?.hex??"#808080";
 
@@ -58,6 +66,13 @@ function playVoice(id: string) {
 
 export function CastView({ notify, loading }: { notify: (msg: string) => void; loading: boolean }) {
   const [members, setMembers] = useState<CastMember[]>([]);
+  const [formalAvailable,setFormalAvailable]=useState<string[]>([]);
+  useEffect(()=>{let active=true;fetch('/api/v1/studio/cast/formal',{credentials:'include',cache:'no-store'})
+    .then(async r=>r.ok?(await r.json()).data:{available:[]})
+    .then(data=>{if(active)setFormalAvailable(Array.isArray(data.available)?data.available:[]);})
+    .catch(()=>{if(active)setFormalAvailable([]);});
+    return()=>{active=false;};},[]);
+
   const [busy, setBusy] = useState(true);
   const [builder, setBuilder] = useState<BuilderState | null>(null);
   const [spec, setSpec] = useState<CastSpec>(DEFAULT_SPEC.female);
@@ -117,7 +132,8 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
     }, s.character));
   };
 
-  const patchTieColor=(tieColor:string)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{tieColor}}}));
+  const patchTieColor=(tieColor:string)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{...s.outfit?.pieces,tieColor}}},s.character));
+  const resetFormalColours=()=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,color:FORMAL_DEFAULT_SUIT,pieces:{...s.outfit?.pieces,tieColor:FORMAL_DEFAULT_TIE}}},s.character));
   const patchPieces=(values:Record<string,string>)=>setSpec(s=>normalizeCastSpec({...s,outfit:{...s.outfit!,pieces:{...malePieces(s),...values}}}));
 
   const save = async () => {
@@ -324,10 +340,12 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
               <div className="identity-group">
                 <div className="identity-group-head"><label>Formal wear</label><span>Tailored looks for hosts, interviews and presentations</span></div>
                 <div className="cast-image-options">
-                  {(spec.character === "female" ? FEMALE_FORMAL_OUTFITS : MALE_FORMAL_OUTFITS).map(o => (
-                    <OptionImage key={o.key} character={spec.character} category="formal" option={o.key} label={o.label}
-                      selected={spec.outfit?.kind===o.key} onSelect={()=>patchOutfitKind(o.key)} />
-                  ))}
+                  {(spec.character === "female" ? FEMALE_FORMAL_OUTFITS : MALE_FORMAL_OUTFITS).map(o => {
+                     const available=formalAvailable.includes(spec.character+":"+o.key);
+                     return <OptionImage key={o.key} character={spec.character} category="formal" option={o.key} label={o.label}
+                       note={available?undefined:"Awaiting verified production assets"} disabled={!available}
+                       selected={spec.outfit?.kind===o.key} onSelect={()=>patchOutfitKind(o.key)} />;
+                   })}
                 </div>
               </div>
               {isFormalOutfit(spec.outfit?.kind) && (
@@ -336,16 +354,17 @@ export function CastView({ notify, loading }: { notify: (msg: string) => void; l
                     <div className="identity-group-head"><label>Suit colour</label><span>Independent of the tie</span></div>
                     <div className="identity-color-row">
                       {FORMAL_SUIT_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Suit ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.color===c.key} onClick={()=>patchOutfitColor(c.key)}/>)}
-                      <CustomColour label="Custom suit colour" value={colourValue(spec.outfit?.color,FORMAL_SUIT_COLORS)} onChange={patchOutfitColor}/>
+                      <CustomColour label="Custom suit colour" value={colourValue(spec.outfit?.color,FORMAL_SUIT_COLORS)} onChange={patchOutfitColor} withHexInput/> 
                     </div>
                   </div>
                   <div className="identity-group">
                     <div className="identity-group-head"><label>Tie colour</label><span>Independent of the suit</span></div>
                     <div className="identity-color-row">
                       {FORMAL_TIE_COLORS.map(c=><button key={c.key} title={c.label} aria-label={`Tie ${c.label}`} className="identity-color" style={{["--c" as string]:c.hex}} aria-pressed={spec.outfit?.pieces?.tieColor===c.key} onClick={()=>patchTieColor(c.key)}/>)}
-                      <CustomColour label="Custom tie colour" value={colourValue(spec.outfit?.pieces?.tieColor,FORMAL_TIE_COLORS)} onChange={patchTieColor}/>
+                      <CustomColour label="Custom tie colour" value={colourValue(spec.outfit?.pieces?.tieColor,FORMAL_TIE_COLORS)} onChange={patchTieColor} withHexInput/>
                     </div>
                   </div>
+                  <button type="button" className="identity-option" onClick={resetFormalColours}>Reset suit and tie colours</button>
                 </>
               )}
               {spec.character === "female" ? (

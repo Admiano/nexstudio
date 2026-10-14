@@ -11,7 +11,7 @@ export function castRenderConfig(raw:CastSpec,frame=CAST_PREVIEW_FRAME){
   CAST_CHARACTER:s.character,CAST_FACE:String(s.face),CAST_HAIR_STYLE:s.hair!.style,
   CAST_HAIR_HEX:f&&s.hair!.color==='auburn'?'':hex(s.hair!.color,f?FEM_HAIR_COLORS:MALE_HAIR_COLORS),
   CAST_SKIN_HEX:hex(s.skin,SKINS),CAST_LIP_HEX:f?(s.lip==='rose'?'':hex(s.lip!,LIPS)):'',
-  CAST_NECK:s.neck??'none',CAST_WATCH:s.watch??'none',CAST_DRESS:f?DRESSES[baseKind]:'',CAST_DRESS_HEX:f?hex(formal?'navy':s.outfit!.color!,FEM_DRESS_COLORS):'',
+  CAST_NECK:formal?'none':s.neck??'none',CAST_WATCH:formal?'none':s.watch??'none',CAST_DRESS:f?DRESSES[baseKind]:'',CAST_DRESS_HEX:f?hex(formal?'navy':s.outfit!.color!,FEM_DRESS_COLORS):'',
   CAST_MALE_LOOK:f?'':baseKind.toUpperCase(),CAST_MALE_HAIR:f?'':HAIR[s.hair!.style],CAST_HAIR_DYE:!f&&s.hair!.color==='dye'?'8A1F3C':'',
   CAST_GARMENTS:f?'':[`${TOPS[baseKind]}=${hex(formal?'blue':s.outfit!.color!,MALE_TOP_COLORS)}`,`${MALE_BOTTOMS.find(b=>b.key===p.bottom)!.asset}=${hex(p.bottomColor,[])}`,`${MALE_SHOES.find(b=>b.key===p.shoes)!.asset}=${hex(p.shoesColor,[])}`].join(','),
   CAST_FORMAL_ID:formal?formalOutfitId(s.character,s.outfit!.kind):'',

@@ -44,7 +44,8 @@ assert.equal(CAST_RENDER_VERSION,'approved-v3-v6-formalwardrobe-v21-upper-thigh'
 const fFormal=normalizeCastSpec({...DEFAULT_SPEC.female,outfit:{kind:'formal-statement',color:'burgundy',pieces:{tieColor:'#bb4422'}}});
 assert.equal(fFormal.outfit!.kind,'formal-statement');
 assert.equal(fFormal.outfit!.pieces?.tieColor,'#BB4422');
-assert.equal(fFormal.neck,null);
+assert.equal(fFormal.neck,'fine');
+assert.equal(castRenderConfig(fFormal).env.CAST_NECK,'none');
 assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_ID,'female-statement');
 assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_SUIT_HEX,'602D3E');
 assert.equal(castRenderConfig(fFormal).env.CAST_FORMAL_TIE_HEX,'BB4422');
@@ -60,3 +61,16 @@ assert.equal(castSpecSchema.safeParse({...mFormal,outfit:{...mFormal.outfit!,pie
 assert.equal(castSpecSchema.safeParse({...mFormal,outfit:{...mFormal.outfit!,pieces:{tieColor:'black',bottom:'chinos'}}}).success,false);
 assert.equal(normalizeCastSpec({...mFormal,outfit:{kind:'formal-bogus',color:'black'}}).outfit!.kind,'o3');
 console.log('PASS formal cast wardrobe, independently persisted suit/tie colours and gender-safe catalog');
+
+// Formal looks fail closed until deployment parity and per-look approval.
+const {availableFormalWardrobe,formalSpecAvailable}=await import('../src/lib/cast-formal-availability');
+const originalGate=process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED;
+process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED='0';
+assert.deepEqual(availableFormalWardrobe(),[]);
+assert.equal(formalSpecAvailable(DEFAULT_SPEC.male),true);
+assert.equal(formalSpecAvailable(mFormal),false);
+const watchFormal=normalizeCastSpec({...DEFAULT_SPEC.male,watch:'chrono',outfit:{kind:'formal-jacket-tie',color:'navy',pieces:{tieColor:'black'}}});
+assert.equal(watchFormal.watch,'chrono');
+assert.equal(castRenderConfig(watchFormal).env.CAST_WATCH,'none');
+if(originalGate===undefined)delete process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED;else process.env.SCENEBAM_FORMAL_WARDROBE_ENABLED=originalGate;
+console.log('PASS formal availability gate and accessor continuity');

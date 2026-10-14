@@ -10,19 +10,21 @@ export function castOptionImage(character: CastCharacter, category: CastImageCat
   return '/cast/options/' + character + '/' + category + '/' + key + '.svg';
 }
 
-export default function OptionImage({ character, category, option, label, note, selected, onSelect }: {
+export default function OptionImage({ character, category, option, label, note, selected, disabled=false, onSelect }: {
   character: CastCharacter;
   category: CastImageCategory;
   option: string | number;
   label: string;
   note?: string;
   selected: boolean;
+  disabled?: boolean;
   onSelect: () => void;
 }) {
   return (
-    <button type="button" className="cast-image-option" aria-label={label} aria-pressed={selected} onClick={onSelect}>
+    <button type="button" className="cast-image-option" aria-label={label} aria-pressed={selected} disabled={disabled} onClick={onSelect}>
       <span className="cast-image-option-art">
-        <img src={castOptionImage(character, category, option)} alt="" width={224} height={224} loading="lazy" decoding="async" />
+        {category==='formal'&&disabled?<span aria-hidden="true" style={{display:"grid",placeItems:"center",minHeight:110,padding:12,textAlign:"center"}}>Verified render pending</span>:
+         <img src={castOptionImage(character, category, option)} alt="" width={224} height={224} loading="lazy" decoding="async" />}
         {selected && <span className="cast-image-option-check" aria-hidden="true">✓</span>}
       </span>
       <span className="cast-image-option-label">{label}</span>

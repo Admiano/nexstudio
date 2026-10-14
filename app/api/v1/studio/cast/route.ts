@@ -1,4 +1,5 @@
 import { z } from "zod";
+import {formalSpecAvailable} from "@/lib/cast-formal-availability";
 import { castSpecSchema } from "@/lib/cast-spec-schema";
 import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
 import { CAST_PRESETS } from "@/lib/cast-presets";
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
   const origin = requireTrustedOrigin(request, auth.id); if (origin) return origin;
   const body = schema.safeParse(await request.json().catch(() => null));
   if (!body.success) return zodProblem(auth.id, body.error);
+  if (!formalSpecAvailable(body.data.spec as CastSpec | null)) return problem(auth.id,503,"CAST_FORMAL_UNAVAILABLE","Formal wardrobe not ready","Cast member was not saved.");
   const prisma = getPrisma()!;
   if (body.data.brandId && !await prisma.studioBrand.findFirst({ where: { id: body.data.brandId, ownerUserId: auth.session!.userId } })) {
     return problem(auth.id, 404, "BRAND_NOT_FOUND", "Brand not found", "Cast member was not saved.");
