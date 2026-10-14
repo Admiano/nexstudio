@@ -438,6 +438,13 @@ class IllustrationOp:
         dur = int(d.get('duration_ms') or OP_DEFAULT_MS[op])
         _need(120 <= dur <= 4000, 'OP_DURATION_OUT_OF_RANGE', f'{op}:{dur}', beat_id)
         params = dict(d.get('params') or {})
+        if 'end_on_word' in params:
+            _need(isinstance(params['end_on_word'], bool) and 'word' in at,
+                  'OP_WORD_END_INVALID', 'end_on_word requires a word anchor and boolean', beat_id)
+        for key, minimum in (('word_index', 0), ('word_span', 1)):
+            if key in params:
+                _need('word' in at and isinstance(params[key], int) and not isinstance(params[key], bool)
+                      and params[key] >= minimum, 'OP_WORD_RANGE_INVALID', key, beat_id)
         if params.get('wipe'):
             _need(op in ('DRAW', 'CONNECT'), 'WIPE_ON_NON_STROKE_OP', f'{op}:{target}', beat_id)
         if op == 'TRAVEL':
@@ -459,6 +466,8 @@ class IllustrationDirective:
     carry_from: Optional[str] = None            # beat_id whose entities (below) persist into this beat
     carry_entities: List[str] = field(default_factory=list)
     persist_to: Optional[str] = None            # beat_id through which this illustration stays on stage
+    confirmation: bool = True
+    label_space: bool = False
 
     @classmethod
     def parse(cls, d: Dict[str, Any], n_units: int, beat_id: str) -> 'IllustrationDirective':
@@ -474,6 +483,13 @@ class IllustrationDirective:
         ops = [IllustrationOp.parse(o, idset, rels, n_units, beat_id) for o in (d.get('program') or [])]
         _need(bool(ops), 'ILLUSTRATION_WITHOUT_PROGRAM', 'an illustration must change state at least once while the beat speaks', beat_id)
         _need(len(ops) <= 10, 'ILLUSTRATION_PROGRAM_TOO_LONG', 'more than ten ops in one beat', beat_id)
+        for o in ops:
+            if 'point_index' in o.params:
+                e = next((e for e in ents if e.id == o.target), None)
+                i = o.params['point_index']
+                _need(o.op == 'GROW' and e is not None and e.glyph == 'CHART_LINE' and isinstance(i, int)
+                      and not isinstance(i, bool) and 0 <= i < len(e.params['points']),
+                      'CHART_POINT_INDEX_INVALID', str(i), beat_id)
         if form == 'DATA_VISUAL':
             _need(any(e.glyph in ('CHART_LINE', 'BAR') for e in ents), 'DATA_VISUAL_WITHOUT_CHART', 'DATA_VISUAL needs a CHART_LINE or BAR entity', beat_id)
         if form == 'CALLOUT_LENS':
@@ -496,7 +512,15 @@ class IllustrationDirective:
             _need(carry_from is not None, 'CARRY_WITHOUT_SOURCE_BEAT', 'carry.entities needs carry.from_beat', beat_id)
             for ce in carry_entities:
                 _need(ce in idset, 'CARRY_ENTITY_NOT_DECLARED', f'{ce} must be declared in this beat too', beat_id)
-        return cls(form, ents, rels, ops, carry_from, carry_entities, (str(d['persist_to']) if d.get('persist_to') else None))
+        confirmation = d.get('confirmation', True)
+        _need(isinstance(confirmation, bool), 'CONFIRMATION_INVALID', 'confirmation must be boolean', beat_id)
+        label_space = d.get('label_space', False)
+        _need(isinstance(label_space, bool), 'LABEL_SPACE_INVALID', 'label_space must be boolean', beat_id)
+        if label_space:
+            _need(form == 'DATA_VISUAL' and any(e.glyph == 'CHART_LINE' for e in ents),
+                  'LABEL_SPACE_REQUIRES_LINE', form, beat_id)
+        return cls(form, ents, rels, ops, carry_from, carry_entities,
+                   (str(d['persist_to']) if d.get('persist_to') else None), confirmation, label_space)
 
 
 @dataclass

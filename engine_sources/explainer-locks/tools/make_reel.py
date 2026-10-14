@@ -13,8 +13,10 @@ media_library) -> regression_pack render -> web file -> poster-framed file.
 Env: node must be on PATH for the renderer (nvm v24.x):
   export PATH=$HOME/.nvm/versions/node/v24.19.0/bin:$PATH
 """
-import argparse, json, os, re, subprocess, sys, uuid
+import argparse, json, os, re, subprocess, sys, uuid, math
 from pathlib import Path
+from decimal import Decimal
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
@@ -457,45 +459,859 @@ _NUMWORDS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five":
              "million": 1_000_000, "billion": 1_000_000_000}
 
 
-def dataviz_illustration(narration, g):
-    """The data-viz look: a spoken number stages itself as a counter that counts
-    up on its word, with a level bar growing under it (the frozen r5 layout).
-    Digits and number words both qualify; no number → no staging."""
-    toks = narration.split()
-    value, vpos, unit = None, -1, ""
-    for i, t in enumerate(toks):
-        m = re.fullmatch(r"(\d[\d,]*(?:\.\d+)?)(%|percent|x)?", t.strip(",.;:!?"))
-        if m:
-            try:
-                value = float(m.group(1).replace(",", ""))
-                vpos, unit = i, m.group(2) or ""
-                break
-            except ValueError:
-                continue
-        w = t.strip(",.;:!?").lower()
-        if w in _NUMWORDS and _NUMWORDS[w] >= 3:
-            value, vpos = float(_NUMWORDS[w]), i
+_DATA_SMALL = {
+    **{k: v for k, v in _NUMWORDS.items() if v < 100 and k not in ("a", "an", "dozen")},
+    "zero": 0, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16,
+    "seventeen": 17, "eighteen": 18, "nineteen": 19, "thirty": 30, "forty": 40,
+    "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+}
+_DATA_SCALES = {"hundred": 100, "thousand": 1000, "million": 1_000_000,
+                "billion": 1_000_000_000, "dozen": 12}
+_DATA_UNITS = {
+    "%": "%", "percent": "%", "percentage": "%", "dollar": "$", "dollars": "$",
+    "pound": "£", "pounds": "£", "euro": "€", "euros": "€", "x": "x", "times": "x",
+    "second": "seconds", "seconds": "seconds", "minute": "minutes", "minutes": "minutes",
+    "hour": "hours", "hours": "hours", "day": "days", "days": "days",
+    "week": "weeks", "weeks": "weeks", "month": "months", "months": "months",
+    "year": "years", "years": "years", "kilowatt": "kW", "kilowatts": "kW",
+    "litre": "litres", "litres": "litres", "liter": "litres", "liters": "litres",
+    "kilogram": "kg", "kilograms": "kg", "kg": "kg", "gb": "GB", "mb": "MB",
+}
+_DATA_PERIODS = (
+    "monday tuesday wednesday thursday friday saturday sunday",
+    "january february march april may june july august september october november december",
+)
+_DATA_PERIOD_ABBREVIATIONS = {period: period[:3].title()
+                              for cycle in _DATA_PERIODS for period in cycle.split()}
+_DATA_LABEL_STOP = STOPWORDS | {
+    "from", "to", "versus", "vs", "rose", "grew", "fell", "increased", "decreased",
+    "produced", "generated", "cost", "costs", "used", "uses", "reached", "remained",
+    "percent", "dollars", "pounds", "euros", "minus", "negative",
+} | set(_DATA_SMALL) | set(_DATA_SCALES)
+
+
+def dataviz_claim(narration, g):
+    tokens = list(re.finditer(r"[$£€]|[+\-−]?\d+(?:,\d{3})*(?:\.\d+)?|%|[a-z]+(?:-[a-z]+)*",
+                              narration, re.I))
+    quantities, i = [], 0
+    word_spans = list(re.finditer(r"\S+", narration))
+    while i < len(tokens):
+        start, j, prefix = i, i, ""
+        if tokens[j].group() in ("$", "£", "€"):
+            prefix = tokens[j].group()
+            j += 1
+        sign = 1
+        if j < len(tokens) and tokens[j].group().lower() in ("minus", "negative", "plus", "positive"):
+            sign, j = -1 if tokens[j].group().lower() in ("minus", "negative") else 1, j + 1
+        if j >= len(tokens):
             break
-    if value is None:
+        token = tokens[j].group().lower()
+        if re.fullmatch(r"[+\-−]?\d[\d,]*(?:\.\d+)?", token):
+            value = Decimal(token.replace(",", "").replace("−", "-")) * sign
+            j += 1
+            if j < len(tokens) and tokens[j].group().lower() in _DATA_SCALES:
+                value *= _DATA_SCALES[tokens[j].group().lower()]
+                j += 1
+        elif token in _DATA_SMALL or all(p in _DATA_SMALL for p in token.split("-")):
+            total, part, consumed = 0, 0, False
+            while j < len(tokens):
+                w = tokens[j].group().lower()
+                if w == "and" and j + 1 < len(tokens) and part and tokens[j + 1].group().lower() in _DATA_SMALL and part % 100 == 0:
+                    j += 1
+                    continue
+                if w in _DATA_SCALES:
+                    scale = _DATA_SCALES[w]
+                    if scale < 1000:
+                        part = (part or 1) * scale
+                    else:
+                        total += (part or 1) * scale
+                        part = 0
+                elif all(p in _DATA_SMALL for p in w.split("-")):
+                    if consumed and part % 100 and not (part % 100 >= 20 and part % 10 == 0):
+                        break
+                    part += sum(_DATA_SMALL[p] for p in w.split("-"))
+                else:
+                    break
+                consumed, j = True, j + 1
+            value = Decimal(total + part)
+            if j < len(tokens) and tokens[j].group().lower() == "point":
+                k, digits = j + 1, ""
+                while k < len(tokens) and tokens[k].group().lower() in _DATA_SMALL and _DATA_SMALL[tokens[k].group().lower()] < 10:
+                    digits += str(_DATA_SMALL[tokens[k].group().lower()])
+                    k += 1
+                if digits:
+                    value, j = value + Decimal("0." + digits), k
+            if j < len(tokens) and tokens[j].group().lower() in _DATA_SCALES:
+                value *= _DATA_SCALES[tokens[j].group().lower()]
+                j += 1
+            value *= sign
+        else:
+            i += 1
+            continue
+        unit = prefix
+        if j < len(tokens) and tokens[j].group().lower() in _DATA_UNITS:
+            unit = _DATA_UNITS[tokens[j].group().lower()]
+            j += 1
+            if unit == "%" and j < len(tokens) and tokens[j].group().lower() == "points":
+                unit, j = "percentage points", j + 1
+        left, right = tokens[start].start(), tokens[j - 1].end()
+        before = narration[:left]
+        qualifier = re.search(r"\b(about|roughly|approximately|nearly|up to|at least|at most|more than|less than)\s*$", before, re.I)
+        period = ""
+        dates = re.findall(r"\b(?:in|during|by|since)\s+(\d{4})\b", before, re.I)
+        if dates:
+            period = dates[-1]
+        for periods in _DATA_PERIODS:
+            found = re.findall(r"\b(" + "|".join(periods.split()) + r")\b", before, re.I)
+            if found:
+                period = found[-1]
+        is_date = (not unit and value == int(value) and 1800 <= value <= 2200
+                   and bool(re.search(r"\b(?:in|during|by|since|year)\s*$", before, re.I)))
+        word_index = next((n for n, w in enumerate(word_spans) if w.end() > tokens[start].start()), 0)
+        word_end = next((n for n, w in enumerate(word_spans) if w.start() >= right), len(word_spans))
+        after = narration[right:]
+        label_match = re.match(r"\s+([a-z]+(?:\s+[a-z]+)?)", after, re.I)
+        label, measure = "", ""
+        if label_match:
+            tail = label_match.group(1).split()
+            if tail[0].lower() not in _DATA_LABEL_STOP:
+                label = " ".join(w for w in tail if w.lower() not in _DATA_LABEL_STOP)
+                measure = tail[0].lower() if not unit else ""
+        if not label:
+            clause = re.split(r"\b(?:and|while|versus|vs)\b|[,.;:]", before, flags=re.I)[-1]
+            label = " ".join(w for w in re.findall(r"[a-z]+", clause, re.I)
+                             if w.lower() not in _DATA_LABEL_STOP)[-24:]
+        source = narration[left:right]
+        quantities.append({"value": str(value), "unit": unit, "label": label, "measure": measure,
+                           "signed": bool(re.match(r"[$£€]?[+\-−]|minus|negative|plus|positive", source, re.I)),
+                           "qualifier": qualifier.group(1) if qualifier else "",
+                           "period": period, "role": "date" if is_date else "measure",
+                           "span": [left, right], "source": source, "word_start": word_index, "word_end": word_end,
+                           "anchor": g[min(word_index, len(g) - 1)]["text"] if g else tokens[start].group()})
+        i = j
+    measured = [q for q in quantities if q["role"] == "measure"]
+    kind = "NONE"
+    if measured:
+        kind = "STAT" if len(measured) == 1 else "READOUTS"
+        units = {q["unit"] for q in measured if q["unit"]}
+        if len(units) == 1:
+            for q in measured:
+                if not q["unit"] and not q["measure"]:
+                    q["unit"] = next(iter(units))
+        compatible = len({q["unit"] for q in measured}) == 1
+        if len(measured) == 1 and measured[0]["unit"] == "%" and not re.search(
+                r"\b(increase[ds]?|decrease[ds]?|rose|fell|growth|grew|change[ds]?|interest|return|inflation|"
+                r"discount|cheaper|higher|lower|faster|slower|larger|smaller)\b", narration, re.I):
+            kind = "SHARE"
+        elif len(measured) == 2 and re.fullmatch(
+                r"\s*(?:" + re.escape(measured[0]["measure"]) + r"\s+)?(?:out of|in)\s+(?:every\s+)?",
+                narration[measured[0]["span"][1]:measured[1]["span"][0]], re.I):
+            if compatible and Decimal(measured[1]["value"]) > 0 and 0 <= Decimal(measured[0]["value"]) <= Decimal(measured[1]["value"]):
+                kind = "SHARE"
+        elif len(measured) == 2 and compatible and re.search(r"\b(from|versus|vs|compared|than|while|now|before|after)\b", narration, re.I):
+            kind = "COMPARISON"
+        elif len(measured) >= 3 and compatible and all(q["period"] for q in measured):
+            periods = [q["period"].lower() for q in measured]
+            indices = ([int(p) for p in periods] if all(p.isdigit() for p in periods) else
+                       next(([s.split().index(p) for p in periods] for s in _DATA_PERIODS
+                             if all(p in s.split() for p in periods)), []))
+            gaps = [b - a for a, b in zip(indices, indices[1:])]
+            labels = [set(w for w in re.findall(r"[a-z]+", q["label"].lower())
+                          if w not in _DATA_LABEL_STOP and w not in _DATA_PERIOD_ABBREVIATIONS)
+                      for q in measured]
+            subjects = [label for label in labels if label]
+            same_subject = not subjects or bool(set.intersection(*subjects))
+            if gaps and len(set(gaps)) == 1 and gaps[0] > 0 and same_subject:
+                kind = "TREND"
+    return {"kind": kind, "quantities": measured, "source_quantities": quantities}
+
+
+def dataviz_value(q):
+    value = format(Decimal(q["value"]), ",f")
+    if re.match(r"[$£€]?\+|plus|positive", q["source"], re.I):
+        value = "+" + value
+    unit = q["unit"]
+    return (unit + value if unit in ("$", "£", "€") else
+            value + unit if unit in ("%", "x") else value + (" " + unit if unit else ""))
+
+
+def dataviz_steps(narration):
+    steps = [m.start() for m in re.finditer(r"\b(?:first|second|third|then|next|finally)\b", narration, re.I)]
+    if len(steps) < 2 or steps[0] != 0 or len(steps) > 5:
+        return []
+    return [clean(narration[a:b]).strip(" .,;:") for a, b in zip(steps, steps[1:] + [len(narration)])]
+
+
+def dataviz_units(g, claim=None):
+    if len(g) <= 11:
+        return sketch_units(g)
+    claim = claim or dataviz_claim(" ".join(w["text"] for w in g), g)
+    qs = claim["quantities"]
+    spans = []
+    if qs and claim["kind"] in ("COMPARISON", "SHARE", "STAT"):
+        hi = min(len(g), qs[-1]["word_end"] + bool(qs[-1]["measure"]))
+        lo = max(0, qs[0]["word_start"] - 4, hi - 10)
+        if lo <= qs[0]["word_start"]:
+            spans = [(0, lo), (lo, hi), (hi, len(g))]
+    if not spans:
+        start = 0
+        for i, w in enumerate(g):
+            if CLAUSE_END.search(w["text"]) or ";" in w["text"]:
+                spans.append((start, i + 1))
+                start = i + 1
+        if start < len(g):
+            spans.append((start, len(g)))
+    chunks = []
+    dangling = {"a", "an", "the", "of", "to", "from", "and", "or", "in", "over", "with", "by", "for"}
+    for a, b in spans:
+        while a < b:
+            numeric = any(a <= q["word_start"] < b for q in qs)
+            stop = min(b, a + (10 if numeric else 5))
+            if b - stop == 1 and stop - a < 10:
+                stop = b
+            while stop < b and stop > a + 2 and word_key(g[stop - 1]["text"]) in dangling:
+                stop -= 1
+            for q in qs:
+                end = min(len(g), q["word_end"] + bool(q["measure"]))
+                if q["word_start"] < stop < end:
+                    stop = q["word_start"] if q["word_start"] > a else end
+            chunks.append((a, stop))
+            a = stop
+    units, heroes = [], 0
+    for i, (a, b) in enumerate(chunks):
+        span = g[a:b]
+        promoted = heroes < 1 and any(a <= q["word_start"] < b for q in qs)
+        heroes += promoted
+        units.append({
+            "text": " ".join(w["text"] for w in span),
+            "role": "hero" if promoted else "support", "anchor_word": span[0]["text"],
+            "emphasis": 0.95 if promoted else 0.55,
+            "semantic_role": "punch" if promoted else "setup" if i == 0 else "qualifier",
+            "can_promote": promoted, "reveal": "WORD_CASCADE",
+            "stress": [w["text"] for k, w in enumerate(span, a)
+                       if re.search(r"\d", w["text"]) or
+                       any(q["word_start"] <= k < q["word_end"] for q in qs)],
+        })
+    return units
+
+
+def dataviz_beat(g, bi, n, media):
+    narration = clean(" ".join(w["text"] for w in g))
+    claim = dataviz_claim(narration, g)
+    qs, kind = claim["quantities"], claim["kind"]
+    if not qs:
+        steps = dataviz_steps(narration)
+        if steps:
+            return {
+                "beat_id": f"b{bi+1:02d}", "beat_type": "SETUP" if bi == 0 else "PAYOFF" if bi == n - 1 else "EXPLANATION",
+                "pattern": "PAYOFF_LOCKUP" if bi == n - 1 else "PROGRESSIVE_HERO_BUILD",
+                "dominant_layer": "DATA", "narration": narration, "energy": 0.55,
+                "display_units": dataviz_units(g), "data": {"kind": "SEQUENCE", "value": " | ".join(steps)},
+            }
+        beat = sketch_beat(g, bi, n, set(), media)
+        beat["illustration"]["confirmation"] = False
+        return beat
+    beat = {
+        "beat_id": f"b{bi+1:02d}", "beat_type": "SETUP" if bi == 0 else "PAYOFF" if bi == n - 1 else "EXPLANATION",
+        "pattern": "PAYOFF_LOCKUP" if bi == n - 1 else "PROGRESSIVE_HERO_BUILD",
+        "dominant_layer": "HYBRID", "narration": narration, "energy": 0.55, "complexity": 0.5,
+        "display_units": dataviz_units(g, claim), "data_claim": claim,
+    }
+    entities, ops = [], []
+
+    def draw(q, glyph, params, label=""):
+        eid = f"datum{len(entities) + 1}"
+        entities.append({"id": eid, "kind": "evidence", "glyph": glyph, "size": "support" if glyph == "BAR" else "hero",
+                         "params": params, **({"label": label} if label else {})})
+        ops.append({"op": "DRAW", "target": eid, "at": {"unit": 0}, "duration_ms": 240})
+        return eid
+
+    def land(q, op, eid, value_from=0, value_to=1, params=None):
+        start, end = q["word_start"], q["word_end"]
+        duration = max(120, min(600, g[end - 1]["end_ms"] - g[start]["start_ms"]))
+        ops.append({"op": op, "target": eid, "at": {"word": q["anchor"]},
+                    "duration_ms": duration, "from": value_from, "to": value_to,
+                    "params": {"end_on_word": True, "word_index": start, "word_span": end - start,
+                               **(params or {})}})
+
+    def readouts():
+        if len(qs) == 1:
+            beat["data"] = {"kind": "STAT", "value": dataviz_value(qs[0]),
+                            "label": clean(qs[0]["qualifier"] + " " + qs[0]["label"])}
+        elif len(qs) == 2:
+            beat["data"] = {"kind": "COMPARISON", "value": dataviz_value(qs[0]), "secondary": dataviz_value(qs[1]),
+                            "label": " / ".join(dict.fromkeys(q["label"] for q in qs if q["label"]))}
+        else:
+            beat["data"] = {"kind": "SEQUENCE", "value": " | ".join(
+                clean((q["period"] or q["label"]) + ": " + dataviz_value(q)) for q in qs)}
+
+    values = [Decimal(q["value"]) for q in qs]
+    if kind == "COMPARISON" and all(v > 0 for v in values) and not any(q["qualifier"] or q["signed"] for q in qs):
+        ceiling = max(values)
+        before_after = bool(re.search(r"\bfrom\b.+\bto\b", narration, re.I))
+        for i, q in enumerate(qs):
+            level = float(values[i] / ceiling)
+            # Below the native stroke floor, a bar would exaggerate its datum.
+            if level < 0.02:
+                entities, ops = [], []
+                break
+            label = ("Before" if i == 0 else "After") if before_after else q["label"].split()[-1] if q["label"] else ""
+            measure = q["label"].split()[-1] if not q["unit"] and q["label"] else ""
+            eid = draw(q, "BAR", {"level": level, "value": float(values[i])}, clean(label + " " + dataviz_value(q) + " " + measure)
+                       if before_after else clean(label + " " + dataviz_value(q)))
+            land(q, "GROW", eid, value_to=level)
+    elif kind == "SHARE" and not any(q["qualifier"] or q["signed"] for q in qs):
+        share = values[0] / (100 if len(qs) == 1 else values[1])
+        if 0 < share <= 1:
+            params = {"level": float(share)}
+            whole = values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"]
+            if whole:
+                params.update(count=int(values[0]), suffix="%" if len(qs) == 1 else " in " + dataviz_value(qs[1]))
+            eid = draw(qs[0], "DONUT", params)
+            land(qs[0], "GROW", eid, value_to=float(share))
+            if whole:
+                land(qs[0], "COUNT", eid)
+            else:
+                beat["data"] = {"kind": "STAT", "value": dataviz_value(qs[0]), "label": qs[0]["label"]}
+    elif kind == "TREND" and len(qs) <= 4 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
+        eid = "trend"
+        entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE", "size": "hero",
+                         "params": {"points": [float(v / max(values)) for v in values]}})
+        land(qs[0], "DIM", eid)
+        for i, q in enumerate(qs):
+            land(q, "GROW", eid, params={"point_index": i})
+            pid = f"point{i + 1}"
+            entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
+                             "params": {"value": float(values[i])},
+                             "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"])
+                                            + " " + dataviz_value(q))})
+            land(q, "DIM", pid)
+    elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
+        q, unit = qs[0], qs[0]["unit"]
+        params = {"count": int(values[0]), "caption": q["label"], "tone": "dark"}
+        if unit in ("$", "£", "€"):
+            params["prefix"] = unit
+        elif unit:
+            params["suffix"] = unit if unit in ("%", "x") else " " + unit
+        eid = draw(q, "COUNTER", params)
+        land(q, "COUNT", eid)
+    if entities:
+        beat["illustration"] = {"form": "DATA_VISUAL" if any(e["glyph"] in ("BAR", "CHART_LINE") for e in entities) else "OBJECT_STAGE",
+                                "entities": entities, "relations": [], "program": ops, "confirmation": False,
+                                **({"label_space": True} if any(e["glyph"] == "CHART_LINE" for e in entities) else {})}
+    elif len(qs) <= 5:
+        readouts()
+        beat["dominant_layer"] = "DATA"
+    else:
+        beat = sketch_beat(g, bi, n, set(), media)
+        beat["illustration"]["confirmation"] = False
+        return beat
+    return beat
+
+
+def dataviz_groups(words):
+    groups = sketch_groups(words)
+    i = 0
+    while i < len(groups):
+        candidates = []
+        for group in groups[i:i + 5]:
+            claim = dataviz_claim(" ".join(w["text"] for w in group), group)
+            if not claim["quantities"] or not all(q["period"] for q in claim["quantities"]):
+                break
+            candidates.append(group)
+        for count in range(len(candidates), 1, -1):
+            combined = [w for group in candidates[:count] for w in group]
+            claim = dataviz_claim(" ".join(w["text"] for w in combined), combined)
+            if claim["kind"] == "TREND" and len(combined) <= 28:
+                groups[i:i + count] = [combined]
+                break
+        i += 1
+    return groups
+
+
+def dataviz_continuity(beats):
+    source = None
+    for beat in beats:
+        claim = beat.get("data_claim") or {}
+        illustration = beat.get("illustration")
+        if source:
+            previous = source["data_claim"]
+            known = {(q["value"], q["unit"]) for q in previous["quantities"]}
+            repeated = all((q["value"], q["unit"]) in known for q in claim.get("quantities", []))
+            context = lambda text: {word_key(w) for phrase in sketch_noun_phrases(text)
+                                    for w in phrase.split() if word_key(w) not in STOPWORDS}
+            related = bool(context(source["narration"]) & context(beat["narration"]))
+            reference = bool(re.match(
+                r"^(?:(?:that|this) (?:share|figure|number|result|increase|decrease|growth|change|comparison|trend|total|rate)"
+                r"|(?:these|those) (?:figures|numbers|results)|the same (?:share|figure|number|result|total|rate))\b",
+                beat["narration"], re.I))
+            if repeated and (related or reference):
+                source["illustration"]["persist_to"] = beat["beat_id"]
+                carried = json.loads(json.dumps(source["illustration"]))
+                carried.pop("persist_to", None)
+                carried["carry"] = {"from_beat": source["beat_id"],
+                                    "entities": [e["id"] for e in carried["entities"]]}
+                carried["program"] = [{"op": "DIM", "target": e["id"], "at": {"unit": 0},
+                                       "duration_ms": 240, "from": 1, "to": .9}
+                                      for e in carried["entities"]]
+                beat["illustration"] = carried
+                beat.pop("data", None)
+                beat["dominant_layer"] = "HYBRID"
+                beat["data_context_from"] = source["beat_id"]
+                continue
+        source = beat if illustration and claim.get("quantities") else None
+
+
+_SKETCH_ACTION = re.compile(
+    r"\b(sends?|feeds?|flows?|transfers?|carr(?:y|ies|ied)|"
+    r"sticks? to|attaches? to|helps?|makes?|produces?|leads? to|"
+    r"connects? to|links? to|improves?|reduces?|increases?|enables?|"
+    r"becomes?|changes? into)\b", re.I
+)
+_SKETCH_INTERFACE = re.compile(
+    r"\b(search (?:field|box|results)|type (?:in|into|the word)|"
+    r"enter (?:in|into|the word)|filter (?:the )?results|"
+    r"select (?:a |the )?(?:category|option|field)|"
+    r"choose (?:a |the )?(?:category|option|field))\b", re.I
+)
+_SKETCH_NEGATION = re.compile(r"\b(not|never|without|no|cannot|can't|doesn't|don't)\b", re.I)
+
+
+def sketch_units(gwords: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    qualifiers = {word_key(w) for w in (
+        "but", "not", "never", "without", "no", "cannot", "can't", "doesn't", "don't", "less", "more")}
+    text = clean(" ".join(w["text"] for w in gwords))
+    action_words = {word_key(m.group().split()[0]) for m in _SKETCH_ACTION.finditer(text)}
+    keys = [word_key(w["text"]) for w in gwords]
+    cuts = [i for i in range(2, len(gwords) - 1)
+            if len(gwords) - i <= 7 and keys[i] not in keys[:i]]
+    cut = next((i for i in cuts if keys[i] in qualifiers), None)
+    if cut is None:
+        cut = next((i for i in cuts if keys[i] in action_words), None)
+    spans = [gwords[:cut], gwords[cut:]] if cut is not None else [gwords]
+    units = []
+    for i, span in enumerate(spans):
+        promoted = i == len(spans) - 1
+        units.append({
+            "text": clean(" ".join(w["text"] for w in span)),
+            "role": "hero" if promoted else "support", "anchor_word": span[0]["text"],
+            "emphasis": 0.95 if promoted else 0.55,
+            "semantic_role": "punch" if promoted else "setup",
+            "can_promote": promoted, "reveal": "WORD_CASCADE",
+            "stress": [w["text"] for w in span
+                       if word_key(w["text"]) in qualifiers | action_words
+                       or re.fullmatch(r"can|may|necessarily|usually|about", word_key(w["text"]))],
+        })
+    return units
+
+
+def sketch_groups(words):
+    compiler_path = str(ROOT / "compiler")
+    if compiler_path not in sys.path:
+        sys.path.insert(0, compiler_path)
+    from editorial_plan_compiler.compiler import _cascade_settle_ms
+    from editorial_plan_compiler.master_timeline import OUTGOING_SHARE
+    from editorial_plan_compiler.timing import exit_for_pause, readable_close_floor
+
+    groups, group = [], []
+    for i, w in enumerate(words):
+        group.append(w)
+        gap = words[i + 1]["start_ms"] - w["end_ms"] if i + 1 < len(words) else 9999
+        if CLAUSE_END.search(w["text"]) or gap >= 650 or (len(group) >= 13 and CLAUSE_MID.search(w["text"])):
+            groups.append(group)
+            group = []
+    if group:
+        groups.append(group)
+    # Merge adjacent related claims only when the second action depends on
+    # context from the first. Retain an initial setup cut for three-claim arcs.
+    def nouns(group):
+        return {re.sub(r"^(?:another|different) ", "", p.lower())
+                for p in sketch_noun_phrases(" ".join(w["text"] for w in group))}
+    if len(groups) >= 3:
+        i = 1
+        while i < len(groups) - 1:
+            if len(groups[i] + groups[i + 1]) <= 20 and nouns(groups[i]) & nouns(groups[i + 1]):
+                groups[i:i + 2] = [groups[i] + groups[i + 1]]
+            else:
+                i += 1
+    elif len(groups) == 2:
+        text_a = " ".join(w["text"] for w in groups[0]).lower()
+        text_b = " ".join(w["text"] for w in groups[1]).lower()
+        # Attachment -> transfer is one continuous visual argument.
+        if (len(groups[0] + groups[1]) <= 20
+                and re.search(r"\b(sticks? to|attaches? to)\b", text_a)
+                and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b)
+                and nouns(groups[0]) & nouns(groups[1])):
+            groups = [groups[0] + groups[1]]
+    return groups
+
+
+_SKETCH_NLP: Any = None
+_SKETCH_ASSETS: set[str] | None = None
+_SKETCH_ICON_FAMILIES = (
+    "icon-park-outline", "lucide", "mingcute", "tabler", "carbon",
+    "ri", "healthicons", "ant-design", "icon-park-color",
+)
+_SKETCH_FALSE_FRIEND_ASSETS = {
+    "icon.icon-park-color.shade",        # umbrella, not cast shade
+    "icon.icon-park-color.label",        # bookmark, not a physical label
+    "icon.icon-park-color.instruction",  # code editor, not an instruction sent to a device
+}
+
+
+def sketch_noun_phrases(text):
+    """Extract source-mentioned actors/objects without requiring a spaCy model.
+
+    In production the small English model is optional, so a fallback must not
+    accidentally turn articles or conjunctions into drawable entities. It
+    takes subjects, determiner phrases and objects of source action verbs,
+    preserving source order and never inventing unnamed objects.
+    """
+    global _SKETCH_NLP
+    if _SKETCH_NLP is None:
+        try:
+            import spacy
+            _SKETCH_NLP = spacy.load("en_core_web_sm", disable=["ner"])
+        except (ImportError, OSError):
+            _SKETCH_NLP = False
+    if _SKETCH_NLP:
+        return [chunk.text for chunk in _SKETCH_NLP(text).noun_chunks]
+    articles = {"a", "an", "the", "this", "that", "each", "every", "some"}
+    qualifiers = {"another", "different"}
+    modifiers = {"better", "lower", "unknown", "paper"}
+    verbs = {"sends", "send", "feeds", "feed", "flows", "flow", "transfers",
+             "transfer", "carries", "carry", "carried", "sticks", "stick",
+             "attaches", "attach", "connects", "connect", "helps", "help",
+             "makes", "make", "produces", "produce", "improves", "improve",
+             "reduces", "reduce", "increases", "increase", "enables", "enable",
+             "becomes", "become", "changes", "change", "prints", "print",
+             "visits", "visit", "enters", "enter", "goes", "go", "holds",
+             "hold", "stores", "store", "dries", "dry", "means", "mean",
+             "solving", "solve", "succeeds", "succeed", "grows", "grow"}
+    preps = {"to", "for", "from", "into", "with", "without", "of", "than"}
+    stop = articles | {"and", "or", "but", "not", "no", "never", "necessarily",
+                       "can", "cannot", "does", "do", "is", "are", "was",
+                       "were", "then", "every", "so", "in", "on", "at",
+                       "by", "its", "it", "their", "more", "less"}
+    matches = []
+    for clause in re.split(r"[.!?;]+", text.lower()):
+        tokens = re.findall(r"[a-z]+(?:'[a-z]+)?", clause)
+        if not tokens:
+            continue
+        candidates = []
+        def emit(start, word, phrase=None):
+            if word in stop or word in verbs or word in preps or word in qualifiers:
+                return
+            candidates.append((start, phrase or word))
+        for i, token in enumerate(tokens):
+            if token in articles | qualifiers and i + 1 < len(tokens):
+                j = i + 1
+                if tokens[j] in articles or tokens[j] in preps or tokens[j] in verbs:
+                    continue
+                # An adjectival modifier is not an independent object.
+                if tokens[j] in modifiers and j + 1 < len(tokens) and tokens[j+1] not in verbs | stop:
+                    j += 1
+                name = tokens[j]
+                phrase = ("another " + name) if token in qualifiers else (
+                    ("better " + name) if i + 1 < j and tokens[i+1] == "better" else name)
+                emit(i, name, phrase)
+            if token in verbs:
+                j = i+1
+                while j < len(tokens) and tokens[j] in articles | preps | stop:
+                    j += 1
+                if j < len(tokens):
+                    if tokens[j] in modifiers and j + 1 < len(tokens) and tokens[j+1] not in verbs | stop:
+                        j += 1
+                    emit(j, tokens[j], ("better " + tokens[j]) if j>0 and tokens[j-1]=="better" else None)
+        first = 0
+        while first < len(tokens) and tokens[first] in articles:
+            first += 1
+        if first < len(tokens):
+            subj = first
+            if tokens[subj] in modifiers and subj+1<len(tokens) and tokens[subj+1] not in verbs:
+                subj += 1
+            emit(subj, tokens[subj])
+        matches.extend(candidates)
+    # Stable order; preserve repeated noun with only one graph identity.
+    result, seen = [], set()
+    for _, name in sorted(matches, key=lambda p: p[0]):
+        if name not in seen:
+            result.append(name)
+            seen.add(name)
+    return result
+
+
+def sketch_asset(phrase, text):
+    global _SKETCH_ASSETS
+    if _SKETCH_ASSETS is None:
+        from editorial_plan_compiler.illustration import IllustrationRegistry
+        registry = IllustrationRegistry()
+        _SKETCH_ASSETS = {
+            aid for aid, asset in registry.items.items()
+            if asset.get("family") in ("icon", "colour-icon")
+            and str(asset.get("eligibility", "")).startswith("eligible-")
+            and aid not in registry.quarantined
+            and (registry._roots[aid] / asset["path"]).is_file()
+        }
+    key = PHRASES.get(phrase, phrase)
+    if _POLYSEME_VETO.get(key, set()) & set(re.findall(r"\w+", text.lower())):
         return None
-    caption = " ".join(toks[vpos + 1:vpos + 4]) or " ".join(toks[max(0, vpos - 2):vpos]) or "total"
-    caption = re.sub(r"[^\w '&/-]", "", caption).strip() or "total"
-    anchor = g[min(vpos, len(g) - 1)]["text"] if g else "one"
-    last_word = g[-1]["text"] if g else anchor
-    count = int(value) if value == int(value) else value
-    level = min(0.98, count / 100.0) if unit in ("%", "percent") else min(0.95, max(0.18, count / 60.0))
-    return {"form": "DATA_VISUAL",
-            "entities": [
-                {"id": "e1_counter", "kind": "object", "glyph": "COUNTER", "size": "hero",
-                 "params": {"count": count, "caption": caption, "tone": "dark"}},
-                {"id": "e2_bar", "kind": "evidence", "glyph": "BAR", "size": "support",
-                 "params": {"level": round(level, 2), "caption": "trend"}}],
-            "relations": [],
-            "program": [
-                {"op": "DRAW", "target": "e1_counter", "at": {"word": anchor}, "duration_ms": 600},
-                {"op": "COUNT", "target": "e1_counter", "at": {"word": anchor},
-                 "duration_ms": 900, "params": {"count": count}},
-                {"op": "GROW", "target": "e2_bar", "at": {"word": last_word}, "duration_ms": 700}]}
+    slugs = [phrase.replace(" ", "-")]
+    if len(phrase.split()) == 1 and phrase.endswith("s") and not phrase.endswith("ss"):
+        # Try literal registered singular art, never semantically substitute.
+        if phrase.endswith("ies") and len(phrase) > 4:
+            slugs.append(phrase[:-3] + "y")
+        else:
+            slugs.append(phrase[:-1])
+    if len(phrase.split()) == 1 and phrase.endswith("s") and _SKETCH_NLP:
+        noun = next((w for w in _SKETCH_NLP(text)
+                     if w.text.lower() == phrase and w.pos_ == "NOUN"), None)
+        if noun and noun.lemma_ != phrase:
+            slugs.append(noun.lemma_.replace(" ", "-"))
+    for slug in dict.fromkeys(slugs):
+        for family in _SKETCH_ICON_FAMILIES:
+            ref = f"icon.{family}.{slug}"
+            if ref in _SKETCH_ASSETS and ref not in _SKETCH_FALSE_FRIEND_ASSETS:
+                return ref
+    ref = BANK.get(key, {}).get("mono")
+    suffix = (ref or "").rsplit(".", 1)[-1]
+    if ref in _SKETCH_ASSETS and (suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
+        return ref
+    return None
+
+
+def sketch_entities(gwords, media):
+    text = clean(" ".join(w["text"] for w in gwords))
+    candidates = sketch_noun_phrases(text)
+    # Unrecognised nouns keep their source label rather than a guessed depiction.
+    if not candidates:
+        candidates = [w["text"] for w in gwords if word_key(w["text"]) in BANK]
+    entities: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        if re.match(r"^(?:not|never|no)\b", candidate, re.I):
+            continue
+        distinct = bool(re.match(r"^(?:another|different)\s", candidate, re.I))
+        phrase = re.sub(r"^(?:a|an|the|this|that|some|each|every|another|different) ", "",
+                        candidate, flags=re.I)
+        if re.search(r"\bof\b", phrase, re.I):
+            phrase = re.split(r"\bof\b", phrase, flags=re.I)[-1].strip()
+        phrase = phrase.strip(" ,.;:!?\"'").lower()
+        if phrase in {"a", "an", "the", "to", "of", "and", "but", "not", "every"}:
+            continue
+        entity_id = ("sk_another_" if distinct else "sk_") + re.sub(r"\W+", "_", phrase)
+        if len(phrase.split()) > 3 or not phrase or entity_id in seen:
+            continue
+        if not re.search(rf"\b{re.escape(phrase)}\b", text, re.I):
+            continue
+        seen.add(entity_id)
+        ref = sketch_asset(phrase, text)
+        ent = {"id": entity_id, "kind": "object",
+               "glyph": "TILE" if ref else "PILL", "size": "hero" if not entities else "support",
+               "label": phrase, "phrase": phrase}
+        if ref:
+            ent["asset_ref"] = ref
+        entities.append(ent)
+        if len(entities) == 4:
+            break
+    for mi, _mf in media:
+        entities.append({"id": f"media{mi+1}", "kind": "evidence",
+                         "glyph": "MEDIA", "size": "support", "media_ref": f"media{mi+1}"})
+    if not entities:
+        # A source sentence with no safely identifiable object still gets a
+        # truthful text carrier rather than an unrelated question/idea icon.
+        phrase = " ".join(w["text"] for w in gwords[:3]).strip(" ,.;:!?")
+        entities.append({"id": "sk_source", "kind": "object", "glyph": "PILL",
+                         "size": "hero", "label": phrase, "phrase": phrase})
+    return entities[:7]
+
+
+def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
+    stages: list[tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any], str, str]] = []
+    for clause_match in re.finditer(r"[^.!?;]+", narration):
+        clause = clause_match.group()
+        doc = _SKETCH_NLP(clause) if _SKETCH_NLP else None
+        actions = list(_SKETCH_ACTION.finditer(clause))
+        for i, action in enumerate(actions):
+            before = clause[:action.start()]
+            after = clause[action.end():actions[i + 1].start() if i + 1 < len(actions) else len(clause)]
+            if _SKETCH_NEGATION.search(before):
+                continue
+            def mentioned(e: dict[str, Any], text: str) -> bool:
+                return bool(e.get("phrase") and re.search(rf"\b{re.escape(e['phrase'])}\b", text, re.I))
+            subjects = [e for e in entities if mentioned(e, before)]
+            objects = [e for e in entities if mentioned(e, after)]
+            if doc is not None:
+                verb = next((t for t in doc if action.start() <= t.idx < action.end()
+                             and t.pos_ == "VERB"), None)
+                if verb is not None:
+                    heads = [c for c in verb.children if c.dep_ == "nsubj"]
+                    if not heads and verb.dep_ == "conj":
+                        heads = [c for c in verb.head.children if c.dep_ == "nsubj"]
+                    if heads:
+                        subjects = [e for e in subjects if any(
+                            mentioned(e, " ".join(t.text for t in head.subtree)) for head in heads)]
+            if not subjects or not objects:
+                continue
+            if action.group().lower().startswith(("becom", "chang")):
+                # "becomes stiffer" describes a state, not a named object.
+                # Transformation drawings need an explicit nominal referent.
+                trailing = after.strip().lower()
+                if not re.match(r"^(?:a|an|the|another|different|this|that)\b", trailing):
+                    continue
+            # Conjoined verbs inherit the clause's subject, not the preceding
+            # verb's destination. Use the earliest actor before the first verb.
+            clause_subject = [e for e in entities if mentioned(e, clause[:actions[0].start()])]
+            between = clause[actions[i-1].end():action.start()] if i else ""
+            inherited = bool(i and re.search(r"\band\s*$", between, re.I))
+            source = clause_subject[-1] if inherited and clause_subject else subjects[-1]
+            target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
+            if source is target:
+                continue
+            destination = re.search(rf"\b{re.escape(target['phrase'])}\b", after, re.I)
+            payload = [e for e in entities if e is not source and e is not target
+                       and mentioned(e, after[:destination.start()])] if destination else []
+            cue = action.group().lower()
+            if cue.startswith(("becom", "chang")):
+                relation = "transforms_into"
+            elif cue.startswith(("send", "feed", "flow", "transfer", "carr", "make", "produc")):
+                relation = "flows_to"
+            else:
+                relation = "connects"
+            if cue.startswith(("stick", "attach")):
+                source, target = target, source
+            stages.append((source, payload, target, relation, cue.split()[0]))
+    return stages
+
+
+def sketch_beat(gwords, bi, n, previous, media):
+    bid = f"b{bi+1:02d}"
+    narration = clean(" ".join(w["text"] for w in gwords))
+    units = sketch_units(gwords)
+    entities = sketch_entities(gwords, media)
+    for ent in entities:
+        if ent.get("label") and len(ent["label"].split()) > 1:
+            ent["label"] = ent["label"].split()[-1]
+    is_interface = bool(_SKETCH_INTERFACE.search(narration))
+    stages = sketch_action_stages(narration, entities) if not is_interface else []
+    if stages:
+        links: list[tuple[dict[str, Any], dict[str, Any], str, str]] = []
+        for source, payload, target, relation, anchor in stages:
+            chain = [source] + payload + [target]
+            new_links = 0
+            for j, (left, right) in enumerate(zip(chain, chain[1:])):
+                if any(link[0] is left and link[1] is right for link in links):
+                    continue
+                links.append((left, right, relation,
+                              anchor if new_links == 0 else chain[j]["phrase"].split()[0]))
+                new_links += 1
+        if links:
+            form = ("PROCESS_PIPELINE" if any(r == "flows_to" for _, _, r, _ in links)
+                    else "STATE_TRANSFORMATION" if any(r == "transforms_into" for _, _, r, _ in links)
+                    else "RELATIONSHIP")
+            used = {e["id"] for left, right, _, _ in links for e in (left, right)}
+            entities = [e for e in entities if e["id"] in used or e["kind"] == "evidence"]
+            order = []
+            for left, right, _, _ in links:
+                for e in (left, right):
+                    if e["id"] not in order:
+                        order.append(e["id"])
+            entities.sort(key=lambda e: order.index(e["id"]) if e["id"] in order else len(order))
+            for e in entities:
+                if e["kind"] != "evidence":
+                    e["size"] = "support"
+            links[0][0]["size"] = "hero"
+            if len(entities) == 2 and form != "RELATIONSHIP":
+                links[-1][1]["size"] = "hero"
+            shared = {e["id"] for e in entities} & previous
+            relations = [{"type": r, "source": a["id"], "target": b["id"], "style": "dash"}
+                         for a, b, r, _ in links]
+            program = [{"op": "DRAW", "target": e["id"], "at": {"word": gwords[0]["text"]},
+                        "duration_ms": 500} for e in entities if e["id"] not in shared]
+            for left, right, _, anchor in links:
+                program.append({"op": "CONNECT", "target": f"{left['id']}->{right['id']}",
+                                "at": {"word": anchor}, "duration_ms": 360})
+            if len(program) > 10:
+                raise ValueError("Sketch scene exceeds the native source-bound action budget")
+            for _, _, target, _, anchor in stages:
+                if len(program) == 10:
+                    break
+                program.append({"op": "INK", "target": target["id"],
+                                "at": {"word": anchor}, "duration_ms": 300})
+            illustration = {"form": form, "entities": entities, "relations": relations,
+                            "program": program,
+                            **({"carry": {"from_beat": f"b{bi:02d}", "entities": sorted(shared)}}
+                               if shared else {})}
+            return {
+                "beat_id": bid,
+                "beat_type": "SETUP" if bi == 0 else ("PAYOFF" if bi == n-1 else "EXPLANATION"),
+                "pattern": "PAYOFF_LOCKUP" if bi == n-1 else "PROGRESSIVE_HERO_BUILD",
+                "dominant_layer": "HYBRID",
+                "narration": narration,
+                "energy": 0.55 if bi == 0 else (0.75 if bi == n-1 else 0.65),
+                "complexity": 0.5,
+                "display_units": units,
+                "illustration": illustration,
+            }
+    current = {e["id"] for e in entities}
+    shared = current & previous
+    carry = {"from_beat": f"b{bi:02d}", "entities": sorted(shared)} if shared else None
+    form, relation = "OBJECT_STAGE", None
+    compare = None
+    source = target = None
+    comparison_negation = None
+    if not is_interface:
+        compare = re.search(r"\b(versus|vs\.?|compared (?:with|to)|than|whereas|means?)\b", narration, re.I)
+        if compare:
+            before = [e for e in entities if e.get("phrase") and e["phrase"] in narration[:compare.start()].lower()]
+            after = [e for e in entities if e.get("phrase") and e["phrase"] in narration[compare.end():].lower()]
+            if before and after:
+                source, target = before[-1], after[0]
+                form, relation = "COMPARISON", "compares"
+                comparison_negation = _SKETCH_NEGATION.search(narration[:compare.start()])
+    if source and target:
+        order = [source["id"], target["id"]]
+        entities.sort(key=lambda e: order.index(e["id"]) if e["id"] in order else len(order))
+        source["size"] = "hero"
+        target["size"] = "support" if form == "RELATIONSHIP" else "hero"
+    chain = [source, target] if source and target else []
+    link_word = compare.group().split()[0] if compare else gwords[0]["text"]
+    relations = [{"type": relation, "source": a["id"], "target": b["id"], "style": "dash"}
+                 for a, b in zip(chain, chain[1:])]
+    program = [
+        {"op": "DRAW", "target": e["id"], "at": {"word": gwords[0]["text"]},
+         "duration_ms": 500}
+        for e in entities if e["id"] not in shared
+    ]
+    if source and target and relation:
+        if comparison_negation:
+            program.append({"op": "INK", "target": source["id"],
+                            "at": {"word": source["phrase"].split()[0]}, "duration_ms": 300})
+            program.append({"op": "DIM", "target": f"{source['id']}->{target['id']}",
+                            "at": {"word": comparison_negation.group()}, "to": 0.3, "duration_ms": 300})
+        for i, r in enumerate(relations):
+            anchor = link_word if i == 0 else chain[i]["phrase"].split()[0]
+            program.append({"op": "CONNECT", "target": f"{r['source']}->{r['target']}",
+                            "at": {"word": anchor}, "duration_ms": 360})
+        if not comparison_negation:
+            program.append({"op": "INK", "target": target["id"],
+                            "at": {"word": target["phrase"].split()[0]}, "duration_ms": 300})
+    if not program:
+        program.append({"op": "INK", "target": entities[0]["id"],
+                        "at": {"word": gwords[0]["text"]}, "duration_ms": 300})
+    illustration = {"form": form, "entities": entities, "relations": relations,
+                    "program": program[:10], **({"carry": carry} if carry else {})}
+    return {
+        "beat_id": bid,
+        "beat_type": "SETUP" if bi == 0 else ("PAYOFF" if bi == n-1 else "EXPLANATION"),
+        "pattern": "PAYOFF_LOCKUP" if bi == n-1 else "PROGRESSIVE_HERO_BUILD",
+        "dominant_layer": "HYBRID",
+        "narration": narration,
+        "energy": 0.55 if bi == 0 else (0.75 if bi == n-1 else 0.65),
+        "complexity": 0.5,
+        "display_units": units,
+        "illustration": illustration,
+    }
 
 
 def build_treatment(args, style, words, media_files, film_id):
@@ -503,7 +1319,10 @@ def build_treatment(args, style, words, media_files, film_id):
     # wear (TILE/BADGE/CHIP...) and how their connectors draw (solid/dash/arc).
     glyph = style.get("glyph", "TILE")
     link_style = style.get("link_style")
-    groups = chunk_beats(words)
+    if style["id"] in ("sketch", "dataviz"):
+        words = [{**w, "text": w["text"].strip()} for w in words]
+    groups = (sketch_groups(words) if style["id"] == "sketch" else
+              dataviz_groups(words) if style["id"] == "dataviz" else chunk_beats(words))
     if style.get("show") == "NEWSREEL":
         media_library = []
         for mi, p in enumerate(media_files):
@@ -546,9 +1365,22 @@ def build_treatment(args, style, words, media_files, film_id):
         slot = 1 + (mi % max(1, len(groups) - 2)) if len(groups) > 2 else mi % len(groups)
         media_slots.setdefault(slot, []).append((mi, mf))
     n = len(groups)
+    sketch_previous = set()
     for bi, g in enumerate(groups):
         bid = f"b{bi+1:02d}"
         narration = clean(" ".join(w["text"] for w in g))
+        if style["id"] == "sketch":
+            beat = sketch_beat(g, bi, n, sketch_previous, media_slots.get(bi, []))
+            if beats:
+                beats[-1]["cut"] = "hard"
+            beats.append(beat)
+            sketch_previous = {e["id"] for e in beat["illustration"]["entities"]}
+            continue
+        if style["id"] == "dataviz":
+            if beats:
+                beats[-1]["cut"] = "hard"
+            beats.append(dataviz_beat(g, bi, n, media_slots.get(bi, [])))
+            continue
         # Float scenes lead with visuals — a beat gets a denser cluster (up to six
         # drawable concepts) so the field never reads as a lone text line. Topic
         # keys may re-enter after one beat off (the film keeps returning to its
@@ -728,12 +1560,6 @@ def build_treatment(args, style, words, media_files, film_id):
                         "relations": relations,
                         "program": program,
                         **({"carry": carry} if carry else {})}
-        if is_dataviz:
-            # A spoken number gets the data-viz staging: the figure counts itself
-            # up while its caption names what it measures, a level bar grows under.
-            dv = dataviz_illustration(narration, g)
-            if dv:
-                illustration = dv
         beats.append({
             "beat_id": bid,
             "beat_type": btype,
@@ -745,6 +1571,8 @@ def build_treatment(args, style, words, media_files, film_id):
             "display_units": units,
             "illustration": illustration,
         })
+    if style["id"] == "dataviz":
+        dataviz_continuity(beats)
     media_library = []
     for mi, p in enumerate(media_files):
         p = Path(p)
@@ -1110,6 +1938,33 @@ def probe_dur(p):
 
 
 # ---------- poster ----------
+def sketch_posterize(frames_dir, src_mp4, out_mp4, cover_path, plan, fps):
+    frames = sorted(Path(frames_dir).glob("f*.jpg"))
+    if not frames:
+        raise ValueError("Sketch preview requires rendered opening frames")
+    first = plan["beats"][0]
+    hold = first["ensemble"]["hold_window"]
+    start_frame = math.ceil(hold["start_ms"] * fps / 1000)
+    last_opening_frame = max(0, math.ceil(first["duration_ms"] * fps / 1000) - 1)
+    end_frame = min(math.ceil(hold["end_ms"] * fps / 1000) - 1,
+                    last_opening_frame, len(frames) - 1)
+    if start_frame > end_frame:
+        raise ValueError("Sketch preview requires a completed first-scene frame")
+    frame_index = min(max(round((hold["start_ms"] + hold["end_ms"]) * fps / 2000),
+                          start_frame), end_frame)
+    Path(cover_path).write_bytes(frames[frame_index].read_bytes())
+    opening_s = min(frame_index / fps,
+                    max(1 / fps, first["words"][0]["start_ms"] / 1000))
+    subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(src_mp4),
+                    "-loop", "1", "-framerate", str(fps), "-i", str(cover_path),
+                    "-filter_complex",
+                    f"[0:v][1:v]overlay=shortest=1:enable='lt(t,{opening_s:.6f})'[v]",
+                    "-map", "[v]", "-map", "0:a", "-c:v", "libx264",
+                    "-preset", "fast", "-crf", "23", "-pix_fmt", "yuv420p",
+                    "-c:a", "copy", "-movflags", "+faststart",
+                    str(out_mp4)], check=True)
+
+
 def posterize(frames_dir, src_mp4, out_mp4, w, h, tmp):
     last = sorted(Path(frames_dir).glob("f*.jpg"))[-1]
     seg, vout = tmp / f"seg_{h}_{uuid.uuid4().hex[:6]}.mp4", tmp / f"v_{h}_{uuid.uuid4().hex[:6]}.mp4"
@@ -1193,7 +2048,8 @@ def main():
         env["PATH"] = str(node_bin) + os.pathsep + env.get("PATH", "")
     r = subprocess.run([sys.executable, str(TOOLS / "regression_pack.py"),
                         "--fixture", fixture_dir.name, "--aspects", args.aspects,
-                        "--out", str(out_dir.resolve())],
+                        "--out", str(out_dir.resolve()),
+                        *(["--kinetic-captions"] if style["id"] == "dataviz" else [])],
                        env=env, capture_output=True, text=True)
     print(r.stdout[-2500:] or r.stderr[-2500:])
     if r.returncode != 0:
@@ -1207,11 +2063,19 @@ def main():
         web = rd / f"{stem}_{a}_web.mp4"
         frames = rd / f"frames_{a}"
         audio = rd / f"audio_{a}.wav"
-        if style.get("captions") == "burned" and frames.exists():
+        if style.get("captions") == "burned" and style["id"] != "dataviz" and frames.exists():
             web_nc = rd / f"{stem}_{a}_nocaption_web.mp4"
             remux_nocaption(frames, audio, web_nc)
             web = web_nc
-        if not args.no_poster:
+        if not args.no_poster and style["id"] in ("sketch", "dataviz"):
+            poster = rd / f"{stem}_{a}_poster.mp4"
+            cover = rd / f"{stem}_{a}_cover.jpg"
+            plan = json.loads((rd / f"plan_{a}.json").read_text())
+            fps = json.loads((rd / f"render_{a}.json").read_text())["fps"]
+            sketch_posterize(frames, web, poster, cover, plan, fps)
+            manifest.setdefault("posters", {})[a] = str(cover)
+            return str(poster)
+        elif not args.no_poster:
             w, h = dims[a]
             poster = rd / f"{stem}_{a}_poster.mp4"
             posterize(frames, web, poster, w, h, out_dir)

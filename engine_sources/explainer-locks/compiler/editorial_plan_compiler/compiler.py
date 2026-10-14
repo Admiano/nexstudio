@@ -29,7 +29,7 @@ from .media import NormalisedMedia, normalise_media
 from .motion import camera_move, transition_window_ms
 from .sound import MIX, SoundLibrary, bind_beat_sound, bind_film_music, community_surface, library_root
 from .master_timeline import MasterTimeline, extend_tail, resolve_master
-from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, normalise, readable_close_floor, retime_choreography, window_clock
+from .timing import BeatClock, CASCADE_SETTLE_MS, EXIT_MS, LAND_SETTLE_MS, LEAD_IN_MS, MIN_HOLD_MS, beat_clock, find_landing, illustration_op_start, normalise, readable_close_floor, retime_choreography, window_clock
 from .typefit import fit_text
 from .voice import VoiceSegment, resolve_voice
 from .show import bands as show_bands, resolve as resolve_show
@@ -1111,16 +1111,9 @@ def _extend_for_program(clock: BeatClock, b: BeatTreatment) -> BeatClock:
     cursor = 0
     latest = 0
     for op in b.illustration.program:
-        if 'word' in op.at:
-            idx = find_landing(clock.words, op.at['word'], cursor)
-            if idx is None:
-                continue
-            start = clock.words[idx].start_ms - 60
-            cursor = idx
-        elif 'unit' in op.at:
-            start = clock.landings_ms[op.at['unit']]
-        else:
-            start = LEAD_IN_MS + op.at['offset_ms']
+        start, cursor = illustration_op_start(clock, op, cursor)
+        if start is None:
+            continue
         latest = max(latest, start + op.duration_ms)
     needed = latest + MIN_HOLD_MS + EXIT_MS + 80
     if needed <= clock.duration_ms:
