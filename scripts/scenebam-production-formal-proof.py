@@ -40,7 +40,9 @@ assert new_garment.get('donorCC0') is True
 assert any(m.type=='ARMATURE' for m in new_garment.modifiers)
 assert len(new_garment.data.vertices)>1000
 assert len(new_garment.vertex_groups)>20
-old_pose_matrix = new_garment.matrix_world.copy()
+# Remap world placement relative to the validated donor rig. The old absolute
+# position put garment meshes alongside SceneBam's assembled performers.
+old_pose_matrix = rig.matrix_world @ source_rig.matrix_world.inverted_safe() @ new_garment.matrix_world.copy()
 for mod in new_garment.modifiers:
     if mod.type=='ARMATURE': mod.object=rig
 new_garment.parent=rig

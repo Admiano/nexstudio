@@ -155,7 +155,9 @@ jobs:
             source=root/(variant+'.blend')
             assert source.is_file() and 1000000<source.stat().st_size<95000000,variant
             files[variant]=hashlib.sha256(source.read_bytes()).hexdigest()
-            frame=Path('donor')/variant/(variant+'-front.png')
+            # Option previews must depict the ACTUAL Blender production import,
+            # not displaced upstream donor/proof pictures.
+            frame=Path('production-colour')/(variant+'-222C46-A33B50.png')
             assert frame.is_file(),frame
             with Image.open(frame) as im:
               im.thumbnail((400,520))

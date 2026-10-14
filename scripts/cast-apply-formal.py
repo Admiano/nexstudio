@@ -10,6 +10,7 @@ closed if a suit/tie separation is missing; never paint a costume-shaped patch.
 import bpy
 import os
 import re
+from statistics import median
 from pathlib import Path
 
 KINDS = {
@@ -118,7 +119,11 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
         max_error=max(max_error,max(abs(float(x)-float(y)) for a,b in zip(old.matrix_local,bone.matrix_local) for x,y in zip(a,b)))
     if max_error > 1e-4:
         raise RuntimeError('CAST_FORMAL_RIG_MISMATCH:' + str(max_error))
-    matrix = donor.matrix_world.copy()
+    # A donor garment's own world matrix belongs to the donor SOURCE rig,
+    # which may be staged at a different world origin from SceneBam's host.
+    # Preserve donor-rig-relative placement, not absolute scene placement.
+    # The old absolute-world copy left tailored coats visibly beside hosts.
+    matrix = rig.matrix_world @ donor_rig.matrix_world.inverted_safe() @ donor.matrix_world.copy()
     for modifier in donor.modifiers:
         if modifier.type == 'ARMATURE':
             modifier.object = rig
@@ -128,6 +133,25 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     if donor_rig.users == 0:
         bpy.data.objects.remove(donor_rig,do_unlink=True)
     donor.name = expected
+    # Rig rest-matrix parity does NOT establish garment/body placement.
+    # Require upper-torso registration from the actual evaluated geometry.
+    bpy.context.view_layer.update()
+    def upper_center(obj):
+        evaluated=obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        mesh_eval=evaluated.to_mesh()
+        try:
+            torso=[evaluated.matrix_world @ v.co for v in mesh_eval.vertices]
+            torso=[p for p in torso if 1.05 <= p.z <= 1.43]
+            if len(torso)<100:
+                raise RuntimeError('CAST_FORMAL_TORSO_SAMPLE_MISSING:'+obj.name)
+            return (median(float(p.x) for p in torso),median(float(p.y) for p in torso))
+        finally:
+            evaluated.to_mesh_clear()
+    garment_center=upper_center(donor)
+    body_center=upper_center(body)
+    torso_dx=abs(garment_center[0]-body_center[0])
+    if torso_dx > 0.12:
+        raise RuntimeError('CAST_FORMAL_UNREGISTERED_TORSO:'+variant+':'+str(torso_dx))
 
     # Same removal rules as the successful production formal proof. Hide all
     # base garment meshes and their derived ink/fit copies, never the face/body.
@@ -196,4 +220,5 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
             'restError':max_error,'garmentVertices':len(donor.data.vertices),
             'hiddenOriginalGarments':hidden,'materialsByRole':roles,
             'suitHex':suit_hex.upper(),'tieHex':tie_hex.upper(),
-            'rigPreserved':True,'collisionCertified':False}
+            'rigPreserved':True,'collisionCertified':False,
+            'garmentTorsoCenter':garment_center,'bodyTorsoCenter':body_center,'torsoXDeviation':torso_dx}

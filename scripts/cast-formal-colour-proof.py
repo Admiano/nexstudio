@@ -25,6 +25,7 @@ for role,slot,hexcode in [('suit',1,suit),('tie',2,tie)]:
  assert all(abs(float(a)-float(b))<.0001 for a,b in zip(blend.inputs[2].default_value,expected))
  assert any(m.type=='ARMATURE' and m.object==bpy.data.objects['Host.rig'] for m in obj.modifiers)
 assert report['restError']<1e-4
+assert report['torsoXDeviation']<=0.12,report
 
 scene.frame_set(27)
 scene.render.engine='CYCLES'
