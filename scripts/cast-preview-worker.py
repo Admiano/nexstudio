@@ -3,20 +3,32 @@
 import argparse,fcntl,json,os,re,shutil,subprocess,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-corrected-original-performance-v20-upper-thigh'
+SOURCE_VERSION='bf88447b8f898bea078c44b9202cfe2b7ff13be5';RENDER_VERSION='approved-v3-v6-corrected-original-performance-v20-upper-thigh';FORMAL_RENDER_VERSION='scenebam-production-assembled-formals-v1'
 CACHE=Path(os.environ.get('CAST_PREVIEW_CACHE_DIR',ROOT/'engine_sources/makehuman-lineart/out/cast-previews'))
 SOURCE=Path(os.environ.get('CAST_SOURCE_DIR',ROOT/'engine_sources/makehuman-lineart/presenters_v1'))
-ENV_KEYS={'CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
+ENV_KEYS={'CAST_FORMAL_LOOK','CAST_SUIT_HEX','CAST_TIE_HEX','CAST_CHARACTER','CAST_FACE','CAST_HAIR_STYLE','CAST_HAIR_HEX','CAST_SKIN_HEX','CAST_LIP_HEX','CAST_NECK','CAST_WATCH','CAST_DRESS','CAST_DRESS_HEX','CAST_MALE_LOOK','CAST_MALE_HAIR','CAST_HAIR_DYE','CAST_GARMENTS'}
 BLENDER=os.environ.get('BLENDER_BIN') or shutil.which('blender')
 def atomic_json(path,value):
     tmp=path.with_name(path.name+f'.{os.getpid()}.tmp');tmp.write_text(json.dumps(value));tmp.replace(path)
 def status(job,value,**extra):atomic_json(job/'status.json',{'status':value,'updatedAt':time.time(),**extra})
 def validate(config):
-    if config['sourceVersion']!=SOURCE_VERSION or config['renderVersion']!=RENDER_VERSION:raise ValueError('CAST_SOURCE_VERSION_MISMATCH')
+    if config['sourceVersion']!=SOURCE_VERSION or config['renderVersion'] not in (RENDER_VERSION,FORMAL_RENDER_VERSION):raise ValueError('CAST_SOURCE_VERSION_MISMATCH')
     if type(config['frame']) is not int or not 1<=config['frame']<=998 or config['resolutionPercentage']!=50 or config.get('framing')!='upper-thigh':raise ValueError('CAST_RENDER_PROFILE_INVALID')
     env=config['env']
     if set(env)!=ENV_KEYS or any(not isinstance(v,str) or len(v)>400 or not re.fullmatch(r'[A-Za-z0-9_=,.-]*',v) for v in env.values()):raise ValueError('CAST_RENDER_ENV_INVALID')
     if env['CAST_CHARACTER'] not in ('female','male') or env['CAST_FACE'] not in ('0','1','2'):raise ValueError('CAST_CHARACTER_INVALID')
+    valid={'female':['female-double-breasted','female-statement'],
+           'male':['male-jacket-tie','male-double-breasted','male-navy-classic','male-dinner-jacket']}
+    v=env['CAST_FORMAL_LOOK']
+    if v and config['renderVersion']!=FORMAL_RENDER_VERSION:raise ValueError('CAST_FORMAL_PROFILE_INVALID')
+    if not v and config['renderVersion']!=RENDER_VERSION:raise ValueError('CAST_NORMAL_PROFILE_INVALID')
+    if v and v not in valid[env['CAST_CHARACTER']]:raise ValueError('CAST_FORMAL_VARIANT_INVALID')
+    def color(x):return bool(re.fullmatch('[A-Fa-f0-9]{6}',x))
+    if v:
+        if not color(env['CAST_SUIT_HEX']):raise ValueError('CAST_SUIT_COLOR_INVALID')
+        if env['CAST_CHARACTER']=='male' and not color(env['CAST_TIE_HEX']):raise ValueError('CAST_TIE_COLOR_INVALID')
+        if env['CAST_CHARACTER']=='female' and env['CAST_TIE_HEX']:raise ValueError('CAST_FEMALE_TIE_INVALID')
+    elif env['CAST_SUIT_HEX'] or env['CAST_TIE_HEX']:raise ValueError('CAST_FORMAL_COLOR_WITHOUT_OUTFIT')
 def render(job):
     config=json.loads((job/'request.json').read_text())['config'];validate(config)
     if not BLENDER or not Path(BLENDER).is_file():raise RuntimeError('BLENDER_RUNTIME_MISSING')
