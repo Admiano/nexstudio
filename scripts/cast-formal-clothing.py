@@ -69,6 +69,10 @@ def _classify_garment(mesh,world,tie_expected):
     # Disconnected donor OBJ islands retain separate topology for tie/lapels.
     # Reject an uncertain tie rather than recolor a shirt or fake a texture.
     islands=_connected_islands(mesh)
+    # The approved cast may sit at a nonzero x offset; derive the donor's own
+    # midline from its mesh rather than assuming the camera's -.42 coordinate.
+    all_x=[(world@v.co).x for v in mesh.vertices]
+    midline=(min(all_x)+max(all_x))*.5
     scores=[]
     for faces in islands:
         inds=set(v for i in faces for v in mesh.polygons[i].vertices)
@@ -78,7 +82,7 @@ def _classify_garment(mesh,world,tie_expected):
         cx=(xlo+xhi)*.5;cz=(zlo+zhi)*.5
         # Frontal mid-chest, narrow, elongated accessory instead of a jacket.
         w=xhi-xlo;h=zhi-zlo
-        if 1.16<cz<1.66 and abs(cx+.42)<.16 and .015<w<.24 and .07<h<.65 and len(faces)>=4:
+        if 1.16<cz<1.66 and abs(cx-midline)<.12 and .015<w<.10 and .12<h<.45 and len(faces)>=4:
             scores.append((len(faces),w,h,cx,cz,faces))
     # Tie connected-component candidates are ordered by narrowness then area.
     tie_faces=[]
@@ -148,11 +152,13 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
         raise RuntimeError('CAST_FORMAL_ARMATURE_MODIFIER_MISSING')
     if len(garment.data.vertices)<1000 or len(garment.vertex_groups)<20:
         raise RuntimeError('CAST_FORMAL_WEIGHTS_MISSING')
-    original_world=garment.matrix_world.copy()
+    # Keep garment position relative to donor rig, then place it into the
+    # *current assembled cast* rig's local space (not the donor scene world).
+    local_to_donor_rig=donor_rig.matrix_world.inverted() @ garment.matrix_world
     for mod in garment.modifiers:
         if mod.type=='ARMATURE':mod.object=rig
     garment.parent=rig
-    garment.matrix_world=original_world
+    garment.matrix_world=rig.matrix_world @ local_to_donor_rig
     scene.collection.objects.link(garment)
     garment.name='SCENEBAM_PRODUCTION_'+variant.replace('-','_')
     if donor_rig.users==0:bpy.data.objects.remove(donor_rig,do_unlink=True)
@@ -177,6 +183,18 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
     if not source_mat or not source_mat.use_nodes or not any(n.type=='TEX_IMAGE' and n.image for n in source_mat.node_tree.nodes):
         raise RuntimeError('CAST_FORMAL_ORIGINAL_PACKED_UV_TEXTURE_MISSING')
     suit_ids,tie_ids,islands=_classify_garment(garment.data,garment.matrix_world,character=='male')
+    # A rig digest alone cannot catch a garment shifted sideways off the actor.
+    # Compare physical head/torso root placement in current world coordinates.
+    chest_z=1.24
+    def centre_at_height(ob):
+        coords=[ob.matrix_world@v.co for v in ob.data.vertices]
+        band=[p.x for p in coords if abs(p.z-chest_z)<.10]
+        if not band:return None
+        return (min(band)+max(band))*.5
+    body_centre=centre_at_height(body)
+    cloth_centre=centre_at_height(garment)
+    if body_centre is None or cloth_centre is None or abs(body_centre-cloth_centre)>.12:
+        raise RuntimeError('CAST_FORMAL_GARMENT_BODY_ALIGNMENT_FAILED:'+str([body_centre,cloth_centre]))
     suit_mat=_tint_material(source_mat,'SCENEBAM_SUIT_'+suit_hex,target)
     suit_index=len(garment.data.materials)
     garment.data.materials.append(suit_mat)
