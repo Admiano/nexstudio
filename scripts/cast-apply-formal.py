@@ -140,11 +140,15 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
         evaluated=obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
         mesh_eval=evaluated.to_mesh()
         try:
-            torso=[evaluated.matrix_world @ v.co for v in mesh_eval.vertices]
-            torso=[p for p in torso if 1.05 <= p.z <= 1.43]
-            if len(torso)<100:
-                raise RuntimeError('CAST_FORMAL_TORSO_SAMPLE_MISSING:'+obj.name)
-            return (median(float(p.x) for p in torso),median(float(p.y) for p in torso))
+            positions=[evaluated.matrix_world @ v.co for v in mesh_eval.vertices]
+            # Cast male's approved Host.body can mask its clothed torso while
+            # retaining the bare head/neck mesh. Use its head-axis as a stable
+            # lateral registration fallback rather than declaring body absent.
+            for lo,hi in ((1.05,1.43),(1.43,1.92),(0.80,2.10)):
+                sample=[p for p in positions if lo <= p.z <= hi]
+                if len(sample)>=25:
+                    return (median(float(p.x) for p in sample),median(float(p.y) for p in sample))
+            raise RuntimeError('CAST_FORMAL_BODY_ANCHOR_MISSING:'+obj.name+':'+str(len(positions)))
         finally:
             evaluated.to_mesh_clear()
     garment_center=upper_center(donor)
