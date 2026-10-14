@@ -41,7 +41,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--style", choices=sorted(SCRIPTS), required=True)
     ap.add_argument("--aspects", default="16x9,9x16,1x1")
-    ap.add_argument("--fps", type=int, default=15)
+    ap.add_argument("--fps", type=int, default=24)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--out", default=str(ROOT / "out" / "recovery-video-proof"))
     args = ap.parse_args()
