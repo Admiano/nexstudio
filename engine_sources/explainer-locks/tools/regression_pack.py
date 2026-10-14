@@ -127,14 +127,14 @@ def main() -> int:
         film_out = root_out / name
         gate = compile_fixture(treatment, film_out)
         film = {'film': name, 'aspects': {}, 'gate': gate['status']}
+        def render_format(aspect):
+            plan = film_out / f'plan_{aspect}.json'
             if args.kinetic_captions:
                 compiled = json.loads(plan.read_text())
                 if not all(b['typography']['blocks'] for b in compiled['beats']):
                     raise ValueError('Kinetic captions require on-canvas text in every beat')
                 compiled['captions_policy'] = 'kinetic'
                 plan.write_text(json.dumps(compiled, indent=2))
-        def render_format(aspect):
-            plan = film_out / f'plan_{aspect}.json'
             manifest_path = film_out / f'render_{aspect}.json'
             manifest = None
             if not args.skip_render or not manifest_path.exists():
