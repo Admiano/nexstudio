@@ -1,0 +1,106 @@
+name: SceneBam six formal outfits — Cast integration & real previews
+on:
+  push:
+    branches: [work/scenebam-production-assembly-formals-20261013]
+    paths:
+      - .github/workflows/scenebam-formal-cast-integration.yml
+      - scripts/cast-formal-clothing.py
+      - scripts/cast-formal-integration-proof.py
+      - scripts/cast-render-assembled.py
+      - scripts/cast-preview-worker.py
+      - src/studio-v2/cast/**
+      - src/studio-v2/views/CastView.tsx
+      - src/lib/cast-spec-schema.ts
+permissions:
+  contents: write
+  actions: read
+jobs:
+  types:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm}
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: SceneBam TypeScript typecheck
+        run: npx tsc --noEmit --pretty false
+      - name: Verify Blender/Python source syntax
+        run: python -m py_compile scripts/cast-formal-clothing.py scripts/cast-formal-integration-proof.py scripts/cast-preview-worker.py scripts/cast-render-assembled.py
+  physical:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            src/studio-v2/cast
+      - name: Restore approved production-assembled Blender refits (run 38480065233)
+        run: |
+          set -euo pipefail
+          mkdir -p proof-scenes
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir proof-scenes
+          test -s proof-scenes/female/female-candidate.blend
+          test -s proof-scenes/male/male-candidate.blend
+          test -s proof-scenes/male-jacket-tie/male-jacket-tie-production-assembled.blend
+      - name: Blender 5.2.0, hash pinned
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil libegl1 libgl1 libopengl0 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
+          echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Six structural rig/tint tests and actual Blender color previews
+        run: |
+          set -euo pipefail
+          export CAST_FORMAL_SCENE_DIR="$PWD/proof-scenes"
+          for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${variant%%-*}
+            mkdir -p "proof-output/$variant"
+            "$BLENDER_BIN" -b "proof-scenes/$sex/$sex-candidate.blend" -t 4 --python-exit-code 1 --python scripts/cast-formal-integration-proof.py -- "$variant" "proof-output/$variant/front.png" >"proof-output/$variant/render.log" 2>&1 || { tail -n 100 "proof-output/$variant/render.log"; exit 1; }
+            test -s "proof-output/$variant/front.png"
+            echo "FORMAL PASS $variant"
+          done
+      - name: Create image thumbnails from only the actual Blender proof (no image generation)
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          looks={'female':{'formal-double-breasted':'female-double-breasted','formal-statement':'female-statement'},
+                 'male':{'formal-jacket-tie':'male-jacket-tie','formal-double-breasted':'male-double-breasted',
+                         'formal-navy-classic':'male-navy-classic','formal-dinner-jacket':'male-dinner-jacket'}}
+          for gender,items in looks.items():
+            for key,variant in items.items():
+              p=Path('proof-output')/variant/'front.png'
+              im=Image.open(p).convert('RGBA'); im.thumbnail((220,220))
+              out=Image.new('RGBA',(224,224),'#F7F5F1')
+              out.alpha_composite(im,((224-im.width)//2,(224-im.height)//2))
+              dest=Path('public/cast/options/v21')/gender/'formal'/f'{key}.webp'
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              out.convert('RGB').save(dest,format='WEBP',quality=92)
+              print('ORIGINAL_RENDER_THUMBNAIL',dest)
+          PY
+      - name: Save proof thumbnails and reports on isolated branch only
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse public/cast/options/v21/female/formal public/cast/options/v21/male/formal
+          git diff --cached --quiet && exit 0
+          git commit -m 'assets(cast): six original Blender formalwear wardrobe option thumbnails'
+          git pull --rebase origin work/scenebam-production-assembly-formals-20261013
+          git push origin HEAD:work/scenebam-production-assembly-formals-20261013
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_CAST_FORMAL_COLOR_INTEGRATION_PROOFS
+          path: proof-output/
+          retention-days: 14
+          compression-level: 3
+          if-no-files-found: warn
