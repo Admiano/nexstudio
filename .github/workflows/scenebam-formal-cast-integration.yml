@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
   actions: read
+# Do not race six PNG publishers against one another.
+concurrency:
+  group: scenebam-formal-wardrobe-proof-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   types:
     runs-on: ubuntu-24.04
@@ -107,10 +111,15 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # Discard the checkout's *commit ancestry* (not freshly rendered
+          # working-tree thumbnails) before committing binaries on latest tip.
+          # This prevents add/add conflicts when an earlier CI run committed
+          # a previous color-palette render of the same six WebP files.
+          git fetch origin work/scenebam-production-assembly-formals-20261013
+          git reset --mixed FETCH_HEAD
           git add --sparse public/cast/options/v21/female/formal public/cast/options/v21/male/formal
           git diff --cached --quiet && exit 0
-          git commit -m 'assets(cast): six original Blender formalwear wardrobe option thumbnails'
-          git pull --rebase origin work/scenebam-production-assembly-formals-20261013
+          git commit -m 'assets(cast): six actual Blender formalwear option thumbnails'
           git push origin HEAD:work/scenebam-production-assembly-formals-20261013
       - uses: actions/upload-artifact@v4
         if: always()
