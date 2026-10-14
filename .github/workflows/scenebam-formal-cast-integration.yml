@@ -6,6 +6,7 @@ on:
       - .github/workflows/scenebam-formal-cast-integration.yml
       - scripts/cast-formal-clothing.py
       - scripts/cast-formal-integration-proof.py
+      - scripts/install-scenebam-formal-bank.py
       - scripts/cast-render-assembled.py
       - scripts/cast-preview-worker.py
       - src/studio-v2/cast/**
@@ -56,10 +57,15 @@ jobs:
           mkdir -p "$RUNNER_TEMP/blender"
           tar -xJf /tmp/blender.tar.xz -C "$RUNNER_TEMP/blender"
           echo "BLENDER_BIN=$(find "$RUNNER_TEMP/blender" -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Install and hash-pin all six actual garment bank scenes
+        run: |
+          set -euo pipefail
+          python scripts/install-scenebam-formal-bank.py proof-scenes "$RUNNER_TEMP/cast-formals-v1"
+          test -s "$RUNNER_TEMP/cast-formals-v1/manifest.json"
       - name: Six structural rig/tint tests and actual Blender color previews
         run: |
           set -euo pipefail
-          export CAST_FORMAL_SCENE_DIR="$PWD/proof-scenes"
+          export CAST_FORMAL_SCENE_DIR="$RUNNER_TEMP/cast-formals-v1"
           for variant in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
             sex=${variant%%-*}
             # Distinct reference palettes make each *actual* tailored silhouette
