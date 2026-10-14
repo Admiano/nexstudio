@@ -187,7 +187,9 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     suits=[]
     other=[]
     for indices in islands:
-        stats=_island_stats(mesh,indices,donor.matrix_world)
+        # Garment segmentation is expressed relative to the host rig, not the
+        # host's absolute world transform (which differs from donor proof scenes).
+        stats=_island_stats(mesh,indices,rig.matrix_world.inverted_safe() @ donor.matrix_world)
         count=stats['faces']
         # Tight central upper-chest checks stop similarly-sized sleeves, pants
         # or hardware from being mistaken for the tie.
