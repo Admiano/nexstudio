@@ -152,6 +152,7 @@ export const SUIT_COLORS = [
  {key:'burgundy',label:'Burgundy',hex:'#63303C'},
  {key:'forest',label:'Forest',hex:'#2E5548'},
  {key:'sand',label:'Sand',hex:'#AF9C81'},
+ {key:'ivory',label:'Ivory',hex:'#F0EBE3'},
 ] as const;
 export const TIE_COLORS = [
  {key:'black',label:'Black',hex:'#171719'},
