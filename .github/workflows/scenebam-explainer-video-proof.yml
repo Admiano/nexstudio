@@ -1,0 +1,75 @@
+name: SceneBam explainer video proofs
+on:
+  push:
+    branches:
+      - recovery/devin-dataviz-sketch-20261014
+    paths:
+      - ".github/workflows/scenebam-explainer-video-proof.yml"
+      - "engine_sources/explainer-locks/tools/recovery_video_proof.py"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/compiler/**"
+      - "engine_sources/explainer-locks/tools/render_reel.js"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-proofs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+          command -v google-chrome || command -v google-chrome-stable || command -v chromium || (echo "No Chrome binary" && exit 1)
+          ffmpeg -version | head -1
+      - name: Verify authoring tests before rendering
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+      - name: Render Data Viz in all aspects
+        working-directory: engine_sources/explainer-locks
+        run: python tools/recovery_video_proof.py --style dataviz --aspects 16x9,9x16,1x1 --fps 8 --workers 2
+      - name: Render Sketch in all aspects
+        working-directory: engine_sources/explainer-locks
+        run: python tools/recovery_video_proof.py --style sketch --aspects 16x9,9x16,1x1 --fps 8 --workers 2
+      - name: List video proofs
+        if: always()
+        run: |
+          find engine_sources/explainer-locks/out/recovery-video-proof -type f \( -name '*.mp4' -o -name '*.png' -o -name 'proof.json' \) -printf '%p %k KB\n' | head -80 || true
+      - name: Upload playable video proofs and validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenebam-dataviz-sketch-videos
+          path: |
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*contact*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*cover*.jpg
+            engine_sources/explainer-locks/out/recovery-video-proof/**/proof.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_*.json
+          if-no-files-found: warn
+          retention-days: 21
