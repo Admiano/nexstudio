@@ -82,7 +82,7 @@ def _classify_garment(mesh,world,tie_expected):
         cx=(xlo+xhi)*.5;cz=(zlo+zhi)*.5
         # Frontal mid-chest, narrow, elongated accessory instead of a jacket.
         w=xhi-xlo;h=zhi-zlo
-        if 1.16<cz<1.66 and abs(cx-midline)<.12 and .015<w<.10 and .12<h<.45 and len(faces)>=4:
+        if 1.16<cz<1.66 and abs(cx-midline)<.12 and .015<w<.10 and .075<h<.45 and len(faces)>=70:
             scores.append((len(faces),w,h,cx,cz,faces))
     # Tie connected-component candidates are ordered by narrowness then area.
     tie_faces=[]
@@ -106,10 +106,24 @@ def _classify_garment(mesh,world,tie_expected):
         print('FORMAL_TIE_ISLAND_DIAGNOSTIC',variant if 'variant' in globals() else '?',table[:30],flush=True)
         raise RuntimeError('CAST_FORMAL_TIE_TOPOLOGY_NOT_IDENTIFIED')
     tie_ids=set(tie_faces)
-    suit_ids=set(range(len(mesh.polygons)))-tie_ids
-    if len(suit_ids)<300 or (tie_expected and len(tie_ids)<4):
+    # Do not recolor the original designer's white shirt, collar, pockets and
+    # other small trim meshes. Keep their genuine UV image material untouched.
+    suit_ids=set()
+    garment_region=[]
+    for faces in islands:
+        if any(p in tie_ids for p in faces):continue
+        verts=set(v for i in faces for v in mesh.polygons[i].vertices)
+        points=[world@mesh.vertices[i].co for i in verts]
+        width=max(p.x for p in points)-min(p.x for p in points)
+        low=min(p.z for p in points)
+        # Actual fabric panels are large, full-width jacket or lower garment.
+        if len(faces)>=350 and (width>.22 or low<1.16):
+            suit_ids.update(faces)
+            garment_region.append(len(faces))
+    trim_ids=set(range(len(mesh.polygons)))-suit_ids-tie_ids
+    if len(suit_ids)<300 or (tie_expected and len(tie_ids)<70):
         raise RuntimeError('CAST_FORMAL_INSUFFICIENT_COLOR_REGIONS')
-    return suit_ids,tie_ids,len(islands)
+    return suit_ids,tie_ids,trim_ids,len(islands)
 
 def install_formal(scene,variant,suit_hex,tie_hex=''):
     if not variant:return {'enabled':False}
@@ -182,7 +196,9 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
     source_mat=garment.active_material
     if not source_mat or not source_mat.use_nodes or not any(n.type=='TEX_IMAGE' and n.image for n in source_mat.node_tree.nodes):
         raise RuntimeError('CAST_FORMAL_ORIGINAL_PACKED_UV_TEXTURE_MISSING')
-    suit_ids,tie_ids,islands=_classify_garment(garment.data,garment.matrix_world,character=='male')
+    # Every source is a real UV-mapped suit. Distinct shirt/collar islands must
+    # retain their original white/patterned material as the suit is recolored.
+    suit_ids,tie_ids,trim_ids,islands=_classify_garment(garment.data,garment.matrix_world,character=='male')
     # A rig digest alone cannot catch a garment shifted sideways off the actor.
     # Compare physical head/torso root placement in current world coordinates.
     chest_z=1.24
@@ -204,7 +220,7 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
         tie_index=len(garment.data.materials)
         garment.data.materials.append(tie_mat)
     for poly in garment.data.polygons:
-        poly.material_index=tie_index if poly.index in tie_ids else suit_index
+        poly.material_index=tie_index if poly.index in tie_ids else suit_index if poly.index in suit_ids else 0
     garment['scenebamWardrobeSource']='repo_production_assembly'
     garment['scenebamFormalVariant']=variant
     garment['scenebamSuitHex']=suit_hex
@@ -212,5 +228,5 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
     bpy.context.view_layer.update()
     return {'enabled':True,'variant':variant,'source':str(source),'rigRestMaxError':rest_error,
             'garmentVertices':len(garment.data.vertices),'tieFaces':len(tie_ids),
-            'suitFaces':len(suit_ids),'components':islands,'hiddenLegacyOutfit':hidden,
+            'suitFaces':len(suit_ids),'untintedShirtAndTrimFaces':len(trim_ids),'components':islands,'hiddenLegacyOutfit':hidden,
             'suitHex':suit_hex,'tieHex':tie_hex,'sourceVerified':True}
