@@ -380,6 +380,8 @@ class IllustrationSolver:
         for e in il.entities:
             if e.id in contained or e.id in lenses or e.id in prohibits or e.id in mark_circles:
                 continue
+            bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
+            placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
         if il.label_space:
             chart = next((p for p in placed.values() if p['glyph'] == 'CHART_LINE'), None)
             labels = [placed[e.id] for e in top if e.glyph == 'PILL']
@@ -388,8 +390,6 @@ class IllustrationSolver:
                 b = chart['bbox']
                 chart['bbox'] = _box(left, b['y'], right - left, b['h'])
                 chart['art_bbox'] = dict(chart['bbox'])
-            bbox, label_box = self._place(e, cells[e.id], zone, vertical, beat_id)
-            placed[e.id] = self._entity_plan(e, bbox, label_box, failures, beat_id)
         for e in il.entities:
             if e.id in contained:
                 host = placed[contained[e.id]]['art_bbox']
