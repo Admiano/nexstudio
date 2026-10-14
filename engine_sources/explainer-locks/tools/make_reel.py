@@ -16,6 +16,7 @@ Env: node must be on PATH for the renderer (nvm v24.x):
 import argparse, json, os, re, subprocess, sys, uuid, math
 from pathlib import Path
 from decimal import Decimal
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT.parents[1] / 'services/studio-family-engines'))
