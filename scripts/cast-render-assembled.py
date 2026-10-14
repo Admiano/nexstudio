@@ -83,6 +83,12 @@ for layer in scene.view_layers:
 visual_report=runpy.run_path(str(Path(__file__).with_name('cast-visual-refinement.py')))['apply_visual_refinement'](scene,os.environ['CAST_CHARACTER'])
 scene.frame_set(config['frame']);scene.render.resolution_percentage=config['resolutionPercentage'];scene.render.image_settings.file_format='PNG'
 fit_entry=Path(__file__).with_name('cast-fit-posed-clothing.py');exec(compile(fit_entry.read_text(),str(fit_entry),'exec'),globals())
+# Real formalwear only, from the pinned production-assembly outfit bank. Import
+# after original fitted wardrobe so prior shirt/dress proxies can be hidden.
+formal_report={'enabled':False}
+if os.environ.get('CAST_FORMAL_LOOK'):
+    formal_report=runpy.run_path(str(Path(__file__).with_name('cast-formal-clothing.py')))['install_formal'](
+        scene,os.environ['CAST_FORMAL_LOOK'],os.environ['CAST_SUIT_HEX'],os.environ.get('CAST_TIE_HEX',''))
 accessory_report=runpy.run_path(str(Path(__file__).with_name('cast_accessory_quality.py')))['apply_accessory_quality'](scene,os.environ['CAST_CHARACTER'])
 height=scene.render.resolution_y*scene.render.resolution_percentage/100
 for layer in scene.view_layers:
@@ -93,7 +99,7 @@ if scene.compositing_node_group is not None:
 if '--scene-output' in args:bpy.ops.wm.save_as_mainfile(filepath=args[args.index('--scene-output')+1],compress=True)
 output_file.parent.mkdir(parents=True,exist_ok=True);scene.render.filepath=str(output_file)
 if '--assemble-only' not in args:bpy.ops.render.render(write_still=True)
-metadata={'visualRefinement':visual_report,'performance':'original-authored-actions','accessories':accessory_report,'clothDetail':cloth_detail_report,'clothAppearance':cloth_report,'facialRefinement':facial_report,'hairGroom':hair_report,'hairSelection':hair_selection_report,'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
+metadata={'formalWardrobe':formal_report,'visualRefinement':visual_report,'performance':'original-authored-actions','accessories':accessory_report,'clothDetail':cloth_detail_report,'clothAppearance':cloth_report,'facialRefinement':facial_report,'hairGroom':hair_report,'hairSelection':hair_selection_report,'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
 output_file.with_suffix('.json').write_text(json.dumps(metadata,indent=2)+'\n');print('CAST_ASSEMBLED_RENDER',json.dumps(metadata),flush=True)
 
 if '--motion-proof' in args:
