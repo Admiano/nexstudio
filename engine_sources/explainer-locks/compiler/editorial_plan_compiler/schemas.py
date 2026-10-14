@@ -74,6 +74,8 @@ def treatment_schema() -> Dict[str, Any]:
         'program': {'type': 'array', 'items': op, 'minItems': 1, 'maxItems': 10},
         'carry': _obj({'from_beat': _str(), 'entities': {'type': 'array', 'items': _str()}}, ['from_beat'], additionalProperties=False),
         'persist_to': NULLABLE_STR,
+        'confirmation': {'type': 'boolean'},
+        'label_space': {'type': 'boolean'},
     }, ['form', 'entities', 'program'], additionalProperties=False)
     figure = _obj({
         'valence': _unit(-1.0, 1.0),
@@ -108,6 +110,12 @@ def treatment_schema() -> Dict[str, Any]:
         'media': {'anyOf': [media, {'type': 'null'}]},
         'data': {'anyOf': [data, {'type': 'null'}]},
         'illustration': {'anyOf': [illustration, {'type': 'null'}]},
+        'data_claim': _obj({
+            'kind': _enum(('NONE', 'STAT', 'READOUTS', 'SHARE', 'COMPARISON', 'TREND')),
+            'quantities': {'type': 'array', 'items': {'type': 'object'}},
+            'source_quantities': {'type': 'array', 'items': {'type': 'object'}},
+        }, ['kind', 'quantities', 'source_quantities'], additionalProperties=False),
+        'data_context_from': _str(),
         'energy': _unit(),
         'complexity': _unit(),
         'features': {'type': 'object', 'additionalProperties': _unit()},
