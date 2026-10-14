@@ -109,9 +109,9 @@ jobs:
           for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
             sex=${v%%-*}
             cp "donor/$v/$v-production-assembled.blend" "donor/formal/$v.blend"
-            for setting in '222C46 A33B50' '222C46 BEA479' '602D3E A33B50'; do
+            for setting in '222C46 A33B50' '222C46 BEA479' '602D3E A33B50' 'ORIGINAL ORIGINAL'; do
               set -- $setting
-              "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-formal-colour-proof.py -- "$v" "$1" "$2" production-colour >"production-colour/$v-$1-$2.log" 2>&1 || { tail -n 100 "production-colour/$v-$1-$2.log"; exit 1; }
+              "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-formal-colour-proof.py -- "$v" "$1" "$2" production-colour "${1/ORIGINAL/poses}" >"production-colour/$v-$1-$2.log" 2>&1 || { tail -n 100 "production-colour/$v-$1-$2.log"; exit 1; }
             done
           done
       - name: Gate genuinely independent render output and materials
@@ -133,9 +133,22 @@ jobs:
             suit=proof('602D3E','A33B50')
             td=ImageStat.Stat(ImageChops.difference(base,tie)).sum
             sd=ImageStat.Stat(ImageChops.difference(base,suit)).sum
-            if sum(td)<4000 or sum(sd)<10000:
+            tie_min=2500 if variant=='male-dinner-jacket' else 4000
+            if sum(td)<tie_min or sum(sd)<10000:
               raise SystemExit('CAST_FORMAL_RENDER_COLOUR_DIFFERENCE_FAILED:'+variant+':'+str([sum(td),sum(sd)]))
-            print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),flush=True)
+            # A dinner-jacket bow tie is much smaller than a full necktie.
+            # Confirm changed pixels actually occupy upper-central chest.
+            if variant=='male-dinner-jacket':
+              from PIL import ImageChops
+              delta=ImageChops.difference(base,tie)
+              pixels=delta.load()
+              count=sum(1 for y in range(150,270) for x in range(170,250) if max(pixels[x,y])>5)
+              assert count>=100,'DINNER_JACKET_BOW_TIE_REGION_NOT_RECOLOURED:'+str(count)
+            native=json.loads((root/f'{variant}-ORIGINAL-ORIGINAL.json').read_text())
+            assert native['nativeUVRestored'] and native['rigPreserved'],variant
+            for suffix in ['threeq-native','pose-338','pose-891']:
+              assert (root/f'{variant}-{suffix}.png').stat().st_size>10000,(variant,suffix)
+            print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),'nativeUV',True,flush=True)
           PY
       - name: Export verified self-contained rigged garment assets and real previews
         run: |
