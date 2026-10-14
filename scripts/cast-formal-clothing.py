@@ -65,7 +65,7 @@ def _tint_material(source,name,color):
     links.new(mix.outputs['Color'],emission.inputs['Color'])
     return mat
 
-def _classify_garment(mesh,world,tie_expected):
+def _classify_garment(mesh,world,tie_expected,bowtie=False):
     # Disconnected donor OBJ islands retain separate topology for tie/lapels.
     # Reject an uncertain tie rather than recolor a shirt or fake a texture.
     islands=_connected_islands(mesh)
@@ -84,11 +84,25 @@ def _classify_garment(mesh,world,tie_expected):
         w=xhi-xlo;h=zhi-zlo
         if 1.16<cz<1.66 and abs(cx-midline)<.12 and .015<w<.10 and .075<h<.45 and len(faces)>=70:
             scores.append((len(faces),w,h,cx,cz,faces))
-    # Tie connected-component candidates are ordered by narrowness then area.
+    # Conventional long tie: single slim component. A formal dinner bow-tie
+    # is three separate genuine garment components (both wings + center knot).
     tie_faces=[]
-    if tie_expected and scores:
-        scores.sort(key=lambda x:(x[1]/max(x[2],.001),x[0]))
+    if tie_expected and not bowtie and scores:
+        scores.sort(key=lambda x:(x[1]/max(x[2],.001),-x[0]))
         tie_faces=scores[0][-1]
+    if tie_expected and bowtie:
+        for faces in islands:
+            verts=set(v for i in faces for v in mesh.polygons[i].vertices)
+            points=[world@mesh.vertices[i].co for i in verts]
+            xmin,xmax=min(p.x for p in points),max(p.x for p in points)
+            zmin,zmax=min(p.z for p in points),max(p.z for p in points)
+            centre=(xmin+xmax)*.5; width=xmax-xmin; height=zmax-zmin
+            if (abs(centre-midline)<.09 and .012<width<.095 and
+                    .008<height<.075 and 1.36<zmin<1.46 and
+                    len(faces)>=150):
+                tie_faces.extend(faces)
+        if tie_faces and len(tie_faces)<700:
+            raise RuntimeError('CAST_FORMAL_BOWTIE_INCOMPLETE')
     if tie_expected and not tie_faces:
         # Diagnostic only: fail closed and report actual authored geometry ranges.
         table=[]
@@ -198,7 +212,7 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
         raise RuntimeError('CAST_FORMAL_ORIGINAL_PACKED_UV_TEXTURE_MISSING')
     # Every source is a real UV-mapped suit. Distinct shirt/collar islands must
     # retain their original white/patterned material as the suit is recolored.
-    suit_ids,tie_ids,trim_ids,islands=_classify_garment(garment.data,garment.matrix_world,character=='male')
+    suit_ids,tie_ids,trim_ids,islands=_classify_garment(garment.data,garment.matrix_world,character=='male',variant=='male-dinner-jacket')
     # A rig digest alone cannot catch a garment shifted sideways off the actor.
     # Compare physical head/torso root placement in current world coordinates.
     chest_z=1.24
