@@ -86,6 +86,20 @@ def _classify_garment(mesh,world,tie_expected):
         scores.sort(key=lambda x:(x[1]/max(x[2],.001),x[0]))
         tie_faces=scores[0][-1]
     if tie_expected and not tie_faces:
+        # Diagnostic only: fail closed and report actual authored geometry ranges.
+        table=[]
+        for faces in islands:
+            ids=set(v for i in faces for v in mesh.polygons[i].vertices)
+            if not ids:continue
+            pts=[world@mesh.vertices[i].co for i in ids]
+            xmin,xmax=min(p.x for p in pts),max(p.x for p in pts)
+            ymin,ymax=min(p.y for p in pts),max(p.y for p in pts)
+            zmin,zmax=min(p.z for p in pts),max(p.z for p in pts)
+            table.append(dict(faces=len(faces),x=[round(xmin,3),round(xmax,3)],
+                y=[round(ymin,3),round(ymax,3)],
+                z=[round(zmin,3),round(zmax,3)]))
+        table.sort(key=lambda x:x['faces'],reverse=True)
+        print('FORMAL_TIE_ISLAND_DIAGNOSTIC',variant if 'variant' in globals() else '?',table[:30],flush=True)
         raise RuntimeError('CAST_FORMAL_TIE_TOPOLOGY_NOT_IDENTIFIED')
     tie_ids=set(tie_faces)
     suit_ids=set(range(len(mesh.polygons)))-tie_ids
