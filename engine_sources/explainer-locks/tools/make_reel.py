@@ -1057,6 +1057,12 @@ def sketch_asset(phrase, text):
     if _POLYSEME_VETO.get(key, set()) & set(re.findall(r"\w+", text.lower())):
         return None
     slugs = [phrase.replace(" ", "-")]
+    if len(phrase.split()) == 1 and phrase.endswith("s") and not phrase.endswith("ss"):
+        # Try literal registered singular art, never semantically substitute.
+        if phrase.endswith("ies") and len(phrase) > 4:
+            slugs.append(phrase[:-3] + "y")
+        else:
+            slugs.append(phrase[:-1])
     if len(phrase.split()) == 1 and phrase.endswith("s") and _SKETCH_NLP:
         noun = next((w for w in _SKETCH_NLP(text)
                      if w.text.lower() == phrase and w.pos_ == "NOUN"), None)
@@ -1147,10 +1153,18 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
                             mentioned(e, " ".join(t.text for t in head.subtree)) for head in heads)]
             if not subjects or not objects:
                 continue
+            if action.group().lower().startswith(("becom", "chang")):
+                # "becomes stiffer" describes a state, not a named object.
+                # Transformation drawings need an explicit nominal referent.
+                trailing = after.strip().lower()
+                if not re.match(r"^(?:a|an|the|another|different|this|that)\\b", trailing):
+                    continue
             # Conjoined verbs inherit the clause's subject, not the preceding
             # verb's destination. Use the earliest actor before the first verb.
             clause_subject = [e for e in entities if mentioned(e, clause[:actions[0].start()])]
-            source = clause_subject[-1] if i > 0 and clause_subject else subjects[-1]
+            between = clause[actions[i-1].end():action.start()] if i else ""
+            inherited = bool(i and re.search(r"\\band\\s*$", between, re.I))
+            source = clause_subject[-1] if inherited and clause_subject else subjects[-1]
             target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
             if source is target:
                 continue
