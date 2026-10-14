@@ -162,7 +162,7 @@ jobs:
               im.convert('RGB').save(Path('public/cast/options/formal')/(variant+'.webp'),format='WEBP',quality=88)
           Path('config/scenebam-formal-assets.json').write_text(json.dumps({
             'files':files,'sourceProvenance':'Actions run 38480065233; Blender 5.2.0;',
-            'liveVMParityCertified':False,'collisionCertified':False},indent=2)+'\\n')
+            'liveVMParityCertified':False,'collisionCertified':False},indent=2)+'\n')
           print('SCENEBAM_AUTHENTIC_FORMAL_ASSETS_READY',json.dumps(files),flush=True)
           PY
       - name: Version-control approved development assets on isolated branch; no release or deployment
