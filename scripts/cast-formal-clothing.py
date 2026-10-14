@@ -56,12 +56,28 @@ def _tint_material(source,name,color):
     if emission is None or not emission.inputs['Color'].is_linked:
         raise RuntimeError('CAST_FORMAL_UV_EMISSION_MISSING')
     upstream=emission.inputs['Color'].links[0].from_socket
+    # Original UV texture remains the physically authored fabric pattern, but
+    # a COLOR blend preserves the donor's old brightness and therefore fails
+    # to turn a pale-pink jacket into a dark-navy or charcoal one. Use the
+    # original grayscale texture as a restrained lighting/pattern multiplier
+    # on the *requested* fabric RGB instead.
+    brightness=nodes.new('ShaderNodeRGBToBW')
+    brightness.name='Authentic suit texture detail / grayscale'
+    links.new(upstream,brightness.inputs['Color'])
+    tone=nodes.new('ShaderNodeMapRange')
+    tone.name='Preserve fabric weave without preserving old hue'
+    tone.clamp=True
+    tone.inputs['From Min'].default_value=.10
+    tone.inputs['From Max'].default_value=.90
+    tone.inputs['To Min'].default_value=.68
+    tone.inputs['To Max'].default_value=1.16
+    links.new(brightness.outputs['Val'],tone.inputs['Value'])
     mix=nodes.new('ShaderNodeMixRGB')
-    mix.name='SceneBam fabric tint / original donor texture preserved'
-    mix.blend_type='COLOR'
-    mix.inputs['Fac'].default_value=.97
-    mix.inputs['Color2'].default_value=color
-    links.new(upstream,mix.inputs['Color1'])
+    mix.name='SceneBam exact garment pigment / source-fabric detail'
+    mix.blend_type='MULTIPLY'
+    mix.inputs['Fac'].default_value=1
+    mix.inputs['Color1'].default_value=color
+    links.new(tone.outputs['Result'],mix.inputs['Color2'])
     links.new(mix.outputs['Color'],emission.inputs['Color'])
     return mat
 
