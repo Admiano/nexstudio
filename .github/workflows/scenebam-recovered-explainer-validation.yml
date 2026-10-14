@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          filter: blob:none
           sparse-checkout: |
             engine_sources/explainer-locks
             services/studio-family-engines
