@@ -170,7 +170,11 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add --sparse engine_sources/makehuman-lineart/assets/cast-formals public/cast/options/formal config/scenebam-formal-assets.json
+          python3 scripts/install-cast-formals.py
+          # The source asset tree is intentionally gitignored for downloaded donors.
+          # Force-add ONLY the six locally checksum-verified rigged formal garments.
+          git add --sparse -f engine_sources/makehuman-lineart/assets/cast-formals
+          git add --sparse public/cast/options/formal config/scenebam-formal-assets.json
           git commit -m 'assets(cast): six slim real Blender formalwear assets and render-derived thumbnails'
           git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
           git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
