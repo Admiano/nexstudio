@@ -170,6 +170,22 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
     source=root/variant/(variant+'-production-assembled.blend')
     if not source.is_file() or source.stat().st_size<1_000_000:
         raise RuntimeError('CAST_FORMAL_VERIFIED_SOURCE_NOT_INSTALLED:'+str(source))
+    # Refuse stale/untracked Blender files. The separate versioned installer
+    # stages the real production assembly and pins each .blend's SHA256.
+    manifest_path=root/'manifest.json'
+    if not manifest_path.is_file():
+        raise RuntimeError('CAST_FORMAL_HASH_MANIFEST_MISSING:'+str(root))
+    import json,hashlib
+    manifest=json.loads(manifest_path.read_text())
+    entry=manifest.get('looks',{}).get(variant)
+    if (manifest.get('schema')!='SceneBamActualBlenderFormalBankV1' or
+            not isinstance(entry,dict) or entry.get('file')!=variant+'/'+source.name):
+        raise RuntimeError('CAST_FORMAL_BANK_MANIFEST_INVALID:'+variant)
+    h=hashlib.sha256()
+    with source.open('rb') as fd:
+        for block in iter(lambda:fd.read(1048576),b''):h.update(block)
+    if h.hexdigest()!=entry.get('sha256'):
+        raise RuntimeError('CAST_FORMAL_SOURCE_HASH_MISMATCH:'+variant)
     rig=bpy.data.objects.get('Host.rig')
     body=bpy.data.objects.get('Host.body')
     if not rig or not body or len(rig.data.bones)!=163:
@@ -259,4 +275,4 @@ def install_formal(scene,variant,suit_hex,tie_hex=''):
     return {'enabled':True,'variant':variant,'source':str(source),'rigRestMaxError':rest_error,
             'garmentVertices':len(garment.data.vertices),'tieFaces':len(tie_ids),
             'suitFaces':len(suit_ids),'untintedShirtAndTrimFaces':len(trim_ids),'components':islands,'hiddenLegacyOutfit':hidden,
-            'suitHex':suit_hex,'tieHex':tie_hex,'sourceVerified':True}
+            'suitHex':suit_hex,'tieHex':tie_hex,'sourceVerified':True,'manifestSHA256Verified':True}
