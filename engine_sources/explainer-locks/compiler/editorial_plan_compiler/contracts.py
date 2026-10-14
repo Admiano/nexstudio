@@ -330,6 +330,13 @@ class IllustrationEntity:
                                  'sub': ' '.join(str(e.get('sub') or '').split())[:24]}
                                 for e in events if isinstance(e, dict)]
             _need(len(params['events']) >= 2 and all(e['label'] for e in params['events']), 'TIMELINE_LABEL',
+        if 'end_on_word' in params:
+            _need(isinstance(params['end_on_word'], bool) and 'word' in at,
+                  'OP_WORD_END_INVALID', 'end_on_word requires a word anchor and boolean', beat_id)
+        for key, minimum in (('word_index', 0), ('word_span', 1)):
+            if key in params:
+                _need('word' in at and isinstance(params[key], int) and not isinstance(params[key], bool)
+                      and params[key] >= minimum, 'OP_WORD_RANGE_INVALID', key, beat_id)
                   f'{eid}: every event needs a label', beat_id)
             axis = str(params.get('axis') or 'auto')
             _need(axis in ('auto', 'h', 'v'), 'TIMELINE_AXIS', axis, beat_id)
@@ -351,6 +358,8 @@ class IllustrationEntity:
             cells = params.get('cells')
             _need(isinstance(cells, list) and 2 <= len(cells) <= 9, 'LOGO_GRID_CELLS', f'{eid}: LOGO_GRID needs 2-9 cells', beat_id)
             out_cells = []
+    confirmation: bool = True
+    label_space: bool = False
             for c in cells:
                 _need(isinstance(c, dict), 'LOGO_GRID_CELL', f'{eid}: each cell must be an object', beat_id)
                 name = ' '.join(str(c.get('name') or '').split())[:20]
@@ -364,6 +373,13 @@ class IllustrationEntity:
             steps = params.get('steps')
             _need(isinstance(steps, list) and 2 <= len(steps) <= 5, 'FLOW_STEPS_N', f'{eid}: FLOW_STEPS needs 2-5 steps', beat_id)
             params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
+        for o in ops:
+            if 'point_index' in o.params:
+                e = next((e for e in ents if e.id == o.target), None)
+                i = o.params['point_index']
+                _need(o.op == 'GROW' and e is not None and e.glyph == 'CHART_LINE' and isinstance(i, int)
+                      and not isinstance(i, bool) and 0 <= i < len(e.params['points']),
+                      'CHART_POINT_INDEX_INVALID', str(i), beat_id)
                                for s in steps]
             _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
         if glyph == 'PROGRESS':
@@ -496,7 +512,15 @@ class IllustrationDirective:
             _need(carry_from is not None, 'CARRY_WITHOUT_SOURCE_BEAT', 'carry.entities needs carry.from_beat', beat_id)
             for ce in carry_entities:
                 _need(ce in idset, 'CARRY_ENTITY_NOT_DECLARED', f'{ce} must be declared in this beat too', beat_id)
-        return cls(form, ents, rels, ops, carry_from, carry_entities, (str(d['persist_to']) if d.get('persist_to') else None))
+        confirmation = d.get('confirmation', True)
+        _need(isinstance(confirmation, bool), 'CONFIRMATION_INVALID', 'confirmation must be boolean', beat_id)
+        label_space = d.get('label_space', False)
+        _need(isinstance(label_space, bool), 'LABEL_SPACE_INVALID', 'label_space must be boolean', beat_id)
+        if label_space:
+            _need(form == 'DATA_VISUAL' and any(e.glyph == 'CHART_LINE' for e in ents),
+                  'LABEL_SPACE_REQUIRES_LINE', form, beat_id)
+        return cls(form, ents, rels, ops, carry_from, carry_entities,
+                   (str(d['persist_to']) if d.get('persist_to') else None), confirmation, label_space)
 
 
 @dataclass
