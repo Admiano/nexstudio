@@ -1,11 +1,11 @@
 {
   "files": {
-    "female-double-breasted": "0713130f4c52fc9092b7e8e5d5f41d063550479caffcf550cf81004a8edcbb20",
-    "female-statement": "b993a48e611ffdddab0aceb75eb731d1bebed89eebc223dd86f0744e2e87b6e8",
-    "male-jacket-tie": "cbb6cbcd4cc1e5b44b54e6ef539da71ce75e7b78320877a4ef88070a25a0976a",
+    "female-double-breasted": "f1323c777d6169ab0cf226378fd3481ef3dcbd6a9d25f4d7c6a32341b89ce896",
+    "female-statement": "ca627016dc364aa6c14e03f22c6c61569545c5d4f93ac6cd40074b11e715ada3",
+    "male-jacket-tie": "47c3b3fdd662312c60ffe3cb858d370c6d0b22d6a22fa9db8779536dd64a4abc",
     "male-double-breasted": "958ef03c57f53b18e3aac2867ddf2754980cc8a03cf59fac32a7cdbcf6a41983",
-    "male-navy-classic": "030b08e4518aa5c401ff1a24358900d41d14cf3d65ce869979bd262743dc6c68",
-    "male-dinner-jacket": "4a9c47f2e179ce060febdf5a9a4f011d55f39ca9ff7d07c17f941acd5fc8cb63"
+    "male-navy-classic": "afbdd601d58f9c69d787cd465c565da064d699c365e12902d0d2a16380c49db3",
+    "male-dinner-jacket": "75e5c891b77128db8d49291df25ca2c6c489502de3c4e2c4468af0fde9021665"
   },
   "sourceProvenance": "Actions run 38480065233; Blender 5.2.0;",
   "liveVMParityCertified": false,
