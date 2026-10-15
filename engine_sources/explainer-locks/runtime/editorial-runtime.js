@@ -2550,6 +2550,38 @@
           }
           break;
         }
+        // Attach-and-carry has a distinct physical grammar from "connects":
+        // the source-mentioned payload moves toward its named host when it
+        // sticks/attaches, and only departs when a later "carries" or "sends"
+        // action explicitly transports it to its next named recipient.
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'connects' || relation.rel.target !== ent.id) continue;
+          const attachment = relation.ops.find((op) => op.op === 'CONNECT' &&
+            /^(?:sticks?|attaches?)$/i.test(String(op.anchor && op.anchor.word || '')));
+          if (!attachment) continue;
+          const host = ill.ents.get(relation.rel.source);
+          if (!host) continue;
+          const from = centre(node.bb), to = centre(host.bb);
+          const cling = EASE.inOutCubic(prog(lt, attachment.start_ms, attachment.end_ms));
+          const attached = { x: (to.x - from.x) * 0.50,
+                             y: (to.y - from.y) * 0.50 };
+          let offsetX = attached.x * cling, offsetY = attached.y * cling;
+          for (const nextLink of ill.rels.values()) {
+            if (nextLink.rel.type !== 'flows_to' || nextLink.rel.source !== ent.id) continue;
+            const carry = nextLink.ops.find((op) => op.op === 'CONNECT' &&
+              op.start_ms > attachment.start_ms);
+            const destination = ill.ents.get(nextLink.rel.target);
+            if (!carry || !destination) continue;
+            const arrive = EASE.inOutCubic(prog(lt, carry.start_ms, carry.end_ms));
+            const target = centre(destination.bb);
+            offsetX = lerp(attached.x * cling, (target.x - from.x) * 0.70, arrive);
+            offsetY = lerp(attached.y * cling, (target.y - from.y) * 0.70, arrive);
+            break;
+          }
+          tx += offsetX; ty += offsetY;
+          scale *= 1 - cling * 0.075;
+          break;
+        }
       }
       // Directional entrance: a pop-entrance body also travels in from an
       // off-position seeded by its id — arrivals read as trajectories, not a
