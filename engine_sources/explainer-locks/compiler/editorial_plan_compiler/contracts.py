@@ -726,6 +726,7 @@ class FilmTreatment:
     sfx: Optional[str] = None
     show: Optional[Dict[str, Any]] = None  # {format, subject, shades[]} when this film is a numbered-section show
     caption_policy: Optional[str] = None  # Explicit treatment-level policy for on-canvas type
+    director_style: Optional[str] = None  # Scope native creative rules to one authorized family
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -814,4 +815,9 @@ class FilmTreatment:
         caption_policy = d.get('caption_policy')
         if caption_policy is not None:
             _need(caption_policy in ('burned', 'kinetic', 'none'), 'CAPTION_POLICY_UNKNOWN', str(caption_policy))
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show, caption_policy)
+        director_style = d.get('director_style')
+        if director_style is not None:
+            _need(director_style in ('dataviz', 'sketch'), 'DIRECTOR_STYLE_UNKNOWN', str(director_style))
+        if director_style == 'dataviz':
+            _need(caption_policy == 'kinetic', 'DATAVIZ_CAPTION_POLICY_INVALID', 'Data Viz requires on-canvas type')
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show, caption_policy, director_style)
