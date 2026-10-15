@@ -87,6 +87,16 @@ jobs:
           orphans=[q for q in manifest.get("authorship",{}).get("findings",[])
                    if q.get("code")=="ORPHAN_CONNECTOR"]
           assert not orphans,(style,scenario,orphans)
+          if style=="sketch" and scenario in {"invoice","worksheet","ticket","contract"}:
+              # A source-authoritative person or physical sheet must be
+              # ACTUALLY drawn, not a decorative housing with a noun label.
+              # Render inspection sees real SVG pixels and can catch an
+              # implementation that silently returns to text-only nodes.
+              missing=[q for q in manifest.get("authorship",{}).get("findings",[])
+                       if q.get("code") in {"EMPTY_CHASSIS","ICON_UNDERFILL","ICON_OVERFLOW"}]
+              assert not missing,(style,scenario,missing)
+              assert any(e.get("params",{}).get("visual_class")=="person"
+                         for b in plan["beats"] for e in b["illustration"]["entities"])
           if style=="dataviz":
               assert not plan["captions"] and plan["captions_policy"]=="kinetic"
               assert manifest.get("captions_burned",0)==0
