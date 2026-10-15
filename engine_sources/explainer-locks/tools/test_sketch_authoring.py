@@ -160,6 +160,11 @@ class SketchAuthoringTests(unittest.TestCase):
         beat = make_reel.sketch_beat(groups[0], 0, 1, set(), [])
         self.assertEqual(beat["narration"], text)
         self.assertGreaterEqual(len(beat["illustration"]["relations"]), 2)
+        named = {e.get("phrase"): e["glyph"] for e in beat["illustration"]["entities"]}
+        self.assertEqual(named.get("pump"), "PUMP")
+        self.assertEqual(named.get("tank"), "TANK")
+        # A water transfer is a mechanical action, not anonymous pill text.
+        self.assertEqual(named.get("water"), "TILE")
         FilmTreatment.parse(author(text))
 
     def test_native_solver_accepts_authored_forms_without_empty_satellites(self):
