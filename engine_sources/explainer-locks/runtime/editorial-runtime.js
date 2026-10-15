@@ -1360,6 +1360,9 @@
       }
       case 'CARD':
       case 'PILL': {
+        // A measured datum is a label, not an interactive button. Its existing
+        // fitted HTML text is revealed by the native op; omit the pill housing.
+        if (ent.glyph === 'PILL' && ent.params && ent.params.plain_datum === true) break;
         const r = ent.glyph === 'PILL' ? b.h / 2 : Math.min(b.w, b.h) * 0.09;
         const inner = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
         svgEl('path', { d: roundRectPath(inner, r), fill: paper }, g);
@@ -1412,7 +1415,25 @@
       }
       case 'CHART_LINE': {
         const pts = (params.points || [0.2, 0.8]).map((v, i, arr) => [b.x + (i / (arr.length - 1)) * b.w, b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
-        svgEl('path', { ...line, d: polyPath([[b.x, b.y + b.h], [b.x + b.w, b.y + b.h]]), 'stroke-width': sw * 0.7, 'stroke-opacity': 0.45 }, g);
+        // Hairline guides make the graph readable without introducing invented
+        // axis units. Values and their scale come exclusively from source data.
+        for (const pct of [0, 0.5, 1]) {
+          const yy = b.y + b.h - pct * b.h * 0.9;
+          svgEl('path', { ...line, d: polyPath([[b.x, yy], [b.x + b.w, yy]]),
+            stroke: ink, 'stroke-width': pct === 0 ? sw * 0.62 : sw * 0.44,
+            'stroke-opacity': pct === 0 ? 0.35 : 0.10 }, g);
+        }
+        const valueLabels = (params.value_labels || []).map((value, i) => {
+          const label = svgEl('text', {
+            x: f2(pts[i][0]), y: f2(pts[i][1] - Math.max(sw * 5, 19)),
+            'text-anchor': 'middle', fill: ink, 'fill-opacity': 0,
+            'font-size': f2(Math.min(b.w / 14, sw * 5.1)),
+            'font-family': plan.fonts.families.data || plan.fonts.families.text,
+            'font-weight': 700, 'data-source-value': String(i),
+          }, g);
+          label.textContent = value;
+          return label;
+        });
         const p = svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.2 }, g);
         // One active value leads the gaze. Keep the underlying line neutral;
         // a restrained accent tracker distinguishes the current spoken datum.
@@ -1432,6 +1453,13 @@
           const visible = k > 0.004;
           dot.style.opacity = visible ? '1' : '0';
           halo.style.opacity = visible ? '1' : '0';
+          valueLabels.forEach((label, i) => {
+            const threshold = i / Math.max(1, pts.length - 1);
+            const reached = visible && k + 0.005 >= threshold;
+            const isCurrent = reached && (i === pts.length - 1 || k < (i + 1) / (pts.length - 1) - 0.005);
+            label.style.fillOpacity = reached ? (isCurrent ? '1' : '0.60') : '0';
+            label.setAttribute('fill', isCurrent ? accent : ink);
+          });
         };
         break;
       }
@@ -2252,6 +2280,10 @@
             'stroke-width': f2(sw * 0.7), 'data-action': 'transfer',
           }, g);
           r.flowToken.style.visibility = 'hidden';
+          const destination = rel.path[rel.path.length - 1];
+          r.arrivalRipple = svgEl('circle', { cx: destination[0], cy: destination[1],
+            r: f2(sw * 1.3), fill: 'none', stroke: accent,
+            'stroke-width': f2(sw * 1.35), 'stroke-opacity': 0 }, g);
         }
         const m = pointAlong(rel.path, 0.5), k = clamp(r.len * 0.16, sw * 3.2, sw * 6);
         const sp = svgEl('path', { ...line, d: polyPath([[m.x - k, m.y + k], [m.x + k, m.y - k]]), 'stroke-width': sw * 1.35 }, g);
@@ -2629,6 +2661,12 @@
         r.flowToken.setAttribute('cy', f2(at.y));
         r.flowToken.style.visibility = moving ? 'visible' : 'hidden';
         r.flowToken.style.opacity = (Math.min(1, prog(lt, start, start + 100) * 2, (1 - prog(lt, end - 140, end)) * 2)).toFixed(3);
+        if (r.arrivalRipple) {
+          const rp = prog(lt, end - 130, end + 430);
+          const living = lt >= end - 130 && lt <= end + 430 && opacity > 0.08;
+          r.arrivalRipple.setAttribute('r', f2(ill.sw * (1.4 + rp * 5.6)));
+          r.arrivalRipple.style.strokeOpacity = living ? (0.52 * (1 - rp)).toFixed(3) : '0';
+        }
       }
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.
