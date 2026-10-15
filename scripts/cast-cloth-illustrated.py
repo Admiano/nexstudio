@@ -162,8 +162,29 @@ def fit_cloth(ob,body,covered):
 
 def apply_cloth_appearance(scene,character):
     palette=colours();body=bpy.data.objects['Host.body'];rows=[]
-    garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and o.name.removeprefix('Host.') in palette and any(m and m.name.startswith(('V63_DRESS_','V70_G_')) for m in o.data.materials)]
+    garments=[o for o in scene.objects if o.type=='MESH' and not o.get('castWardrobeReplaced') and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and (
+        (o.name.removeprefix('Host.') in palette and any(m and m.name.startswith(('V63_DRESS_','V70_G_')) for m in o.data.materials))
+        or o.get('castWardrobeKind')=='formal')]
     for ob in garments:
+        if ob.get('castWardrobeKind')=='formal':
+            # Formal suits share the native finishing stages but retain their
+            # authenticated packed UV atlas and separate tie material. The
+            # stable fabric grain is applied upstream by cast-finish-upgrade.
+            # Replacing this with a fresh procedural base fabric would destroy
+            # the original weave, lapels, shirtfront and neckwear.
+            if not ob.data.attributes.get('cast_cloth_rest'):
+                attr=ob.data.attributes.new('cast_cloth_rest','FLOAT_VECTOR','POINT')
+                for vertex,datum in zip(ob.data.vertices,attr.data):
+                    datum.vector=ob.matrix_world@vertex.co
+            for material in ob.data.materials:
+                if material and material.use_nodes:
+                    material['castClothProfile']=PROFILE
+                    material['castFabric']='woven'
+                    material['castOriginalUVPreserved']=True
+            rows.append({'object':ob.name,'baseHex':os.environ.get('CAST_FORMAL_SUIT_HEX'),
+                         'fabric':'woven','fit':{'sourceRigPreserved':True},
+                         'nativeUVPreserved':True,'selectedGarment':True})
+            continue
         asset=ob.name.removeprefix('Host.');h=palette[asset];fabric=fabric_for(asset)
         covered=asset=='mindfront_f_dress_09'
         rebuild=covered and not (ob.data.shape_keys and ob.data.shape_keys.key_blocks.get('Cast V15 covered tailored fit'))

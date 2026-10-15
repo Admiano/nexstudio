@@ -18,6 +18,15 @@ if os.environ.get('CAST_FINISH_UPGRADE') == '1':
     os.environ['DBTN']='1'
 exec(compile(entry.read_text(),str(entry),'exec'),globals())
 polish_entry=Path(__file__).with_name('cast-apply-approved.py');exec(compile(polish_entry.read_text(),str(polish_entry),'exec'),globals())
+# The selected outfit must exist before the *shared* stable fabric, garment
+# structure, cloth detailing, visual and per-frame fitting stages.
+# This is the same point in the assembly lifecycle as the ordinary selected
+# garments from female.py/modM.py; no post-finish wardrobe overlay.
+formal_report={'enabled':False}
+if os.environ.get('CAST_FORMAL_ID'):
+    formal_report=runpy.run_path(str(Path(__file__).with_name('cast-apply-formal.py')))['apply_formal'](
+        bpy.context.scene,os.environ['CAST_FORMAL_ID'],
+        os.environ['CAST_FORMAL_SUIT_HEX'],os.environ['CAST_FORMAL_TIE_HEX'])
 finish_entry=Path(__file__).with_name('cast-finish-upgrade.py')
 exec(compile(finish_entry.read_text(),str(finish_entry),'exec'),globals())
 structure_entry=Path(__file__).with_name('cast-garment-structure.py')
@@ -93,7 +102,7 @@ if scene.compositing_node_group is not None:
 if '--scene-output' in args:bpy.ops.wm.save_as_mainfile(filepath=args[args.index('--scene-output')+1],compress=True)
 output_file.parent.mkdir(parents=True,exist_ok=True);scene.render.filepath=str(output_file)
 if '--assemble-only' not in args:bpy.ops.render.render(write_still=True)
-metadata={'visualRefinement':visual_report,'performance':'original-authored-actions','accessories':accessory_report,'clothDetail':cloth_detail_report,'clothAppearance':cloth_report,'facialRefinement':facial_report,'hairGroom':hair_report,'hairSelection':hair_selection_report,'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
+metadata={'visualRefinement':visual_report,'performance':'original-authored-actions','accessories':accessory_report,'clothDetail':cloth_detail_report,'clothAppearance':cloth_report,'facialRefinement':facial_report,'hairGroom':hair_report,'hairSelection':hair_selection_report,'skinAppearance':skin_report,'finishUpgrade':finish_report,'garmentStructure':structure_report,'clothingFit':fit_report,'formalWardrobe':formal_report,'sourceVersion':config['sourceVersion'],'renderVersion':config['renderVersion'],'frame':scene.frame_current,'seconds':round(time.monotonic()-started,2),'resolution':[scene.render.resolution_x,scene.render.resolution_y,scene.render.resolution_percentage],'engine':scene.render.engine,'samples':scene.cycles.samples,'camera':scene.camera.name,'viewTransform':scene.view_settings.view_transform,'look':scene.view_settings.look,'exposure':scene.view_settings.exposure,'gamma':scene.view_settings.gamma}
 output_file.with_suffix('.json').write_text(json.dumps(metadata,indent=2)+'\n');print('CAST_ASSEMBLED_RENDER',json.dumps(metadata),flush=True)
 
 if '--motion-proof' in args:

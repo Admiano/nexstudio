@@ -95,6 +95,16 @@ def collar_clearance(ob,body):
         bpy.context.scene.collection.objects.link(target);target.hide_render=True;target['castInternalTarget']=True
     coords=[v.co for v in ob.data.vertices];top=max(v.z for v in coords);centre=sum(v.x for v in coords)/len(coords)
     selected=[i for i,p in enumerate(coords) if p.z>top-.13 and abs(p.x-centre)<.215]
+    if ob.get('castWardrobeKind')=='formal':
+        # The native shrinkwrap collar pass belongs on JACKET cloth, not on
+        # independent neckwear. The real UV tie remains anchored to its rig
+        # and never gets snapped onto the character's bare neck surface.
+        suit_slot=int(ob.get('castSuitMaterialSlot',-1))
+        if suit_slot<0 or suit_slot>=len(ob.data.materials):
+            raise RuntimeError('CAST_FORMAL_SUIT_ROLE_MISSING')
+        suit_vertices={vi for face in ob.data.polygons if face.material_index==suit_slot
+                       for vi in face.vertices}
+        selected=[i for i in selected if i in suit_vertices]
     if not selected:return None
     group=ob.vertex_groups.get('Cast V16 collar clearance') or ob.vertex_groups.new(name='Cast V16 collar clearance');group.add(selected,1,'REPLACE')
     mod=ob.modifiers.get('Cast V16 collar clearance') or ob.modifiers.new('Cast V16 collar clearance','SHRINKWRAP')
@@ -119,10 +129,23 @@ def close_pinholes(ob):
     bm.free();return len(new)
 
 def apply_cloth_detail(scene):
-    garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
-    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
+    garments=[o for o in scene.objects if o.type=='MESH' and not o.get('castWardrobeReplaced') and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
+    # Never auto-fill intentional jacket openings, collars and neckwear on a
+    # real multi-part formal UV mesh. Keep original casual garment behaviour.
+    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and not o.get('castWardrobeReplaced') and o.get('castWardrobeKind')!='formal' and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
     rows=[]
     for ob in garments:
-        rows.append({'object':ob.name,'collarClearance':collar_clearance(ob,bpy.data.objects['Host.body']),'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name]})
+        # Formalwear and casualwear use the same shared collar and cloth detail
+        # pass. Do not invent decorative seam geometry absent from the source.
+        # The casual neckline shrinkwrap is designed for single-layer dress
+        # openings. A formal jacket includes folded lapels, shirt, neckwear
+        # and an authored collar; generic shrinkwrap visibly bunches the
+        # shoulders (verified with actual stage-isolation Cycles renders).
+        # Retain the shared finishing stage while preserving authored formal
+        # neckline topology and independent rigged tie placement.
+        formal=ob.get('castWardrobeKind')=='formal'
+        collar=({'preservedNativeCollar':True,'reason':'authored multi-layer suit collar'}
+                if formal else collar_clearance(ob,bpy.data.objects['Host.body']))
+        rows.append({'object':ob.name,'collarClearance':collar,'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name], 'originalUVPreserved':bool(ob.get('castWardrobeOriginalUV'))})
     masks=cover_sleeve_roots(bpy.data.objects['Host.body'],garments)
     return {'profile':PROFILE,'garments':rows,'pinholesClosed':pinholes,'sleeveMasks':masks,'codeSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}

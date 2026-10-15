@@ -1,0 +1,222 @@
+name: SceneBam selectable formal wardrobe CI
+on:
+  push:
+    branches: [work/scenebam-cast-formals-selectable-20261014]
+    paths:
+      - src/studio-v2/cast/**
+      - src/studio-v2/views/CastView.tsx
+      - src/lib/cast-spec-schema.ts
+      - scripts/cast-apply-formal.py
+      - scripts/cast-formal-material-audit.py
+      - scripts/cast-formal-colour-proof.py
+      - scripts/cast-native-wardrobe-proof.py
+      - scripts/cast-fit-posed-clothing.py
+      - scripts/cast-cloth-illustrated.py
+      - scripts/cast-cloth-detail.py
+      - scripts/cast-finish-upgrade.py
+      - scripts/cast-garment-structure.py
+      - scripts/cast-formal-slim-asset.py
+      - scripts/cast-render-assembled.py
+      - scripts/cast-preview-worker.py
+      - scripts/install-cast-formals.py
+      - tests/cast-*.test.*
+      - .github/workflows/scenebam-cast-formal-integration.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  types-and-unit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            app
+            src
+            scripts
+            tests
+            prisma
+            config
+            services
+            tools
+            public/cast
+            engine_sources/makehuman-lineart/assets/cast-formals
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:cast
+      - run: python3 -m py_compile scripts/cast-apply-formal.py scripts/cast-formal-material-audit.py scripts/install-cast-formals.py scripts/cast-preview-worker.py scripts/cast-native-wardrobe-proof.py scripts/cast-cloth-illustrated.py scripts/cast-cloth-detail.py scripts/cast-fit-posed-clothing.py scripts/cast-render-assembled.py
+  package-real-formals:
+    needs: types-and-unit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            config
+            public/cast
+      - name: Retrieve completed production-assembled V3/V6 Blender proofs
+        run: |
+          mkdir -p donor
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir donor
+          test -s donor/provenance.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('donor/provenance.json').read_text())
+          assert p['femaleSourceSHA256']=='3c5dc136767a799a04eb8cf06d9997ffae33a377ee2a773efbab2c619cbe25e4'
+          assert p['maleSourceSHA256']=='78adffb3df715a304601be5443aeb66c53ee5d5a5012d3dc507ae5d243c4afbe'
+          assert p['liveVMHashVerified']==False
+          PY
+      - name: Install audited Blender 5.2.0 and thumbnails dependency
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq python3-pil libegl1 libgl1 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p /tmp/scenebam-blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/scenebam-blender
+          echo "BLENDER_BIN=$(find /tmp/scenebam-blender -type f -name blender | head -1)" >> "$GITHUB_ENV"
+      - name: Inventory actual tailored fabric and independent tie materials
+        run: |
+          set -euo pipefail
+          mkdir -p production-qa
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            test -s "donor/$v/$v-production-assembled.blend"
+            "$BLENDER_BIN" -b "donor/$v/$v-production-assembled.blend" --python-exit-code 1 --python scripts/cast-formal-material-audit.py -- "$v" "production-qa/$v.json" >"production-qa/$v.log" 2>&1 || { cat "production-qa/$v.log"; exit 1; }
+            cat "production-qa/$v.json"
+          done
+      - name: Store original UV/material and mesh-island diagnostic evidence
+        run: |
+          set -euo pipefail
+          mkdir -p docs/scenebam-formal-uv-audit
+          cp production-qa/*.json docs/scenebam-formal-uv-audit/
+          cp production-qa/*.png docs/scenebam-formal-uv-audit/ 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --sparse docs/scenebam-formal-uv-audit
+          git commit -m 'audit(cast): true Blender UV and mesh-region diagnostics for six suits' || true
+          git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
+          git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
+      - name: Validate real tie islands, UV shaders and independent suit/tie colours in Blender
+        run: |
+          set -euo pipefail
+          mkdir -p donor/formal production-colour
+          export CAST_FORMAL_ASSETS_DIR="$PWD/donor/formal"
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${v%%-*}
+            cp "donor/$v/$v-production-assembled.blend" "donor/formal/$v.blend"
+            for setting in '222C46 A33B50' '222C46 BEA479' '602D3E A33B50' 'ORIGINAL ORIGINAL'; do
+              set -- $setting
+              "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-formal-colour-proof.py -- "$v" "$1" "$2" production-colour "${1/ORIGINAL/poses}" >"production-colour/$v-$1-$2.log" 2>&1 || { tail -n 100 "production-colour/$v-$1-$2.log"; exit 1; }
+            done
+          done
+      - name: Verify all six suits through existing native garment stages and three real poses
+        run: |
+          set -euo pipefail
+          mkdir -p production-native
+          export CAST_FORMAL_ASSETS_DIR="$PWD/donor/formal"
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${v%%-*}
+            "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-native-wardrobe-proof.py -- "$v" ORIGINAL ORIGINAL "production-native/$v.json" >"production-native/$v.log" 2>&1 || { tail -n 100 "production-native/$v.log"; exit 1; }
+          done
+      - name: Gate genuinely independent render output and materials
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image,ImageChops,ImageStat
+          root=Path('production-colour')
+          variants='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          for variant in variants:
+            def proof(suit,tie):
+              data=json.loads((root/f'{variant}-{suit}-{tie}.json').read_text())
+              assert data['materialsByRole']['tie'] and data['materialsByRole']['suit'],variant
+              assert data['rigPreserved'] and data['restError']<1e-4
+              return Image.open(root/f'{variant}-{suit}-{tie}.png').convert('RGB')
+            base=proof('222C46','A33B50')
+            tie=proof('222C46','BEA479')
+            suit=proof('602D3E','A33B50')
+            td=ImageStat.Stat(ImageChops.difference(base,tie)).sum
+            sd=ImageStat.Stat(ImageChops.difference(base,suit)).sum
+            tie_min=2500 if variant=='male-dinner-jacket' else 4000
+            if sum(td)<tie_min or sum(sd)<10000:
+              raise SystemExit('CAST_FORMAL_RENDER_COLOUR_DIFFERENCE_FAILED:'+variant+':'+str([sum(td),sum(sd)]))
+            # A dinner-jacket bow tie is much smaller than a full necktie.
+            # Confirm changed pixels actually occupy upper-central chest.
+            if variant=='male-dinner-jacket':
+              from PIL import ImageChops
+              delta=ImageChops.difference(base,tie)
+              pixels=delta.load()
+              count=sum(1 for y in range(150,270) for x in range(170,250) if max(pixels[x,y])>5)
+              assert count>=100,'DINNER_JACKET_BOW_TIE_REGION_NOT_RECOLOURED:'+str(count)
+            native=json.loads((root/f'{variant}-ORIGINAL-ORIGINAL.json').read_text())
+            assert native['nativeUVRestored'] and native['rigPreserved'],variant
+            for suffix in ['threeq-native','pose-338','pose-891']:
+              assert (root/f'{variant}-{suffix}.png').stat().st_size>10000,(variant,suffix)
+            print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),'nativeUV',True,flush=True)
+          PY
+      - name: Gate production-render trouser coverage (no exposed skin gaps)
+        run: |
+          python3 scripts/cast-formal-art-gate.py production-colour
+      - name: Export verified self-contained rigged garment assets and real previews
+        run: |
+          set -euo pipefail
+          mkdir -p engine_sources/makehuman-lineart/assets/cast-formals public/cast/options/formal
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            "$BLENDER_BIN" -b --python-exit-code 1 --python scripts/cast-formal-slim-asset.py -- "donor/$v/$v-production-assembled.blend" "$v" "engine_sources/makehuman-lineart/assets/cast-formals/$v.blend"
+          done
+          python3 - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          from PIL import Image
+          variants='female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket'.split()
+          root=Path('engine_sources/makehuman-lineart/assets/cast-formals')
+          files={}
+          for variant in variants:
+            source=root/(variant+'.blend')
+            assert source.is_file() and 1000000<source.stat().st_size<95000000,variant
+            files[variant]=hashlib.sha256(source.read_bytes()).hexdigest()
+            # Option previews must depict the ACTUAL Blender production import,
+            # not displaced upstream donor/proof pictures.
+            frame=Path('production-colour')/(variant+'-222C46-A33B50.png')
+            assert frame.is_file(),frame
+            with Image.open(frame) as im:
+              im.thumbnail((400,520))
+              im.convert('RGB').save(Path('public/cast/options/formal')/(variant+'.webp'),format='WEBP',quality=88)
+          Path('config/scenebam-formal-assets.json').write_text(json.dumps({
+            'files':files,'sourceProvenance':'Actions run 38480065233; Blender 5.2.0;',
+            'liveVMParityCertified':False,'collisionCertified':False},indent=2)+'\n')
+          print('SCENEBAM_AUTHENTIC_FORMAL_ASSETS_READY',json.dumps(files),flush=True)
+          PY
+      - name: Version-control approved development assets on isolated branch; no release or deployment
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          python3 scripts/install-cast-formals.py
+          # The source asset tree is intentionally gitignored for downloaded donors.
+          # Force-add ONLY the six locally checksum-verified rigged formal garments.
+          git add --sparse -f engine_sources/makehuman-lineart/assets/cast-formals
+          git add --sparse public/cast/options/formal config/scenebam-formal-assets.json
+          git commit -m 'assets(cast): six slim real Blender formalwear assets and render-derived thumbnails'
+          git pull --rebase origin work/scenebam-cast-formals-selectable-20261014
+          git push origin HEAD:work/scenebam-cast-formals-selectable-20261014
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_FORMAL_CAST_INTEGRATION_QA
+          path: |
+            production-qa/
+            production-colour/
+            production-native/
+          retention-days: 14

@@ -24,6 +24,18 @@ class WorkerTests(unittest.TestCase):
                 self.assertIn(worker.RENDER_VERSION,(ROOT/'src/studio-v2/cast/render-config.ts').read_text())
                 previous=dict(config,renderVersion='approved-v3-v6-face-v12-upper-thigh')
                 with self.assertRaisesRegex(ValueError,'CAST_SOURCE_VERSION_MISMATCH'):worker.validate(previous)
+                config['env']['CAST_FORMAL_ID']='male-double-breasted'
+                config['env']['CAST_CHARACTER']='female'
+                with self.assertRaisesRegex(ValueError,'CAST_FORMAL_ID_INVALID'):worker.validate(config)
+                config['env']['CAST_CHARACTER']='male'
+                config['env']['CAST_FORMAL_SUIT_HEX']='123456'
+                config['env']['CAST_FORMAL_TIE_HEX']='ABCDEF'
+                worker.validate(config)
+                config['env']['CAST_FORMAL_TIE_HEX']='not-hex'
+                with self.assertRaisesRegex(ValueError,'CAST_FORMAL_COLOUR_INVALID'):worker.validate(config)
+                config['env']['CAST_FORMAL_ID']=''
+                config['env']['CAST_FORMAL_TIE_HEX']=''
+                config['env']['CAST_FORMAL_SUIT_HEX']=''
                 config['env']['CAST_FINISH_UPGRADE']='0'
                 with self.assertRaises(ValueError):worker.validate(config)
     def test_failure_and_lock_release(self):

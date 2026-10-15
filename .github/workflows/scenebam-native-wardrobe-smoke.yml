@@ -1,0 +1,78 @@
+name: SceneBam native wardrobe integration smoke
+on:
+  push:
+    branches: [work/scenebam-cast-formals-selectable-20261014]
+    paths:
+      - scripts/cast-apply-formal.py
+      - scripts/cast-render-assembled.py
+      - scripts/cast-native-wardrobe-proof.py
+      - scripts/cast-fit-posed-clothing.py
+      - scripts/cast-finish-upgrade.py
+      - scripts/cast-garment-structure.py
+      - scripts/cast-cloth-illustrated.py
+      - scripts/cast-cloth-detail.py
+      - .github/workflows/scenebam-native-wardrobe-smoke.yml
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+jobs:
+  native-rig-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            config
+            engine_sources/makehuman-lineart/assets/cast-formals
+      - name: Verify immutable wardrobe sources before native Blender test
+        run: python3 scripts/install-cast-formals.py
+      - name: Retrieve approved V3/V6 original assembled characters
+        run: |
+          mkdir -p donor
+          gh run download 38480065233 --repo Admiano/nexstudio --name SCENEBAM_SIX_FORMALS_PRODUCTION_ASSEMBLY_PROOFS --dir donor
+          test -s donor/female/female-candidate.blend
+          test -s donor/male/male-candidate.blend
+      - name: Install Blender 5.2.0 with exact audited archive checksum
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libegl1 libgl1 libx11-6 libxrender1 libxfixes3 libxi6
+          curl -fL --retry 4 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender5.2/blender-5.2.0-linux-x64.tar.xz
+          echo '96f6c181a30f4950607839dc84d42a354b250d8a0231b098b59b7bc69c351c48  /tmp/blender.tar.xz' | sha256sum -c -
+          mkdir -p /tmp/scenebam-blender
+          tar -xJf /tmp/blender.tar.xz -C /tmp/scenebam-blender
+          echo "/tmp/scenebam-blender/blender-5.2.0-linux-x64" >> "$GITHUB_PATH"
+      - name: Run real rigged male and female native pipeline at three poses
+        run: |
+          set -euo pipefail
+          mkdir -p qa-native
+          export CAST_FORMAL_ASSETS_DIR="$PWD/engine_sources/makehuman-lineart/assets/cast-formals"
+          for variant in female-statement male-jacket-tie; do
+            sex=${variant%%-*}
+            if [[ "$variant" == male-jacket-tie ]]; then export SCENEBAM_NATIVE_STAGE_DIAGNOSTICS=1; else export SCENEBAM_NATIVE_STAGE_DIAGNOSTICS=0; fi
+            blender -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 \
+              --python scripts/cast-native-wardrobe-proof.py -- "$variant" ORIGINAL ORIGINAL "qa-native/$variant.json" \
+              > "qa-native/$variant.log" 2>&1 || { tail -n 140 "qa-native/$variant.log"; exit 1; }
+          done
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          for variant in ('female-statement','male-jacket-tie'):
+              result=json.loads((Path('qa-native')/(variant+'.json')).read_text())
+              assert result['nativePipeline'] and result['poseFrames']==[27,338,891]
+              assert not result['collisionCertified']
+              assert (Path('qa-native')/(variant+'.png')).stat().st_size>10000
+              assert all(result['selectedGarment'] in [row['object'] for row in result[stage]['garments']] for stage in ('cloth','detail'))
+              print('REAL_NATIVE_CAST_PIPELINE_VALIDATED',variant,flush=True)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SCENEBAM_ACTUAL_NATIVE_WARDROBE_SMOKE
+          path: qa-native/
+          retention-days: 14

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "female-double-breasted": "192b76287b457ebdb85553e4929c9a4940f74598715ab1142db5357302da7ddf",
+    "female-statement": "f4ef1589f947004cd1d4c5f7d877e2b18471671f8f7a9107028eb2f91d1bf8e2",
+    "male-jacket-tie": "469ad4c648ac72d2e730f982b306dcdca73b7d0aae29c3e1342d7aae39b9a739",
+    "male-double-breasted": "343bdedfb4c249c0ddf288a819f99d00cd0b77076431323e4d43660d1615f3bc",
+    "male-navy-classic": "030b08e4518aa5c401ff1a24358900d41d14cf3d65ce869979bd262743dc6c68",
+    "male-dinner-jacket": "4a9c47f2e179ce060febdf5a9a4f011d55f39ca9ff7d07c17f941acd5fc8cb63"
+  },
+  "sourceProvenance": "Actions run 38480065233; Blender 5.2.0;",
+  "liveVMParityCertified": false,
+  "collisionCertified": false
+}

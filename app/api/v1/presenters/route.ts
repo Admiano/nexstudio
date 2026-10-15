@@ -7,6 +7,7 @@ import { getPrisma } from "@/lib/db";
 import { createEngineDraft, engineJobsDir, registerCastScope, runningEngineJobs } from "@/lib/engine-jobs";
 import { renderInFlightLimit, submitRenderJob } from "@/lib/render-queue";
 import { castRenderConfig } from "@/studio-v2/cast/render-config";
+import {formalSpecAvailable} from "@/lib/cast-formal-availability";
 import { normalizeCastSpec, type CastSpec } from "@/studio-v2/cast/spec";
 import { ENVIRONMENTS } from "@/studio-v2/cast/environments";
 import { castPreset } from "@/lib/cast-presets";
@@ -67,6 +68,10 @@ export async function POST(request: Request) {
   }
   if (!member || !member.spec)
     return problem(id, 422, "CAST_REQUIRED", "Pick a character", "Choose a studio character or one of your saved characters to present this video.");
+  const spec = normalizeCastSpec(member.spec as unknown as CastSpec);
+  if (!formalSpecAvailable(spec))
+    return problem(id, 503, "CAST_FORMAL_UNAVAILABLE", "Formal wardrobe not ready",
+      "This saved performer cannot render until the outfit is verified on the production worker.");
 
   const script = String(form.get("script") ?? "").trim();
   const voiceFile = form.get("voiceFile");
@@ -133,7 +138,6 @@ export async function POST(request: Request) {
     writeFileSync(path.join(dir, imageName), Buffer.from(await promoImage.arrayBuffer()));
   }
 
-  const spec = normalizeCastSpec(member.spec as unknown as CastSpec);
   writeFileSync(path.join(dir, "request.json"), JSON.stringify({
     userId: auth.session!.userId, castMemberId: member.id, config: castRenderConfig(spec),
     script: script || null, voice, speed: speedRaw, voiceFile: voiceName,

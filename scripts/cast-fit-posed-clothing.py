@@ -60,6 +60,45 @@ def _fit_cuff_edge(ob,mesh,stop):
         if (q-p).length>1e-6:v.co=inverse@q;moved+=1
     return moved
 
+def _fit_selected_formal(scene):
+    """Validate the shared garment/rig at this pose without freezing animation.
+
+    Unlike a one-frame casual preview-fit snapshot, full formal suits must
+    continue deforming for speaker switching, interviews and long productions.
+    The source garment already receives native structural and collar modifiers;
+    it stays visible and parented to Host.rig for every frame.
+    """
+    selected=[o for o in scene.objects if o.type=='MESH' and
+              o.get('castWardrobeKind')=='formal' and not o.hide_render]
+    if len(selected)!=1:
+        raise RuntimeError('CAST_NATIVE_FORMAL_SELECTION_INVALID:'+str(len(selected)))
+    source=selected[0]
+    rig=bpy.data.objects.get('Host.rig')
+    if not rig or source.parent!=rig or not any(m.type=='ARMATURE' and m.object==rig for m in source.modifiers):
+        raise RuntimeError('CAST_NATIVE_FORMAL_SOURCE_NOT_RIG_BOUND')
+    if any(o.get('castFitSource')==source.name for o in scene.objects):
+        raise RuntimeError('CAST_NATIVE_FORMAL_BAKED_PREVIEW_DETECTED')
+    bpy.context.view_layer.update()
+    deps=bpy.context.evaluated_depsgraph_get()
+    evaluated=source.evaluated_get(deps)
+    mesh=evaluated.to_mesh()
+    try:
+        if not mesh.vertices or not mesh.polygons:
+            raise RuntimeError('CAST_NATIVE_FORMAL_EVALUATED_MESH_EMPTY')
+        if any(not all(math.isfinite(float(axis)) for axis in vertex.co) for vertex in mesh.vertices):
+            raise RuntimeError('CAST_NATIVE_FORMAL_NONFINITE_GEOMETRY')
+        verts=len(mesh.vertices)
+        faces=len(mesh.polygons)
+    finally:
+        evaluated.to_mesh_clear()
+    return {'object':source.name,'vertexCount':verts,'faceCount':faces,
+            'evaluatedPoseFrame':scene.frame_current,
+            'poseEvaluatedOnSharedRig':True,'animatedSourcePreserved':True,
+            'originalArmatureModifierPreserved':True,
+            'sourceWeightsPreserved':True,'sourceMaterialsPreserved':True,
+            'collisionCertified':False,'bakedStillMesh':False,
+            'reason':'authored rig and native cloth clearance modifiers evaluate continuously'}
+
 def fit_posed_clothing(scene):
     # Evaluated meshes are disposable results. Restore source visibility and
     # remove previous results before evaluating another pose. Source rigs,
@@ -68,12 +107,17 @@ def fit_posed_clothing(scene):
         source_name=result.get('castFitSource')
         if not source_name:continue
         source=bpy.data.objects.get(source_name)
-        if source is not None:source.hide_render=source.get('castFitOriginalHideRender',False)
+        if source is not None:
+            source.hide_render=True if source.get('castWardrobeReplaced') else source.get('castFitOriginalHideRender',False)
         mesh=result.data
         bpy.data.objects.remove(result,do_unlink=True)
         if mesh.users==0:bpy.data.meshes.remove(mesh)
     bpy.context.view_layer.update()
     fit_report=[]
+    if os.environ.get('CAST_FORMAL_ID'):
+        fit_report.append(_fit_selected_formal(scene))
+        fit_report+=_drop_stretched_strokes()
+        return fit_report
     if os.environ['CAST_CHARACTER']=='male':
         garments=[bpy.data.objects.get(x.split('=')[0]) for x in os.environ.get('GARMS','').split(';') if x]
         tops=[o for o in garments if o and not any(k in o.name.lower() for k in ('trouser','jeans','pants','shoe','sneaker'))]

@@ -125,6 +125,39 @@ export const MALE_TOP_COLORS = [
   { key: "cream", label: "Cream", hex: "#D8CFBE" },
 ] as const;
 
+export const FEMALE_FORMAL_OUTFITS = [
+ { key: "formal-double-breasted", label: "Double-breasted suit" },
+ { key: "formal-statement", label: "Statement suit" },
+] as const;
+export const MALE_FORMAL_OUTFITS = [
+ { key: "formal-jacket-tie", label: "Jacket & tie" },
+ { key: "formal-double-breasted", label: "Double-breasted suit" },
+ { key: "formal-navy-classic", label: "Classic suit" },
+ { key: "formal-dinner-jacket", label: "Dinner jacket" },
+] as const;
+export const FORMAL_SUIT_COLORS = [
+ { key: "original", label: "Original garment", hex: "#777777" },
+ { key: "charcoal", label: "Charcoal", hex: "#35343B" },
+ { key: "navy", label: "Midnight navy", hex: "#222C46" },
+ { key: "black", label: "Black", hex: "#16171B" },
+ { key: "burgundy", label: "Burgundy", hex: "#602D3E" },
+ { key: "ivory", label: "Ivory", hex: "#E7E1D8" },
+] as const;
+export const FORMAL_TIE_COLORS = [
+ { key: "original", label: "Original tie", hex: "#777777" },
+ { key: "burgundy", label: "Burgundy", hex: "#A33B50" },
+ { key: "navy", label: "Navy", hex: "#283A62" },
+ { key: "champagne", label: "Champagne", hex: "#BEA479" },
+ { key: "black", label: "Black", hex: "#141414" },
+ { key: "rose", label: "Rose", hex: "#B56E82" },
+] as const;
+export const isFormalOutfit = (kind: string | undefined | null) =>
+  !!kind && [...FEMALE_FORMAL_OUTFITS, ...MALE_FORMAL_OUTFITS].some(o => o.key === kind);
+export const formalOutfitId = (character: CastCharacter, kind: string) =>
+  isFormalOutfit(kind) ? character + "-" + kind.slice("formal-".length) : "";
+export const FORMAL_DEFAULT_SUIT = "original";
+export const FORMAL_DEFAULT_TIE = "original";
+
 export const MALE_OUTFITS = [
   { key: "o1", label: "Polo", note: "charcoal trousers" },
   { key: "o2", label: "Tee", note: "straight jeans" },
@@ -205,8 +238,10 @@ const FEM_HC_KEYS = presetKeys(FEM_HAIR_COLORS);
 const MALE_HC_KEYS = presetKeys(MALE_HAIR_COLORS);
 const FEM_STYLE_KEYS = presetKeys(FEM_HAIRSTYLES);
 const MALE_STYLE_KEYS = presetKeys(MALE_HAIRSTYLES);
-const FEM_DRESS_KEYS = presetKeys(FEM_DRESSES);
-const MALE_OUTFIT_KEYS = presetKeys(MALE_OUTFITS);
+const FEM_DRESS_KEYS = new Set([...presetKeys(FEM_DRESSES), ...presetKeys(FEMALE_FORMAL_OUTFITS)]);
+const MALE_OUTFIT_KEYS = new Set([...presetKeys(MALE_OUTFITS), ...presetKeys(MALE_FORMAL_OUTFITS)]);
+const FORMAL_SUIT_KEYS = presetKeys(FORMAL_SUIT_COLORS);
+const FORMAL_TIE_KEYS = presetKeys(FORMAL_TIE_COLORS);
 const FEM_DRESS_COLOR_KEYS = presetKeys(FEM_DRESS_COLORS);
 const MALE_TOP_COLOR_KEYS = presetKeys(MALE_TOP_COLORS);
 const NECK_KEYS = presetKeys(NECKS);
@@ -231,10 +266,12 @@ export function normalizeCastSpec(input:CastSpec|null|undefined,hint?:CastCharac
  const kinds=character==="female"?FEM_DRESS_KEYS:MALE_OUTFIT_KEYS;
  const kind=input?.outfit?.kind&&kinds.has(input.outfit.kind)?input.outfit.kind:d.outfit!.kind;
  const defaults=character==="female"?FEM_DRESS_DEFAULT_COLOR:MALE_TOP_DEFAULT_COLOR;
+ const formal=isFormalOutfit(kind);
+ const formalParts=formal?{pieces:{tieColor:normalizeColour(input?.outfit?.pieces?.tieColor,FORMAL_TIE_KEYS,FORMAL_DEFAULT_TIE)}}:{};
  return {environment:ENVIRONMENTS.some(e=>e.key===input?.environment)?input!.environment:null,environmentFormat:input?.environmentFormat==='landscape'||input?.environmentFormat==='portrait'?input.environmentFormat:'square',character,face,skin:normalizeColour(input?.skin,SKIN_KEYS,d.skin),hair:{style:hairStyle,color:normalizeColour(input?.hair?.color,colors,d.hair!.color)},
  lip:character==="female"?normalizeColour(input?.lip,LIP_KEYS,d.lip!):null,
  neck:character==="female"?(input?.neck===null||input?.neck==="none"?null:input?.neck&&NECK_KEYS.has(input.neck)?input.neck:d.neck):null,
- outfit:{kind,color:normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...(character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},
- watch:character==="male"&&maleWatchAvailable(kind)?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
+ outfit:{kind,color:formal?normalizeColour(input?.outfit?.color,FORMAL_SUIT_KEYS,FORMAL_DEFAULT_SUIT):normalizeColour(input?.outfit?.color,character==="female"?FEM_DRESS_COLOR_KEYS:MALE_TOP_COLOR_KEYS,defaults[kind]),...formalParts,...(!formal&&character==="male"&&input?.outfit?.pieces?{pieces:malePieces({...d,outfit:{kind,pieces:input.outfit.pieces}})}:{})},
+ watch:character==="male"&&(formal||maleWatchAvailable(kind))?(input?.watch===null||input?.watch==="none"?null:input?.watch&&WATCH_KEYS.has(input.watch)?input.watch:d.watch):null,
  voiceId:input?.voiceId??d.voiceId,sourceVersion:CAST_SOURCE_VERSION};
 }

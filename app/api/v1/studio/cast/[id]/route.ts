@@ -1,4 +1,5 @@
 import { z } from "zod";
+import {formalSpecAvailable} from "@/lib/cast-formal-availability";
 import { castSpecSchema } from "@/lib/cast-spec-schema";
 import { normalizeCastSpec,type CastSpec } from "@/studio-v2/cast/spec";
 import type { Prisma } from "@/generated/prisma/client";
@@ -22,6 +23,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const { id } = await context.params;
   const body = schema.safeParse(await request.json().catch(() => null));
   if (!body.success) return zodProblem(auth.id, body.error);
+  if (body.data.spec!==undefined && !formalSpecAvailable(body.data.spec as CastSpec | null)) return problem(auth.id,503,"CAST_FORMAL_UNAVAILABLE","Formal wardrobe not ready","No cast was changed.");
   const prisma = getPrisma()!;
   const member = await prisma.studioCastMember.findFirst({ where: { id, ownerUserId: auth.session!.userId } });
   if (!member) return problem(auth.id, 404, "CAST_NOT_FOUND", "Cast member not found", "No cast was changed.");
