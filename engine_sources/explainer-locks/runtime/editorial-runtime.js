@@ -2517,6 +2517,39 @@
       const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
       const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      let semanticLabelFade = 1;
+      if (ctx.directorStyle === 'sketch') {
+        // A source-authored transformation is not a static dotted link.
+        // Carry the existing subject toward its stated new form while that
+        // destination acquires visual presence. No new objects or claims.
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'transforms_into') continue;
+          if (relation.rel.source !== ent.id && relation.rel.target !== ent.id) continue;
+          const cue = relation.ops.find((op) => op.op === 'CONNECT');
+          if (!cue) continue;
+          const begin = cue.start_ms, finish = Math.max(cue.end_ms, begin + 420);
+          const p = EASE.inOutCubic(prog(lt, begin, finish));
+          if (relation.rel.source === ent.id) {
+            const receiver = ill.ents.get(relation.rel.target);
+            if (!receiver) continue;
+            const from = centre(node.bb), to = centre(receiver.bb);
+            tx += (to.x - from.x) * 0.78 * p;
+            ty += (to.y - from.y) * 0.78 * p;
+            scale *= 1 - p * 0.20;
+            const fade = 1 - EASE.inOutCubic(prog(lt,
+              begin + 0.52 * (finish - begin), finish));
+            opacity *= fade;
+            semanticLabelFade *= fade;
+          } else {
+            const emerge = EASE.outCubic(prog(lt,
+              begin + 0.28 * (finish - begin), finish));
+            opacity *= emerge;
+            semanticLabelFade *= emerge;
+            scale *= 0.84 + 0.16 * emerge;
+          }
+          break;
+        }
+      }
       // Directional entrance: a pop-entrance body also travels in from an
       // off-position seeded by its id — arrivals read as trajectories, not a
       // row of identical scale-ups.
@@ -2692,7 +2725,7 @@
         // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
         // the same carry path so it never sits at the destination while the body is travelling.
         const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
-        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1);
+        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade;
         // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
         ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
         const shift = carryLabelShift(node, pose.carry);
@@ -2734,6 +2767,10 @@
       // the weaker endpoint's presence.
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
       if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
+      // Sketch transformations are performed by the moving source and the
+      // emerging destination. The connector remains semantic for the compiler
+      // but does not visually masquerade as a transfer or static relationship.
+      if (ctx.directorStyle === 'sketch' && rel.type === 'transforms_into') opacity = 0;
       s.opacity = opacity.toFixed(4);
       // Re-tension: the link follows its bodies. A similarity transform maps the laid-out
       // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
@@ -2933,6 +2970,7 @@
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
       voiceSequence,
+      directorStyle: plan.director_style || null,
       groove: (plan.music && plan.music.groove) || null,
       reconfigureOffset(node) {
         // Pre-reconfiguration state: blocks sit 30% closer to the text-zone centre along their dominant axis.
