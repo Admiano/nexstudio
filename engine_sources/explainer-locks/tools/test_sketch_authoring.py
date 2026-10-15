@@ -418,7 +418,8 @@ class SketchAuthoringTests(unittest.TestCase):
                 self.assertFalse(any(e["glyph"] == "NODE" for e in ill["entities"]))
                 self.assertEqual([{"word": verb}, {"word": move}],
                                  [op["at"] for op in ill["program"] if op["op"] == "CONNECT"])
-                self.assertEqual([("sk_" + carrier, verb), ("sk_" + destination, move)],
+                self.assertEqual([("sk_" + carrier, verb),
+                                  ("sk_" + destination, destination.split("_")[-1])],
                                  [(op["target"], op["at"]["word"])
                                   for op in ill["program"] if op["op"] == "INK"])
                 FilmTreatment.parse(film)
