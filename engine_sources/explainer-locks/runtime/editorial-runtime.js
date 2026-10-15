@@ -1496,6 +1496,18 @@
             stroke: ink, 'stroke-width': pct === 0 ? sw * 0.62 : sw * 0.44,
             'stroke-opacity': pct === 0 ? 0.35 : 0.10 }, g);
         }
+        // Data Viz builds a living evidence field under the ACTUALLY drawn
+        // measurements, not an all-at-once decorative gradient. The shaded
+        // region and the vertical tracker never outrun the narrated value;
+        // source x-categories remain precisely aligned with native vertices.
+        const dataArea = plan.director_style === 'dataviz'
+          ? svgEl('path', { fill: accent, 'fill-opacity': 0, 'data-action': 'source-trend-area' }, g)
+          : null;
+        const dataTracker = plan.director_style === 'dataviz'
+          ? svgEl('line', { x1: pts[0][0], y1: pts[0][1], x2: pts[0][0],
+              y2: f2(b.y + b.h), stroke: accent, 'stroke-width': f2(sw * 0.55),
+              'stroke-opacity': 0, 'stroke-dasharray': f2(sw * 1.4) + ' ' + f2(sw * 2.4),
+              'data-action': 'measured-x-guide' }, g) : null;
         const valueLabels = (params.value_labels || []).map((value, i) => {
           const label = svgEl('text', {
             x: f2(pts[i][0]), y: f2(pts[i][1] - Math.max(sw * 5, 19)),
@@ -1534,6 +1546,26 @@
           node.extra.pathFraction = k;
           node.outline[0].set(k);
           const q = pointAlong(pts, k);
+          if (dataArea && dataTracker) {
+            const baseY = b.y + b.h, pathAt = k * pathLength;
+            const measured = [pts[0]];
+            for (let i = 1; i < pts.length; i++) {
+              if (cumulativeLengths[i] <= pathAt + 0.05) measured.push(pts[i]);
+              else break;
+            }
+            if (k > 0.001) measured.push([q.x, q.y]);
+            const areaPath = k > 0.001
+              ? 'M' + f2(pts[0][0]) + ' ' + f2(baseY) + 'L' +
+                measured.map(q2 => f2(q2[0]) + ' ' + f2(q2[1])).join('L') +
+                'L' + f2(q.x) + ' ' + f2(baseY) + 'Z'
+              : '';
+            dataArea.setAttribute('d', areaPath);
+            dataArea.style.fillOpacity = k > 0.001 ? (0.085 + 0.03 * EASE.outCubic(k)).toFixed(3) : '0';
+            dataTracker.setAttribute('x1', f2(q.x));
+            dataTracker.setAttribute('x2', f2(q.x));
+            dataTracker.setAttribute('y1', f2(q.y));
+            dataTracker.style.strokeOpacity = k > 0.001 ? '0.18' : '0';
+          }
           for (const el of [dot, halo]) {
             el.setAttribute('cx', f2(q.x));
             el.setAttribute('cy', f2(q.y));
