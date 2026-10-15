@@ -120,9 +120,13 @@ def close_pinholes(ob):
 
 def apply_cloth_detail(scene):
     garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
-    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
+    # Never auto-fill intentional jacket openings, collars and neckwear on a
+    # real multi-part formal UV mesh. Keep original casual garment behaviour.
+    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and o.get('castWardrobeKind')!='formal' and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
     rows=[]
     for ob in garments:
-        rows.append({'object':ob.name,'collarClearance':collar_clearance(ob,bpy.data.objects['Host.body']),'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name]})
+        # Formalwear and casualwear use the same shared collar and cloth detail
+        # pass. Do not invent decorative seam geometry absent from the source.
+        rows.append({'object':ob.name,'collarClearance':collar_clearance(ob,bpy.data.objects['Host.body']),'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name], 'originalUVPreserved':bool(ob.get('castWardrobeOriginalUV'))})
     masks=cover_sleeve_roots(bpy.data.objects['Host.body'],garments)
     return {'profile':PROFILE,'garments':rows,'pinholesClosed':pinholes,'sleeveMasks':masks,'codeSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}

@@ -18,6 +18,15 @@ if os.environ.get('CAST_FINISH_UPGRADE') == '1':
     os.environ['DBTN']='1'
 exec(compile(entry.read_text(),str(entry),'exec'),globals())
 polish_entry=Path(__file__).with_name('cast-apply-approved.py');exec(compile(polish_entry.read_text(),str(polish_entry),'exec'),globals())
+# The selected outfit must exist before the *shared* stable fabric, garment
+# structure, cloth detailing, visual and per-frame fitting stages.
+# This is the same point in the assembly lifecycle as the ordinary selected
+# garments from female.py/modM.py; no post-finish wardrobe overlay.
+formal_report={'enabled':False}
+if os.environ.get('CAST_FORMAL_ID'):
+    formal_report=runpy.run_path(str(Path(__file__).with_name('cast-apply-formal.py')))['apply_formal'](
+        bpy.context.scene,os.environ['CAST_FORMAL_ID'],
+        os.environ['CAST_FORMAL_SUIT_HEX'],os.environ['CAST_FORMAL_TIE_HEX'])
 finish_entry=Path(__file__).with_name('cast-finish-upgrade.py')
 exec(compile(finish_entry.read_text(),str(finish_entry),'exec'),globals())
 structure_entry=Path(__file__).with_name('cast-garment-structure.py')
@@ -83,9 +92,6 @@ for layer in scene.view_layers:
 visual_report=runpy.run_path(str(Path(__file__).with_name('cast-visual-refinement.py')))['apply_visual_refinement'](scene,os.environ['CAST_CHARACTER'])
 scene.frame_set(config['frame']);scene.render.resolution_percentage=config['resolutionPercentage'];scene.render.image_settings.file_format='PNG'
 fit_entry=Path(__file__).with_name('cast-fit-posed-clothing.py');exec(compile(fit_entry.read_text(),str(fit_entry),'exec'),globals())
-formal_report={'enabled':False}
-if os.environ.get('CAST_FORMAL_ID'):
-    formal_report=runpy.run_path(str(Path(__file__).with_name('cast-apply-formal.py')))['apply_formal'](scene,os.environ['CAST_FORMAL_ID'],os.environ['CAST_FORMAL_SUIT_HEX'],os.environ['CAST_FORMAL_TIE_HEX'])
 accessory_report=runpy.run_path(str(Path(__file__).with_name('cast_accessory_quality.py')))['apply_accessory_quality'](scene,os.environ['CAST_CHARACTER'])
 height=scene.render.resolution_y*scene.render.resolution_percentage/100
 for layer in scene.view_layers:

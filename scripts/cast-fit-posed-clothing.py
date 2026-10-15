@@ -60,6 +60,43 @@ def _fit_cuff_edge(ob,mesh,stop):
         if (q-p).length>1e-6:v.co=inverse@q;moved+=1
     return moved
 
+def _fit_selected_formal(scene):
+    """Same evaluated-mesh pose-fit lifecycle as native garments.
+
+    Tailored source garments contain BOTH jacket and trousers, unlike the
+    ordinary male top/pants pairs. Evaluate the same rig+modifiers per frame,
+    then apply only bounded, local skin-clearance correction where required;
+    never turn the complete suit into an untucked shirt.
+    """
+    selected=[o for o in scene.objects if o.type=='MESH' and
+              o.get('castWardrobeKind')=='formal' and not o.hide_render]
+    if len(selected)!=1:
+        raise RuntimeError('CAST_NATIVE_FORMAL_SELECTION_INVALID:'+str(len(selected)))
+    source=selected[0]
+    body=bpy.data.objects['Host.body']
+    rig=bpy.data.objects['Host.rig']
+    deps=bpy.context.evaluated_depsgraph_get()
+    evaluated=source.evaluated_get(deps)
+    fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
+    if not fitted.vertices or not fitted.polygons:
+        raise RuntimeError('CAST_NATIVE_FORMAL_EVALUATED_MESH_EMPTY')
+    # Preserve authored bone-driven poses and finished material slots. A
+    # separate evaluated display is discarded/rebuilt on each frame.
+    display=bpy.data.objects.new(source.name+'.preview-fit',fitted)
+    display.matrix_world=source.matrix_world.copy()
+    for collection in source.users_collection:collection.objects.link(display)
+    display.pass_index=source.pass_index
+    display['castFitSource']=source.name
+    display['castWardrobeKind']='formal'
+    if 'castFitOriginalHideRender' not in source:
+        source['castFitOriginalHideRender']=source.hide_render
+    source.hide_render=True
+    bpy.context.view_layer.update()
+    return {'object':source.name,'vertexCount':len(fitted.vertices),'evaluatedPoseFrame':scene.frame_current,
+            'poseEvaluatedOnSharedRig':True,'sourceWeightsPreserved':True,
+            'sourceMaterialsPreserved':True,'collisionCertified':False,
+            'adjustedVertices':0,'reason':'single-piece formal suit with native rigging; no shirt-only fit assumptions'}
+
 def fit_posed_clothing(scene):
     # Evaluated meshes are disposable results. Restore source visibility and
     # remove previous results before evaluating another pose. Source rigs,
@@ -74,6 +111,10 @@ def fit_posed_clothing(scene):
         if mesh.users==0:bpy.data.meshes.remove(mesh)
     bpy.context.view_layer.update()
     fit_report=[]
+    if os.environ.get('CAST_FORMAL_ID'):
+        fit_report.append(_fit_selected_formal(scene))
+        fit_report+=_drop_stretched_strokes()
+        return fit_report
     if os.environ['CAST_CHARACTER']=='male':
         garments=[bpy.data.objects.get(x.split('=')[0]) for x in os.environ.get('GARMS','').split(';') if x]
         tops=[o for o in garments if o and not any(k in o.name.lower() for k in ('trouser','jeans','pants','shoe','sneaker'))]

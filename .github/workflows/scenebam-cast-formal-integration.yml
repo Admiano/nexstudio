@@ -9,6 +9,12 @@ on:
       - scripts/cast-apply-formal.py
       - scripts/cast-formal-material-audit.py
       - scripts/cast-formal-colour-proof.py
+      - scripts/cast-native-wardrobe-proof.py
+      - scripts/cast-fit-posed-clothing.py
+      - scripts/cast-cloth-illustrated.py
+      - scripts/cast-cloth-detail.py
+      - scripts/cast-finish-upgrade.py
+      - scripts/cast-garment-structure.py
       - scripts/cast-formal-slim-asset.py
       - scripts/cast-render-assembled.py
       - scripts/cast-preview-worker.py
@@ -43,7 +49,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:cast
-      - run: python3 -m py_compile scripts/cast-apply-formal.py scripts/cast-formal-material-audit.py scripts/install-cast-formals.py scripts/cast-preview-worker.py
+      - run: python3 -m py_compile scripts/cast-apply-formal.py scripts/cast-formal-material-audit.py scripts/install-cast-formals.py scripts/cast-preview-worker.py scripts/cast-native-wardrobe-proof.py scripts/cast-cloth-illustrated.py scripts/cast-cloth-detail.py scripts/cast-fit-posed-clothing.py scripts/cast-render-assembled.py
   package-real-formals:
     needs: types-and-unit
     runs-on: ubuntu-24.04
@@ -113,6 +119,15 @@ jobs:
               set -- $setting
               "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-formal-colour-proof.py -- "$v" "$1" "$2" production-colour "${1/ORIGINAL/poses}" >"production-colour/$v-$1-$2.log" 2>&1 || { tail -n 100 "production-colour/$v-$1-$2.log"; exit 1; }
             done
+          done
+      - name: Verify all six suits through existing native garment stages and three real poses
+        run: |
+          set -euo pipefail
+          mkdir -p production-native
+          export CAST_FORMAL_ASSETS_DIR="$PWD/donor/formal"
+          for v in female-double-breasted female-statement male-jacket-tie male-double-breasted male-navy-classic male-dinner-jacket; do
+            sex=${v%%-*}
+            "$BLENDER_BIN" -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 --python scripts/cast-native-wardrobe-proof.py -- "$v" ORIGINAL ORIGINAL "production-native/$v.json" >"production-native/$v.log" 2>&1 || { tail -n 100 "production-native/$v.log"; exit 1; }
           done
       - name: Gate genuinely independent render output and materials
         run: |
@@ -203,4 +218,5 @@ jobs:
           path: |
             production-qa/
             production-colour/
+            production-native/
           retention-days: 14

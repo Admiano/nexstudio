@@ -1,6 +1,7 @@
 """SceneBam V21 production Cast formalwear adapter.
 
-Called only AFTER the existing character, polish, garments and cloth pass finish.
+Called in the native wardrobe selection phase after the original V3/V6
+character assembly, BEFORE the shared finish, fabric, details and pose fit.
 Imports geometry proven on the production-assembled female V3/male V6 cast rig,
 preserving Host.rig, shape keys and all original performance actions.
 
@@ -133,6 +134,9 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     if donor_rig.users == 0:
         bpy.data.objects.remove(donor_rig,do_unlink=True)
     donor.name = expected
+    donor['castWardrobeKind']='formal'
+    donor['castWardrobeVariant']=variant
+    donor['castWardrobeOriginalUV']=True
     # Rig rest-matrix parity does NOT establish garment/body placement.
     # Require upper-torso registration from the actual evaluated geometry.
     bpy.context.view_layer.update()
@@ -257,8 +261,16 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
     modifier=body.modifiers.new('SCENEBAM_FORMAL_CLOTHING_UNDERLAY','MASK')
     modifier.vertex_group=visible.name
     modifier.invert_vertex_group=False
+    # Exactly the same selected-garment discovery contract used by the
+    # original wardrobe in dressswap.py/garm.py. Do not create a second
+    # post-render wardrobe path. The single merged formal mesh is tagged so
+    # the shared pose fitter does not incorrectly treat it as a shirt without
+    # trousers. No changes are applied to the user-facing casual selections.
+    os.environ['DOBJ']=donor.name
+    os.environ['GARMS']=donor.name+'='+('ORIGINAL' if suit_hex=='ORIGINAL' else suit_hex)
     bpy.context.view_layer.update()
     return {'enabled':True,'variant':variant,'sourceFile':file.name,
+            'selectedGarment':donor.name,'nativeWardrobe':True,
             'restError':max_error,'garmentVertices':len(donor.data.vertices),
             'hiddenOriginalGarments':hidden,'materialsByRole':roles,
             'suitHex':suit_hex.upper(),'tieHex':tie_hex.upper(),
