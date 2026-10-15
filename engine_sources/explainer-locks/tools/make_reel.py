@@ -1216,12 +1216,23 @@ def sketch_entities(gwords, media):
         # native procedural objects whose literal meaning equals the source
         # noun. Unrecognized nouns continue to have an honest word carrier.
         primitive = {"pump": "PUMP", "tank": "TANK", "note": "CARD"}.get(phrase)
+        # An artist-reviewed taxonomy is visual metadata, NOT an action regex
+        # or a video-script exception. Draw a generic person only when the
+        # source explicitly names a human role, or a document only when a
+        # physical/documentary artifact is explicitly named. Ambiguous words
+        # retain literal typography rather than a misleading picture.
+        visual_classes = STYLES.get("sketch_visual_classes", {})
+        drawing_class = next((kind for kind, nouns in visual_classes.items()
+                              if phrase in nouns), None)
         ent = {"id": entity_id, "kind": "object",
-               "glyph": "TILE" if ref else (primitive or "PILL"),
+               "glyph": "TILE" if ref or (drawing_class and not primitive)
+                       else (primitive or "PILL"),
                "size": "hero" if not entities else "support",
                "label": phrase, "phrase": phrase}
         if ref:
             ent["asset_ref"] = ref
+        elif drawing_class and not primitive:
+            ent["params"] = {"visual_class": drawing_class}
         entities.append(ent)
         if len(entities) == 4:
             break
