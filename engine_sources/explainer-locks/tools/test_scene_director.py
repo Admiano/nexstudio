@@ -181,6 +181,28 @@ class SceneDirectorTests(unittest.TestCase):
         abstract = make_reel.sketch_entities(words("The model contains 5 categories."), [])
         self.assertFalse(any(e.get("params", {}).get("visual_class") == "population" for e in abstract))
 
+    def test_sketch_pictured_subject_takes_stage_not_untyped_filler(self):
+        for sentence in [
+            "Imagine 10,000 people tested for a rare condition.",
+            "Inside that enormous group of people, only 100 actually have the condition.",
+            "Yet 495 healthy people also test positive.",
+        ]:
+            with self.subTest(sentence=sentence):
+                beat = make_reel.sketch_beat(words(sentence), 0, 1, set(), [])
+                visual = beat["illustration"]["entities"]
+                self.assertEqual(len(visual), 1)
+                self.assertEqual(visual[0]["params"]["visual_class"], "population")
+                self.assertEqual(visual[0]["size"], "hero")
+                self.assertEqual(visual[0]["glyph"], "TILE")
+                self.assertEqual(beat["narration"], sentence)
+                BeatTreatment.parse(beat)
+        # Non-visual source nouns still work as faithful labelled actors in
+        # transfer chains, and explicit comparisons keep both endpoints.
+        action = make_reel.sketch_beat(
+            words("A pump feeds water into a tank."), 0, 1, set(), [])
+        self.assertEqual(action["illustration"]["form"], "PROCESS_PIPELINE")
+        BeatTreatment.parse(action)
+
     def test_existing_native_integration_reports_scene_choices(self):
         script = ("The service processed 40 requests. "
                   "Yet the service rejected 20 requests. "
