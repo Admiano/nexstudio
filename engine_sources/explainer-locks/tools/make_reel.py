@@ -1228,6 +1228,22 @@ def sketch_entities(gwords, media):
         # occurrence to a different object; source order determines staging.
         candidates = sorted(dict.fromkeys(canon),
                             key=lambda s: text.lower().find(s.lower()))
+    # Prefer exact, artist-reviewed visible subjects over incidental
+    # adjectives/adverbs. The fallback noun parser often picks "waiting",
+    # "same" or "safety" instead of an explicitly spoken role or document.
+    # This is entirely source-bound: no model guesses an unspoken actor.
+    reviewed = STYLES.get("sketch_visual_classes", {})
+    native_mentions = []
+    for drawing_class, nouns in reviewed.items():
+        for noun in nouns:
+            match = re.search(r"\\b" + re.escape(noun) + r"\\b", text, re.I)
+            if match:
+                native_mentions.append((match.start(), noun))
+    # Use recognized source nouns first, but maintain first-spoken order;
+    # remaining source terms are available for transport/payload semantics.
+    if native_mentions:
+        visual_priority = [noun for _, noun in sorted(native_mentions)]
+        candidates = list(dict.fromkeys(visual_priority + candidates))
     # Unrecognised nouns keep their source label rather than a guessed depiction.
     if not candidates:
         candidates = [w["text"] for w in gwords if word_key(w["text"]) in BANK]
