@@ -1250,7 +1250,7 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
             'beats': beats, 'captions': _captions(beats) if caption_policy == 'burned' else [],
-            'captions_policy': caption_policy,
+            'captions_policy': caption_policy, 'director_style': film.director_style,
             'show': ({'format': show_map['format'], 'subject': show_map['subject'],
                       'sections': [{'idx': i, 'name': n} for i, n in enumerate(show_map['sections'])],
                       'bands': show_bands(aspect)} if show_map is not None else None),
