@@ -200,6 +200,21 @@ class SketchAuthoringTests(unittest.TestCase):
         self.assertEqual(named.get("water"), "TILE")
         FilmTreatment.parse(author(text))
 
+    def test_two_node_connection_remains_visually_balanced_in_portrait(self):
+        film = author("The server connects to a database.")
+        beat = FilmTreatment.parse(film).beats[0]
+        self.assertEqual(beat.illustration.form, "RELATIONSHIP")
+        self.assertEqual([entity.size for entity in beat.illustration.entities], ["hero", "hero"])
+        portrait = IllustrationSolver(
+            "9x16", (1080, 1920), IllustrationRegistry(), {}, {},
+            "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
+        zone = {"x": 96, "y": 680, "w": 888, "h": 790}
+        entities, failures = portrait.layout(beat.illustration, zone, beat.beat_id)
+        self.assertFalse(failures)
+        areas = [e["art_bbox"]["w"] * e["art_bbox"]["h"] for e in entities]
+        self.assertEqual(len(areas), 2)
+        self.assertLess(max(areas) / max(1, min(areas)), 1.6)
+
     def test_native_solver_accepts_authored_forms_without_empty_satellites(self):
         solver = IllustrationSolver("16x9", (1920, 1080), IllustrationRegistry(), {}, {},
                                     "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
