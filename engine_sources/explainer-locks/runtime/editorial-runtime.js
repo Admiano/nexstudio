@@ -2719,6 +2719,21 @@
           break;
         }
       }
+
+      // A spoken delivery makes the receiving object react, rather than just
+      // decorating the connecting line. Applies only to source-authored flow.
+      if (ctx.directorStyle === 'sketch') {
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'flows_to' || relation.rel.target !== ent.id) continue;
+          const cue = relation.ops.find((op) => op.op === 'CONNECT');
+          if (!cue) continue;
+          const arrival = Math.max(cue.start_ms + 520, cue.end_ms + 160);
+          const receive = EASE.pulse(prog(lt, arrival - 110, arrival + 490));
+          scale *= 1 + receive * 0.075;
+          ty -= receive * Math.min(10, node.bb.h * 0.045);
+          break;
+        }
+      }
       // Directional entrance: a pop-entrance body also travels in from an
       // off-position seeded by its id — arrivals read as trajectories, not a
       // row of identical scale-ups.
@@ -3152,6 +3167,47 @@
       }
       return node;
     });
+
+    // A source-backed current figure fills the unused lower-left field.
+    // It is a figure, not duplicated transcript captions. Aspect-scoped:
+    // other aspect compositions and the four other styles remain unchanged.
+    const dataFocus = (() => {
+      if (plan.director_style !== 'dataviz' || plan.aspect !== '16x9' ||
+          !beat.illustration || !beat.composition || !beat.composition.text_zone) return null;
+      const chart = (beat.illustration.entities || []).find((e) => e.glyph === 'CHART_LINE');
+      if (!chart || !chart.params || !Array.isArray(chart.params.value_labels)) return null;
+      const labels = chart.params.value_labels;
+      const points = (beat.illustration.entities || []).filter((e) =>
+        /^point\d+$/.test(e.id) && e.label && e.label.text);
+      const cues = (beat.illustration.ops || []).filter((o) => o.op === 'GROW' &&
+        o.target === chart.id && Number.isInteger(o.params && o.params.point_index))
+        .sort((a, b) => a.start_ms - b.start_ms);
+      if (labels.length < 2 || labels.length !== points.length ||
+          cues.length !== labels.length || cues.some((cue, i) =>
+            cue.params.point_index !== i || !Number.isFinite(cue.start_ms))) return null;
+      const zone = beat.composition.text_zone;
+      const wrap = el('div', {
+        position: 'absolute', left: px(zone.x + 8), top: px(zone.y + zone.h * 0.70),
+        width: px(zone.w * 0.88), height: px(zone.h * 0.24), zIndex: '12',
+        pointerEvents: 'none', opacity: '0', transform: 'translateY(10px)',
+        willChange: 'opacity, transform',
+      }, root);
+      wrap.dataset.director = 'data-focus';
+      const period = el('div', {
+        fontFamily: '"' + plan.fonts.families.text + '"', fontWeight: '650',
+        fontSize: px(Math.min(22, zone.h * 0.045)), lineHeight: '1.1',
+        letterSpacing: '0.12em', color: bplan.brand.ink,
+        opacity: '0.56', textTransform: 'uppercase',
+      }, wrap);
+      const value = el('div', {
+        fontFamily: '"' + (plan.fonts.families.data || plan.fonts.families.text) + '"',
+        fontWeight: '750', fontSize: px(Math.min(108, zone.h * 0.20)),
+        lineHeight: '1.0', letterSpacing: '-0.055em',
+        color: bplan.brand.accent || bplan.brand.ink,
+        fontVariantNumeric: 'tabular-nums',
+      }, wrap);
+      return { wrap, period, value, cues, points, labels };
+    })();
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
@@ -3218,7 +3274,7 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, dataFocus, ctx, ready, index: beatIndex };
   }
 
   // Film-level camera. Every cut is a matched move the compiler chose from the beats on either
@@ -3292,6 +3348,27 @@
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
+    if (bn.dataFocus) {
+      const f = bn.dataFocus;
+      let active = -1;
+      for (let i = 0; i < f.cues.length; i++) {
+        if (lt >= f.cues[i].start_ms) active = i;
+      }
+      if (active < 0) {
+        f.wrap.style.opacity = '0';
+      } else {
+        const cue = f.cues[active], next = f.cues[active + 1];
+        const enter = EASE.outCubic(prog(lt, cue.start_ms - 45, cue.start_ms + 245));
+        const exit = next ? 1 - EASE.inCubic(prog(lt, next.start_ms - 130, next.start_ms + 25)) : 1;
+        const level = Math.max(0, Math.min(enter, exit)) * (stageFade == null ? 1 : stageFade);
+        f.period.textContent = f.points[active].label.text;
+        f.value.textContent = f.labels[active];
+        f.wrap.dataset.activeDatum = String(active);
+        f.wrap.style.opacity = level.toFixed(4);
+        f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
+      }
+    }
+
     if (bn.illustration) applyIllustrationState(bn.illustration, lt, bn.beat, bn.ctx);
     for (const t of bn.texts) applyTextState(t, lt, bn.beat, bn.ctx);
   }
