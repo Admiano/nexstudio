@@ -171,6 +171,20 @@ class SceneDirectorTests(unittest.TestCase):
                 self.assertEqual(" ".join(b["narration"] for b in treatment["beats"]), script)
                 FilmTreatment.parse(treatment)
 
+    def test_stat_callouts_extract_source_predicate_not_disclaimer(self):
+        for sentence, label in [
+            ("But only 99 of those are genuine.", "genuine"),
+            ("Yet just 12 of these are defective.", "defective"),
+            ("However only 6 of them are approved.", "approved"),
+        ]:
+            with self.subTest(sentence=sentence):
+                beat = data_beat(sentence, 0, 1)
+                self.assertEqual(beat["data_claim"]["quantities"][0]["label"], label)
+                counters = [e for e in beat["illustration"]["entities"] if e["glyph"] == "COUNTER"]
+                self.assertEqual(len(counters), 1)
+                self.assertEqual(counters[0]["params"]["caption"], label)
+                BeatTreatment.parse(beat)
+
     def test_no_invented_numeric_direction_or_percentage(self):
         beats = [data_beat("The depot moved 50 parcels.", 0, 2),
                  data_beat("But the depot moved 30 parcels.", 1, 2)]
