@@ -1908,13 +1908,33 @@
           // factual claim about who the person is.
           svgEl('circle', { cx: f2(cx), cy: f2(top + u * 0.44),
             r: f2(u * 0.40), fill: accent, 'fill-opacity': '0.075' }, portrait);
-          const head = svgEl('circle', { cx: f2(cx), cy: f2(headY),
-            r: f2(headR), fill: paper, stroke: ink,
-            'stroke-width': f2(sw * 1.6) }, portrait);
+          const head = svgEl('ellipse', { cx: f2(cx), cy: f2(headY),
+            rx: f2(headR * 0.94), ry: f2(headR * 1.08),
+            fill: paper, stroke: ink, 'stroke-width': f2(sw * 1.6) }, portrait);
           node.outline.push(drawable(head, 2 * Math.PI * headR));
+          // Minimal but genuinely expressive human features, never a
+          // guessed demographic: neutral gaze, brows and a small listening
+          // expression. Stroke structure is consistent with the full figure.
+          const eyeY = headY - headR * .065;
+          for (const side of [-1, 1]) {
+            svgEl('circle', { cx:f2(cx + side * headR*.37),
+              cy:f2(eyeY), r:f2(Math.max(1.6,sw*.55)),
+              fill:ink,'data-drawing':'source-eye' },portrait);
+            svgEl('path',{ d:polyPath([[cx+side*headR*.24,eyeY-headR*.25],
+              [cx+side*headR*.50,eyeY-headR*.28]]),
+              fill:'none', stroke:ink, 'stroke-width':sw*.52,
+              'stroke-linecap':'round' },portrait);
+          }
+          const expression = svgEl('path', { d:
+            `M${f2(cx-headR*.23)} ${f2(headY+headR*.45)}
+              Q${f2(cx)} ${f2(headY+headR*.60)}
+               ${f2(cx+headR*.23)} ${f2(headY+headR*.45)}`,
+            fill:'none',stroke:ink,'stroke-width':sw*.52,
+            'stroke-linecap':'round' },portrait);
+          node.outline.push(drawable(expression,headR*.50));
           // Jacket-free universal anatomical block: shoulder/torso is a
           // recognizable editorial silhouette without any costume inference.
-          const torso = svgEl('path', { fill: paper, stroke: ink,
+          const torso = svgEl('path', { fill: mixColor(paper, accent, 0.10), stroke: ink,
             'stroke-width': f2(sw * 1.65), 'stroke-linejoin': 'round',
             d: `M${f2(cx - shoulder)} ${f2(shoulderY + u * .075)}
                 Q${f2(cx - shoulder * .89)} ${f2(shoulderY)}
@@ -1926,6 +1946,15 @@
                 Q${f2(cx)} ${f2(hipY + u * .04)}
                   ${f2(cx - hip)} ${f2(hipY)}Z` }, portrait);
           node.outline.push(drawable(torso, u * 2.1));
+          const garment = svgEl('path', { fill:'none', stroke:ink,
+            'stroke-width':sw*.65, 'stroke-opacity':.38,
+            d:`M${f2(cx-u*.085)} ${f2(shoulderY-u*.022)}
+               Q${f2(cx)} ${f2(shoulderY+u*.10)}
+                ${f2(cx+u*.085)} ${f2(shoulderY-u*.022)}
+               M${f2(cx-u*.11)} ${f2(hipY-u*.075)}
+               Q${f2(cx)} ${f2(hipY-u*.052)}
+                ${f2(cx+u*.11)} ${f2(hipY-u*.075)}` },portrait);
+          node.outline.push(drawable(garment, u*.54));
           const limbs = [
             // Legs are grounded in an actual baseline and remain modest in
             // height across square, landscape and portrait.
@@ -1946,6 +1975,15 @@
           const toward = linked && linked.bbox
             ? Math.sign(centre(linked.bbox).x - cx) : 1;
           const rightSide = toward >= 0 ? 1 : -1;
+          // Rounded limbs, small hands and grounded feet make a body feel
+          // deliberately drawn rather than a wire-frame icon. No profession,
+          // age, race, uniform or other unsupported trait is inferred.
+          for (const side of [-1,1]) {
+            const fx = cx + side*u*.105, fy = footY;
+            svgEl('ellipse', { cx:f2(fx+side*u*.025), cy:f2(fy+sw*.45),
+              rx:f2(u*.069), ry:f2(Math.max(sw*.86,u*.019)),
+              fill:ink },portrait);
+          }
           const actionArm = svgEl('g', { 'data-drawing': 'source-gesture' }, portrait);
           const armBase = [cx + shoulder * rightSide, shoulderY + u * .09];
           const armEnd = [cx + u * .30 * rightSide, top + u * .54];
@@ -1956,6 +1994,9 @@
             stroke: ink, 'stroke-width': f2(sw * 1.85),
             'stroke-linecap': 'round' }, actionArm);
           node.outline.push(drawable(gesture, u * .31));
+          svgEl('ellipse', { cx:f2(armEnd[0]), cy:f2(armEnd[1]),
+            rx:f2(sw*.96), ry:f2(sw*.88), fill:paper,
+            stroke:ink,'stroke-width':f2(sw*.85)},actionArm);
           const quietArm = svgEl('path', { fill: 'none',
             d: `M${f2(cx - shoulder * rightSide)} ${f2(shoulderY + u * .09)}
                 Q${f2(cx - u*.28*rightSide)} ${f2(top + u*.53)}
@@ -1963,6 +2004,10 @@
             stroke: ink, 'stroke-width': f2(sw * 1.65),
             'stroke-linecap': 'round' }, portrait);
           node.outline.push(drawable(quietArm, u * .36));
+          const restingHand = [cx-u*.185*rightSide,top+u*.65];
+          svgEl('ellipse',{cx:f2(restingHand[0]),cy:f2(restingHand[1]),
+            rx:f2(sw*.86),ry:f2(sw*.74),fill:paper,
+            stroke:ink,'stroke-width':f2(sw*.75)},portrait);
           const baseline = svgEl('path', { ...line,
             d: polyPath([[cx - u*.21, footY + sw * 1.7],
                          [cx + u*.21, footY + sw * 1.7]]),
