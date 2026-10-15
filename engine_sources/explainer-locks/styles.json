@@ -6575,6 +6575,7 @@
     "₿": "bitcoin"
   },
   "sketch_visual_classes": {
+    "population": ["people", "crowd", "population", "audience", "villagers", "residents", "citizens", "volunteers", "patients", "customers", "workers", "participants"],
     "person": [
       "teacher",
       "student",
