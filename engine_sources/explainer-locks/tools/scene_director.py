@@ -228,10 +228,6 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             beat["pattern"] = "OBJECT_LED_TRANSITION"
         elif family == "editorial_reveal":
             beat["pattern"] = "PROGRESSIVE_HERO_BUILD"
-        # Carry is a first-class native property. Avoid severing visual memory
-        # with a compulsory hard cut when the compiler explicitly carries it.
-        if i and (beat.get("illustration") or {}).get("carry"):
-            beats[i-1].pop("cut", None)
         if family == "evidence_bridge" and i:
             _bridge(beats[i-1], beat)
         entries.append({
