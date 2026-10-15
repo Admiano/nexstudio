@@ -295,10 +295,22 @@ class BeatCompiler:
                        'y': max(native_zone['y'], self.safe['y']),
                        'w': zx2 - max(native_zone['x'], self.safe['x']),
                        'h': zy2 - max(native_zone['y'], self.safe['y'])}
+        # Data Viz TREND is a sequential spoken story, not five simultaneous
+        # dashboard paragraphs. Compiler and runtime share the source-word
+        # ownership; only one clause can inhabit the editorial headline slot.
+        # The actual chart owns the remaining native composition, and every
+        # refit still passes the normal text floor and safe-frame checks.
+        voice_story = (self.film.director_style == 'dataviz' and
+                       self.aspect == '16x9' and b.illustration is not None and
+                       any(e.glyph == 'CHART_LINE' for e in b.illustration.entities) and
+                       self.film.caption_policy == 'kinetic')
         blocks: List[Dict[str, Any]] = []
         grown: List[int] = []
         for blk in perf['text_blocks']:
-            bbox = _remap(blk['bbox'], ktp_zone, native_zone)
+            bbox = (_box(native_zone['x'] + native_zone['w'] * 0.04,
+                         native_zone['y'] + native_zone['h'] * 0.06,
+                         native_zone['w'] * 0.92, native_zone['h'] * 0.88)
+                    if voice_story else _remap(blk['bbox'], ktp_zone, native_zone))
             # Edge-crop heroes may reach the safe edge but never leave the safe frame.
             bbox['x'] = max(self.safe['x'], bbox['x'])
             bbox['w'] = min(bbox['w'], self.safe['x'] + self.safe['w'] - bbox['x'])
@@ -315,13 +327,14 @@ class BeatCompiler:
         def _others(k: int) -> List[Dict[str, float]]:
             rg = b.units[blocks[k]['unit_index']].replace_group
             return [bl['bbox'] for j, bl in enumerate(blocks) if j != k and not (rg and b.units[bl['unit_index']].replace_group == rg)]
-        for gi in grown:
+        for gi in ([] if voice_story else grown):
             blocks[gi]['bbox'] = _nudge_clear(blocks[gi]['bbox'], _others(gi), native_zone)
             # If the grown block has nowhere to go, the neighbour it hits may have the slack instead.
             for j, bl in enumerate(blocks):
                 if j != gi and _overlap(bl['bbox'], blocks[gi]['bbox']) > 0:
                     blocks[j]['bbox'] = _nudge_clear(bl['bbox'], _others(j), native_zone)
-        self._stack_in_narration_order(b, blocks, self.safe)
+        if not voice_story:
+            self._stack_in_narration_order(b, blocks, self.safe)
         if comp.get('typography_hints', {}).get('text_align') == 'center':
             # Centred lockup: every block sits on the zone's vertical axis and sets its lines centred.
             lo = max(native_zone['x'], self.safe['x'])
@@ -346,6 +359,12 @@ class BeatCompiler:
         for i in range(len(blocks)):
             for j in range(i + 1, len(blocks)):
                 ui, uj = b.units[blocks[i]['unit_index']], b.units[blocks[j]['unit_index']]
+                if voice_story:
+                    # These authored clauses have disjoint, chronological
+                    # word ranges and the runtime enforces a complete exit
+                    # before the next incoming word. Static box overlap is
+                    # intentional frame-by-frame replacement, not collision.
+                    continue
                 if ui.replace_group and ui.replace_group == uj.replace_group:
                     continue
                 if _overlap(blocks[i]['bbox'], blocks[j]['bbox']) > 0:
@@ -686,6 +705,26 @@ class BeatCompiler:
         # time. Reclaim that area for the evidence without shrinking text or
         # stretching a landscape layout. All coordinates derive from the safe
         # frame for THIS aspect, and this never affects the other styles.
+        if (self.film.director_style == 'dataviz' and self.aspect == '16x9' and
+                b.illustration and any(e.glyph == 'CHART_LINE'
+                                       for e in b.illustration.entities)):
+            # A chart-led landscape film: one source-exact narrated thought
+            # occupies a full-width headline at a time, while the graph gets
+            # the width of the story. The original side-by-side layout forced
+            # five temporary clauses to reserve simultaneous text space and
+            # made the actual chart smaller than the headline.
+            field = self.safe
+            text_h = field['h'] * 0.29
+            gap = max(15, field['h'] * 0.036)
+            vis_x = max(self.frame['x'], field['x'] + field['w'] * 0.016)
+            vis_right = min(self.frame['x'] + self.frame['w'],
+                            field['x'] + field['w'] * 0.984)
+            vis_y = field['y'] + text_h + gap
+            vis_bottom = min(self.frame['y'] + self.frame['h'], field['y'] + field['h'])
+            comp['text_zone'] = _box(field['x'], field['y'],
+                                     field['w'], text_h)
+            comp['visual_zone'] = _box(vis_x, vis_y, vis_right - vis_x,
+                                       vis_bottom - vis_y)
         if self.film.director_style == 'dataviz' and self.aspect in ('9x16', '1x1') and b.illustration:
             # Native profile exposes safe_area as [left, top, right, bottom];
             # self.safe is the corresponding x/y/w/h box in actual canvas units.
