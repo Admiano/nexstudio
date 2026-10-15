@@ -1257,7 +1257,13 @@ def sketch_entities(gwords, media):
                        else (primitive or "PILL"),
                "size": "hero" if not entities else "support",
                "label": phrase, "phrase": phrase}
-        if ref:
+        if drawing_class == "population":
+            # The exact plural noun licenses a real representative group.
+            # A registered generic 'people' icon must not mask the reviewed
+            # source population illustration. This is an art-choice, not a
+            # change to the source count or inferred human attributes.
+            ent["params"] = {"visual_class": drawing_class}
+        elif ref:
             ent["asset_ref"] = ref
         elif drawing_class and not primitive:
             ent["params"] = {"visual_class": drawing_class}
