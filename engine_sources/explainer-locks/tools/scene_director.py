@@ -93,6 +93,12 @@ def _subset_eligible(prev: dict, current: dict) -> bool:
     ratio = part / whole
     if not Decimal(".005") <= ratio <= Decimal(".75"):
         return False
+    # Comparing coffee sales with muffin sales is NOT a part/whole inference,
+    # even when both sentences mention the same shop. Require the explicitly
+    # counted population noun to recur inside the proposed subset scene.
+    counted_nouns = _terms(str(a.get("label") or ""))
+    if not counted_nouns or not (counted_nouns & _terms(narration)):
+        return False
     return bool(_terms(prev["narration"]) & _terms(narration))
 
 
