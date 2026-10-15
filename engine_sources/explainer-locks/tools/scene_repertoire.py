@@ -33,8 +33,13 @@ EXECUTABLE_SCENES = {
 
 
 def _glyph(id: str, glyph: str, params: dict | None = None, label: str = "") -> dict:
+    params = dict(params or {})
+    # Large open editorial fields, not the old small glossy dashboard tiles.
+    # The renderer and geometry solver honour this execution directive.
+    if glyph in ("DATA_BARS", "DATA_TABLE", "TIMELINE", "FLOW_STEPS", "VS_CARDS", "PROGRESS"):
+        params["editorial_field"] = True
     out = {"id": id, "kind": "evidence", "glyph": glyph, "size": "hero",
-           "params": params or {}}
+           "params": params}
     if label:
         out["label"] = label
     return out
