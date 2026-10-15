@@ -149,6 +149,26 @@ class DataVizAuthoringTests(unittest.TestCase):
                 op["params"]["word_index"] + op["params"]["word_span"] - 1].end_ms
                 for op in cue))
 
+    def test_five_and_six_observation_trends_keep_each_source_value(self):
+        for years, values in (
+            ([2021, 2022, 2024, 2025, 2026], [10, 40, 20, 35, 30]),
+            ([2020, 2021, 2022, 2024, 2025, 2026], [5, 10, 30, 15, 25, 20]),
+        ):
+            text = " ".join(f"In {year} orchard visits were {value}."
+                            for year, value in zip(years, values))
+            with self.subTest(years=years):
+                beat = authored(text)
+                self.assertEqual(beat["data_claim"]["kind"], "TREND")
+                picture = beat["illustration"]
+                chart = next(e for e in picture["entities"] if e["glyph"] == "CHART_LINE")
+                self.assertEqual(chart["params"]["value_labels"], list(map(str, values)))
+                self.assertEqual(chart["params"]["x_positions"], [
+                    (year - years[0]) / (years[-1] - years[0]) for year in years])
+                self.assertEqual(len(picture["entities"]), len(years) + 1)
+                self.assertEqual(len([op for op in picture["program"] if op["op"] == "GROW"]), len(years))
+                self.assertLessEqual(len(picture["program"]), 10)
+                BeatTreatment.parse(beat)
+
     def test_trend_annotations_are_source_values_not_pill_buttons(self):
         beat = authored("In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
