@@ -437,7 +437,16 @@
     // clause. Suppress visual accumulation without altering the continuous voice.
     // Applies ONLY to on-canvas Data Viz (not existing collage or other styles).
     if (ctx.voiceSequence && typeof node.directorExitMs === 'number') {
-      const fade = EASE.inOutCubic(prog(lt, node.directorExitMs - 190, node.directorExitMs + 90));
+      const chartLed = ctx.directorStyle === 'dataviz' &&
+        beat.illustration && beat.illustration.entities &&
+        beat.illustration.entities.some(e => e.glyph === 'CHART_LINE') &&
+        beat.composition.visual_zone.w >= ctx.canvas.w * 0.65;
+      // A single editorial headline slot is genuinely exclusive: clear the
+      // previous spoken clause BEFORE the next words enter. The older
+      // side-by-side data styles keep their established soft crossfade.
+      const fade = EASE.inOutCubic(prog(lt,
+        node.directorExitMs - (chartLed ? 230 : 190),
+        node.directorExitMs + (chartLed ? -12 : 90)));
       opacity *= 1 - fade;
       ty -= fade * em * 0.12;
       if (fade >= 1) w.visibility = 'hidden';
@@ -1547,13 +1556,18 @@
         break;
       }
       case 'CHART_LINE': {
+        const chartLed = plan.director_style === 'dataviz' &&
+          plan.aspect === '16x9' && b.w >= plan.canvas.w * 0.65;
+        // Larger annotation floor needs real vertical breathing room: this
+        // alters no values or relative source chronology, only plot padding.
+        const plotHeight = chartLed ? 0.82 : 0.9;
         const pts = (params.points || [0.2, 0.8]).map((v, i, arr) =>
           [b.x + (params.x_positions ? params.x_positions[i] : i / (arr.length - 1)) * b.w,
-           b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
+           b.y + b.h - clamp(v, 0, 1) * b.h * plotHeight]);
         // Hairline guides make the graph readable without introducing invented
         // axis units. Values and their scale come exclusively from source data.
         for (const pct of [0, 0.5, 1]) {
-          const yy = b.y + b.h - pct * b.h * 0.9;
+          const yy = b.y + b.h - pct * b.h * plotHeight;
           svgEl('path', { ...line, d: polyPath([[b.x, yy], [b.x + b.w, yy]]),
             stroke: ink, 'stroke-width': pct === 0 ? sw * 0.62 : sw * 0.44,
             'stroke-opacity': pct === 0 ? 0.35 : 0.10 }, g);
@@ -1574,7 +1588,9 @@
           const label = svgEl('text', {
             x: f2(pts[i][0]), y: f2(pts[i][1] - Math.max(sw * 5, 19)),
             'text-anchor': 'middle', fill: ink, 'fill-opacity': 0,
-            'font-size': f2(Math.min(b.w / 14, sw * 5.1)),
+            'font-size': f2(chartLed
+              ? Math.min(42, Math.max(23, Math.min(b.w * 0.043, b.h * 0.10)))
+              : Math.min(b.w / 14, sw * 5.1)),
             'font-family': plan.fonts.families.data || plan.fonts.families.text,
             'font-weight': 700, 'data-source-value': String(i),
           }, g);
