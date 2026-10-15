@@ -332,6 +332,31 @@ class SketchAuthoringTests(unittest.TestCase):
                     self.assertLess(abs(origin["w"] - recipient["w"]),
                                     0.15 * max(origin["w"], recipient["w"]))
 
+    def test_source_checked_visual_classes_produce_real_art_without_type_hallucinations(self):
+        # A class describes the type of picture that can be drawn, not a
+        # language-specific action, source script, or an invented costume.
+        for script, types in (
+            ("A teacher forwards a worksheet to a student.",
+             {"teacher": "person", "worksheet": "document", "student": "person"}),
+            ("A courier delivers an invoice to a customer.",
+             {"courier": "person", "invoice": "document", "customer": "person"}),
+            ("A doctor sends a report to a nurse.",
+             {"doctor": "person", "report": "document", "nurse": "person"}),
+        ):
+            with self.subTest(script=script):
+                scene = author(script)["beats"][0]["illustration"]
+                actual = {e["phrase"]: e.get("params", {}).get("visual_class")
+                          for e in scene["entities"]}
+                self.assertEqual(actual, types)
+                self.assertTrue(all(e["glyph"] == "TILE" for e in scene["entities"]))
+                FilmTreatment.parse(author(script))
+        # A machine sending a digital signal does NOT acquire fake arms or
+        # a made-up paper document. Unknowns fail closed to genuine text.
+        scene = author("A server sends a signal to a router.")["beats"][0]["illustration"]
+        self.assertFalse(any(e.get("params", {}).get("visual_class")
+                             for e in scene["entities"]))
+        FilmTreatment.parse(author("A server sends a signal to a router."))
+
     def test_typed_transfer_handles_unseen_nouns_and_verbs_without_word_whitelists(self):
         scenes = (
             ("A courier delivers an invoice to a customer.", "courier", "invoice", "customer"),
