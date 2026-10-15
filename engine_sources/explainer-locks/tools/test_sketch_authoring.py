@@ -345,10 +345,19 @@ class SketchAuthoringTests(unittest.TestCase):
         ):
             with self.subTest(script=script):
                 scene = author(script)["beats"][0]["illustration"]
-                actual = {e["phrase"]: e.get("params", {}).get("visual_class")
-                          for e in scene["entities"]}
-                self.assertEqual(actual, types)
-                self.assertTrue(all(e["glyph"] == "TILE" for e in scene["entities"]))
+                actual = {e["phrase"]: e for e in scene["entities"]}
+                self.assertEqual(set(actual), set(types))
+                for phrase, expected in types.items():
+                    entity = actual[phrase]
+                    self.assertEqual(entity["glyph"], "TILE")
+                    if entity.get("asset_ref"):
+                        # Prefer a licensed exact-literal illustration over
+                        # a generic artist-drawn class where it exists.
+                        self.assertEqual(entity["asset_ref"].rsplit(".", 1)[-1],
+                                         phrase)
+                    else:
+                        self.assertEqual(entity.get("params", {}).get("visual_class"),
+                                         expected)
                 FilmTreatment.parse(author(script))
         # A machine sending a digital signal does NOT acquire fake arms or
         # a made-up paper document. Unknowns fail closed to genuine text.
