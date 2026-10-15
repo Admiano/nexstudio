@@ -2414,6 +2414,63 @@
       const blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-${ent.id}`);
       ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt, blur });
     }
+    // A source-typed three-party delivery is a single handoff, not two
+    // independent dotted connection diagrams. Its travel line is drawn on
+    // real sender/payload/recipient geometry, behind all three source nodes.
+    // No invented entities, pictograms or unspoken destination are added.
+    const handoffs = [];
+    if (plan.director_style === 'sketch') {
+      for (const cargo of ents.values()) {
+        if (!cargo.ent.params || cargo.ent.params.narrative_role !== 'transferred_payload') continue;
+        const incoming = il.relations.find((rel) =>
+          rel.type === 'flows_to' && rel.target === cargo.ent.id);
+        const outgoing = il.relations.find((rel) =>
+          rel.type === 'flows_to' && rel.source === cargo.ent.id);
+        if (!incoming || !outgoing) continue;
+        const sender = ents.get(incoming.source), recipient = ents.get(outgoing.target);
+        const receive = (opsFor.get(incoming.id) || []).find((o) => o.op === 'CONNECT');
+        const delivery = (opsFor.get(outgoing.id) || []).find((o) => o.op === 'CONNECT');
+        if (!sender || !recipient || !receive || !delivery ||
+            delivery.start_ms <= receive.start_ms) continue;
+        const geo = sketchHandoffGeometry(sender, cargo, recipient, sw);
+        const route = svgEl('path', {
+          d: 'M' + f2(geo.origin.x) + ' ' + f2(geo.origin.y) +
+            ' Q' + f2((geo.origin.x + geo.stop.x) / 2) + ' ' +
+              f2((geo.origin.y + geo.stop.y) / 2 - geo.bow * 2) +
+            ' ' + f2(geo.stop.x) + ' ' + f2(geo.stop.y),
+          fill: 'none', stroke: accent, 'stroke-width': f2(sw * 1.25),
+          'stroke-linecap': 'round', 'data-action': 'source-handoff-trajectory',
+        }, relLayer);
+        const approx = Math.hypot(geo.stop.x - geo.origin.x,
+          geo.stop.y - geo.origin.y) * 1.03;
+        route.style.strokeDasharray = f2(approx + sw * 3);
+        const receipt = svgEl('circle', {
+          cx: f2(geo.to.x), cy: f2(geo.to.y),
+          r: f2(Math.min(recipient.bb.w, recipient.bb.h) * 0.5 + sw * 1.5),
+          fill: 'none', stroke: accent, 'stroke-width': f2(sw * 0.9),
+          'data-action': 'source-receiver-receipt',
+        }, relLayer);
+        receipt.style.opacity = '0';
+        // Editorial role annotations come from the relation itself; they do
+        // not purport to be literal pictograms of unspecified people.
+        for (const [actor, role] of [[sender, 'FROM'], [recipient, 'TO']]) {
+          const t = svgEl('text', {
+            x: f2(actor.bb.x + actor.bb.w / 2),
+            y: f2(actor.bb.y - sw * 4.0),
+            'text-anchor': 'middle', fill: ink,
+            'font-size': f2(Math.max(sw * 2.9, 14)),
+            'font-weight': 650,
+            'font-family': plan.fonts.families.text,
+            'letter-spacing': f2(sw * 0.30),
+            'data-action': 'source-transfer-role',
+          }, relLayer);
+          t.textContent = role;
+          t.style.opacity = '0';
+          handoffs.push({ roleLabel: t, actor, cue: role === 'FROM' ? receive : delivery });
+        }
+        handoffs.push({ cargo, sender, recipient, receive, delivery, route, receipt, length: approx, geo });
+      }
+    }
     // A directional comparison is an authored argument, never decorative
     // chart furniture. The two literal measured values and an explicitly
     // supported up/down verb must agree before the compiler emits this cue.
@@ -2566,7 +2623,8 @@
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
     }
-    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, ready: Promise.all(ready) };
+    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, handoffs,
+      ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -2698,6 +2756,28 @@
     return null;
   }
 
+  // The same source-bound geometry drives the flying object, its ink trail and
+  // its reception marker. Coordinates derive from native layout, not noun lists
+  // or one showcase script. All regions stay inside their illustration field.
+  function sketchHandoffGeometry(sender, cargo, recipient, sw) {
+    const from = centre(sender.bb), home = centre(cargo.bb), to = centre(recipient.bb);
+    const dx = to.x - home.x, dy = to.y - home.y;
+    const horizontal = Math.abs(dx) >= Math.abs(dy);
+    const margin = sw * 2.2;
+    const stop = horizontal
+      ? { x: to.x - Math.sign(dx) * ((recipient.bb.w + cargo.bb.w) / 2 + margin),
+          y: to.y }
+      : { x: to.x,
+          y: to.y - Math.sign(dy) * ((recipient.bb.h + cargo.bb.h) / 2 + margin) };
+    const origin = {
+      x: home.x + (from.x - home.x) * 0.74,
+      y: home.y + (from.y - home.y) * 0.74,
+    };
+    const travel = Math.hypot(stop.x - origin.x, stop.y - origin.y);
+    const bow = Math.min(cargo.bb.h * 0.12, travel * 0.06);
+    return { from, home, to, stop, origin, bow };
+  }
+
   function sketchTransformClock(beat, target, cue) {
     const begin = cue.start_ms;
     const named = sketchSpokenEntity(beat, target, begin);
@@ -2786,8 +2866,8 @@
           const recipient = outgoing && ill.ents.get(outgoing.rel.target);
           if (receive && deliver && sender && recipient &&
               deliver.start_ms > receive.start_ms) {
-            const self = centre(node.bb), origin = centre(sender.bb);
-            const destination = centre(recipient.bb);
+            const geometry = sketchHandoffGeometry(sender, node, recipient, ill.sw);
+            const self = geometry.home, origin = geometry.from;
             const firstEnd = Math.max(receive.end_ms,
               Math.min(deliver.start_ms, receive.start_ms +
                 Math.max(120, receive.end_ms - receive.start_ms)));
@@ -2796,24 +2876,13 @@
               receiverWord ? receiverWord.start_ms : deliver.start_ms + 120);
             const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
             const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
-            // Finish at the *edge* of the narrated recipient, never in its
-            // caption. Keep the same source-named payload on stage afterwards;
-            // permanently erasing it is a false visual claim of disappearance.
-            const dx = destination.x - self.x, dy = destination.y - self.y;
-            const horizontal = Math.abs(dx) >= Math.abs(dy);
-            const margin = ill.sw * 2.2;
-            const stop = horizontal
-              ? { x: destination.x - Math.sign(dx) *
-                    ((recipient.bb.w + node.bb.w) / 2 + margin),
-                  y: destination.y }
-              : { x: destination.x,
-                  y: destination.y - Math.sign(dy) *
-                    ((recipient.bb.h + node.bb.h) / 2 + margin) };
-            tx += (origin.x - self.x) * 0.74 * (1 - emerge) +
-              (stop.x - self.x) * delivered;
-            ty += (origin.y - self.y) * 0.74 * (1 - emerge) +
-              (stop.y - self.y) * delivered -
-              Math.sin(Math.PI * delivered) * node.bb.h * 0.12;
+            // Settle at the same geometrically bounded endpoint as the
+            // drawn source-authoritative route. The voice controls arrival.
+            tx += (geometry.origin.x - self.x) * (1 - emerge) +
+              (geometry.stop.x - self.x) * delivered;
+            ty += (geometry.origin.y - self.y) * (1 - emerge) +
+              (geometry.stop.y - self.y) * delivered -
+              Math.sin(Math.PI * delivered) * geometry.bow;
             scale *= (0.57 + 0.43 * emerge) * (1 - 0.12 * delivered);
             const visible = EASE.outCubic(prog(lt, receive.start_ms - 40, receive.start_ms + 150));
             opacity *= visible;
@@ -3192,6 +3261,32 @@
         if (node.media) node.media.frame.style.visibility = 'hidden';
       }
     }
+    // The single source->cargo->recipient performance is evaluated directly
+    // from narration cues. It is seek-safe and contains no per-script timing.
+    for (const handoff of ill.handoffs || []) {
+      if (handoff.roleLabel) {
+        const entered = EASE.outCubic(prog(lt, handoff.cue.start_ms,
+          handoff.cue.end_ms));
+        handoff.roleLabel.style.opacity = (0.55 * entered).toFixed(4);
+        continue;
+      }
+      const { delivery, route, receipt, geo } = handoff;
+      const named = sketchSpokenEntity(beat, handoff.recipient, delivery.start_ms);
+      const finish = Math.max(delivery.end_ms,
+        named ? named.start_ms : delivery.start_ms + 120);
+      const progress = EASE.inOutCubic(prog(lt, delivery.start_ms, finish));
+      const inkProgress = progress;
+      const total = handoff.length + ill.sw * 3;
+      route.style.strokeDashoffset = f2(total * (1 - inkProgress));
+      route.style.opacity = (0.20 + inkProgress * 0.48).toFixed(4);
+      if (lt < delivery.start_ms) route.style.opacity = '0';
+      const response = EASE.pulse(prog(lt, finish - 0.15 * (finish - delivery.start_ms),
+        finish + Math.max(120, delivery.end_ms - delivery.start_ms)));
+      receipt.style.opacity = (0.48 * response).toFixed(4);
+      receipt.setAttribute('r', f2((Math.min(handoff.recipient.bb.w,
+        handoff.recipient.bb.h) * 0.48 + ill.sw * 1.7) *
+        (1 + response * 0.10)));
+    }
     // A source-verified change arrow follows the second actual bar value.
     // It cannot show while only the baseline has been mentioned.
     if (ill.comparisonCue) {
@@ -3221,6 +3316,13 @@
       // the weaker endpoint's presence.
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
       if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
+      if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to' &&
+          (endA && endA.ent.params && endA.ent.params.narrative_role === 'transferred_payload' ||
+           endB && endB.ent.params && endB.ent.params.narrative_role === 'transferred_payload')) {
+        // Typed handoffs have a single authoritatively drawn travel route;
+        // suppress old doubled dotted connectors, not unrelated flow links.
+        opacity = 0;
+      }
       if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to') {
         // A transfer edge belongs to its source-authored payload. Once that
         // payload is absorbed by the receiving body, neither incoming nor
@@ -3724,10 +3826,12 @@
       if (pending >= 0 && pending > active) {
         const begin = f.periodCues[pending];
         const enter = EASE.outCubic(prog(lt, begin, begin + 245));
-        f.period.textContent = '';
-        f.value.textContent = f.points[pending].label.text.toUpperCase();
+        // A year is an axis category, NOT the measurement. Never display it
+        // at the same huge size as the next yet-unspoken value.
+        f.period.textContent = f.points[pending].label.text.toUpperCase();
+        f.value.textContent = '';
         f.value.style.color = f.idleColor;
-        f.value.style.fontSize = px(f.valueSize * 0.77);
+        f.value.style.fontSize = px(f.valueSize);
         f.wrap.dataset.activeDatum = 'period-' + pending;
         f.wrap.style.opacity = (enter * (stageFade == null ? 1 : stageFade)).toFixed(4);
         f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
