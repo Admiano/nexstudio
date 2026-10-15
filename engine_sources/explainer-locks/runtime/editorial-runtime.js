@@ -1892,6 +1892,129 @@
             'stroke-width': sw * 0.55, 'stroke-opacity': 0.55 }, body);
           node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         }
+        // Artist-authored, role-neutral procedural ink illustration. Source
+        // nouns are typed by a reviewed ontology; an unknown or ambiguous
+        // noun NEVER gets a guessed person or document. The art itself is
+        // generic (no invented age, gender, uniforms, branded paperwork).
+        if (isIllustrated && params.visual_class === 'person') {
+          const u = Math.min(b.w, b.h);
+          const cx = b.x + b.w * 0.5, top = b.y + b.h * 0.045;
+          const headR = u * 0.108, headY = top + u * 0.17;
+          const shoulderY = top + u * 0.36;
+          const hipY = top + u * 0.66, footY = top + u * 0.91;
+          const shoulder = u * 0.195, hip = u * 0.137;
+          const portrait = svgEl('g', { 'data-drawing': 'source-person' }, g);
+          // A soft disc reads as the artist's print register; it contains no
+          // factual claim about who the person is.
+          svgEl('circle', { cx: f2(cx), cy: f2(top + u * 0.44),
+            r: f2(u * 0.40), fill: accent, 'fill-opacity': '0.075' }, portrait);
+          const head = svgEl('circle', { cx: f2(cx), cy: f2(headY),
+            r: f2(headR), fill: paper, stroke: ink,
+            'stroke-width': f2(sw * 1.6) }, portrait);
+          node.outline.push(drawable(head, 2 * Math.PI * headR));
+          // Jacket-free universal anatomical block: shoulder/torso is a
+          // recognizable editorial silhouette without any costume inference.
+          const torso = svgEl('path', { fill: paper, stroke: ink,
+            'stroke-width': f2(sw * 1.65), 'stroke-linejoin': 'round',
+            d: `M${f2(cx - shoulder)} ${f2(shoulderY + u * .075)}
+                Q${f2(cx - shoulder * .89)} ${f2(shoulderY)}
+                  ${f2(cx - u * .085)} ${f2(shoulderY - u * .025)}
+                L${f2(cx + u * .085)} ${f2(shoulderY - u * .025)}
+                Q${f2(cx + shoulder * .89)} ${f2(shoulderY)}
+                  ${f2(cx + shoulder)} ${f2(shoulderY + u * .075)}
+                L${f2(cx + hip)} ${f2(hipY)}
+                Q${f2(cx)} ${f2(hipY + u * .04)}
+                  ${f2(cx - hip)} ${f2(hipY)}Z` }, portrait);
+          node.outline.push(drawable(torso, u * 2.1));
+          const limbs = [
+            // Legs are grounded in an actual baseline and remain modest in
+            // height across square, landscape and portrait.
+            [[cx - u*.082, hipY + u*.016], [cx - u*.105, footY]],
+            [[cx + u*.082, hipY + u*.016], [cx + u*.105, footY]],
+          ];
+          for (const pts of limbs) {
+            const limb = svgEl('path', { ...line, d: polyPath(pts),
+              'stroke-width': sw * 1.7 }, portrait);
+            node.outline.push(drawable(limb, polyLength(pts)));
+          }
+          const connected = (il.relations || []).filter(rel =>
+            rel.type === 'flows_to' &&
+            (rel.source === ent.id || rel.target === ent.id));
+          const related = connected[0];
+          const linked = related && il.entities.find(item =>
+            item.id === (related.source === ent.id ? related.target : related.source));
+          const toward = linked && linked.bbox
+            ? Math.sign(centre(linked.bbox).x - cx) : 1;
+          const rightSide = toward >= 0 ? 1 : -1;
+          const actionArm = svgEl('g', { 'data-drawing': 'source-gesture' }, portrait);
+          const armBase = [cx + shoulder * rightSide, shoulderY + u * .09];
+          const armEnd = [cx + u * .30 * rightSide, top + u * .54];
+          const handD = `M${f2(armBase[0])} ${f2(armBase[1])}
+              Q${f2(cx + u*.31*rightSide)} ${f2(top + u*.38)}
+                ${f2(armEnd[0])} ${f2(armEnd[1])}`;
+          const gesture = svgEl('path', { fill: 'none', d: handD,
+            stroke: ink, 'stroke-width': f2(sw * 1.85),
+            'stroke-linecap': 'round' }, actionArm);
+          node.outline.push(drawable(gesture, u * .31));
+          const quietArm = svgEl('path', { fill: 'none',
+            d: `M${f2(cx - shoulder * rightSide)} ${f2(shoulderY + u * .09)}
+                Q${f2(cx - u*.28*rightSide)} ${f2(top + u*.53)}
+                  ${f2(cx - u*.185*rightSide)} ${f2(top + u*.65)}`,
+            stroke: ink, 'stroke-width': f2(sw * 1.65),
+            'stroke-linecap': 'round' }, portrait);
+          node.outline.push(drawable(quietArm, u * .36));
+          const baseline = svgEl('path', { ...line,
+            d: polyPath([[cx - u*.21, footY + sw * 1.7],
+                         [cx + u*.21, footY + sw * 1.7]]),
+            stroke: accent, 'stroke-width': f2(sw * 1.15) }, portrait);
+          node.outline.push(drawable(baseline, u*.42));
+          // A source-relationship gesture uses the same semantic ops as
+          // the written label. Never animate by hardcoded string matching.
+          node.extra.semanticArm = {
+            group: actionArm, shoulder: armBase, sign: rightSide,
+            isReceiving: connected.some(rel => rel.target === ent.id),
+            isSending: connected.some(rel => rel.source === ent.id),
+          };
+        } else if (isIllustrated && params.visual_class === 'document') {
+          const u = Math.min(b.w, b.h), cx = b.x + b.w / 2;
+          const top = b.y + b.h * .10, dh = u * .72, dw = u * .56;
+          const x0 = cx - dw*.50, y0 = top, fold = u * .125;
+          const sheet = svgEl('g', { 'data-drawing': 'source-document' }, g);
+          // Real paper edges and folded corner, but no fabricated word or
+          // seal. All interior marks are purely conventional document ruling.
+          const back = svgEl('path', { d:
+            `M${f2(x0 - u*.045)} ${f2(y0 + u*.055)}
+              L${f2(x0 + dw - u*.045)} ${f2(y0 + u*.055)}
+              L${f2(x0 + dw - u*.045)} ${f2(y0 + dh + u*.055)}
+              L${f2(x0 - u*.045)} ${f2(y0 + dh + u*.055)}Z`,
+            fill: accent, 'fill-opacity': .14, stroke: ink,
+            'stroke-width': sw * 1.03 }, sheet);
+          node.outline.push(drawable(back, 2*(dw+dh)));
+          const frontD = `M${f2(x0)} ${f2(y0)}
+            L${f2(x0+dw-fold)} ${f2(y0)}
+            L${f2(x0+dw)} ${f2(y0+fold)}
+            L${f2(x0+dw)} ${f2(y0+dh)}
+            L${f2(x0)} ${f2(y0+dh)}Z`;
+          const front = svgEl('path', { d: frontD, fill: paper, stroke: ink,
+            'stroke-width': f2(sw*1.48), 'stroke-linejoin':'round' }, sheet);
+          node.outline.push(drawable(front, 2*(dw+dh)));
+          const foldLine = svgEl('path', { ...line,
+            d: polyPath([[x0+dw-fold,y0],[x0+dw-fold,y0+fold],
+                         [x0+dw,y0+fold]]), 'stroke-width': sw*1.15 }, sheet);
+          node.outline.push(drawable(foldLine, fold*3));
+          const bands = [0.27,0.39,0.51,0.63];
+          for(let i=0;i<bands.length;i++){
+            const yy=y0+dh*bands[i], x=x0+dw*.16;
+            const xx=x0+dw*(i===3?.60:i===0?.46:.82);
+            const bar=svgEl('path',{ ...line,d:polyPath([[x,yy],[xx,yy]]),
+              'stroke-width':sw*(i===0?1.65:1.0),
+              stroke:i===0?accent:ink,
+              'stroke-opacity':i===0?'1':'0.38' },sheet);
+            node.outline.push(drawable(bar,xx-x));
+          }
+          // For delivered documents the same entire sheet, not a temporary
+          // coloured dot, travels under the voice authority.
+        }
         const word = params.word ? String(params.word) : '';
         const fg = (dark && !isIllustrated) ? paper : ink;
         // The name sits above the accent fill so an inked tile keeps it, in the paper colour.
