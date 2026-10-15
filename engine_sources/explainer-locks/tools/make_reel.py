@@ -1189,6 +1189,34 @@ def sketch_asset(phrase, text):
 def sketch_entities(gwords, media):
     text = clean(" ".join(w["text"] for w in gwords))
     candidates = sketch_noun_phrases(text)
+    # Source-anchored collective humans must survive either spaCy or the tiny
+    # fallback noun parser. They are a reviewed drawable class, not a guess
+    # from the film topic or the numeral itself. Prefer actual source order,
+    # and never invent a named profession or individual.
+    collectives = STYLES.get("sketch_visual_classes", {}).get("population", [])
+    mentioned = [(match.start(), noun)
+                 for noun in collectives
+                 for match in re.finditer(r"\\b" + re.escape(noun) + r"\\b", text, re.I)]
+    if mentioned:
+        # The same plural group can appear as '10,000 people' in a noun chunk;
+        # dedupe it onto the literal source noun instead of drawing a second
+        # unrelated pseudo-actor alongside the population.
+        canon = []
+        for candidate in candidates:
+            original = candidate.lower().strip()
+            group = next((noun for _, noun in mentioned
+                          if re.fullmatch(r"(?:(?:the|some|these|those|only|just|all|around|about|\\d[\\d,]*)\\s+)*" +
+                                          re.escape(noun), original, re.I)), None)
+            canon.append(group or candidate)
+        existing = set(canon)
+        for _, noun in sorted(mentioned):
+            if noun not in existing:
+                canon.append(noun)
+                existing.add(noun)
+        # All names in this pass must be spoken. Avoid promoting a second
+        # occurrence to a different object; source order determines staging.
+        candidates = sorted(dict.fromkeys(canon),
+                            key=lambda s: text.lower().find(s.lower()))
     # Unrecognised nouns keep their source label rather than a guessed depiction.
     if not candidates:
         candidates = [w["text"] for w in gwords if word_key(w["text"]) in BANK]
