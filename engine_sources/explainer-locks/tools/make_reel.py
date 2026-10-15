@@ -1118,8 +1118,13 @@ def sketch_entities(gwords, media):
             continue
         seen.add(entity_id)
         ref = sketch_asset(phrase, text)
+        # When no licensed catalog symbol matches, use only narrowly defined
+        # native procedural objects whose literal meaning equals the source
+        # noun. Unrecognized nouns continue to have an honest word carrier.
+        primitive = {"pump": "PUMP", "tank": "TANK"}.get(phrase)
         ent = {"id": entity_id, "kind": "object",
-               "glyph": "TILE" if ref else "PILL", "size": "hero" if not entities else "support",
+               "glyph": "TILE" if ref else (primitive or "PILL"),
+               "size": "hero" if not entities else "support",
                "label": phrase, "phrase": phrase}
         if ref:
             ent["asset_ref"] = ref
