@@ -26,6 +26,7 @@ SCRIPTS = {
         "share": "A survey found 30 percent prefer buses.",
         "decrease": "Rent fell from 1,200 dollars to 900 dollars.",
         "counter": "Twenty-five trains arrived this morning.",
+        "irregular": "In 2021 orchard sales were 10. In 2024 they reached 40. In 2026 they reached 20.",
     },
     "sketch": {
         "default": "A phone sends a message to a server. The server connects to a database.",
@@ -35,6 +36,8 @@ SCRIPTS = {
         "contrast": "A pencil is lighter than a brick.",
         "connection": "The server connects to a database.",
         "dispatch": "A device sends an instruction to a printer.",
+        "invoice": "A courier delivers an invoice to a customer.",
+        "worksheet": "A teacher forwards a worksheet to a student.",
     },
 }
 
