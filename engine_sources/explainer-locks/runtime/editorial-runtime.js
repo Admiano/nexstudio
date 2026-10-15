@@ -2711,16 +2711,21 @@
         if (ent.label && ent.label.bbox && !illustrated)
           bounds.push(ent.label.bbox);
       }
-      const pad = Math.min(W, H) * 0.021;
-      const x0 = Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
-      const x1 = Math.min(W, Math.max(...bounds.map(b => b.x + b.w)) + pad);
-      // An editorial close-up needs headroom above a figure AND readable
-      // source labels below it. Reserve the unoccupied lower stage, without
-      // intruding into the fixed spoken-copy band above the illustration.
-      const y0 = Math.max(0, Math.min(...bounds.map(b => b.y)) -
-        Math.max(pad, H * 0.048));
-      const y1 = Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) +
-        Math.max(pad, H * 0.095));
+      // The full authored visual zone is the Sketch camera's aperture.
+      // A tight union of source boxes was accidentally clipping enlarged
+      // human acting in portrait before it could occupy the native field.
+      // The text zone remains outside this clip; source geometry alone
+      // determines the lens, without per-script camera coordinates.
+      const pad = Math.min(W, H) * 0.011;
+      const field = il.zone;
+      const x0 = field ? Math.max(0, field.x - pad)
+        : Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
+      const x1 = field ? Math.min(W, field.x + field.w + pad)
+        : Math.min(W, Math.max(...bounds.map(b => b.x + b.w)) + pad);
+      const y0 = field ? Math.max(0, field.y - pad)
+        : Math.max(0, Math.min(...bounds.map(b => b.y)) - pad);
+      const y1 = field ? Math.min(H, field.y + field.h + pad)
+        : Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) + pad);
       const viewport = el('div', {
         position: 'absolute', inset: '0', zIndex: '10', pointerEvents: 'none',
         clipPath: `inset(${f2(y0)}px ${f2(W - x1)}px ${f2(H - y1)}px ${f2(x0)}px)`
@@ -3723,7 +3728,15 @@
         const arrival = arriveWord ? arriveWord.start_ms : h.delivery.end_ms;
         const ending = EASE.inOutCubic(prog(lt, arrival,
           Math.max(arrival + 140, h.delivery.end_ms)));
-        const openingScale = 1.23, overviewScale = 1.01, endingScale = 1.21;
+        // Frame source-known performers against the available visual zone.
+        // A tall phone canvas deserves a real illustrated close-up rather
+        // than a tiny actor floating in a large empty area. Recalculate for
+        // any authored human scale, aspect and story, and let the narrated
+        // transfer pull back to a full two-party overview.
+        const actorHeight = Math.max(h.sender.bb.h, h.recipient.bb.h, 1);
+        const closeScale = clamp(viewport.h * 0.59 / actorHeight, 1.30, 2.08);
+        const openingScale = closeScale, overviewScale = 1.005,
+          endingScale = closeScale;
         const scale = lerp(lerp(openingScale, overviewScale, enter),
           endingScale, ending);
         const focalX = lerp(lerp(init.x, mid.x, enter), finish.x, ending);
@@ -3737,13 +3750,15 @@
         // stays untouched. Only close shots receive focal safety limits.
         const subject = ending > 0.30 ? h.recipient :
           enter < 0.70 ? h.sender : null;
-        if (subject && subject.ent && subject.ent.label && subject.label) {
-          const b = subject.bb, label = subject.ent.label.bbox;
-          const ext = {
+        if (subject) {
+          const b = subject.bb;
+          const label = subject.label && subject.ent.label &&
+            subject.ent.label.bbox;
+          const ext = label ? {
             x: Math.min(b.x, label.x), y: Math.min(b.y, label.y),
             w: Math.max(b.x + b.w, label.x + label.w) - Math.min(b.x, label.x),
             h: Math.max(b.y + b.h, label.y + label.h) - Math.min(b.y, label.y),
-          };
+          } : b;
           const safe = Math.max(5, Math.min(viewport.w, viewport.h) * 0.012);
           const minX = viewport.x + safe - scale * ext.x;
           const maxX = viewport.x + viewport.w - safe - scale * (ext.x + ext.w);
