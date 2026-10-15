@@ -1294,12 +1294,17 @@ def sketch_beat(gwords, bi, n, previous, media):
                     if e["id"] not in order:
                         order.append(e["id"])
             entities.sort(key=lambda e: order.index(e["id"]) if e["id"] in order else len(order))
+            # A two-party connection has two equally important endpoints.
+            # Treating its first noun as a massive hero creates an oversized
+            # server and tiny database in portrait, obscuring their relationship.
+            balanced_pair = form == "RELATIONSHIP" and len(entities) == 2
             for e in entities:
                 if e["kind"] != "evidence":
-                    e["size"] = "support"
-            links[0][0]["size"] = "hero"
-            if len(entities) == 2 and form != "RELATIONSHIP":
-                links[-1][1]["size"] = "hero"
+                    e["size"] = "hero" if balanced_pair else "support"
+            if not balanced_pair:
+                links[0][0]["size"] = "hero"
+                if len(entities) == 2:
+                    links[-1][1]["size"] = "hero"
             shared = {e["id"] for e in entities} & previous
             relations = [{"type": r, "source": a["id"], "target": b["id"], "style": "dash"}
                          for a, b, r, _ in links]
