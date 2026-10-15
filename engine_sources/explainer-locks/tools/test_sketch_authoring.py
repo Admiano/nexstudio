@@ -322,12 +322,21 @@ class SketchAuthoringTests(unittest.TestCase):
                 origin = placed["sk_courier"]["bbox"]
                 cargo = placed["sk_invoice"]["bbox"]
                 recipient = placed["sk_customer"]["bbox"]
-                if aspect == "9x16":
+                if zone["w"] < zone["h"] * 0.84:
                     self.assertLess(origin["y"], cargo["y"])
                     self.assertLess(cargo["y"], recipient["y"])
                 else:
                     self.assertLess(origin["x"], cargo["x"])
                     self.assertLess(cargo["x"], recipient["x"])
+                if aspect == "9x16":
+                    # The old portrait stack occupied only 119px of a
+                    # 720px-wide film for each actual human actor. In a
+                    # near-square visual stage the sender/receiver must
+                    # command sufficient visual area to show an action.
+                    self.assertGreater(min(origin["w"], recipient["w"]),
+                                       zone["w"] * 0.24)
+                    self.assertAlmostEqual(origin["w"], recipient["w"],
+                                           delta=zone["w"] * 0.10)
                 if aspect == "16x9":
                     self.assertLess(abs(origin["w"] - recipient["w"]),
                                     0.15 * max(origin["w"], recipient["w"]))
