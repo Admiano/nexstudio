@@ -2622,6 +2622,45 @@
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
       let semanticLabelFade = 1;
       if (ctx.directorStyle === 'sketch') {
+        // Two authored flow edges through a named, portable object express
+        // source -> payload -> recipient. Move that SAME existing illustration
+        // through the narrated transfer, rather than letting a dot race past
+        // three stationary icons. No extra object or unspoken travel is made.
+        // Fluids, machinery and static concepts deliberately do not qualify.
+        const noun = String(ent.label && ent.label.text || '')
+          .toLowerCase().replace(/[^a-z ]/g, '').trim();
+        const portable = /^(?:message|messages|file|files|letter|letters|package|packages|parcel|parcels|note|notes|document|documents|instruction|instructions)$/.test(noun);
+        if (portable) {
+          const links = [...ill.rels.values()].filter((r) => r.rel.type === 'flows_to');
+          const incoming = links.find((r) => r.rel.target === ent.id);
+          const outgoing = links.find((r) => r.rel.source === ent.id);
+          const receive = incoming && incoming.ops.find((op) => op.op === 'CONNECT');
+          const deliver = outgoing && outgoing.ops.find((op) => op.op === 'CONNECT');
+          const sender = incoming && ill.ents.get(incoming.rel.source);
+          const recipient = outgoing && ill.ents.get(outgoing.rel.target);
+          if (receive && deliver && sender && recipient &&
+              deliver.start_ms > receive.start_ms) {
+            const self = centre(node.bb), origin = centre(sender.bb);
+            const destination = centre(recipient.bb);
+            const firstEnd = Math.max(receive.end_ms + 120, receive.start_ms + 380);
+            const lastEnd = Math.max(deliver.end_ms + 370, deliver.start_ms + 730);
+            const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
+            const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
+            // Enter from near the known sender, land on the named object,
+            // then travel intact to the explicitly named receiver.
+            tx += (origin.x - self.x) * 0.74 * (1 - emerge) +
+              (destination.x - self.x) * 0.94 * delivered;
+            ty += (origin.y - self.y) * 0.74 * (1 - emerge) +
+              (destination.y - self.y) * 0.94 * delivered -
+              Math.sin(Math.PI * delivered) * node.bb.h * 0.12;
+            scale *= (0.57 + 0.43 * emerge) * (1 - 0.50 * delivered);
+            const visible = EASE.outCubic(prog(lt, receive.start_ms - 40, receive.start_ms + 150));
+            const absorbed = 1 - EASE.inCubic(prog(lt, lastEnd - 180, lastEnd + 20));
+            opacity *= visible * absorbed;
+            semanticLabelFade *= visible * absorbed;
+            g.dataset.actionPerformance = 'named-payload-flight';
+          }
+        }
         // A source-authored transformation is not a static dotted link.
         // Carry the existing subject toward its stated new form while that
         // destination acquires visual presence. No new objects or claims.
