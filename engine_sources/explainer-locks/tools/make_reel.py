@@ -1370,6 +1370,23 @@ def sketch_beat(gwords, bi, n, previous, media):
             ent["label"] = ent["label"].split()[-1]
     is_interface = bool(_SKETCH_INTERFACE.search(narration))
     stages = sketch_action_stages(narration, entities) if not is_interface else []
+    # A false fallback noun ("imagine", "inside", "yet") must not steal
+    # 70% of the art zone from a source-proven picture. Without an authored
+    # process or explicit comparison, picturable source entities are the stage;
+    # other source words remain in the complete narrator-linked display text.
+    # Relationship stages retain ALL endpoints and payloads for graph integrity.
+    explicit_comparison = re.search(
+        r"\b(?:versus|vs\.?|compared (?:to|with)|than|whereas)\b",
+        narration, re.I)
+    if not stages and not is_interface and not explicit_comparison:
+        visual_entities = [e for e in entities if e.get("kind") == "evidence" or (
+            e["glyph"] == "TILE" and (
+                e.get("asset_ref") or e.get("params", {}).get("visual_class")))]
+        if visual_entities:
+            entities = visual_entities
+            for ei, ent in enumerate(entities):
+                if ent.get("kind") != "evidence":
+                    ent["size"] = "hero" if ei == 0 else "support"
     # Transport is an explicit source-graph role, not a fixed catalogue of
     # nouns ("message", "file", ...). An invoice, specimen or future user noun
     # has exactly the same sender/payload/recipient semantics. The renderer
