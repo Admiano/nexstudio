@@ -757,7 +757,18 @@ def dataviz_beat(g, bi, n, media):
                 break
             label = ("Before" if i == 0 else "After") if before_after else q["label"].split()[-1] if q["label"] else ""
             measure = q["label"].split()[-1] if not q["unit"] and q["label"] else ""
-            eid = draw(q, "BAR", {"level": level, "value": float(values[i])}, clean(label + " " + dataviz_value(q) + " " + measure)
+            params = {"level": level, "value": float(values[i])}
+            if before_after and i == 1 and len(qs) == 2:
+                # Only add a direction cue if the speaker explicitly describes
+                # a change AND the two supplied values confirm that direction.
+                # Neutral comparisons never acquire a made-up rise/fall.
+                risen = re.search(r"\b(rose|risen|grew|increased|climbed|jumped|went up)\b", narration, re.I)
+                fallen = re.search(r"\b(fell|dropped|declined|decreased|went down)\b", narration, re.I)
+                if risen and values[1] > values[0]:
+                    params["change_direction"] = "up"
+                elif fallen and values[1] < values[0]:
+                    params["change_direction"] = "down"
+            eid = draw(q, "BAR", params, clean(label + " " + dataviz_value(q) + " " + measure)
                        if before_after else clean(label + " " + dataviz_value(q)))
             land(q, "GROW", eid, value_to=level)
             # Source-bound attention: each observed bar changes to the
