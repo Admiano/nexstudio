@@ -2684,8 +2684,13 @@
       const pad = Math.min(W, H) * 0.021;
       const x0 = Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
       const x1 = Math.min(W, Math.max(...bounds.map(b => b.x + b.w)) + pad);
-      const y0 = Math.max(0, Math.min(...bounds.map(b => b.y)) - pad);
-      const y1 = Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) + pad);
+      // An editorial close-up needs headroom above a figure AND readable
+      // source labels below it. Reserve the unoccupied lower stage, without
+      // intruding into the fixed spoken-copy band above the illustration.
+      const y0 = Math.max(0, Math.min(...bounds.map(b => b.y)) -
+        Math.max(pad, H * 0.048));
+      const y1 = Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) +
+        Math.max(pad, H * 0.095));
       const viewport = el('div', {
         position: 'absolute', inset: '0', zIndex: '10', pointerEvents: 'none',
         clipPath: `inset(${f2(y0)}px ${f2(W - x1)}px ${f2(H - y1)}px ${f2(x0)}px)`
@@ -3683,8 +3688,30 @@
           endingScale, ending);
         const focalX = lerp(lerp(init.x, mid.x, enter), finish.x, ending);
         const focalY = lerp(lerp(init.y, mid.y, enter), finish.y, ending);
-        const dx = mid.x - scale * focalX;
-        const dy = mid.y - scale * focalY;
+        let dx = mid.x - scale * focalX;
+        let dy = mid.y - scale * focalY;
+        // The centre of the hand-drawn person is NOT the centre of their
+        // native label. Clamp the lens against both painted body and
+        // source-name box, or the close shot cuts the person's name in half.
+        // While framing the overall exchange the authored spatial layout
+        // stays untouched. Only close shots receive focal safety limits.
+        const subject = ending > 0.30 ? h.recipient :
+          enter < 0.70 ? h.sender : null;
+        if (subject && subject.ent && subject.ent.label) {
+          const b = subject.bb, label = subject.ent.label.bbox;
+          const ext = {
+            x: Math.min(b.x, label.x), y: Math.min(b.y, label.y),
+            w: Math.max(b.x + b.w, label.x + label.w) - Math.min(b.x, label.x),
+            h: Math.max(b.y + b.h, label.y + label.h) - Math.min(b.y, label.y),
+          };
+          const safe = Math.max(5, Math.min(viewport.w, viewport.h) * 0.012);
+          const minX = viewport.x + safe - scale * ext.x;
+          const maxX = viewport.x + viewport.w - safe - scale * (ext.x + ext.w);
+          const minY = viewport.y + safe - scale * ext.y;
+          const maxY = viewport.y + viewport.h - safe - scale * (ext.y + ext.h);
+          if (minX <= maxX) dx = clamp(dx, minX, maxX);
+          if (minY <= maxY) dy = clamp(dy, minY, maxY);
+        }
         ill.shot.root.style.transform =
           `translate(${f2(dx)}px, ${f2(dy)}px) scale(${scale.toFixed(5)})`;
       } else ill.shot.root.style.transform = 'none';
