@@ -343,6 +343,14 @@ class IllustrationSolver:
                         body['w'] - 2 * inset, body['h'] - 2 * inset)
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
+        if e.params.get('editorial_field') is True and e.glyph in (
+                'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'FLOW_STEPS', 'VS_CARDS'):
+            # Render high-information diagrams across the full evidence field,
+            # not inside the tiny aspect-locked icon bounding box. This is a
+            # presentation-only constraint and never changes numerical scale.
+            inset = min(body['w'], body['h']) * 0.035
+            bbox = _box(body['x'] + inset, body['y'] + inset,
+                        body['w'] - 2 * inset, body['h'] - 2 * inset)
         if e.glyph == 'PILL' and e.params.get('plain_datum') is True:
             # Time-axis categories are native TEXT labels, not physical pill
             # objects. Aspect-fitting a fake 2.8:1 pill makes the four-digit
