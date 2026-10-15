@@ -335,6 +335,17 @@ class IllustrationSolver:
             bbox = _fit_aspect(body, vb_ar, scale)
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
+        if e.glyph == 'PILL' and e.params.get('plain_datum') is True:
+            # Time-axis categories are native TEXT labels, not physical pill
+            # objects. Aspect-fitting a fake 2.8:1 pill makes the four-digit
+            # period type box too short as soon as a chart has 4+ points.
+            # Borrow the actual available axis strip, retaining its centre and
+            # the legal label font floor, without widening into neighbours.
+            text_height = min(body['h'], max(body['h'] * 0.45,
+                               FLOOR_FRACTION['label'] * min(self.canvas) * 2.4))
+            bbox = _box(body['x'] + body['w'] * 0.02,
+                        body['y'] + (body['h'] - text_height) / 2,
+                        body['w'] * 0.96, text_height)
         if e.glyph in LABEL_CARRIERS and e.label:
             # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
