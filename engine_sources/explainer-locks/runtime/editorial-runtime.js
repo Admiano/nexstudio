@@ -2300,6 +2300,46 @@
       const blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-${ent.id}`);
       ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt, blur });
     }
+    // A directional comparison is an authored argument, never decorative
+    // chart furniture. The two literal measured values and an explicitly
+    // supported up/down verb must agree before the compiler emits this cue.
+    let comparisonCue = null;
+    if (plan.director_style === 'dataviz') {
+      const bars = il.entities.filter((ent) => ent.glyph === 'BAR');
+      if (bars.length === 2 && bars[1].params && bars[1].params.change_direction) {
+        const first = bars[0], second = bars[1];
+        const left = bboxOf(first.bbox), right = bboxOf(second.bbox);
+        const direction = second.params.change_direction;
+        const start = {
+          x: left.x + left.w + sw * 2.7,
+          y: left.y + left.h * (1 - first.params.level),
+        };
+        const finish = {
+          x: right.x - sw * 2.7,
+          y: right.y + right.h * (1 - second.params.level),
+        };
+        if (finish.x > start.x + sw * 5) {
+          const pts = [[start.x, start.y], [(start.x + finish.x) / 2, (start.y + finish.y) / 2], [finish.x, finish.y]];
+          const trace = svgEl('path', {
+            d: polyPath(pts), stroke: accent, 'stroke-width': sw * 1.15,
+            fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+            'data-action': direction === 'up' ? 'measured-rise' : 'measured-fall',
+          }, relLayer);
+          const len = polyLength(pts);
+          const drawn = drawable(trace, len);
+          drawn.set(0);
+          const angle = Math.atan2(finish.y - start.y, finish.x - start.x) * 180 / Math.PI;
+          const head = svgEl('path', {
+            d: polyPath([[-sw * 3, -sw * 2], [0, 0], [-sw * 3, sw * 2]]),
+            stroke: accent, 'stroke-width': sw * 1.15, 'stroke-linecap': 'round',
+            'stroke-linejoin': 'round', fill: 'none',
+            transform: `translate(${f2(finish.x)} ${f2(finish.y)}) rotate(${f2(angle)})`,
+          }, relLayer);
+          head.style.opacity = '0';
+          comparisonCue = { target: second.id, drawn, head };
+        }
+      }
+    }
     for (const rel of il.relations) {
       const r = { rel, ops: opsFor.get(rel.id) || [], state: rel.state_in || {}, path: null, arrow: null, bar: null, trace: null, strike: null, len: 0 };
       if (rel.path) {
@@ -2367,7 +2407,7 @@
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
     }
-    return { il, svg, ents, rels, sw, accent, ghost, ready: Promise.all(ready) };
+    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -2813,6 +2853,16 @@
         if (node.label) node.label.wrap.style.visibility = 'hidden';
         if (node.media) node.media.frame.style.visibility = 'hidden';
       }
+    }
+    // A source-verified change arrow follows the second actual bar value.
+    // It cannot show while only the baseline has been mentioned.
+    if (ill.comparisonCue) {
+      const cue = ill.comparisonCue;
+      const second = ill.ents.get(cue.target);
+      const op = second && second.ops.find((item) => item.op === 'GROW');
+      const k = op ? EASE.inOutCubic(prog(lt, op.start_ms, op.end_ms)) : 0;
+      cue.drawn.set(k);
+      cue.head.style.opacity = (k >= 0.99 ? 0.90 : 0).toFixed(3);
     }
     for (const r of ill.rels.values()) {
       if (!r.path) continue;
