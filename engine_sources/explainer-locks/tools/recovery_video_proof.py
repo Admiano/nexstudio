@@ -29,6 +29,7 @@ SCRIPTS = {
         "default": "A phone sends a message to a server. The server connects to a database.",
         "water": "A pump sends water to a tank. The tank feeds a house.",
         "transform": "A note becomes a list.",
+        "attachment": "Pollen sticks to the bee. The bee carries pollen to another flower.",
     },
 }
 
