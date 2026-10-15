@@ -59,7 +59,10 @@ def _commit(beat: dict, glyphs: list[dict], ops: list[dict], *,
     beat.pop("data", None)  # mutually exclusive composer roles
     beat["dominant_layer"] = "HYBRID"
     if evidence:
-        beat["director_evidence"] = evidence
+        # Single-beat evidence and multi-beat evidence use the same auditable
+        # source identifier schema; never leave provenance orphaned.
+        beat["director_evidence"] = [
+            {"beat_id": beat["beat_id"], **item} for item in evidence]
 
 
 def _qs(beat: dict) -> list[dict]:
@@ -179,7 +182,7 @@ def _progress(beat: dict) -> dict | None:
     if x is None or x > 100:
         return None
     text = beat["narration"]
-    if not re.search(r"\b(completed?|finished?|achieved?|reached?|progress|capacity|filled?|goal|target)\b", text, re.I):
+    if not re.search(r"\b(completed?|finished?|achieved?|progress|capacity|filled?|goal|target)\b", text, re.I):
         return None
     return qs[0]
 
