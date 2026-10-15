@@ -2601,6 +2601,7 @@
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
+      node.payloadAbsorbed = false; // seek-safe: no state from a later frame leaks back
       g.style.visibility = 'visible';
       const pose = bodyPose(node, lt, ctx.motion);
       const pEnt = pose.pEnt;
@@ -2655,9 +2656,14 @@
               Math.sin(Math.PI * delivered) * node.bb.h * 0.12;
             scale *= (0.57 + 0.43 * emerge) * (1 - 0.50 * delivered);
             const visible = EASE.outCubic(prog(lt, receive.start_ms - 40, receive.start_ms + 150));
-            const absorbed = 1 - EASE.inCubic(prog(lt, lastEnd - 180, lastEnd + 20));
+            // The named cargo is received BEFORE its drawn body reaches
+            // the recipient's illustration/label box. Fade the object at
+            // mid-flight and let the actual source-authored receiver react;
+            // never place a message tile across the server's own name.
+            const absorbed = 1 - EASE.inOutCubic(prog(delivered, 0.30, 0.58));
             opacity *= visible * absorbed;
             semanticLabelFade *= visible * absorbed;
+            node.payloadAbsorbed = delivered >= 0.58;
             g.dataset.actionPerformance = 'named-payload-flight';
           }
         }
@@ -3066,6 +3072,13 @@
       if (r.dots) {
         r.dots[0].style.opacity = String(head0);
         r.dots[1].style.opacity = String(head);
+        // An absorbed intermediate payload is no longer a visible endpoint.
+        // Keep the directed path as the source-known sender -> receiver flow,
+        // but remove doubled junction dots at the invisible cargo position.
+        if (ctx.directorStyle === 'sketch') {
+          if (endA && endA.payloadAbsorbed) r.dots[0].style.opacity = '0';
+          if (endB && endB.payloadAbsorbed) r.dots[1].style.opacity = '0';
+        }
         const dstroke = propAt(r, 'ink', lt);
         const dc = dstroke.v > 0.5 && dstroke.accent ? accent : ink;
         r.dots.forEach((d) => d.setAttribute('fill', dc));
