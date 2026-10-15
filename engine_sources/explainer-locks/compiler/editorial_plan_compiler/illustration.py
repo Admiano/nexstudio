@@ -366,6 +366,12 @@ class IllustrationSolver:
         cells: Dict[str, Dict[str, float]]
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
             cells = self._hub_layout(il, top, zone)
+        elif il.form == 'RELATIONSHIP' and len(top) == 2 and all(e.size == 'hero' for e in top):
+            # Equally weighted, narrated two-party connections are not a
+            # "hero + satellite" collage. Make both endpoints readable,
+            # especially in 9:16 where a giant server obscures the database.
+            cells = self._cells(zone, top, zone['h'] > zone['w'] * 1.15,
+                                CONNECTOR_GAP_FRAC)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
             cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
                      else self._collage_layout(il, top, zone))
