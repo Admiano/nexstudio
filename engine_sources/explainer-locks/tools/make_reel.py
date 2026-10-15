@@ -510,6 +510,8 @@ _DATA_LABEL_STOP = STOPWORDS | {
     "from", "to", "versus", "vs", "rose", "grew", "fell", "increased", "decreased",
     "produced", "generated", "cost", "costs", "used", "uses", "reached", "remained",
     "percent", "dollars", "pounds", "euros", "minus", "negative",
+    "but", "yet", "however", "nevertheless", "still", "only", "just",
+    "merely", "those", "these", "them", "therefore", "instead",
 } | set(_DATA_SMALL) | set(_DATA_SCALES)
 
 
@@ -600,6 +602,15 @@ def dataviz_claim(narration, g):
             if tail[0].lower() not in _DATA_LABEL_STOP:
                 label = " ".join(w for w in tail if w.lower() not in _DATA_LABEL_STOP)
                 measure = tail[0].lower() if not unit else ""
+        if not label:
+            # Source-exact predicate after a quantity: "99 of those are
+            # genuine" names genuine observations, not a category "But".
+            # The predicate is read from spoken text, never inferred.
+            predicate = re.match(
+                r"\s+of\s+(?:those|these|them)\s+(?:are|were|is)\s+([a-z]+(?:-[a-z]+)?)\b",
+                after, re.I)
+            if predicate and predicate.group(1).lower() not in _DATA_LABEL_STOP:
+                label = predicate.group(1)
         if not label:
             clause = re.split(r"\b(?:and|while|versus|vs)\b|[,.;:]", before, flags=re.I)[-1]
             label = " ".join(w for w in re.findall(r"[a-z]+", clause, re.I)
