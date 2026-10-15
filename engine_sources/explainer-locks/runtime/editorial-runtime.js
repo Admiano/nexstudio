@@ -1511,8 +1511,22 @@
           'stroke-opacity': 0.24, 'stroke-width': sw * 0.8 }, g);
         const dot = svgEl('circle', { cx: pts[0][0], cy: pts[0][1], r: sw * 1.8,
           fill: accent, stroke: plan.brand.paper, 'stroke-width': sw * 0.6 }, g);
+        // The point sequence has real, source-bound GROW anchors. A path can
+        // have uneven segment lengths, so equal-distance fractions are NOT
+        // reliable reveal times for individual measured values.
+        const pointCues = new Map(il.ops
+          .filter(o => o.op === 'GROW' && o.target === ent.id &&
+            o.params && Number.isInteger(o.params.point_index))
+          .map(o => [o.params.point_index, o]));
+        const cumulativeLengths = [0];
+        for (let i = 1; i < pts.length; i++) {
+          const dx = pts[i][0] - pts[i - 1][0];
+          const dy = pts[i][1] - pts[i - 1][1];
+          cumulativeLengths.push(cumulativeLengths[i - 1] + Math.hypot(dx, dy));
+        }
+        const pathLength = Math.max(1, cumulativeLengths[cumulativeLengths.length - 1]);
         node.outline.push(drawable(p, polyLength(pts)));
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           node.extra.pathFraction = k;
           node.outline[0].set(k);
           const q = pointAlong(pts, k);
@@ -1524,9 +1538,17 @@
           dot.style.opacity = visible ? '1' : '0';
           halo.style.opacity = visible ? '1' : '0';
           valueLabels.forEach((label, i) => {
-            const threshold = i / Math.max(1, pts.length - 1);
-            const reached = visible && k + 0.005 >= threshold;
-            const isCurrent = reached && (i === pts.length - 1 || k < (i + 1) / (pts.length - 1) - 0.005);
+            const cue = pointCues.get(i);
+            const nextCue = pointCues.get(i + 1);
+            const threshold = cumulativeLengths[i] / pathLength;
+            const nextThreshold = i + 1 < cumulativeLengths.length ?
+              cumulativeLengths[i + 1] / pathLength : 2;
+            // Prefer the exact spoken source number: the second measure must
+            // not appear just because the line traversed half its total length.
+            const reached = cue ? lt >= cue.start_ms : (visible && k + 0.005 >= threshold);
+            const isCurrent = reached && (cue
+              ? (!nextCue || lt < nextCue.start_ms)
+              : k < nextThreshold - 0.005);
             label.style.fillOpacity = reached ? (isCurrent ? '1' : '0.60') : '0';
             label.setAttribute('fill', isCurrent ? accent : ink);
           });
@@ -2784,7 +2806,7 @@
         tank.fill.setAttribute('y', f2(tank.y1 - h));
         tank.fill.setAttribute('height', f2(h));
       }
-      if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v);
+      if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v, lt);
       if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
         const dataCue = node.ops.find((o) => o.op === 'GROW');
         const reveal = dataCue ? EASE.outCubic(prog(lt, dataCue.start_ms - 190, dataCue.start_ms + 120)) : 0;
