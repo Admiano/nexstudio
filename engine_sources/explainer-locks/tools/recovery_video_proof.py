@@ -88,9 +88,12 @@ def main():
         plan = output / ("plan_" + aspect + ".json")
         if args.style == "dataviz":
             authored = json.loads(plan.read_text())
+            assert authored['director_style'] == 'dataviz', 'Data Viz direction missing'
             assert authored["captions_policy"] == "kinetic", "No duplicate lower thirds"
             assert authored["captions"] == [], "Compiled karaoke captions forbidden"
             assert all(b["typography"]["blocks"] for b in authored["beats"]), "Missing native text"
+        if args.style == 'sketch':
+            assert json.loads(plan.read_text())['director_style'] == 'sketch', 'Sketch direction missing'
             for beat in authored["beats"]:
                 phrases = [block["words"] for block in beat["typography"]["blocks"] if block.get("words")]
                 for earlier, later in zip(phrases, phrases[1:]):
