@@ -62,6 +62,10 @@ jobs:
         run: |
           python tools/recovery_video_proof.py --style dataviz --aspects ${{ matrix.aspect }} --fps 24 --workers 2
           python tools/recovery_video_proof.py --style sketch --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          # Certify the rebuilt source-dated chart and real illustrated
+          # person -> object -> person choreography in every native aspect.
+          python tools/recovery_video_proof.py --style dataviz --scenario fivepoint --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          python tools/recovery_video_proof.py --style sketch --scenario invoice --aspects ${{ matrix.aspect }} --fps 24 --workers 2
       - name: Audit compiled plans and extract actual PNG frame
         working-directory: engine_sources/explainer-locks
         env:
@@ -74,8 +78,10 @@ jobs:
           out=Path("out/recovery-video-proof")
           png=Path("out/quality-aspect-previews")
           png.mkdir(exist_ok=True)
-          for style in ("dataviz","sketch"):
-              parent=out/f"recovery-proof-{style}"
+          for style,scenario in (("dataviz","default"), ("sketch","default"),
+                                 ("dataviz","fivepoint"), ("sketch","invoice")):
+              stem=f"recovery-proof-{style}" + ("" if scenario=="default" else f"-{scenario}")
+              parent=out/stem
               plan=json.loads((parent/f"plan_{a}.json").read_text())
               render=json.loads((parent/f"render_{a}.json").read_text())
               assert plan["director_style"]==style,(style,plan.get("director_style"))
@@ -88,11 +94,26 @@ jobs:
                   assert plan["captions_policy"]=="kinetic"
                   assert plan["captions"]==[]
                   assert render.get("captions_burned",0)==0
-              src=parent/f"recovery-proof-{style}_{a}_web.mp4"
+              if scenario == "fivepoint":
+                  chart=next(e for e in plan["beats"][0]["illustration"]["entities"]
+                             if e["glyph"]=="CHART_LINE")
+                  assert chart["params"]["value_labels"]==["10","40","20","35","30"]
+                  if a == "16x9":
+                      assert plan["beats"][0]["composition"]["visual_zone"]["w"] >= plan["canvas"]["w"]*0.75
+              if scenario == "invoice":
+                  scene=plan["beats"][0]["illustration"]
+                  typed=[e for e in scene["entities"]
+                         if e["params"].get("narrative_role")=="transferred_payload"]
+                  assert len(typed)==1 and typed[0]["id"]=="sk_invoice"
+                  assert sum(e["params"].get("visual_class")=="person"
+                             for e in scene["entities"])==2
+              src=parent/f"{stem}_{a}_web.mp4"
               assert src.stat().st_size>50_000,(str(src),src.stat().st_size)
-              subprocess.run(["ffmpeg","-y","-v","error","-ss","4.4","-i",str(src),
-                              "-frames:v","1",str(png/f"{style}_{a}.png")],check=True)
-              print(f"{style} {a}: valid MP4 {src.stat().st_size} bytes")
+              when=min(4.4,max(0.1,plan["duration_ms"]/1000*0.72))
+              name=f"{style}_{a}" if scenario=="default" else f"{style}_{scenario}_{a}"
+              subprocess.run(["ffmpeg","-y","-v","error","-ss",str(when),"-i",str(src),
+                              "-frames:v","1",str(png/f"{name}.png")],check=True)
+              print(f"{style}/{scenario} {a}: valid MP4 {src.stat().st_size} bytes")
           PY
       - name: Upload native videos, frames and audit evidence
         if: always()
