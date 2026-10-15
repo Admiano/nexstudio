@@ -3307,6 +3307,21 @@
         const rotor = gl.extra.pumpRotor;
         rotor.group.setAttribute('transform', `rotate(${f2(turn)} ${f2(rotor.cx)} ${f2(rotor.cy)})`);
       }
+      if (gl.extra.semanticArm && ctx.directorStyle === 'sketch') {
+        // Human drawings respond to authored motion semantics. A sender
+        // offers on the first outbound CONNECT, a receiver reaches on the
+        // incoming CONNECT. No script verbs or hand-placed keyframe seconds.
+        const arm = gl.extra.semanticArm;
+        const relation = [...ill.rels.values()].find(r =>
+          r.rel.type === 'flows_to' &&
+          (arm.isSending && r.rel.source === ent.id ||
+           arm.isReceiving && r.rel.target === ent.id));
+        const cue = relation && relation.ops.find(o => o.op === 'CONNECT');
+        const lift = cue ? EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms)) : 0;
+        const angle = -arm.sign * 27 * lift;
+        arm.group.setAttribute('transform',
+          `rotate(${f2(angle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+      }
       if (gl.extra.tankWater) {
         let level = 0;
         for (const rel of ill.rels.values()) {
