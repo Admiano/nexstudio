@@ -2506,6 +2506,17 @@
             });
           }
         }
+        if (rel.type === 'compares' && plan.director_style === 'sketch') {
+          // Contrast is a paired, source-bound inspection. Both existing
+          // endpoints respond to the narrated comparison simultaneously;
+          // unlike a transfer, nothing travels from one subject to the other.
+          r.comparisonAck = [rel.path[0], rel.path[rel.path.length - 1]].map((p, i) =>
+            svgEl('circle', {
+              cx: f2(p[0]), cy: f2(p[1]), r: f2(sw * 1.6),
+              fill: 'none', stroke: accent, 'stroke-width': f2(sw * (i ? 1.0 : 1.35)),
+              'stroke-opacity': 0, 'data-action': 'comparison-counterfocus',
+            }, g));
+        }
         if (rel.type === 'connects' && plan.director_style === 'sketch') {
           // A connection is bidirectional as a relationship, NOT a narrated
           // payload transfer. Both known endpoints acknowledge the link.
@@ -2702,6 +2713,30 @@
       const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
       const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      if (ctx.directorStyle === 'sketch') {
+        // Source-authored COMPARISON is not a dotted SEND animation. The two
+        // pictured subjects separate slightly along their actual shared
+        // axis on the spoken connective, then settle opposite one another.
+        // No ranking, numeric size or weight is inferred from the movement.
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.type !== 'compares' ||
+              (rel.rel.source !== ent.id && rel.rel.target !== ent.id)) continue;
+          const cue = rel.ops.find(op => op.op === 'CONNECT');
+          if (!cue) continue;
+          const counterpart = ill.ents.get(rel.rel.source === ent.id
+            ? rel.rel.target : rel.rel.source);
+          if (!counterpart) continue;
+          const from = centre(node.bb), to = centre(counterpart.bb);
+          const dx = from.x - to.x, dy = from.y - to.y;
+          const length = Math.hypot(dx, dy) || 1;
+          const distance = Math.min(node.bb.w, node.bb.h, ill.sw * 10) * 0.055;
+          const contrast = EASE.outCubic(prog(lt, cue.start_ms, cue.end_ms + 250));
+          tx += dx / length * distance * contrast;
+          ty += dy / length * distance * contrast;
+          scale *= 1 + 0.027 * EASE.pulse(prog(lt,
+            cue.start_ms - 50, cue.end_ms + 380));
+        }
+      }
       let semanticLabelFade = 1;
       if (ctx.directorStyle === 'sketch') {
         // Two authored flow edges through a named, portable object express
@@ -3216,6 +3251,18 @@
           r.arrivalRipple.setAttribute('r', f2(ill.sw * (1.4 + rp * 5.6)));
           r.arrivalRipple.style.strokeOpacity = living ? (0.52 * (1 - rp)).toFixed(3) : '0';
         }
+      }
+      if (r.comparisonAck) {
+        const cue = r.ops.find(op => op.op === 'CONNECT');
+        const start = cue ? cue.start_ms : rel.enter_ms;
+        const end = cue ? Math.max(start + 620, cue.end_ms + 320) : start + 660;
+        const focus = prog(lt, start, end);
+        const active = lt >= start && lt <= end && opacity > 0.08;
+        r.comparisonAck.forEach((mark, i) => {
+          const p = EASE.outCubic(focus);
+          mark.setAttribute('r', f2(ill.sw * (1.6 + p * 5.6 + i * 0.9)));
+          mark.style.strokeOpacity = active ? (0.54 * (1 - p)).toFixed(3) : '0';
+        });
       }
       if (r.connectionAck) {
         const cue = r.ops.find(op => op.op === 'CONNECT');
