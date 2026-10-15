@@ -143,6 +143,7 @@ class SceneDirectorTests(unittest.TestCase):
                 pictured = [e for e in entities if e.get("params", {}).get("visual_class") == "population"]
                 self.assertTrue(pictured, "A source-named collective must not collapse into typography")
                 self.assertTrue(all(e["glyph"] == "TILE" and e["phrase"] in sentence.lower()
+                                    and "asset_ref" not in e
                                     for e in pictured))
                 beat = make_reel.sketch_beat(words(sentence), 0, 1, set(), [])
                 self.assertTrue(any(e.get("params", {}).get("visual_class") == "population"
