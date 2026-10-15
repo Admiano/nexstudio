@@ -39,7 +39,7 @@ GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_L
                 'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
                 'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9, 'BADGE': 1.0, 'COUNTER': 1.5,
                 'DATA_BARS': 1.6, 'DATA_TABLE': 1.5, 'TIMELINE': 1.7, 'VS_CARDS': 2.0, 'LOGO_GRID': 1.45, 'FLOW_STEPS': 2.6,
-                'PROGRESS': 5.0, 'SQUIGGLE': 5.5, 'MAGNIFY': 1.0}
+                'PROGRESS': 5.0, 'POPULATION_GRID': 1.25, 'SQUIGGLE': 5.5, 'MAGNIFY': 1.0}
 # Glyphs that carry their label inside the shape rather than in a strip below it.
 LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY', 'CHIP')
 SIZE_WEIGHT = {'hero': 1.0, 'support': 0.64, 'minor': 0.42}
@@ -344,7 +344,7 @@ class IllustrationSolver:
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
         if e.params.get('editorial_field') is True and e.glyph in (
-                'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'FLOW_STEPS', 'VS_CARDS'):
+                'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'FLOW_STEPS', 'VS_CARDS', 'POPULATION_GRID'):
             # Render high-information diagrams across the full evidence field,
             # not inside the tiny aspect-locked icon bounding box. This is a
             # presentation-only constraint and never changes numerical scale.
