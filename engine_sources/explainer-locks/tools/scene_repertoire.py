@@ -337,6 +337,30 @@ def realize(family: str, beat: dict) -> bool:
             return False
         graphic = _glyph("scene_steps", "FLOW_STEPS",
                          {"steps": [{"label": step} for step in steps]})
+        # Process-heavy scenes have multiple spoken clauses. Show their three
+        # sentences sequentially, never make a 17+-word hero that violates
+        # the native legibility floor. Source copy stays VERBATIM.
+        positions = list(re.finditer(r"\b(first|second|third|fourth|then|next|finally)\b", text, re.I))
+        if positions and positions[0].start() == 0 and 2 <= len(positions) <= 5:
+            units = []
+            for idx, match in enumerate(positions):
+                ending = positions[idx+1].start() if idx + 1 < len(positions) else len(text)
+                phrase = text[match.start():ending].strip()
+                if not phrase:
+                    continue
+                units.append({
+                    "text": phrase,
+                    "role": "hero" if idx == len(positions)-1 else "support",
+                    "anchor_word": phrase.split()[0],
+                    "emphasis": .88 if idx == len(positions)-1 else .62,
+                    "semantic_role": "punch" if idx == len(positions)-1 else "setup",
+                    "can_promote": idx == len(positions)-1,
+                    "reveal": "WORD_CASCADE",
+                    "stress": [],
+                })
+            if len(units) == len(positions) and " ".join(
+                    unit["text"] for unit in units) == text:
+                beat["display_units"] = units
         _commit(beat, [graphic], [
             _op("DRAW", graphic["id"], first, 300),
             _op("GROW", graphic["id"], first, 830)],
