@@ -111,8 +111,10 @@ class RepertoireTests(unittest.TestCase):
             with self.subTest(text=text):
                 b=beat(text)
                 offered={x[0] for x in candidates("dataviz",b)}
-                if "contains 40" in text or "about 40" in text or "2021" in text:
+                if "contains 40" in text or "about 40" in text:
                     self.assertNotIn("categorical_columns",offered)
+                # One source-mentioned year applying to every category does not
+                # invalidate a valid chart; only fabricated per-item dates do.
                 if "percent" in text:
                     self.assertNotIn("completion_meter",offered)
                 if "In 2023" in text:
