@@ -639,9 +639,20 @@
     return { layer, layers };
   }
 
-  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll) {
+  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll, directorStyle) {
     if (stageFade != null) bgNode.layer.style.opacity = stageFade.toFixed(4);
     if (!bgNode.layers.length) return;
+    let chartArrival = null;
+    if (directorStyle === 'dataviz' && beat.illustration) {
+      const bars = (beat.illustration.entities || []).filter((e) => e.glyph === 'BAR');
+      if (bars.length === 2) {
+        const ids = new Set(bars.map((e) => e.id));
+        const times = (beat.illustration.ops || [])
+          .filter((o) => o.op === 'GROW' && ids.has(o.target))
+          .map((o) => o.start_ms);
+        if (times.length === 2) chartArrival = Math.min(...times);
+      }
+    }
     const settle = (beat.ensemble.events || []).find((e) => e.channel === 'BACKGROUND' && e.event === 'STAGE_SETTLE');
     const ss = settle ? settle.start_ms : 0, se = settle ? settle.end_ms : 0;
     // The ensemble's settled-hold window owns the ambient pass: parallax engages only inside it.
@@ -656,6 +667,10 @@
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
+      // The data stage materializes with the first narrated number. Don't
+      // show an empty white evidence panel before there is evidence in it.
+      if (chartArrival != null && (spec.kind === 'panel' || spec.kind === 'hairline'))
+        opacity *= EASE.outCubic(prog(lt, chartArrival - 420, chartArrival + 120));
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
       if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
         const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
@@ -1530,7 +1545,11 @@
         const base = svgEl('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: ink, rx: sw, 'data-grow': 'bar' }, g);
         const inkEl = svgEl('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: accent, 'fill-opacity': 0, rx: sw }, g);
         node.inkEls.push(inkEl);
-        svgEl('path', { ...line, d: polyPath([[b.x - sw, b.y + b.h], [b.x + b.w + sw, b.y + b.h]]), 'stroke-width': sw * 0.7 }, g);
+        node.extra.barAxis = svgEl('path', { ...line,
+          d: polyPath([[b.x - sw, b.y + b.h], [b.x + b.w + sw, b.y + b.h]]),
+          'stroke-width': sw * 0.7 }, g);
+        node.extra.barBody = base;
+        node.extra.barInk = inkEl;
         node.extra.setGrow = (k) => {
           const kk = clamp(k, 0, 1), h = Math.max(sw, kk * b.h);
           node.extra.growK = kk;
@@ -2749,6 +2768,13 @@
         tank.fill.setAttribute('height', f2(h));
       }
       if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v);
+      if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
+        const dataCue = node.ops.find((o) => o.op === 'GROW');
+        const reveal = dataCue ? EASE.outCubic(prog(lt, dataCue.start_ms - 190, dataCue.start_ms + 120)) : 0;
+        for (const el of [gl.extra.barAxis, gl.extra.barBody, gl.extra.barInk]) {
+          if (el) el.style.opacity = reveal.toFixed(4);
+        }
+      }
       if (gl.extra.setFirstPointVisible) {
         const firstObservation = node.ops.find((op) => op.op === 'GROW' && op.params && op.params.point_index === 0);
         gl.extra.setFirstPointVisible(Boolean(firstObservation && lt >= firstObservation.start_ms));
@@ -3213,7 +3239,7 @@
   let _showChrome = null;  // one film per page — applyBeat repaints the masthead
   function applyBeat(bn, lt, stageFade, preRoll) {
     if (_showChrome) _showChrome.setBeat(bn.beat, lt);
-    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll);
+    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll, bn.ctx.directorStyle);
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
