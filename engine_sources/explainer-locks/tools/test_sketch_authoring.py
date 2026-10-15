@@ -267,6 +267,41 @@ class SketchAuthoringTests(unittest.TestCase):
                          beats[1]["illustration"]["carry"])
         self.assertFalse(any(p["op"] == "DRAW" for p in beats[1]["illustration"]["program"]))
 
+    def test_typed_transfer_handles_unseen_nouns_and_verbs_without_word_whitelists(self):
+        scenes = (
+            ("A courier delivers an invoice to a customer.", "courier", "invoice", "customer"),
+            ("A lab ships a specimen to a clinic.", "lab", "specimen", "clinic"),
+            ("A teacher forwards a worksheet to a student.", "teacher", "worksheet", "student"),
+            ("A driver passes a ticket to a guard.", "driver", "ticket", "guard"),
+        )
+        for script, actor, cargo, receiver in scenes:
+            with self.subTest(script=script):
+                film = author(script)
+                scene = film["beats"][0]["illustration"]
+                roles = {e["phrase"]: e.get("params", {}).get("narrative_role")
+                         for e in scene["entities"]}
+                self.assertEqual(roles[cargo], "transferred_payload")
+                self.assertIsNone(roles[actor])
+                self.assertIsNone(roles[receiver])
+                edges = {(e["source"], e["target"], e["type"])
+                         for e in scene["relations"]}
+                self.assertIn((f"sk_{actor}", f"sk_{cargo}", "flows_to"), edges)
+                self.assertIn((f"sk_{cargo}", f"sk_{receiver}", "flows_to"), edges)
+                self.assertEqual(len([o for o in scene["program"]
+                                      if o["op"] == "CONNECT"]), 2)
+                FilmTreatment.parse(film)
+
+    def test_no_payload_role_for_simple_connection_or_negated_transfer(self):
+        for script in (
+            "The server connects to a database.",
+            "A pump does not send a signal to a bank.",
+            "A pencil is lighter than a brick.",
+        ):
+            with self.subTest(script=script):
+                scene = author(script)["beats"][0]["illustration"]
+                self.assertFalse(any(e.get("params", {}).get("narrative_role")
+                                     for e in scene["entities"]))
+
     def test_unpictured_flow_payload_uses_source_label_and_connects_before_destination(self):
         for script, noun in (("The database sends a result to the phone.", "result"),
                              ("A device sends an instruction to a printer.", "instruction")):
