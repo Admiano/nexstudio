@@ -19,7 +19,7 @@ proof.SCRIPTS.update({
     "collage": {
         "default": "A team shares an idea, builds a prototype, and celebrates a new project."
     },
-    "newscast": {
+    "newscast.neon": {
         "default": "A city opens a new public library. Visitors arrive throughout the day."
     },
 })
