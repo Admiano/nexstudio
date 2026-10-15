@@ -1487,7 +1487,9 @@
         break;
       }
       case 'CHART_LINE': {
-        const pts = (params.points || [0.2, 0.8]).map((v, i, arr) => [b.x + (i / (arr.length - 1)) * b.w, b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
+        const pts = (params.points || [0.2, 0.8]).map((v, i, arr) =>
+          [b.x + (params.x_positions ? params.x_positions[i] : i / (arr.length - 1)) * b.w,
+           b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
         // Hairline guides make the graph readable without introducing invented
         // axis units. Values and their scale come exclusively from source data.
         for (const pct of [0, 0.5, 1]) {
@@ -2663,17 +2665,30 @@
     sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
+  // Derive destination timing from the actual spoken source phrase, not from
+  // noun whitelists or an arbitrary time offset after a visual connector.
+  function sketchSpokenEntity(beat, entity, after) {
+    const tokens = String(entity && entity.ent && entity.ent.label && entity.ent.label.text || '')
+      .toLowerCase().match(/[a-z0-9]+/g) || [];
+    const words = beat.words || [];
+    if (!tokens.length) return null;
+    const norm = (text) => String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (let i = 0; i + tokens.length <= words.length; i++) {
+      if (words[i].start_ms < after) continue;
+      if (tokens.every((t, j) => norm(words[i + j].text) === t))
+        return { start_ms: words[i].start_ms,
+                 end_ms: words[i + tokens.length - 1].end_ms };
+    }
+    return null;
+  }
+
   function sketchTransformClock(beat, target, cue) {
     const begin = cue.start_ms;
-    const label = String(target && target.ent.label && target.ent.label.text || '')
-      .toLowerCase().replace(/[^a-z0-9]/g, '');
-    const named = label && (beat.words || []).find((word) =>
-      word.start_ms >= begin &&
-      String(word.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === label);
-    const targetStart = named ? named.start_ms : begin + 400;
-    const finish = Math.max(begin + 590, cue.end_ms,
-      named ? Math.min(beat.duration_ms - 80, named.end_ms + 35) : 0);
-    return { begin, finish, targetStart };
+    const named = sketchSpokenEntity(beat, target, begin);
+    const targetStart = named ? named.start_ms : cue.end_ms;
+    const finish = Math.max(cue.end_ms,
+      named ? Math.min(beat.duration_ms, named.end_ms) : begin);
+    return { begin, finish: Math.max(finish, begin + 120), targetStart };
   }
 
   function applyIllustrationState(ill, lt, beat, ctx) {
@@ -2744,9 +2759,7 @@
         // through the narrated transfer, rather than letting a dot race past
         // three stationary icons. No extra object or unspoken travel is made.
         // Fluids, machinery and static concepts deliberately do not qualify.
-        const noun = String(ent.label && ent.label.text || '')
-          .toLowerCase().replace(/[^a-z ]/g, '').trim();
-        const portable = /^(?:message|messages|file|files|letter|letters|package|packages|parcel|parcels|note|notes|document|documents|instruction|instructions)$/.test(noun);
+        const portable = ent.params && ent.params.narrative_role === 'transferred_payload';
         if (portable) {
           const links = [...ill.rels.values()].filter((r) => r.rel.type === 'flows_to');
           const incoming = links.find((r) => r.rel.target === ent.id);
@@ -2759,17 +2772,12 @@
               deliver.start_ms > receive.start_ms) {
             const self = centre(node.bb), origin = centre(sender.bb);
             const destination = centre(recipient.bb);
-            const firstEnd = Math.max(receive.end_ms + 120, receive.start_ms + 380);
-            // A named receiving noun is the true narrative destination. Use
-            // its original spoken onset as the landing authority; a short
-            // connector DRAW op must not make the payload teleport in advance.
-            const receiverNoun = String(recipient.ent.label && recipient.ent.label.text || '')
-              .toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-            const receiverWord = (beat.words || []).find((w) =>
-              String(w.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === receiverNoun &&
-              w.start_ms > deliver.start_ms);
-            const lastEnd = Math.max(deliver.end_ms + 370, deliver.start_ms + 730,
-              receiverWord ? receiverWord.start_ms + 210 : 0);
+            const firstEnd = Math.max(receive.end_ms,
+              Math.min(deliver.start_ms, receive.start_ms +
+                Math.max(120, receive.end_ms - receive.start_ms)));
+            const receiverWord = sketchSpokenEntity(beat, recipient, deliver.start_ms);
+            const lastEnd = Math.max(deliver.end_ms,
+              receiverWord ? receiverWord.start_ms : deliver.start_ms + 120);
             const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
             const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
             // Enter from near the known sender, land on the named object,
@@ -2850,7 +2858,9 @@
           // The source explicitly says the carrier moves with its payload.
           // Give the flight enough of the spoken clause to be readable, and
           // bring the same named carrier up to the recipient (not just 64%).
-          const travelEnd = Math.max(carry.end_ms, Math.min(beat.duration_ms - 280, carry.end_ms + 650));
+          const namedArrival = sketchSpokenEntity(beat, recipient, carry.start_ms);
+          const travelEnd = Math.min(beat.duration_ms, Math.max(carry.end_ms,
+            namedArrival ? namedArrival.start_ms : carry.end_ms));
           const p = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
           const from = centre(node.bb), to = centre(recipient.bb);
           // Stop the moving carrier at the intended recipient's silhouette,
@@ -2890,7 +2900,9 @@
               op.start_ms > attachment.start_ms);
             const destination = ill.ents.get(nextLink.rel.target);
             if (!carry || !destination) continue;
-            const travelEnd = Math.max(carry.end_ms, Math.min(beat.duration_ms - 280, carry.end_ms + 650));
+            const namedArrival = sketchSpokenEntity(beat, destination, carry.start_ms);
+            const travelEnd = Math.min(beat.duration_ms, Math.max(carry.end_ms,
+              namedArrival ? namedArrival.start_ms : carry.end_ms));
             const arrive = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
             const target = centre(destination.bb);
             // Match the named carrier's destination. The carried noun stays
@@ -2925,16 +2937,14 @@
           const cue = relation.ops.find((op) => op.op === 'CONNECT');
           if (!cue) continue;
           const payload = ill.ents.get(relation.rel.source);
-          const payloadNoun = String(payload && payload.ent.label && payload.ent.label.text || '')
-            .toLowerCase().replace(/[^a-z]/g, '').trim();
-          const portableCargo = /^(message|messages|file|files|letter|letters|package|packages|parcel|parcels|note|notes|document|documents|instruction|instructions)$/.test(payloadNoun);
-          const name = String(ent.label && ent.label.text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-          const receiverWord = portableCargo ? (beat.words || []).find((w) =>
-            String(w.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === name &&
-            w.start_ms > cue.start_ms) : null;
-          const arrival = Math.max(cue.start_ms + 520, cue.end_ms + 160,
-            receiverWord ? receiverWord.start_ms : 0);
-          const receive = EASE.pulse(prog(lt, arrival - 110, arrival + 490));
+          const portableCargo = payload && payload.ent.params &&
+            payload.ent.params.narrative_role === 'transferred_payload';
+          const receiverWord = portableCargo
+            ? sketchSpokenEntity(beat, node, cue.start_ms) : null;
+          const arrival = receiverWord ? receiverWord.start_ms : cue.end_ms;
+          const cueDuration = Math.max(120, cue.end_ms - cue.start_ms);
+          const receive = EASE.pulse(prog(lt, arrival - cueDuration * 0.3,
+            arrival + cueDuration * 1.3));
           scale *= 1 + receive * 0.075;
           ty -= receive * Math.min(10, node.bb.h * 0.045);
           break;
