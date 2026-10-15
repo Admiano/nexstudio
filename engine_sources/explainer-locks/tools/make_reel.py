@@ -942,10 +942,17 @@ def sketch_groups(words):
     elif len(groups) == 2:
         text_a = " ".join(w["text"] for w in groups[0]).lower()
         text_b = " ".join(w["text"] for w in groups[1]).lower()
-        # Attachment -> transfer is one continuous visual argument.
+        # Short, explicitly source-linked action chains stay in one moving
+        # visual argument rather than cutting a few milliseconds after the
+        # second action; no artificial duration is added to the voice.
+        attachment_then_carry = (
+            re.search(r"\b(sticks? to|attaches? to)\b", text_a)
+            and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b))
+        transfer_then_feed = (
+            re.search(r"\b(sends?|transfers?|flows?)\b", text_a)
+            and re.search(r"\b(feeds?|delivers?)\b", text_b))
         if (len(groups[0] + groups[1]) <= 20
-                and re.search(r"\b(sticks? to|attaches? to)\b", text_a)
-                and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b)
+                and (attachment_then_carry or transfer_then_feed)
                 and nouns(groups[0]) & nouns(groups[1])):
             groups = [groups[0] + groups[1]]
     return groups
