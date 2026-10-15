@@ -94,6 +94,29 @@ class RepertoireTests(unittest.TestCase):
                 self.assertEqual(len(report["scenes"]), 1)
                 BeatTreatment.parse(b)
 
+    def test_sketch_drawable_subjects_outweigh_incidental_source_words(self):
+        examples = [
+            ("The driver carries that same parcel to a waiting customer.",
+             {"driver", "customer"}),
+            ("Circle the safety document so the team can review the record.",
+             {"document"}),
+            ("The nurse gives the doctor an approved report.",
+             {"nurse", "doctor", "report"}),
+        ]
+        for source, required in examples:
+            with self.subTest(source=source):
+                ents = make_reel.sketch_entities(tokens(source), [])
+                pictured = {e.get("phrase") for e in ents
+                            if e.get("asset_ref") or (e.get("params") or {}).get("visual_class")}
+                self.assertTrue(required <= pictured, (source, pictured))
+                self.assertTrue(all(phrase in source.lower() for phrase in required))
+        highlight = beat("Circle the safety document so the team can review the record.", "sketch")
+        self.assertIn("highlighted_subject", [x[0] for x in candidates("sketch", highlight)])
+        self.assertTrue(realize("highlighted_subject", highlight))
+        self.assertEqual(highlight["illustration"]["entities"][0]["phrase"], "document")
+        self.assertEqual(highlight["illustration"]["entities"][-1]["glyph"], "MARK_CIRCLE")
+        BeatTreatment.parse(highlight)
+
     def test_sketch_real_visual_markup_is_not_applied_to_negated_claims(self):
         cases=[
             ("Never use the receipt.", "negated_subject", "PROHIBIT","blocks"),
