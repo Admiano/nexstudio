@@ -332,6 +332,20 @@ class SketchAuthoringTests(unittest.TestCase):
                     self.assertLess(abs(origin["w"] - recipient["w"]),
                                     0.15 * max(origin["w"], recipient["w"]))
 
+    def test_source_named_list_transform_has_drawable_destination_not_word_only(self):
+        film = author("A note becomes a list.")
+        scene = film["beats"][0]["illustration"]
+        target = next(e for e in scene["entities"] if e["phrase"] == "list")
+        self.assertEqual(target["glyph"], "TILE")
+        if target.get("asset_ref"):
+            self.assertEqual(target["asset_ref"].rsplit(".", 1)[-1], "list")
+        else:
+            self.assertEqual(target["params"]["visual_class"], "list")
+        self.assertIn(("sk_note", "sk_list", "transforms_into"),
+                      [(e["source"],e["target"],e["type"])
+                       for e in scene["relations"]])
+        FilmTreatment.parse(film)
+
     def test_source_checked_visual_classes_produce_real_art_without_type_hallucinations(self):
         # A class describes the type of picture that can be drawn, not a
         # language-specific action, source script, or an invented costume.
