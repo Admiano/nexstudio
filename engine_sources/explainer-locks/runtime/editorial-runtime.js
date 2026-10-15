@@ -2667,7 +2667,34 @@
   function buildIllustration(il, plan, beatRoot, opts) {
     const W = plan.canvas.w, H = plan.canvas.h;
     const sw = Math.max(2.5, Math.min(W, H) * 0.0046);
-    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, beatRoot);
+    // A typed Sketch transfer is directed as shots, not a stationary
+    // diagram. A clipped illustration viewport includes its native labels,
+    // while the kinetic spoken text remains fixed on the main beat root.
+    const sourceTransfer = plan.director_style === 'sketch' &&
+      il.entities.some(e => e.params && e.params.narrative_role === 'transferred_payload') &&
+      il.relations.filter(r => r.type === 'flows_to').length >= 2 &&
+      !il.entities.some(e => e.glyph === 'MEDIA');
+    let artRoot = beatRoot, shot = null;
+    if (sourceTransfer) {
+      const bounds = [];
+      for (const ent of il.entities) {
+        bounds.push(ent.bbox);
+        if (ent.label && ent.label.bbox) bounds.push(ent.label.bbox);
+      }
+      const pad = Math.min(W, H) * 0.021;
+      const x0 = Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
+      const x1 = Math.min(W, Math.max(...bounds.map(b => b.x + b.w)) + pad);
+      const y0 = Math.max(0, Math.min(...bounds.map(b => b.y)) - pad);
+      const y1 = Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) + pad);
+      const viewport = el('div', {
+        position: 'absolute', inset: '0', zIndex: '10', pointerEvents: 'none',
+        clipPath: `inset(${f2(y0)}px ${f2(W - x1)}px ${f2(H - y1)}px ${f2(x0)}px)`
+      }, beatRoot);
+      artRoot = el('div', { position: 'absolute', inset: '0',
+        willChange: 'transform', transformOrigin: '0 0' }, viewport);
+      shot = { root: artRoot, viewport: { x: x0, y: y0, w: x1-x0, h: y1-y0 } };
+    }
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, artRoot);
     Object.assign(svg.style, { position: 'absolute', left: '0', top: '0', zIndex: '10', overflow: 'visible', willChange: 'transform' });
     svg.classList.add('em2-illustration');
     const ink = plan.brand.ink, accent = il.accent || ink;
@@ -2688,7 +2715,7 @@
       g.style.willChange = 'transform, opacity';
       const glyph = buildGlyph(ent, il, plan, g, sw, opts);
       if (glyph.ready) ready.push(glyph.ready);
-      const label = buildLabel(ent, plan, beatRoot);
+      const label = buildLabel(ent, plan, artRoot);
       let media = null;
       if (ent.glyph === 'MEDIA') {
         media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
@@ -2911,7 +2938,7 @@
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
     }
-    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, handoffs,
+    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, handoffs, shot,
       ready: Promise.all(ready) };
   }
 
@@ -3624,6 +3651,36 @@
         if (node.label) node.label.wrap.style.visibility = 'hidden';
         if (node.media) node.media.frame.style.visibility = 'hidden';
       }
+    }
+    // Three directed camera shots follow authored causal events: a closer
+    // initial introduction to the sender, a clean overview while the named
+    // thing travels, then a closer receipt at the spoken destination.
+    // Zoom affects illustration AND labels as one group; headline timing and
+    // source narration do not move. The viewport clips off-stage art instead
+    // of allowing a zoomed subject to collide with the spoken sentence.
+    if (ill.shot) {
+      const h = (ill.handoffs || []).find(item => item.cargo && item.sender && item.recipient);
+      const viewport = ill.shot.viewport;
+      if (h) {
+        const mid = { x:viewport.x+viewport.w/2, y:viewport.y+viewport.h/2 };
+        const init = centre(h.sender.bb);
+        const finish = centre(h.recipient.bb);
+        const enter = EASE.inOutCubic(prog(lt, h.receive.start_ms,
+          Math.max(h.receive.end_ms, h.delivery.start_ms)));
+        const arriveWord = sketchSpokenEntity(beat, h.recipient, h.delivery.start_ms);
+        const arrival = arriveWord ? arriveWord.start_ms : h.delivery.end_ms;
+        const ending = EASE.inOutCubic(prog(lt, arrival,
+          Math.max(arrival + 140, h.delivery.end_ms)));
+        const openingScale = 1.23, overviewScale = 1.01, endingScale = 1.21;
+        const scale = lerp(lerp(openingScale, overviewScale, enter),
+          endingScale, ending);
+        const focalX = lerp(lerp(init.x, mid.x, enter), finish.x, ending);
+        const focalY = lerp(lerp(init.y, mid.y, enter), finish.y, ending);
+        const dx = mid.x - scale * focalX;
+        const dy = mid.y - scale * focalY;
+        ill.shot.root.style.transform =
+          `translate(${f2(dx)}px, ${f2(dy)}px) scale(${scale.toFixed(5)})`;
+      } else ill.shot.root.style.transform = 'none';
     }
     // The single source->cargo->recipient performance is evaluated directly
     // from narration cues. It is seek-safe and contains no per-script timing.
