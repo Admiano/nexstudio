@@ -1748,16 +1748,20 @@
         break;
       }
       case 'TILE': {
-        // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
+        // The illustration director keeps the original registry mark and frame
+        // but treats the tile as flat drawn paper, not a shiny app button.
+        // The collage and other five families retain their enamel treatment.
+        const isIllustrated = plan.director_style === 'sketch';
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.24;
         const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
         const body = chassisBody(node, g);
         // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
         // stroked last, so the outline is one continuous weight around every corner.
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
-        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
-        if (!dark) {
+        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : (isIllustrated ? paper : housing.light) }, body);
+        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13,
+          alpha: isIllustrated ? 0.09 : 0.28 };
+        if (!dark && !isIllustrated) {
           // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
           const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
           svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
@@ -1766,8 +1770,11 @@
             fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
           }, body);
         }
-        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.55), 'stroke-opacity': 0.55 }, body);
-        node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
+        svgEl('path', { d: shape, fill: 'none', stroke: ink,
+          'stroke-width': f2(sw * (isIllustrated ? 0.75 : 0.55)),
+          'stroke-opacity': isIllustrated ? 0.65 : 0.55 }, body);
+        if (!isIllustrated)
+          node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         const word = params.word ? String(params.word) : '';
         const fg = dark ? paper : ink;
         // The name sits above the accent fill so an inked tile keeps it, in the paper colour.
@@ -2913,12 +2920,21 @@
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
       for (const e of gl.inkEls) {
         if (e === gl.extra.wordHost) {
-          const onDark = (ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent));
-          for (const t of e.querySelectorAll('text')) t.setAttribute('fill', onDark ? paper : ink);
+          const sketchInk = ctx.directorStyle === 'sketch' && ent.glyph === 'TILE';
+          const onDark = (ent.params && ent.params.tone === 'dark') ||
+            (!sketchInk && inkLevel > 0.5 && (inkP.accent || swap.accent));
+          for (const t of e.querySelectorAll('text'))
+            t.setAttribute('fill', onDark ? paper : ink);
         } else if (e === gl.extra.iconHost) {
-          const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') && ((ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)));
-          // Brand marks paint in their brand hex on light bodies; enamel tiles keep a light glyph on dark bodies and accent fills.
+          const sketchInk = ctx.directorStyle === 'sketch' && ent.glyph === 'TILE';
+          const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') &&
+            ((ent.params && ent.params.tone === 'dark') ||
+              (!sketchInk && inkLevel > 0.5 && (inkP.accent || swap.accent)));
+          // In drawn-paper Sketch the source icon itself receives emphasis,
+          // instead of turning every framed illustration into a blue button.
           if (e.dataset.brandHex) e.style.color = onDark ? paper : e.dataset.brandHex;
+          else if (sketchInk && !onDark)
+            e.style.color = (inkLevel > 0.5 && (inkP.accent || swap.accent)) ? accent : ink;
           else if (ent.glyph === 'TILE' || ent.glyph === 'BADGE') e.style.color = onDark ? paper : ink;
           else e.style.color = inkLevel > 0.5 ? (inkP.accent || swap.accent ? accent : ink) : ink;
         }
