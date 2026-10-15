@@ -1444,6 +1444,7 @@
           fill: accent, stroke: plan.brand.paper, 'stroke-width': sw * 0.6 }, g);
         node.outline.push(drawable(p, polyLength(pts)));
         node.extra.setGrow = (k) => {
+          node.extra.pathFraction = k;
           node.outline[0].set(k);
           const q = pointAlong(pts, k);
           for (const el of [dot, halo]) {
@@ -1460,6 +1461,19 @@
             label.style.fillOpacity = reached ? (isCurrent ? '1' : '0.60') : '0';
             label.setAttribute('fill', isCurrent ? accent : ink);
           });
+        };
+        // A single first observation is a genuine point even though the
+        // connecting line has no length yet. Reveal it when its exact number
+        // is spoken; without this, January stays empty until February's value.
+        node.extra.setFirstPointVisible = (firstSpoken) => {
+          if (firstSpoken && (node.extra.pathFraction || 0) < 0.004) {
+            dot.style.opacity = '1';
+            halo.style.opacity = '1';
+            if (valueLabels[0]) {
+              valueLabels[0].style.fillOpacity = '1';
+              valueLabels[0].setAttribute('fill', accent);
+            }
+          }
         };
         break;
       }
@@ -2520,7 +2534,11 @@
       }
       if (gl.extra.setFill) { const f = propAt(node, 'fill', lt); gl.extra.setFill(f.v, f.accent); }
       if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v);
-      else if (ent.glyph !== 'BAR' && ent.glyph !== 'CHART_LINE') { const gr = propAt(node, 'grow', lt).v; if (gr !== 1) scale *= gr; }
+      if (gl.extra.setFirstPointVisible) {
+        const firstObservation = node.ops.find((op) => op.op === 'GROW' && op.params && op.params.point_index === 0);
+        gl.extra.setFirstPointVisible(Boolean(firstObservation && lt >= firstObservation.start_ms));
+      }
+      else if (!gl.extra.setGrow && ent.glyph !== 'BAR' && ent.glyph !== 'CHART_LINE') { const gr = propAt(node, 'grow', lt).v; if (gr !== 1) scale *= gr; }
       if (gl.count.length > 1) {
         const c = propAt(node, 'count', lt).v;
         gl.count.forEach((item, i) => {
