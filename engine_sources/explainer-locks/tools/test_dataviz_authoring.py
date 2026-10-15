@@ -120,7 +120,7 @@ class DataVizAuthoringTests(unittest.TestCase):
         chart = next(e for e in entities if e["glyph"] == "CHART_LINE")
         self.assertEqual(chart["params"]["value_labels"], ["10", "20", "15"])
         datums = [e for e in entities if e["glyph"] == "PILL"]
-        self.assertEqual([e["label"] for e in datums], ["Jan 10", "Feb 20", "Mar 15"])
+        self.assertEqual([e["label"] for e in datums], ["Jan", "Feb", "Mar"])
         self.assertTrue(all(e["params"].get("plain_datum") is True for e in datums))
         self.assertEqual(len(datums), len(chart["params"]["points"]))
 
