@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        family: [photo_story, emoji, journey, collage]
+        family: [photo_story, emoji, journey, collage, newscast]
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
