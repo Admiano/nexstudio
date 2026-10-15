@@ -1354,6 +1354,13 @@ def sketch_beat(gwords, bi, n, previous, media):
                 links[0][0]["size"] = "hero"
                 if len(entities) == 2:
                     links[-1][1]["size"] = "hero"
+                # A three-party typed handoff gives sender and receiver equal
+                # narrative standing. The cargo is the moving middle layer;
+                # it must not make the receiving participant a tiny footnote.
+                typed = [e for e in entities
+                         if e.get("params", {}).get("narrative_role") == "transferred_payload"]
+                if len(entities) == 3 and len(typed) == 1 and links[-1][1] is not typed[0]:
+                    links[-1][1]["size"] = "hero"
             shared = {e["id"] for e in entities} & previous
             relations = [{"type": r, "source": a["id"], "target": b["id"], "style": "dash"}
                          for a, b, r, _ in links]
