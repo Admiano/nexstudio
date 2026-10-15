@@ -100,18 +100,54 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertEqual(authored("Three residents out of ten residents prefer walking.")["data_claim"]["kind"],
                          "SHARE")
 
-    def test_trend_only_for_supplied_evenly_spaced_dates(self):
+    def test_trend_for_monotone_dates_with_honest_temporal_distance(self):
         text = "In 2021 sales were 10, in 2022 they were 20, and in 2023 they were 30."
         beat = authored(text)
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
         self.assertEqual([q["value"] for q in beat["data_claim"]["quantities"]], ["10", "20", "30"])
         self.assertEqual(beat["illustration"]["entities"][0]["params"]["points"], [1 / 3, 2 / 3, 1])
-        uneven = text.replace("2022", "2024")
-        self.assertNotIn("CHART_LINE", [e["glyph"] for e in authored(uneven).get("illustration", {}).get("entities", [])])
+        uneven = text.replace("2022", "2024").replace("2023", "2026")
+        nonuniform = authored(uneven)
+        chart = next(e for e in nonuniform["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["x_positions"], [0.0, 3 / 5, 1.0])
+        self.assertEqual([p["label"] for p in nonuniform["illustration"]["entities"][1:]],
+                         ["2021", "2024", "2026"])
+        # Backward chronology never draws a misleading left-to-right line.
+        self.assertNotIn("CHART_LINE", [e["glyph"] for e in authored(
+            "In 2024 sales were 10; in 2021 they were 20; in 2025 they were 30."
+        ).get("illustration", {}).get("entities", [])])
         no_dates = authored("The cups held 10, 20 and 30.")
         self.assertNotIn("CHART_LINE", [e["glyph"] for e in no_dates.get("illustration", {}).get("entities", [])])
         mixed = authored("In 2021 books were 10; in 2022 chairs were 20; in 2023 shoes were 30.")
         self.assertNotIn("CHART_LINE", [e["glyph"] for e in mixed.get("illustration", {}).get("entities", [])])
+
+    def test_chart_rejects_fabricated_or_out_of_order_x_distances(self):
+        import copy
+        chart_beat = authored("In 2021 sales were 10, in 2024 they were 20, and in 2026 they were 30.")
+        self.assertEqual(chart_beat["data_claim"]["kind"], "TREND")
+        for invalid in ([0, 1, 1], [0.1, 0.5, 1], [0, 0.8, 0.7],
+                        [0, float("nan"), 1], [0, 1]):
+            with self.subTest(invalid=invalid):
+                candidate = copy.deepcopy(chart_beat)
+                candidate["illustration"]["entities"][0]["params"]["x_positions"] = invalid
+                with self.assertRaises(TreatmentError):
+                    BeatTreatment.parse(candidate)
+
+    def test_irregular_chart_cues_use_source_time_spacing_in_all_aspects(self):
+        source = "In 2021 sales were 10; in 2024 they were 40; and in 2026 they were 20."
+        beat = authored(source)
+        xs = beat["illustration"]["entities"][0]["params"]["x_positions"]
+        for w, h in ((500, 240), (400, 400), (220, 500)):
+            _beat, _parsed, clock, _ents, ops = self.schedule(source, w, h)
+            cue = [o for o in ops if o["op"] == "GROW"]
+            lengths = [math.hypot(w * (xs[i + 1] - xs[i]),
+                                  h * 0.9 * (v - u))
+                       for i, (u, v) in enumerate(zip([.25, 1.0], [1.0, .5]))]
+            self.assertAlmostEqual(cue[1]["to"], lengths[0] / sum(lengths))
+            self.assertEqual([op["to"] for op in (cue[0], cue[-1])], [0, 1])
+            self.assertTrue(all(op["end_ms"] == clock.words[
+                op["params"]["word_index"] + op["params"]["word_span"] - 1].end_ms
+                for op in cue))
 
     def test_trend_annotations_are_source_values_not_pill_buttons(self):
         beat = authored("In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
