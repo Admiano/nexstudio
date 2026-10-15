@@ -73,6 +73,9 @@ jobs:
           assert plan["director_style"]==style
           assert plan["gate"]["status"]=="PASS"
           assert not manifest.get("page_errors")
+          orphans=[q for q in manifest.get("authorship",{}).get("findings",[])
+                   if q.get("code")=="ORPHAN_CONNECTOR"]
+          assert not orphans,(style,scenario,orphans)
           if style=="dataviz":
               assert not plan["captions"] and plan["captions_policy"]=="kinetic"
               assert manifest.get("captions_burned",0)==0
