@@ -777,6 +777,10 @@ def dataviz_beat(g, bi, n, media):
         eid = "trend"
         entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE", "size": "hero",
                          "params": {"points": [float(v / max(values)) for v in values]}})
+        # Stage the empty axis while the premise is spoken; actual measured
+        # values still draw ONLY when their corresponding quantities are said.
+        ops.append({"op": "DRAW", "target": eid,
+                    "at": {"word": g[0]["text"]}, "duration_ms": 300})
         land(qs[0], "DIM", eid)
         for i, q in enumerate(qs):
             land(q, "GROW", eid, params={"point_index": i})
