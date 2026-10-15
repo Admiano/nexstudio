@@ -229,7 +229,7 @@ class DataVizAuthoringTests(unittest.TestCase):
         beat = make_reel.dataviz_beat(groups[0], 0, 1, [])
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
         self.assertEqual([e["label"] for e in beat["illustration"]["entities"][1:]],
-                         ["Jan 10", "Feb 20", "Mar 15"])
+                         ["Jan", "Feb", "Mar"])
         self.assertEqual(" ".join(u["text"] for u in beat["display_units"]), text)
         self.assertLessEqual(len(beat["display_units"]), 5)
         BeatTreatment.parse(beat)
