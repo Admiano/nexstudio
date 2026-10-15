@@ -1585,14 +1585,31 @@
               'stroke-opacity': 0, 'stroke-dasharray': f2(sw * 1.4) + ' ' + f2(sw * 2.4),
               'data-action': 'measured-x-guide' }, g) : null;
         const valueLabels = (params.value_labels || []).map((value, i) => {
+          // Measured numbers are editorial evidence, never icon captions.
+          // Scale each number against its nearest actual chronological
+          // neighbour, the numeric text length and the chart's real height.
+          // This handles 3-6 irregular source observations in every aspect
+          // without a preset script, year range or unit. The datum itself
+          // remains exact, and its reveal still belongs to its GROW cue.
+          const neighbours = [
+            i > 0 ? pts[i][0] - pts[i - 1][0] : Infinity,
+            i + 1 < pts.length ? pts[i + 1][0] - pts[i][0] : Infinity
+          ];
+          const gap = Math.min(...neighbours);
+          const textLength = Math.max(2, String(value).length);
+          const size = Math.max(sw * 2.8, Math.min(
+            56, b.h * 0.155, b.w * 0.11,
+            (Number.isFinite(gap) ? gap : b.w) * 1.25 /
+              (textLength * 0.67)));
+          const labelY = Math.max(b.y + size * 1.08,
+            pts[i][1] - Math.max(sw * 5, size * 0.57 + 4));
           const label = svgEl('text', {
-            x: f2(pts[i][0]), y: f2(pts[i][1] - Math.max(sw * 5, 19)),
+            x: f2(pts[i][0]), y: f2(labelY),
             'text-anchor': 'middle', fill: ink, 'fill-opacity': 0,
-            'font-size': f2(chartLed
-              ? Math.min(42, Math.max(23, Math.min(b.w * 0.043, b.h * 0.10)))
-              : Math.min(b.w / 14, sw * 5.1)),
+            'font-size': f2(size), 'letter-spacing': '-0.035em',
             'font-family': plan.fonts.families.data || plan.fonts.families.text,
-            'font-weight': 700, 'data-source-value': String(i),
+            'font-weight': 800, 'font-variant-numeric': 'tabular-nums',
+            'data-source-value': String(i),
           }, g);
           label.textContent = value;
           return label;
