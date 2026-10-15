@@ -49,6 +49,9 @@ diagnostic_render('structure')
 cloth=load('cast-cloth-illustrated.py')['apply_cloth_appearance'](scene,os.environ['CAST_CHARACTER'])
 diagnostic_render('fabric')
 detail=load('cast-cloth-detail.py')['apply_cloth_detail'](scene)
+formal_detail=next(row for row in detail['garments'] if row['object']==selected)
+assert formal_detail['collarClearance'].get('preservedNativeCollar'), 'FORMAL_COLLAR_DAMAGED_BY_CASUAL_SHRINKWRAP'
+assert not bpy.data.objects[selected].modifiers.get('Cast V16 collar clearance'), 'FORMAL_COLLAR_SHRINKWRAP_STILL_INSTALLED'
 diagnostic_render('detail')
 for frame in (27,338,891):
     scene.frame_set(frame)
