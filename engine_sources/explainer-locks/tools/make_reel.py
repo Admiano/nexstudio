@@ -1212,16 +1212,25 @@ def sketch_beat(gwords, bi, n, previous, media):
     is_interface = bool(_SKETCH_INTERFACE.search(narration))
     stages = sketch_action_stages(narration, entities) if not is_interface else []
     if stages:
-        links: list[tuple[dict[str, Any], dict[str, Any], str, str]] = []
+        # Store every edge by its stable authored entity IDs, not object
+        # identity. A physical payload must traverse BOTH source -> payload and
+        # payload -> destination; losing its second leg changes the claim.
+        links_by_id: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any], str, str]] = {}
         for source, payload, target, relation, anchor in stages:
-            chain = [source] + payload + [target]
-            new_links = 0
+            chain = [source, *payload, target]
             for j, (left, right) in enumerate(zip(chain, chain[1:])):
-                if any(link[0] is left and link[1] is right for link in links):
-                    continue
-                links.append((left, right, relation,
-                              anchor if new_links == 0 else chain[j]["phrase"].split()[0]))
-                new_links += 1
+                key = (left["id"], right["id"])
+                if key not in links_by_id:
+                    link_anchor = anchor if j == 0 else left["phrase"].split()[0]
+                    links_by_id[key] = (left, right, relation, link_anchor)
+        links = list(links_by_id.values())
+        for source, payload, target, _, _ in stages:
+            if payload:
+                chain = [source, *payload, target]
+                missing = [(a["id"], b["id"]) for a, b in zip(chain, chain[1:])
+                           if (a["id"], b["id"]) not in links_by_id]
+                if missing:
+                    raise ValueError(f"Sketch payload transport lost authored links: {missing}")
         if links:
             form = ("PROCESS_PIPELINE" if any(r == "flows_to" for _, _, r, _ in links)
                     else "STATE_TRANSFORMATION" if any(r == "transforms_into" for _, _, r, _ in links)
