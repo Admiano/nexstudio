@@ -1323,6 +1323,53 @@
     };
 
     switch (ent.glyph) {
+      case 'PUMP': {
+        // Source-named native pump: consistent stroke geometry, with a rotor
+        // driven by authored outbound FLOW rather than ambient looping.
+        const c = centre(b), r = Math.min(b.w, b.h) * 0.23;
+        const shell = {x: b.x + b.w * 0.13, y: b.y + b.h * 0.14,
+                       w: b.w * 0.74, h: b.h * 0.72};
+        const casing = svgEl('rect', { ...line, x: f2(shell.x), y: f2(shell.y),
+          width: f2(shell.w), height: f2(shell.h), rx: f2(r * 0.38),
+          fill: paper }, g);
+        node.outline.push(drawable(casing, 2 * (shell.w + shell.h)));
+        const rotor = svgEl('g', {}, g);
+        const rim = svgEl('circle', { ...line, cx: f2(c.x), cy: f2(c.y), r: f2(r) }, rotor);
+        node.outline.push(drawable(rim, 2 * Math.PI * r));
+        for (let i = 0; i < 3; i++) {
+          const a = i * Math.PI * 2 / 3;
+          const blade = svgEl('path', { ...line, d: polyPath([
+            [c.x + Math.cos(a) * r * 0.18, c.y + Math.sin(a) * r * 0.18],
+            [c.x + Math.cos(a) * r * 0.72, c.y + Math.sin(a) * r * 0.72],
+          ]), 'stroke-width': sw * 1.25 }, rotor);
+          node.outline.push(drawable(blade, r * 0.54));
+        }
+        node.extra.pumpRotor = { group: rotor, cx: c.x, cy: c.y };
+        break;
+      }
+      case 'TANK': {
+        // Native cylindrical container, never a substitute brand icon. A
+        // restrained water level changes ONLY when a spoken flow enters it.
+        const x0 = b.x + b.w * 0.17, x1 = b.x + b.w * 0.83;
+        const y0 = b.y + b.h * 0.17, y1 = b.y + b.h * 0.88;
+        const ry = Math.max(sw * 2, b.h * 0.075);
+        const shell = `M${f2(x0)} ${f2(y0)}A${f2((x1-x0)/2)} ${f2(ry)} 0 0 1 ${f2(x1)} ${f2(y0)}L${f2(x1)} ${f2(y1)}A${f2((x1-x0)/2)} ${f2(ry)} 0 0 1 ${f2(x0)} ${f2(y1)}Z`;
+        const clipId = `em2tank-${ent.id}-${Math.round(x0)}-${Math.round(y0)}`.replace(/[^a-z0-9-]/gi, '');
+        const defs = svgEl('defs', {}, g);
+        const clip = svgEl('clipPath', { id: clipId }, defs);
+        svgEl('path', { d: shell }, clip);
+        const fill = svgEl('rect', {
+          x: f2(x0), y: f2(y1), width: f2(x1-x0), height: 0,
+          fill: accent, 'fill-opacity': 0.22, 'clip-path': `url(#${clipId})`,
+        }, g);
+        const outline = svgEl('path', { ...line, d: shell }, g);
+        const rim = svgEl('ellipse', { ...line, cx: f2((x0+x1)/2),
+          cy: f2(y0), rx: f2((x1-x0)/2), ry: f2(ry) }, g);
+        node.outline.push(drawable(outline, b.h * 1.7 + (x1-x0) * 2));
+        node.outline.push(drawable(rim, Math.PI * (x1-x0) + ry));
+        node.extra.tankWater = {fill, y0, y1};
+        break;
+      }
       case 'VESSEL': {
         const top = b.w, bot = b.w * 0.78, lip = b.h * 0.035;
         const x0 = b.x + (b.w - top) / 2, x1 = b.x + (b.w - bot) / 2, r = b.w * 0.14;
@@ -2533,6 +2580,30 @@
         else { e.setAttribute('fill', inkP.accent || swap.accent ? accent : ink); e.setAttribute('fill-opacity', inkLevel.toFixed(4)); }
       }
       if (gl.extra.setFill) { const f = propAt(node, 'fill', lt); gl.extra.setFill(f.v, f.accent); }
+      // Semantic physical performances are time-bound to the source-authored
+      // action connecting these bodies. Unspoken items remain perfectly still.
+      if (gl.extra.pumpRotor) {
+        let turn = 0;
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.source !== ent.id || rel.rel.type !== 'flows_to') continue;
+          const cue = rel.ops.find((op) => op.op === 'CONNECT');
+          if (cue) turn = Math.max(turn, 180 * EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms)));
+        }
+        const rotor = gl.extra.pumpRotor;
+        rotor.group.setAttribute('transform', `rotate(${f2(turn)} ${f2(rotor.cx)} ${f2(rotor.cy)})`);
+      }
+      if (gl.extra.tankWater) {
+        let level = 0;
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.target !== ent.id || rel.rel.type !== 'flows_to') continue;
+          const cue = rel.ops.find((op) => op.op === 'CONNECT');
+          if (cue) level = Math.max(level, EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms + 260)));
+        }
+        const tank = gl.extra.tankWater;
+        const h = (tank.y1 - tank.y0) * 0.48 * level;
+        tank.fill.setAttribute('y', f2(tank.y1 - h));
+        tank.fill.setAttribute('height', f2(h));
+      }
       if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v);
       if (gl.extra.setFirstPointVisible) {
         const firstObservation = node.ops.find((op) => op.op === 'GROW' && op.params && op.params.point_index === 0);
