@@ -18,10 +18,38 @@ report=load('cast-apply-formal.py')['apply_formal'](scene,variant,suit,tie)
 selected=report['selectedGarment']
 assert report['nativeWardrobe']
 assert selected==os.environ['DOBJ']==os.environ['GARMS'].split('=')[0]
+def diagnostic_render(stage):
+    if os.environ.get('SCENEBAM_NATIVE_STAGE_DIAGNOSTICS')!='1':return
+    from mathutils import Vector
+    scene.frame_set(27)
+    scene.render.engine='CYCLES'
+    scene.cycles.samples=8
+    scene.cycles.use_denoising=True
+    scene.render.resolution_x=420
+    scene.render.resolution_y=640
+    scene.render.resolution_percentage=100
+    scene.render.film_transparent=True
+    scene.render.image_settings.file_format='PNG'
+    scene.render.image_settings.color_mode='RGBA'
+    scene.camera.location=(-.42,-5.0,1.13)
+    scene.camera.rotation_euler=(Vector((-.42,0,1.13))-scene.camera.location).to_track_quat('-Z','Y').to_euler()
+    scene.camera.data.type='ORTHO'
+    scene.camera.data.ortho_scale=1.65
+    scene.view_settings.view_transform='Standard'
+    target=Path(destination).with_name(variant+'-stage-'+stage+'.png')
+    target.parent.mkdir(parents=True,exist_ok=True)
+    scene.render.filepath=str(target)
+    bpy.ops.render.render(write_still=True)
+    assert target.stat().st_size>10000
+diagnostic_render('import')
 finish=load('cast-finish-upgrade.py')['finish_report']
+diagnostic_render('stable-finish')
 structure=load('cast-garment-structure.py')['structure_report']
+diagnostic_render('structure')
 cloth=load('cast-cloth-illustrated.py')['apply_cloth_appearance'](scene,os.environ['CAST_CHARACTER'])
+diagnostic_render('fabric')
 detail=load('cast-cloth-detail.py')['apply_cloth_detail'](scene)
+diagnostic_render('detail')
 for frame in (27,338,891):
     scene.frame_set(frame)
     fit=load('cast-fit-posed-clothing.py')['fit_report']

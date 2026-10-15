@@ -54,6 +54,7 @@ jobs:
           export CAST_FORMAL_ASSETS_DIR="$PWD/engine_sources/makehuman-lineart/assets/cast-formals"
           for variant in female-statement male-jacket-tie; do
             sex=${variant%%-*}
+            if [[ "$variant" == male-jacket-tie ]]; then export SCENEBAM_NATIVE_STAGE_DIAGNOSTICS=1; else export SCENEBAM_NATIVE_STAGE_DIAGNOSTICS=0; fi
             blender -b "donor/$sex/$sex-candidate.blend" --threads 4 --python-exit-code 1 \
               --python scripts/cast-native-wardrobe-proof.py -- "$variant" ORIGINAL ORIGINAL "qa-native/$variant.json" \
               > "qa-native/$variant.log" 2>&1 || { tail -n 140 "qa-native/$variant.log"; exit 1; }
