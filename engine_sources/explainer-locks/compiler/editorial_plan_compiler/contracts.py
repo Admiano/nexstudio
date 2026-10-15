@@ -260,6 +260,9 @@ class IllustrationEntity:
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
             _need(str(params['chassis']) in CHASSIS, 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
+        if 'change_direction' in params:
+            _need(glyph == 'BAR' and params['change_direction'] in ('up', 'down'),
+                  'DATA_CHANGE_DIRECTION_INVALID', f'{eid}: direction must be up/down on a BAR', beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
@@ -492,6 +495,15 @@ class IllustrationDirective:
         ops = [IllustrationOp.parse(o, idset, rels, n_units, beat_id) for o in (d.get('program') or [])]
         _need(bool(ops), 'ILLUSTRATION_WITHOUT_PROGRAM', 'an illustration must change state at least once while the beat speaks', beat_id)
         _need(len(ops) <= 10, 'ILLUSTRATION_PROGRAM_TOO_LONG', 'more than ten ops in one beat', beat_id)
+        bars = [e for e in ents if e.glyph == 'BAR']
+        changes = [e for e in bars if 'change_direction' in e.params]
+        if changes:
+            _need(len(bars) == 2 and len(changes) == 1 and changes[0].id == bars[-1].id,
+                  'DATA_CHANGE_PAIR_INVALID', 'only the second of two bars can direct a comparison', beat_id)
+            before, after = float(bars[0].params.get('value', 0)), float(bars[1].params.get('value', 0))
+            direction = changes[0].params['change_direction']
+            _need((direction == 'up' and after > before) or (direction == 'down' and after < before),
+                  'DATA_CHANGE_SIGN_MISMATCH', 'spoken directional comparison contradicts supplied values', beat_id)
         for o in ops:
             if 'point_index' in o.params:
                 e = next((e for e in ents if e.id == o.target), None)
