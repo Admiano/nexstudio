@@ -144,7 +144,12 @@ def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
             ans.append(Opportunity("evidence_stat", .82, (_measures(beat)[0]["source"],)))
         if prev and _subset_eligible(prev, beat):
             a, b = _quantity(prev), _quantity(beat)
-            ans.append(Opportunity("population_subset", 1.48, (a["source"], b["source"])))
+            whole, part = Decimal(str(a["value"])), Decimal(str(b["value"]))
+            exact_grid = (whole >= 100 and whole % 100 == 0
+                          and (part * 100) % whole == 0)
+            ans.append(Opportunity("population_grid" if exact_grid else "population_subset",
+                                   1.55 if exact_grid else 1.48,
+                                   (a["source"], b["source"])))
         if prev and _bridge_eligible(prev, beat):
             a, b = _quantity(prev), _quantity(beat)
             ans.append(Opportunity("evidence_bridge", 1.42, (a["source"], b["source"])))
@@ -265,7 +270,8 @@ def _subset(prev: dict, current: dict) -> bool:
     # remain true proportions in the existing DONUT renderer.
     exact_grid = (a >= 100 and a % 100 == 0 and (b * 100) % a == 0)
     glyph = "POPULATION_GRID" if exact_grid else "DONUT"
-    population_params = ({"total": int(a), "part": int(b)}
+    population_params = ({"total": int(a), "part": int(b),
+                          "level": float(b / a), "count": int(b)}
                          if exact_grid else {"level": float(b / a), "count": int(b)})
     current["illustration"] = {
         "form": "OBJECT_STAGE", "entities": [{
@@ -329,7 +335,7 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
                 beat["beat_type"] = "CONTRAST"
         elif family == "mechanism":
             beat["pattern"] = "PROCESS_RAIL"
-        elif family in ("evidence_trend", "part_to_whole", "subset_explanation", "population_subset"):
+        elif family in ("evidence_trend", "part_to_whole", "subset_explanation", "population_subset", "population_grid"):
             beat["pattern"] = "HERO_TO_EVIDENCE_HANDOFF"
             if i not in (0, len(beats) - 1):
                 beat["beat_type"] = "PROOF"
@@ -351,7 +357,7 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             beat["pattern"] = "PROGRESSIVE_HERO_BUILD"
         if family == "evidence_bridge" and i:
             _bridge(beats[i-1], beat)
-        if family == "population_subset" and i:
+        if family in ("population_subset", "population_grid") and i:
             _subset(beats[i-1], beat)
         entries.append({
             "beat_id": beat["beat_id"], "family": family,
