@@ -31,7 +31,7 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PUMP', 'TANK', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER',
-          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY')
+          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'POPULATION_GRID', 'SQUIGGLE', 'MAGNIFY')
 # Housings whose only job is to carry a mark; staged without one they read as generated filler.
 CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 # Housings whose label is set inside the body, so a word alone is content.
@@ -412,6 +412,20 @@ class IllustrationEntity:
             params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
                                for s in steps]
             _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
+        if glyph == 'POPULATION_GRID':
+            # One cell must represent an exact integer number of source units.
+            # A misleading rounded dot count is worse than a faithful donut.
+            total = params.get('total')
+            part = params.get('part')
+            _need(isinstance(total, int) and not isinstance(total, bool) and total >= 100
+                  and isinstance(part, int) and not isinstance(part, bool)
+                  and 0 < part <= total and total % 100 == 0
+                  and (part * 100) % total == 0,
+                  'POPULATION_GRID_REQUIRES_EXACT_HUNDRED',
+                  f'{eid}: part/total must fill an exact number of 100 cells', beat_id)
+            params['total'], params['part'] = total, part
+            params['level'] = part / total
+            params['count'] = part
         if glyph == 'PROGRESS':
             _need('level' in params, 'PROGRESS_WITHOUT_LEVEL', f'{eid}: PROGRESS needs params.level (0..1)', beat_id)
         if glyph == 'SQUIGGLE':
