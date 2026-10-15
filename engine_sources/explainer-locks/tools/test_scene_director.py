@@ -63,11 +63,11 @@ class SceneDirectorTests(unittest.TestCase):
                 beats = [data_beat(first, 0, 2), data_beat(second, 1, 2)]
                 narration = [b["narration"] for b in beats]
                 result = direct_film("dataviz", beats)
-                self.assertEqual(result["scenes"][-1]["family"], "population_subset")
+                self.assertEqual(result["scenes"][-1]["family"], "population_grid")
                 evidence = beats[1]["director_evidence"]
                 self.assertEqual([int(e["value"]) for e in evidence], [whole, part])
                 entity = beats[1]["illustration"]["entities"][0]
-                self.assertEqual(entity["glyph"], "DONUT")
+                self.assertEqual(entity["glyph"], "POPULATION_GRID")
                 self.assertAlmostEqual(entity["params"]["level"], part / whole)
                 self.assertEqual(entity["params"]["count"], part)
                 self.assertEqual([b["narration"] for b in beats], narration)
@@ -85,11 +85,13 @@ class SceneDirectorTests(unittest.TestCase):
             with self.subTest(first=first):
                 beats = [data_beat(first, 0, 2), data_beat(second, 1, 2)]
                 report = direct_film("dataviz", beats)
-                self.assertEqual(report["scenes"][-1]["family"], "population_subset")
+                exact_grid = whole % 100 == 0 and (part * 100) % whole == 0
+                self.assertEqual(report["scenes"][-1]["family"],
+                                 "population_grid" if exact_grid else "population_subset")
                 self.assertEqual([int(x["value"]) for x in beats[1]["director_evidence"]],
                                  [whole, part])
                 ent = beats[1]["illustration"]["entities"][0]
-                self.assertEqual(ent["glyph"], "DONUT")
+                self.assertEqual(ent["glyph"], "POPULATION_GRID" if exact_grid else "DONUT")
                 self.assertAlmostEqual(ent["params"]["level"], part / whole)
                 self.assertEqual(ent["params"]["count"], part)
                 BeatTreatment.parse(beats[1])
