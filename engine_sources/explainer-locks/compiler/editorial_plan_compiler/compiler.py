@@ -431,7 +431,10 @@ class BeatCompiler:
         # Matching each block from word zero moves later clauses into the first
         # clause's window. Advance along the *intact master voice* monotonically.
         narrative_cursor = 0
-        sequential = self.film.caption_policy == 'kinetic' and self.film.brand.finish == 'EDITORIAL_FLAT'
+        sequential = (self.film.caption_policy == 'kinetic' and
+                      self.film.brand.finish == 'EDITORIAL_FLAT') or (
+                      self.film.director_style == 'sketch' and
+                      any(u.replace_group == 'sketch_causal_action' for u in b.units))
         for bl in blocks:
             i = bl['unit_index']
             unit = b.units[i]
