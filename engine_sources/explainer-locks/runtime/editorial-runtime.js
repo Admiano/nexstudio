@@ -4569,7 +4569,11 @@
           // Checking only iconHost misclassifies every native hand-drawn
           // character and physical document as EMPTY_CHASSIS, hiding real
           // audit issues in the rendered video manifests.
-          const drawn = [...body.querySelectorAll('[data-drawing]')].some(group =>
+          // Procedural art is the sibling of the legacy chassis group
+          // (both live in the entity root), not a descendant of that
+          // empty legacy housing. Inspect the whole native entity for
+          // registered, truly painted subject shapes.
+          const drawn = [...g.querySelectorAll('[data-drawing]')].some(group =>
             group.querySelector(GRAPHIC));
           if (!carried && !readout && !inside && !drawn)
             flag('EMPTY_CHASSIS', beatId, node.ent.id,
