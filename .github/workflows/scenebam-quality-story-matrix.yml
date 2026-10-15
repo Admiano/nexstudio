@@ -28,6 +28,7 @@ jobs:
           - {style: dataviz, scenario: share}
           - {style: sketch, scenario: water}
           - {style: sketch, scenario: transform}
+          - {style: sketch, scenario: attachment}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
