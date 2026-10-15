@@ -327,8 +327,11 @@ def compile_performance(beat_type:str,aspect:str,duration_ms:int,units:List[Dict
     # QA metrics
     hero_scales=[b.font_scale for b in blocks if b.role=='hero']
     support_scales=[b.font_scale for b in blocks if b.role=='support']
-    ratio=(max(hero_scales)/(max(support_scales) or 1)) if support_scales else (max(hero_scales) if hero_scales else 0)
-    if support_scales and ratio<1.65: warnings.append('HERO_SUPPORT_SCALE_CONTRAST_WEAK')
+    # A diagram-led beat is permitted to have support copy without a hero
+    # headline. Hero/support contrast is meaningful ONLY if both exist;
+    # the former max(empty hero_scales) crashed native film compilation.
+    ratio=(max(hero_scales)/(max(support_scales) or 1)) if hero_scales and support_scales else (max(hero_scales) if hero_scales else 0)
+    if hero_scales and support_scales and ratio<1.65: warnings.append('HERO_SUPPORT_SCALE_CONTRAST_WEAK')
     if motif=='FULL_FRAME_HIT' and not any(b.font_scale>=1.8 for b in blocks): warnings.append('FULL_FRAME_HIT_NOT_LARGE_ENOUGH')
     if spatial.status!='PASS': warnings.append('SPATIAL_AUTHORITY_FAIL')
     if any(x.startswith('TEXT_BLOCK_COLLISION') for x in warnings): pass_gate=False
