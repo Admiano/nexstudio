@@ -257,6 +257,11 @@ class IllustrationEntity:
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
+        if 'narrative_role' in params:
+            _need(params['narrative_role'] == 'transferred_payload' and kind == 'object'
+                  and glyph in ('PILL', 'CARD', 'TILE', 'ICON', 'CHIP', 'BADGE'),
+                  'SEMANTIC_PAYLOAD_ROLE_INVALID',
+                  f'{eid}: transported role must belong to a drawable object', beat_id)
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
             _need(str(params['chassis']) in CHASSIS, 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
@@ -267,6 +272,16 @@ class IllustrationEntity:
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
             params['points'] = [_unit(p) for p in pts]
+            if 'x_positions' in params:
+                xs = params['x_positions']
+                _need(isinstance(xs, list) and len(xs) == len(pts) and
+                      all(isinstance(x, (float, int)) and not isinstance(x, bool)
+                          and math.isfinite(float(x)) and 0 <= x <= 1 for x in xs) and
+                      abs(xs[0]) < 1e-9 and abs(xs[-1] - 1) < 1e-9 and
+                      all(a < b for a, b in zip(xs, xs[1:])),
+                      'CHART_TIME_POSITION_INVALID',
+                      f'{eid}: x positions need strict chronological 0..1 spacing', beat_id)
+                params['x_positions'] = [float(x) for x in xs]
             if 'value_labels' in params:
                 labels = params['value_labels']
                 _need(isinstance(labels, list) and len(labels) == len(pts) and
