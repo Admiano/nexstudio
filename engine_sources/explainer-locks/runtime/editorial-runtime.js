@@ -2568,12 +2568,16 @@
           const carry = delivery.ops.find((op) => op.op === 'CONNECT' && op.start_ms > stick.start_ms);
           const recipient = ill.ents.get(delivery.rel.target);
           if (!carry || !recipient) continue;
-          const p = EASE.inOutCubic(prog(lt, carry.start_ms, carry.end_ms));
+          // The source explicitly says the carrier moves with its payload.
+          // Give the flight enough of the spoken clause to be readable, and
+          // bring the same named carrier up to the recipient (not just 64%).
+          const travelEnd = Math.max(carry.end_ms, Math.min(beat.duration_ms - 280, carry.end_ms + 650));
+          const p = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
           const from = centre(node.bb), to = centre(recipient.bb);
-          tx += (to.x - from.x) * 0.64 * p;
-          ty += (to.y - from.y) * 0.64 * p -
-            Math.sin(Math.PI * p) * node.bb.h * 0.09;
-          scale *= 1 + Math.sin(Math.PI * p) * 0.035;
+          tx += (to.x - from.x) * 0.84 * p;
+          ty += (to.y - from.y) * 0.84 * p -
+            Math.sin(Math.PI * p) * node.bb.h * 0.12;
+          scale *= (1 - 0.21 * p) * (1 + Math.sin(Math.PI * p) * 0.045);
           break;
         }
         // Attach-and-carry has a distinct physical grammar from "connects":
@@ -2589,8 +2593,8 @@
           if (!host) continue;
           const from = centre(node.bb), to = centre(host.bb);
           const cling = EASE.inOutCubic(prog(lt, attachment.start_ms, attachment.end_ms));
-          const attached = { x: (to.x - from.x) * 0.50,
-                             y: (to.y - from.y) * 0.50 };
+          const attached = { x: (to.x - from.x) * 0.78,
+                             y: (to.y - from.y) * 0.78 };
           let offsetX = attached.x * cling, offsetY = attached.y * cling;
           for (const nextLink of ill.rels.values()) {
             if (nextLink.rel.type !== 'flows_to' || nextLink.rel.source !== ent.id) continue;
@@ -2598,8 +2602,11 @@
               op.start_ms > attachment.start_ms);
             const destination = ill.ents.get(nextLink.rel.target);
             if (!carry || !destination) continue;
-            const arrive = EASE.inOutCubic(prog(lt, carry.start_ms, carry.end_ms));
+            const travelEnd = Math.max(carry.end_ms, Math.min(beat.duration_ms - 280, carry.end_ms + 650));
+            const arrive = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
             const target = centre(destination.bb);
+            // Match the named carrier's destination. The carried noun stays
+            // physically close to the subject instead of racing ahead of it.
             offsetX = lerp(attached.x * cling, (target.x - from.x) * 0.70, arrive);
             offsetY = lerp(attached.y * cling, (target.y - from.y) * 0.70, arrive);
             break;
