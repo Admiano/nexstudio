@@ -169,6 +169,30 @@ class DataVizAuthoringTests(unittest.TestCase):
                 self.assertLessEqual(len(picture["program"]), 10)
                 BeatTreatment.parse(beat)
 
+    def test_source_chronology_uses_full_editorial_plot_area(self):
+        # Source-validated chronological evidence must be an actual visual
+        # argument, not a chart confined to a dashboard-sized thumbnail.
+        text = "In 2021 orchard visits were 10. In 2022 they were 40. In 2024 they were 20. In 2025 they were 35. In 2026 they were 30."
+        scene = BeatTreatment.parse(authored(text)).illustration
+        for aspect, canvas, zone in (
+            ("16x9", (1280, 720), {"x": 89, "y": 235, "w": 1030, "h": 376}),
+            ("9x16", (720, 1280), {"x": 40, "y": 396, "w": 588, "h": 739}),
+            ("1x1", (1080, 1080), {"x": 75, "y": 380, "w": 930, "h": 540}),
+        ):
+            with self.subTest(aspect=aspect):
+                solver = IllustrationSolver(aspect, canvas, IllustrationRegistry(), {}, {},
+                                            "#ffb000", collage=True, finish="PAPER")
+                entities, errors = solver.layout(scene, zone, "b01")
+                self.assertFalse(errors, errors)
+                graph = next(e for e in entities if e["glyph"] == "CHART_LINE")
+                self.assertGreater(graph["bbox"]["h"], zone["h"] * 0.65)
+                labels = [e for e in entities if e["glyph"] == "PILL"]
+                self.assertEqual(len(labels), 5)
+                xs = [e["bbox"]["x"] + e["bbox"]["w"] / 2 for e in labels]
+                self.assertTrue(all(l < r for l, r in zip(xs, xs[1:])))
+                self.assertLess(graph["bbox"]["y"] + graph["bbox"]["h"],
+                                min(e["bbox"]["y"] for e in labels))
+
     def test_trend_annotations_are_source_values_not_pill_buttons(self):
         beat = authored("In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
