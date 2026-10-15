@@ -131,6 +131,20 @@ def author(script, style="sketch"):
 
 
 class SketchAuthoringTests(unittest.TestCase):
+    def test_causal_sentences_get_distinct_readable_replacement_stages(self):
+        script = "Pollen sticks to the bee. The bee carries pollen to another flower."
+        film = author(script)
+        self.assertEqual(len(film["beats"]), 1)
+        units = film["beats"][0]["display_units"]
+        self.assertEqual([u["text"] for u in units], [
+            "Pollen sticks to the bee.",
+            "The bee carries pollen to another flower.",
+        ])
+        self.assertEqual([u["role"] for u in units], ["hero", "hero"])
+        self.assertEqual([u["replace_group"] for u in units],
+                         ["sketch_causal_action", "sketch_causal_action"])
+        self.assertEqual(" ".join(u["text"] for u in units), script)
+
     def test_short_spoken_claims_share_context_and_keep_every_word(self):
         for sentences in (
             ("A pump sends water.", "The water enters a tank.", "The tank feeds a house."),
