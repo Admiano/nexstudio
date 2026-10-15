@@ -164,8 +164,16 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
 
     # Same removal rules as the successful production formal proof. Hide all
     # base garment meshes and their derived ink/fit copies, never the face/body.
-    prior = ['Host.mindfront_f_dress_11'] if sex == 'female' else [
-        'Host.elvs_male_shirt_untucked_bd1','Host.mindfront_male_trousers_2']
+    # Follow the original wardrobe's DOBJ/GARMS selection instead of
+    # hardcoding the first launch outfits (sheath and male O3). The same
+    # replacement logic must work for any approved source garment.
+    raw = [os.environ.get('DOBJ','')] if sex == 'female' else [
+        part.partition('=')[0] for part in os.environ.get('GARMS','').split(';') if part]
+    prior = [name if name.startswith('Host.') else 'Host.'+name
+             for name in raw if name and not any(token in name.lower() for token in
+                                                    ('shoe','sneaker'))]
+    if not prior:
+        raise RuntimeError('CAST_NATIVE_WARDROBE_SOURCE_SELECTION_MISSING')
     hidden = []
     for obj in bpy.data.objects:
         if obj == donor or obj == rig or obj == body or obj.type != 'MESH':
