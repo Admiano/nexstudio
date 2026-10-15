@@ -20,8 +20,16 @@ sys.path.insert(0, str(ROOT / "tools"))
 from make_reel import build_treatment, style_of
 
 SCRIPTS = {
-    "dataviz": "In January, park visits were 10. In February, they reached 20. In March, they reached 15.",
-    "sketch": "A phone sends a message to a server. The server connects to a database.",
+    "dataviz": {
+        "default": "In January, park visits were 10. In February, they reached 20. In March, they reached 15.",
+        "comparison": "Rent rose from 900 dollars to 1,200 dollars.",
+        "share": "A survey found 30 percent prefer buses.",
+    },
+    "sketch": {
+        "default": "A phone sends a message to a server. The server connects to a database.",
+        "water": "A pump sends water to a tank. The tank feeds a house.",
+        "transform": "A note becomes a list.",
+    },
 }
 
 def run(command, *, cwd=None):
@@ -40,19 +48,22 @@ def duration_ms(audio: Path) -> int:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--style", choices=sorted(SCRIPTS), required=True)
+    ap.add_argument("--scenario", default="default", help="Named source-grounded story in SCRIPTS[style]")
     ap.add_argument("--aspects", default="16x9,9x16,1x1")
     ap.add_argument("--fps", type=int, default=24)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--out", default=str(ROOT / "out" / "recovery-video-proof"))
     args = ap.parse_args()
 
-    stem = "recovery-proof-" + args.style
+    if args.scenario not in SCRIPTS[args.style]:
+        ap.error(f"Unknown {args.style} scenario: {args.scenario}")
+    stem = "recovery-proof-" + args.style + ("" if args.scenario == "default" else "-" + args.scenario)
     fixture = ROOT / "fixtures" / stem
     fixture.mkdir(parents=True, exist_ok=True)
     output = Path(args.out).resolve() / stem
     output.mkdir(parents=True, exist_ok=True)
 
-    script = SCRIPTS[args.style]
+    script = SCRIPTS[args.style][args.scenario]
     raw_voice = fixture / "voice.wav"
     voice = fixture / "voice.mp3"
     # One intact narration track, never sliced into beats.
