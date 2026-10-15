@@ -793,9 +793,22 @@ def dataviz_beat(g, bi, n, media):
                 beat["data"] = {"kind": "STAT", "value": dataviz_value(qs[0]), "label": qs[0]["label"]}
     elif kind == "TREND" and len(qs) <= 4 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
         eid = "trend"
-        entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE", "size": "hero",
-                         "params": {"points": [float(v / max(values)) for v in values],
-                                    "value_labels": [dataviz_value(q) for q in qs]}})
+        # A short source-exact metric title is useful when the chart becomes
+        # numerical: "park visits" is not inferred from "January" or "10".
+        # Fail closed on missing / long / non-verbatim candidate. The on-canvas
+        # director times this label to the spoken phrase, not the opening frame.
+        metric = clean(qs[0].get("label", ""))
+        metric_words = re.findall(r"[a-z0-9]+", metric.lower())
+        sentence_words = re.findall(r"[a-z0-9]+", narration.lower())
+        is_source_metric = (1 <= len(metric_words) <= 3 and
+            any(sentence_words[k:k + len(metric_words)] == metric_words
+                for k in range(len(sentence_words) - len(metric_words) + 1)))
+        chart_params = {"points": [float(v / max(values)) for v in values],
+                        "value_labels": [dataviz_value(q) for q in qs]}
+        if is_source_metric:
+            chart_params["metric_label"] = metric
+        entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE",
+                         "size": "hero", "params": chart_params})
         # Stage the empty axis while the premise is spoken; actual measured
         # values still draw ONLY when their corresponding quantities are said.
         ops.append({"op": "DRAW", "target": eid,
