@@ -333,6 +333,13 @@ class IllustrationSolver:
             ar = self._entity_ar(e, beat_id)
             vb_ar = ar * (ab['h'] / ab['w']) if ab['w'] else ar
             bbox = _fit_aspect(body, vb_ar, scale)
+        elif e.glyph == 'CHART_LINE' and self.finish == 'EDITORIAL_FLAT':
+            # Evidence journalism: use the whole source-authoritative chart
+            # area, not the default icon-aspect thumbnail. Never scale the
+            # data value itself; only the available spatial field changes.
+            inset = min(body['w'], body['h']) * 0.012
+            bbox = _box(body['x'] + inset, body['y'] + inset,
+                        body['w'] - 2 * inset, body['h'] - 2 * inset)
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
         if e.glyph == 'PILL' and e.params.get('plain_datum') is True:
