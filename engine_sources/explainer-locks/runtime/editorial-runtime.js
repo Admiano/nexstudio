@@ -2537,7 +2537,8 @@
             ty += (to.y - from.y) * 0.78 * p;
             scale *= 1 - p * 0.20;
             const fade = 1 - EASE.inOutCubic(prog(lt,
-              begin + 0.52 * (finish - begin), finish));
+              begin + 0.16 * (finish - begin),
+              begin + 0.86 * (finish - begin)));
             opacity *= fade;
             semanticLabelFade *= fade;
           } else {
