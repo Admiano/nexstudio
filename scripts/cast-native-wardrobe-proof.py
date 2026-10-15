@@ -38,9 +38,34 @@ for frame in (27,338,891):
     assert not visual.hide_render and len(visual.data.materials)==len(garment.data.materials)
     bpy.context.view_layer.update()
 destination=Path(destination);destination.parent.mkdir(parents=True,exist_ok=True)
+# Actual render from the new native path, not the old post-pipeline donor preview.
+# Restore the approved preview pose through the same evaluated fitter.
+scene.frame_set(27)
+preview_fit=load('cast-fit-posed-clothing.py')['fit_report']
+assert any(row.get('object')==selected and row.get('evaluatedPoseFrame')==27 for row in preview_fit)
+scene.render.engine='CYCLES'
+scene.cycles.samples=8
+scene.cycles.use_denoising=True
+scene.render.resolution_x=420
+scene.render.resolution_y=640
+scene.render.resolution_percentage=100
+scene.render.film_transparent=True
+scene.render.image_settings.file_format='PNG'
+scene.render.image_settings.color_mode='RGBA'
+from mathutils import Vector
+scene.camera.location=(-.42,-5.0,1.13)
+scene.camera.rotation_euler=(Vector((-.42,0,1.13))-scene.camera.location).to_track_quat('-Z','Y').to_euler()
+scene.camera.data.type='ORTHO'
+scene.camera.data.ortho_scale=1.65
+scene.view_settings.view_transform='Standard'
+image_path=destination.with_suffix('.png')
+scene.render.filepath=str(image_path)
+bpy.ops.render.render(write_still=True)
+assert image_path.is_file() and image_path.stat().st_size>10000,'CAST_NATIVE_RENDER_MISSING'
 result={'variant':variant,'selectedGarment':selected,'nativePipeline':True,
         'selectionStage':'before-stable-finish','sharedStages':['cast-finish-upgrade','cast-garment-structure','cast-cloth-illustrated','cast-cloth-detail','cast-fit-posed-clothing'],
-        'poseFrames':[27,338,891],'fabric':finish,'structure':structure,
+        'poseFrames':[27,338,891],'nativePreviewPNG':image_path.name,
+        'nativePreviewSHA256':hashlib.sha256(image_path.read_bytes()).hexdigest(),'fabric':finish,'structure':structure,
         'cloth':cloth,'detail':detail,'formal':report,'collisionCertified':False}
 destination.write_text(json.dumps(result,indent=2,default=str)+'\n')
 print('CAST_NATIVE_WARDROBE_PIPELINE_PASS',variant,flush=True)
