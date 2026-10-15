@@ -27,6 +27,7 @@ SCRIPTS = {
         "decrease": "Rent fell from 1,200 dollars to 900 dollars.",
         "counter": "Twenty-five trains arrived this morning.",
         "irregular": "In 2021 orchard sales were 10. In 2024 they reached 40. In 2026 they reached 20.",
+        "fivepoint": "In 2021 orchard visits were 10. In 2022 orchard visits were 40. In 2024 orchard visits were 20. In 2025 orchard visits were 35. In 2026 orchard visits were 30.",
     },
     "sketch": {
         "default": "A phone sends a message to a server. The server connects to a database.",
