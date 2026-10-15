@@ -1182,12 +1182,20 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
             between = clause[actions[i-1].end():action.start()] if i else ""
             inherited = bool(i and re.search(r"\band\s*$", between, re.I))
             source = clause_subject[-1] if inherited and clause_subject else subjects[-1]
-            target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
+            # Explicit "X sends Y to Z" binds Z as the recipient and Y as the
+            # transferred payload. A fallback that chooses the first object can
+            # silently lose the Y -> Z leg in a multi-clause process.
+            to_dest = re.search(r"\bto\s+(?:(?:a|an|the|another)\s+)?", after, re.I)
+            destinations = [e for e in objects if to_dest and mentioned(e, after[to_dest.end():])]
+            target = destinations[0] if destinations else (
+                objects[-1] if to_dest else objects[0])
             if source is target:
                 continue
             destination = re.search(rf"\b{re.escape(target['phrase'])}\b", after, re.I)
+            before_destination = (after[:to_dest.start()] if destinations else
+                                  after[:destination.start()] if destination else "")
             payload = [e for e in entities if e is not source and e is not target
-                       and mentioned(e, after[:destination.start()])] if destination else []
+                       and mentioned(e, before_destination)]
             cue = action.group().lower()
             if cue.startswith(("becom", "chang")):
                 relation = "transforms_into"
@@ -1218,11 +1226,16 @@ def sketch_beat(gwords, bi, n, previous, media):
         links_by_id: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any], str, str]] = {}
         for source, payload, target, relation, anchor in stages:
             chain = [source, *payload, target]
+            added = 0
             for j, (left, right) in enumerate(zip(chain, chain[1:])):
                 key = (left["id"], right["id"])
                 if key not in links_by_id:
-                    link_anchor = anchor if j == 0 else left["phrase"].split()[0]
+                    # When a previous verb established an attachment, the next
+                    # action's FIRST NEW connection starts on its own verb
+                    # ("carries"), not on an already-mentioned payload noun.
+                    link_anchor = anchor if added == 0 else left["phrase"].split()[0]
                     links_by_id[key] = (left, right, relation, link_anchor)
+                    added += 1
         links = list(links_by_id.values())
         for source, payload, target, _, _ in stages:
             if payload:
