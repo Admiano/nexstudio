@@ -283,6 +283,40 @@ class SketchAuthoringTests(unittest.TestCase):
                                      for e in illustration["entities"]))
                 FilmTreatment.parse(author(sentence))
 
+    def test_native_handoff_composition_is_balanced_and_true_in_three_aspects(self):
+        """An unseen payload may not shrink the source-authoritative receiver."""
+        script = "A courier delivers an invoice to a customer."
+        film = author(script)
+        beat = FilmTreatment.parse(film).beats[0]
+        ents = {e.id: e for e in beat.illustration.entities}
+        self.assertEqual(ents["sk_courier"].size, "hero")
+        self.assertEqual(ents["sk_customer"].size, "hero")
+        self.assertEqual(ents["sk_invoice"].size, "support")
+        for aspect, canvas, zone in (
+            ("16x9", (1280, 720), {"x": 80, "y": 313, "w": 1120, "h": 352}),
+            ("9x16", (720, 1280), {"x": 55, "y": 500, "w": 610, "h": 680}),
+            ("1x1", (1080, 1080), {"x": 80, "y": 460, "w": 920, "h": 540}),
+        ):
+            with self.subTest(aspect=aspect):
+                solver = IllustrationSolver(aspect, canvas, IllustrationRegistry(), {}, {},
+                                            "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
+                laid, errors = solver.layout(beat.illustration, zone, beat.beat_id)
+                self.assertFalse(errors, errors)
+                placed = {e["id"]: e for e in laid}
+                self.assertEqual(len(placed), 3)
+                origin = placed["sk_courier"]["bbox"]
+                cargo = placed["sk_invoice"]["bbox"]
+                recipient = placed["sk_customer"]["bbox"]
+                if aspect == "9x16":
+                    self.assertLess(origin["y"], cargo["y"])
+                    self.assertLess(cargo["y"], recipient["y"])
+                else:
+                    self.assertLess(origin["x"], cargo["x"])
+                    self.assertLess(cargo["x"], recipient["x"])
+                if aspect == "16x9":
+                    self.assertLess(abs(origin["w"] - recipient["w"]),
+                                    0.15 * max(origin["w"], recipient["w"]))
+
     def test_typed_transfer_handles_unseen_nouns_and_verbs_without_word_whitelists(self):
         scenes = (
             ("A courier delivers an invoice to a customer.", "courier", "invoice", "customer"),
