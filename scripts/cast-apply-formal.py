@@ -173,6 +173,18 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
              for name in raw if name and not any(token in name.lower() for token in
                                                     ('shoe','sneaker'))]
     if not prior:
+        # Preassembled real Blender QA scenes contain the chosen native
+        # garments, but not the environment variables from presets.sh.
+        # Discover only the ACTUAL visible garment sources by their V63/V70
+        # material authority; no guessed fallback to the original O3/dress.
+        prior=sorted({ob.name for ob in scene.objects
+            if ob.type=='MESH' and ob.name.startswith('Host.')
+            and not ob.hide_render and not ob.get('castGarmentSource')
+            and not ob.get('castGarmentProxySource') and not ob.get('castFitSource')
+            and not any(k in ob.name.lower() for k in ('shoe','sneaker'))
+            and any(m and m.name.startswith(('V63_DRESS_','V70_G_'))
+                    for m in ob.data.materials)})
+    if not prior:
         raise RuntimeError('CAST_NATIVE_WARDROBE_SOURCE_SELECTION_MISSING')
     hidden = []
     for obj in bpy.data.objects:
