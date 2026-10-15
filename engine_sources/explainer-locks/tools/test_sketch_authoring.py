@@ -144,6 +144,18 @@ class SketchAuthoringTests(unittest.TestCase):
         self.assertEqual([u["replace_group"] for u in units],
                          ["sketch_causal_action", "sketch_causal_action"])
         self.assertEqual(" ".join(u["text"] for u in units), script)
+        parsed = FilmTreatment.parse(film)
+        native_units = [u.ktp_unit() for u in parsed.beats[0].units]
+        performance = ktp.compile_performance(
+            "SETUP", "16x9", 5500, native_units,
+            shot_role="HYBRID", object_present=True,
+        )
+        self.assertEqual(performance["motif"], "REPLACEMENT_LOCKUP")
+        self.assertEqual(
+            {block["unit_index"] for block in performance["text_blocks"]},
+            {0, 1},
+            "Both spoken sentences must produce renderable typography blocks",
+        )
 
     def test_short_spoken_claims_share_context_and_keep_every_word(self):
         for sentences in (
