@@ -33,6 +33,17 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertEqual({op["at"]["word"] for op in beat["illustration"]["program"] if "word" in op["at"]},
                          {"900", "1,200"})
 
+    def test_before_measure_remains_visible_until_next_claim(self):
+        beat = authored("Rent rose from 900 dollars to 1,200 dollars.")
+        bars = beat["illustration"]["entities"]
+        fade = [o for o in beat["illustration"]["program"] if o["op"] == "DIM"]
+        self.assertEqual(1, len(fade))
+        self.assertEqual(bars[0]["id"], fade[0]["target"])
+        self.assertEqual(1.0, fade[0]["from"],
+                         "A future change must not hide the first bar before it is spoken")
+        self.assertEqual(0.66, fade[0]["to"])
+        self.assertEqual("1,200", fade[0]["at"]["word"])
+
     def test_long_claim_keeps_every_word_and_measure(self):
         text = "Imagine a neighborhood bookstore's weekly sales rising from 40 books to 60 books over the summer."
         beat = authored(text)
