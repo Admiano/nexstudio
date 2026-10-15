@@ -157,6 +157,12 @@ def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
                 ans.append(Opportunity("subset_explanation", .71))
             if n:
                 ans.append(Opportunity("evidence_in_context", .59))
+    # Native graphical recipes outrank generic word staging ONLY when the
+    # source supplies all their entities, values and narrative conditions.
+    # No fabricated nouns, numbered scenes, or per-topic exception tables.
+    from scene_repertoire import candidates as executable_candidates
+    ans.extend(Opportunity(family, score, evidence)
+               for family, score, evidence in executable_candidates(style, beat))
     return ans
 
 
@@ -307,6 +313,8 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     entries = []
     for i, (beat, selected) in enumerate(zip(beats, plan)):
         family = selected.family
+        from scene_repertoire import realize as realize_scene
+        realized = realize_scene(family, beat)
         # Existing cinema patterns and beat types are native contract values.
         if family in ("evidence_compare", "contrast", "evidence_bridge"):
             beat["pattern"] = "CONTRAST_RECONFIGURATION"
@@ -324,6 +332,14 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             beat["pattern"] = "WORD_OBJECT_BRIDGE"
         elif family == "physical_stage":
             beat["pattern"] = "OBJECT_LED_TRANSITION"
+        elif realized:
+            # Each realised family has a genuinely different native diagram
+            # program, not a decorative alias of the former object stage.
+            beat["pattern"] = ("PROCESS_RAIL" if family == "spoken_process"
+                               else "CONTRAST_RECONFIGURATION" if family == "verbal_versus"
+                               else "HERO_TO_EVIDENCE_HANDOFF")
+            if i not in (0, len(beats)-1):
+                beat["beat_type"] = "PROOF"
         elif family == "editorial_reveal":
             beat["pattern"] = "PROGRESSIVE_HERO_BUILD"
         if family == "evidence_bridge" and i:
