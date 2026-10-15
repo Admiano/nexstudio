@@ -1535,7 +1535,12 @@
           const kk = clamp(k, 0, 1), h = Math.max(sw, kk * b.h);
           node.extra.growK = kk;
           for (const r of [base, inkEl]) { r.setAttribute('y', f2(b.y + b.h - h)); r.setAttribute('height', f2(h)); }
-          ghost.setAttribute('stroke-opacity', (clamp((1 - kk) * 1.6, 0, 1) * 0.42).toFixed(4));
+          // A future bar is not a labelled placeholder: a dashed wireframe
+          // reveals the second datum before the narrator has introduced it.
+          // Data Viz reserves the real empty canvas; older styles unchanged.
+          ghost.setAttribute('stroke-opacity',
+            plan.director_style === 'dataviz' ? '0' :
+            (clamp((1 - kk) * 1.6, 0, 1) * 0.42).toFixed(4));
         };
         // COUNT reads as the value ticking up; the readout rides the bar's own top edge and only
         // exists when a COUNT op drives it — a bare count param is just the datum's value.
@@ -2831,7 +2836,15 @@
         // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
         // the same carry path so it never sits at the destination while the body is travelling.
         const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
-        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade;
+        let labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade;
+        // An actual measured bar carries its value and "before / after"
+        // label, so neither may appear until the voice reaches that datum.
+        if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
+          const op = node.ops.find((x) => x.op === 'GROW');
+          labelOpacity *= op
+            ? EASE.outCubic(prog(lt, op.start_ms - 50, op.start_ms + 210))
+            : 0;
+        }
         // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
         ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
         const shift = carryLabelShift(node, pose.carry);
