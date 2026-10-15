@@ -25,7 +25,8 @@ from voice_registry import VOICES
 
 SCRIPT = (
     "Imagine 10,000 people tested for a rare condition. "
-    "Only 100 actually have it. The test identifies 99 genuine cases. "
+    "Inside that enormous group of people, only 100 actually have the condition. "
+    "The test identifies 99 genuine cases. "
     "Yet 495 healthy people also test positive. "
     "That makes 594 positive results altogether. "
     "But only 99 of those are genuine. "
