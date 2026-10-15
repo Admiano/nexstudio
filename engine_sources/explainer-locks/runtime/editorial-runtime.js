@@ -1432,10 +1432,26 @@
         // A measured datum is a label, not an interactive button. Its existing
         // fitted HTML text is revealed by the native op; omit the pill housing.
         if (ent.glyph === 'PILL' && ent.params && ent.params.plain_datum === true) break;
-        // The Sketch fallback for an explicitly named but unpictured concept
-        // is edited typography, not a counterfeit app button. The exact label
-        // is still drawn in its source-authoritative bbox by buildIllustration.
-        if (ent.glyph === 'PILL' && plan.director_style === 'sketch') break;
+        // Unpictured concepts remain typography, never faux app controls.
+        // Source-typed cargo gains open editorial corner rules so a moving
+        // invoice/worksheet reads as one persistent item, without drawing an
+        // unsourced document icon or a clickable-looking button.
+        if (ent.glyph === 'PILL' && plan.director_style === 'sketch') {
+          if (params.narrative_role === 'transferred_payload') {
+            const x0 = b.x, x1 = b.x + b.w, y0 = b.y, y1 = b.y + b.h;
+            const corner = Math.min(b.w, b.h) * 0.18;
+            const stroke = svgEl('path', { ...line,
+              d: [
+                ['M', x0 + corner, y0], ['L', x0, y0], ['L', x0, y0 + corner],
+                ['M', x1 - corner, y0], ['L', x1, y0], ['L', x1, y0 + corner],
+                ['M', x0, y1 - corner], ['L', x0, y1], ['L', x0 + corner, y1],
+                ['M', x1 - corner, y1], ['L', x1, y1], ['L', x1, y1 - corner],
+              ].map(parts => parts[0] + parts.slice(1).map(f2).join(' ')).join(' '),
+              'stroke-width': sw * 0.65, 'stroke-opacity': 0.78 }, g);
+            node.outline.push(drawable(stroke, corner * 8));
+          }
+          break;
+        }
         const r = ent.glyph === 'PILL' ? b.h / 2 : Math.min(b.w, b.h) * 0.09;
         const inner = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
         svgEl('path', { d: roundRectPath(inner, r), fill: paper }, g);
@@ -2780,29 +2796,31 @@
               receiverWord ? receiverWord.start_ms : deliver.start_ms + 120);
             const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
             const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
-            // Enter from near the known sender, land on the named object,
-            // then travel intact to the explicitly named receiver.
+            // Finish at the *edge* of the narrated recipient, never in its
+            // caption. Keep the same source-named payload on stage afterwards;
+            // permanently erasing it is a false visual claim of disappearance.
+            const dx = destination.x - self.x, dy = destination.y - self.y;
+            const horizontal = Math.abs(dx) >= Math.abs(dy);
+            const margin = ill.sw * 2.2;
+            const stop = horizontal
+              ? { x: destination.x - Math.sign(dx) *
+                    ((recipient.bb.w + node.bb.w) / 2 + margin),
+                  y: destination.y }
+              : { x: destination.x,
+                  y: destination.y - Math.sign(dy) *
+                    ((recipient.bb.h + node.bb.h) / 2 + margin) };
             tx += (origin.x - self.x) * 0.74 * (1 - emerge) +
-              (destination.x - self.x) * 0.94 * delivered;
+              (stop.x - self.x) * delivered;
             ty += (origin.y - self.y) * 0.74 * (1 - emerge) +
-              (destination.y - self.y) * 0.94 * delivered -
+              (stop.y - self.y) * delivered -
               Math.sin(Math.PI * delivered) * node.bb.h * 0.12;
-            scale *= (0.57 + 0.43 * emerge) * (1 - 0.50 * delivered);
+            scale *= (0.57 + 0.43 * emerge) * (1 - 0.12 * delivered);
             const visible = EASE.outCubic(prog(lt, receive.start_ms - 40, receive.start_ms + 150));
-            // The named cargo is received BEFORE its drawn body reaches
-            // the recipient's illustration/label box. Fade the object at
-            // mid-flight and let the actual source-authored receiver react;
-            // never place a message tile across the server's own name.
-            const absorbed = 1 - EASE.inOutCubic(prog(delivered, 0.62, 0.84));
-            // A flying cargo label does not ride into the receiver's name.
-            // Retain the illustrated cargo long enough to visibly travel;
-            // drop the annotation near departure while the narrator speaks.
-            const labelExit = 1 - EASE.inOutCubic(prog(delivered, 0.07, 0.32));
-            opacity *= visible * absorbed;
-            semanticLabelFade *= visible * labelExit;
-            node.payloadAbsorbed = delivered >= 0.84;
-            node.payloadFade = absorbed;
-            g.dataset.actionPerformance = 'named-payload-flight';
+            opacity *= visible;
+            semanticLabelFade *= visible;
+            node.payloadAbsorbed = false;
+            node.payloadFade = 1;
+            g.dataset.actionPerformance = 'source-payload-delivered';
           }
         }
         // A source-authored transformation is not a static dotted link.
@@ -3248,7 +3266,11 @@
         const action = r.ops.find((op) => op.op === 'CONNECT');
         const start = action ? action.start_ms : rel.enter_ms;
         const end = action ? Math.max(start + 520, action.end_ms + 160) : rel.enter_ms + 700;
-        const moving = lt >= start && lt <= end && opacity > 0.08;
+        // A real source-named payload performs the transit itself. Do not
+        // add an unexplained anonymous blue token that duplicates its trip.
+        const movingCargo = [endA, endB].some((n) =>
+          n && n.ent.params && n.ent.params.narrative_role === 'transferred_payload');
+        const moving = !movingCargo && lt >= start && lt <= end && opacity > 0.08;
         const p = EASE.inOutCubic(prog(lt, start, end));
         const at = pointAlong(rel.path, p);
         r.flowToken.setAttribute('cx', f2(at.x));
@@ -3257,7 +3279,7 @@
         r.flowToken.style.opacity = (Math.min(1, prog(lt, start, start + 100) * 2, (1 - prog(lt, end - 140, end)) * 2)).toFixed(3);
         if (r.arrivalRipple) {
           const rp = prog(lt, end - 130, end + 430);
-          const living = lt >= end - 130 && lt <= end + 430 && opacity > 0.08;
+          const living = !movingCargo && lt >= end - 130 && lt <= end + 430 && opacity > 0.08;
           r.arrivalRipple.setAttribute('r', f2(ill.sw * (1.4 + rp * 5.6)));
           r.arrivalRipple.style.strokeOpacity = living ? (0.52 * (1 - rp)).toFixed(3) : '0';
         }
