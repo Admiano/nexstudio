@@ -26,9 +26,14 @@ jobs:
         include:
           - {style: dataviz, scenario: comparison}
           - {style: dataviz, scenario: share}
+          - {style: dataviz, scenario: decrease}
+          - {style: dataviz, scenario: counter}
           - {style: sketch, scenario: water}
           - {style: sketch, scenario: transform}
           - {style: sketch, scenario: attachment}
+          - {style: sketch, scenario: contrast}
+          - {style: sketch, scenario: connection}
+          - {style: sketch, scenario: dispatch}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
