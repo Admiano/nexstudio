@@ -33,14 +33,14 @@ SCRIPTS={
         "Look closely at the charging port."
     ),
     "sketch": (
-        "A courier sends a parcel to a driver. "
-        "The driver carries the parcel to a customer. "
-        "A technician connects a pump to a tank. "
-        "Never use the damaged receipt. "
-        "Circle the safety document. "
-        "Look closely at the warning label. "
-        "First inspect the machine, then replace the seal, finally test the pump. "
-        "A crowd gathers outside the depot."
+        "A courier carefully sends a sealed parcel to a driver at the main dispatch station. "
+        "The driver carries that same parcel to a waiting customer before the next delivery begins. "
+        "A technician then connects the pump to the water tank so the pressure can stabilize. "
+        "Never use the damaged receipt because it is not a valid record of that delivery. "
+        "Circle the safety document so the team can identify the approved inspection record. "
+        "Look closely at the warning label to confirm the instruction written on the equipment. "
+        "First inspect the machine carefully, then replace the worn seal, finally test the pump under normal pressure. "
+        "A crowd gathers outside the depot to watch the restored delivery system start operating again."
     ),
 }
 ASPECTS=("1x1",)
