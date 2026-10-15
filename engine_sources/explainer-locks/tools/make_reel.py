@@ -483,6 +483,29 @@ _DATA_PERIODS = (
 )
 _DATA_PERIOD_ABBREVIATIONS = {period: period[:3].title()
                               for cycle in _DATA_PERIODS for period in cycle.split()}
+
+
+def dataviz_period_positions(measures):
+    """Normalised, *source-grounded* timeline distance, or None if ambiguous.
+
+    Never imply uniform spacing for genuinely uneven time intervals. Mixed
+    months/years, repeated periods and backwards periods fail closed.
+    """
+    terms = [q.get("period", "").lower() for q in measures]
+    if not terms or any(not p for p in terms):
+        return None
+    if all(re.fullmatch(r"\d{4}", p) for p in terms):
+        ticks = [int(p) for p in terms]
+    else:
+        cycle = next((s.split() for s in _DATA_PERIODS
+                      if all(p in s.split() for p in terms)), None)
+        if cycle is None:
+            return None
+        ticks = [cycle.index(p) for p in terms]
+    if len(ticks) < 2 or any(b <= a for a, b in zip(ticks, ticks[1:])):
+        return None
+    span = ticks[-1] - ticks[0]
+    return [(v - ticks[0]) / span for v in ticks]
 _DATA_LABEL_STOP = STOPWORDS | {
     "from", "to", "versus", "vs", "rose", "grew", "fell", "increased", "decreased",
     "produced", "generated", "cost", "costs", "used", "uses", "reached", "remained",
@@ -611,17 +634,13 @@ def dataviz_claim(narration, g):
         elif len(measured) == 2 and compatible and re.search(r"\b(from|versus|vs|compared|than|while|now|before|after)\b", narration, re.I):
             kind = "COMPARISON"
         elif len(measured) >= 3 and compatible and all(q["period"] for q in measured):
-            periods = [q["period"].lower() for q in measured]
-            indices = ([int(p) for p in periods] if all(p.isdigit() for p in periods) else
-                       next(([s.split().index(p) for p in periods] for s in _DATA_PERIODS
-                             if all(p in s.split() for p in periods)), []))
-            gaps = [b - a for a, b in zip(indices, indices[1:])]
+            positions = dataviz_period_positions(measured)
             labels = [set(w for w in re.findall(r"[a-z]+", q["label"].lower())
                           if w not in _DATA_LABEL_STOP and w not in _DATA_PERIOD_ABBREVIATIONS)
                       for q in measured]
             subjects = [label for label in labels if label]
             same_subject = not subjects or bool(set.intersection(*subjects))
-            if gaps and len(set(gaps)) == 1 and gaps[0] > 0 and same_subject:
+            if positions is not None and same_subject:
                 kind = "TREND"
     return {"kind": kind, "quantities": measured, "source_quantities": quantities}
 
@@ -804,7 +823,8 @@ def dataviz_beat(g, bi, n, media):
             any(sentence_words[k:k + len(metric_words)] == metric_words
                 for k in range(len(sentence_words) - len(metric_words) + 1)))
         chart_params = {"points": [float(v / max(values)) for v in values],
-                        "value_labels": [dataviz_value(q) for q in qs]}
+                        "value_labels": [dataviz_value(q) for q in qs],
+                        "x_positions": dataviz_period_positions(qs)}
         if is_source_metric:
             chart_params["metric_label"] = metric
         entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE",
@@ -903,6 +923,7 @@ def dataviz_continuity(beats):
 
 _SKETCH_ACTION = re.compile(
     r"\b(sends?|feeds?|flows?|transfers?|carr(?:y|ies|ied)|"
+    r"deliver(?:s|ed)?|ship(?:s|ped)?|forward(?:s|ed)?|pass(?:es|ed)?|route(?:s|d)?|"
     r"sticks? to|attaches? to|helps?|makes?|produces?|leads? to|"
     r"connects? to|links? to|improves?|reduces?|increases?|enables?|"
     r"becomes?|changes? into)\b", re.I
@@ -1035,7 +1056,10 @@ def sketch_noun_phrases(text):
     qualifiers = {"another", "different"}
     modifiers = {"better", "lower", "unknown", "paper"}
     verbs = {"sends", "send", "feeds", "feed", "flows", "flow", "transfers",
-             "transfer", "carries", "carry", "carried", "sticks", "stick",
+             "transfer", "carries", "carry", "carried", "delivers", "deliver",
+             "delivered", "ships", "ship", "shipped", "forwards", "forward",
+             "forwarded", "passes", "pass", "passed", "routes", "route", "routed",
+             "sticks", "stick",
              "attaches", "attach", "connects", "connect", "helps", "help",
              "makes", "make", "produces", "produce", "improves", "improve",
              "reduces", "reduce", "increases", "increase", "enables", "enable",
@@ -1242,7 +1266,8 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
             cue = action.group().lower()
             if cue.startswith(("becom", "chang")):
                 relation = "transforms_into"
-            elif cue.startswith(("send", "feed", "flow", "transfer", "carr", "make", "produc")):
+            elif cue.startswith(("send", "feed", "flow", "transfer", "carr", "make", "produc",
+                                 "deliver", "ship", "forward", "pass", "rout")):
                 relation = "flows_to"
             else:
                 relation = "connects"
@@ -1262,6 +1287,15 @@ def sketch_beat(gwords, bi, n, previous, media):
             ent["label"] = ent["label"].split()[-1]
     is_interface = bool(_SKETCH_INTERFACE.search(narration))
     stages = sketch_action_stages(narration, entities) if not is_interface else []
+    # Transport is an explicit source-graph role, not a fixed catalogue of
+    # nouns ("message", "file", ...). An invoice, specimen or future user noun
+    # has exactly the same sender/payload/recipient semantics. The renderer
+    # only performs transit when BOTH source->payload and payload->recipient
+    # are authored and timed; unknown relationships still fail closed.
+    for actor, cargo, recipient, relation, _cue in stages:
+        if relation == "flows_to" and actor is not recipient:
+            for item in cargo:
+                item.setdefault("params", {})["narrative_role"] = "transferred_payload"
     if stages and len(units) == 2 and all(CLAUSE_END.search(u["text"]) for u in units):
         # Alternating HERO treatments give each causal action commercial-sized
         # typography in one deliberate stage. Replacement is keyed to the
