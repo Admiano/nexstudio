@@ -426,6 +426,16 @@
       if (p >= 1) opacity = 0;
     }
 
+    // Voice-sequenced data stories: a statement gives way to the next spoken
+    // clause. Suppress visual accumulation without altering the continuous voice.
+    // Applies ONLY to on-canvas Data Viz (not existing collage or other styles).
+    if (ctx.voiceSequence && typeof node.directorExitMs === 'number') {
+      const fade = EASE.inOutCubic(prog(lt, node.directorExitMs - 190, node.directorExitMs + 90));
+      opacity *= 1 - fade;
+      ty -= fade * em * 0.12;
+      if (fade >= 1) w.visibility = 'hidden';
+    }
+
     // --- beat exit / transition carrier
     const ex = ctx.exitState(node, lt);
     if (ex) {
@@ -2223,6 +2233,15 @@
         r.trace = svgEl('path', { ...line, d: polyPath(rel.path), stroke: accent, 'stroke-width': sw * 1.3, 'stroke-opacity': 0 }, g);
         r.trace.style.strokeDasharray = `${f2(r.len * 0.18)} ${f2(r.len)}`;
         r.trace.dataset.draw = 'trace';
+        // A semantic flow actually transfers a small payload along the link.
+        // It appears ONLY when the source text authored flows_to.
+        if (rel.type === 'flows_to' && plan.brand.finish === 'PRODUCT_COLLAGE') {
+          r.flowToken = svgEl('circle', {
+            r: f2(sw * 1.85), fill: accent, stroke: plan.brand.paper,
+            'stroke-width': f2(sw * 0.7), 'data-action': 'transfer',
+          }, g);
+          r.flowToken.style.visibility = 'hidden';
+        }
         const m = pointAlong(rel.path, 0.5), k = clamp(r.len * 0.16, sw * 3.2, sw * 6);
         const sp = svgEl('path', { ...line, d: polyPath([[m.x - k, m.y + k], [m.x + k, m.y - k]]), 'stroke-width': sw * 1.35 }, g);
         r.strike = drawable(sp, k * 2.83, 'strike');
@@ -2588,6 +2607,18 @@
       // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
       // its connector behind.
       r.g.setAttribute('transform', retension(rel.path, endA && endA.offset, endB && endB.offset));
+      if (r.flowToken) {
+        const action = r.ops.find((op) => op.op === 'CONNECT');
+        const start = action ? action.start_ms : rel.enter_ms;
+        const end = action ? Math.max(start + 520, action.end_ms + 160) : rel.enter_ms + 700;
+        const moving = lt >= start && lt <= end && opacity > 0.08;
+        const p = EASE.inOutCubic(prog(lt, start, end));
+        const at = pointAlong(rel.path, p);
+        r.flowToken.setAttribute('cx', f2(at.x));
+        r.flowToken.setAttribute('cy', f2(at.y));
+        r.flowToken.style.visibility = moving ? 'visible' : 'hidden';
+        r.flowToken.style.opacity = (Math.min(1, prog(lt, start, start + 100) * 2, (1 - prog(lt, end - 140, end)) * 2)).toFixed(3);
+      }
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.
       let head = con >= 0.985 ? 1 : 0;
@@ -2725,7 +2756,23 @@
     const figure = beat.figure ? buildFigure(beat.figure, bplan, root, opts.peepsUrl) : null;
     const data = beat.data ? buildData(beat.data, bplan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, bplan, root, { ...opts, fx }) : null;
-    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, bplan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    const voiceSequence = plan.captions_policy === 'kinetic' && plan.brand.finish === 'EDITORIAL_FLAT';
+    const textBlocks = beat.typography.blocks;
+    const texts = textBlocks.map((b, i) => {
+      // Display one message in the same hero position, rather than stacking
+      // three permanent transcription lines beside the chart.
+      const zone = beat.composition.text_zone;
+      const stage = voiceSequence && textBlocks.length > 1
+        ? { ...b, bbox: { ...b.bbox, y: Math.max(zone.y, zone.y + (zone.h - b.bbox.h) * 0.42) } }
+        : b;
+      const node = Object.assign(buildTextBlock(stage, bplan, root), {
+        blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`)
+      });
+      if (voiceSequence && textBlocks[i + 1] && textBlocks[i + 1].words && textBlocks[i + 1].words.length) {
+        node.directorExitMs = textBlocks[i + 1].words[0].start_ms;
+      }
+      return node;
+    });
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
@@ -2747,6 +2794,7 @@
       motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
+      voiceSequence,
       groove: (plan.music && plan.music.groove) || null,
       reconfigureOffset(node) {
         // Pre-reconfiguration state: blocks sit 30% closer to the text-zone centre along their dominant axis.
