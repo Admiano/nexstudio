@@ -806,8 +806,7 @@ def dataviz_beat(g, bi, n, media):
             pid = f"point{i + 1}"
             entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
                              "params": {"value": float(values[i]), "plain_datum": True},
-                             "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"])
-                                            + " " + dataviz_value(q))})
+                             "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"]))})
             land(q, "DIM", pid)
     elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
         q, unit = qs[0], qs[0]["unit"]
@@ -1148,7 +1147,7 @@ def sketch_entities(gwords, media):
         # When no licensed catalog symbol matches, use only narrowly defined
         # native procedural objects whose literal meaning equals the source
         # noun. Unrecognized nouns continue to have an honest word carrier.
-        primitive = {"pump": "PUMP", "tank": "TANK"}.get(phrase)
+        primitive = {"pump": "PUMP", "tank": "TANK", "note": "CARD"}.get(phrase)
         ent = {"id": entity_id, "kind": "object",
                "glyph": "TILE" if ref else (primitive or "PILL"),
                "size": "hero" if not entities else "support",
