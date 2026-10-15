@@ -20,7 +20,14 @@ proof.SCRIPTS.update({
         "default": "A team shares an idea, builds a prototype, and celebrates a new project."
     },
     "newscast.neon": {
-        "default": "A city opens a new public library. Visitors arrive throughout the day."
+        "default": ("A city opens a new public library on Monday. "
+                    "The building includes a reading room and a children\u0027s corner. "
+                    "A reception desk welcomes visitors at the entrance. "
+                    "Staff recorded 120 visits on opening day. "
+                    "Another 85 visitors arrived on Tuesday. "
+                    "Community workshops begin on Friday. "
+                    "Families can book a free reading session. "
+                    "The library closes at six in the evening.")
     },
 })
 
