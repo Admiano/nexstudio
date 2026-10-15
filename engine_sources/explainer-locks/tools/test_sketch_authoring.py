@@ -150,6 +150,18 @@ class SketchAuthoringTests(unittest.TestCase):
                 self.assertEqual(" ".join(sentences[1:]), " ".join(w["text"] for w in groups[1]))
                 self.assertEqual(stream, [w for g in groups for w in g])
 
+    def test_source_linked_transfer_chain_keeps_one_visual_story(self):
+        text = "A pump sends water to a tank. The tank feeds a house."
+        stream = [{"text": w, "start_ms": i * 280, "end_ms": i * 280 + 210}
+                  for i, w in enumerate(text.split())]
+        groups = make_reel.sketch_groups(stream)
+        self.assertEqual(len(groups), 1, "Dependent source actions need continuous visual causality")
+        self.assertEqual(" ".join(w["text"] for group in groups for w in group), text)
+        beat = make_reel.sketch_beat(groups[0], 0, 1, set(), [])
+        self.assertEqual(beat["narration"], text)
+        self.assertGreaterEqual(len(beat["illustration"]["relations"]), 2)
+        FilmTreatment.parse(author(text))
+
     def test_native_solver_accepts_authored_forms_without_empty_satellites(self):
         solver = IllustrationSolver("16x9", (1920, 1080), IllustrationRegistry(), {}, {},
                                     "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
