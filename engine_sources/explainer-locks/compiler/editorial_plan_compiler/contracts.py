@@ -8,6 +8,7 @@ route layout, motif, figure or sound; wording is payload.
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
