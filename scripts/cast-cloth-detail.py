@@ -137,6 +137,15 @@ def apply_cloth_detail(scene):
     for ob in garments:
         # Formalwear and casualwear use the same shared collar and cloth detail
         # pass. Do not invent decorative seam geometry absent from the source.
-        rows.append({'object':ob.name,'collarClearance':collar_clearance(ob,bpy.data.objects['Host.body']),'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name], 'originalUVPreserved':bool(ob.get('castWardrobeOriginalUV'))})
+        # The casual neckline shrinkwrap is designed for single-layer dress
+        # openings. A formal jacket includes folded lapels, shirt, neckwear
+        # and an authored collar; generic shrinkwrap visibly bunches the
+        # shoulders (verified with actual stage-isolation Cycles renders).
+        # Retain the shared finishing stage while preserving authored formal
+        # neckline topology and independent rigged tie placement.
+        formal=ob.get('castWardrobeKind')=='formal'
+        collar=({'preservedNativeCollar':True,'reason':'authored multi-layer suit collar'}
+                if formal else collar_clearance(ob,bpy.data.objects['Host.body']))
+        rows.append({'object':ob.name,'collarClearance':collar,'foldEase':ease_folds(ob) if 'dress' in ob.name else None,'strokes':[taper_strokes(x) for x in scene.objects if x.get('castGarmentSource')==ob.name], 'originalUVPreserved':bool(ob.get('castWardrobeOriginalUV'))})
     masks=cover_sleeve_roots(bpy.data.objects['Host.body'],garments)
     return {'profile':PROFILE,'garments':rows,'pinholesClosed':pinholes,'sleeveMasks':masks,'codeSHA256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
