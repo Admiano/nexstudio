@@ -54,6 +54,7 @@ jobs:
           node --check runtime/editorial-runtime.js
           python tools/test_dataviz_authoring.py -q
           python tools/test_sketch_authoring.py -q
+          python tools/test_quality_director.py -q
       - name: Render Data Viz actual 16x9 film
         working-directory: engine_sources/explainer-locks
         run: python tools/recovery_video_proof.py --style dataviz --aspects 16x9 --fps 24 --workers 2
