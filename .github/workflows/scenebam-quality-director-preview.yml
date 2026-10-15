@@ -69,6 +69,13 @@ jobs:
             test -s "$src"
             ffmpeg -y -v error -ss 4.4 -i "$src" -frames:v 1 "out/quality-png-previews/${style}_landscape_frame.png"
             test -s "out/quality-png-previews/${style}_landscape_frame.png"
+            # Multiple truthful time samples expose sequencing and half-visible
+            # disappearing text that a single final preview could conceal.
+            for stamp in 0.8 1.6 2.9 4.4; do
+              ffmpeg -y -v error -ss "$stamp" -i "$src" -frames:v 1 \
+                "out/quality-png-previews/${style}_t${stamp}.png"
+              test -s "out/quality-png-previews/${style}_t${stamp}.png"
+            done
             ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 "$src"
           done
       - name: Verify Data Viz captions were suppressed by native compiler
