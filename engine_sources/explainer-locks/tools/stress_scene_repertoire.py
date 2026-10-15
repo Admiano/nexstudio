@@ -12,6 +12,7 @@ import hashlib
 import json
 import subprocess
 import sys
+import time
 from collections import Counter
 from pathlib import Path
 from types import SimpleNamespace
@@ -61,7 +62,19 @@ def main():
     fixture.mkdir(parents=True,exist_ok=True)
     out.mkdir(parents=True,exist_ok=True)
     audio=fixture/"voice.mp3"
-    boundaries=asyncio.run(voice_driver.microsoft_andrew(audio))
+    # Microsoft Edge TTS occasionally returns an empty transport response.
+    # Retry the SAME approved neural voice; never substitute another speaker.
+    boundaries=None
+    for attempt in range(1,5):
+        try:
+            boundaries=asyncio.run(voice_driver.microsoft_andrew(audio))
+            break
+        except Exception as exc:
+            if attempt==4:
+                raise RuntimeError("APPROVED_ANDREW_AUDIO_UNAVAILABLE") from exc
+            print("ANDREW_NETWORK_RETRY",attempt,str(exc),flush=True)
+            time.sleep(2*attempt)
+    assert boundaries is not None
     info=voice_driver.probe(audio)
     duration_ms=round(float(info["format"]["duration"])*1000)
     if duration_ms < 17000: raise RuntimeError("REPERTOIRE_AUDIO_TOO_SHORT")
