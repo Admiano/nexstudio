@@ -253,9 +253,9 @@ def candidates(style: str, beat: dict) -> list[tuple[str, float, tuple[str, ...]
         il = beat.get("illustration") or {}
         if il.get("form") == "OBJECT_STAGE" and len(il.get("entities") or []) == 1:
             if re.search(r"\b(?:do not|don't|never|avoid|prohibit|forbid)\s+(?:use|select|choose|open|install|connect)\b", beat["narration"], re.I):
-                ans.append(("negated_subject", 1.18))
+                ans.append(("negated_subject", 1.18, ()))
             elif re.search(r"\b(highlight|circle|mark|point out|identify|single out)\b", beat["narration"], re.I):
-                ans.append(("highlighted_subject", 1.18))
+                ans.append(("highlighted_subject", 1.18, ()))
     return ans
 
 
