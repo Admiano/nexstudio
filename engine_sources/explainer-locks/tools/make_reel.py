@@ -776,7 +776,8 @@ def dataviz_beat(g, bi, n, media):
     elif kind == "TREND" and len(qs) <= 4 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
         eid = "trend"
         entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE", "size": "hero",
-                         "params": {"points": [float(v / max(values)) for v in values]}})
+                         "params": {"points": [float(v / max(values)) for v in values],
+                                    "value_labels": [dataviz_value(q) for q in qs]}})
         # Stage the empty axis while the premise is spoken; actual measured
         # values still draw ONLY when their corresponding quantities are said.
         ops.append({"op": "DRAW", "target": eid,
@@ -786,7 +787,7 @@ def dataviz_beat(g, bi, n, media):
             land(q, "GROW", eid, params={"point_index": i})
             pid = f"point{i + 1}"
             entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
-                             "params": {"value": float(values[i])},
+                             "params": {"value": float(values[i]), "plain_datum": True},
                              "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"])
                                             + " " + dataviz_value(q))})
             land(q, "DIM", pid)
