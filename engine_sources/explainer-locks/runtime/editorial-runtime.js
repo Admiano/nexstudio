@@ -1546,7 +1546,9 @@
           label.textContent = value;
           return label;
         });
-        const p = svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.2 }, g);
+        const p = svgEl('path', { ...line, d: polyPath(pts),
+          stroke: plan.director_style === 'dataviz' ? accent : ink,
+          'stroke-width': sw * (plan.director_style === 'dataviz' ? 1.9 : 1.2) }, g);
         // One active value leads the gaze. Keep the underlying line neutral;
         // a restrained accent tracker distinguishes the current spoken datum.
         const halo = svgEl('circle', { cx: pts[0][0], cy: pts[0][1],
@@ -1587,11 +1589,11 @@
                 'L' + f2(q.x) + ' ' + f2(baseY) + 'Z'
               : '';
             dataArea.setAttribute('d', areaPath);
-            dataArea.style.fillOpacity = k > 0.001 ? (0.085 + 0.03 * EASE.outCubic(k)).toFixed(3) : '0';
+            dataArea.style.fillOpacity = k > 0.001 ? (0.13 + 0.05 * EASE.outCubic(k)).toFixed(3) : '0';
             dataTracker.setAttribute('x1', f2(q.x));
             dataTracker.setAttribute('x2', f2(q.x));
             dataTracker.setAttribute('y1', f2(q.y));
-            dataTracker.style.strokeOpacity = k > 0.001 ? '0.18' : '0';
+            dataTracker.style.strokeOpacity = k > 0.001 ? '0.42' : '0';
           }
           for (const el of [dot, halo]) {
             el.setAttribute('cx', f2(q.x));
@@ -3555,7 +3557,29 @@
     // Show beats rebrand the film per section: chrome ink/accent/bg come from the
     // section shade's own palette — every builder below draws against `bplan`.
     const bplan = beat.chrome ? { ...plan, brand: { ...plan.brand, ink: beat.chrome.ink, accent: beat.chrome.accent, paper: beat.chrome.bg } } : plan;
-    const bg = buildBackground(beat, bplan, root);
+    // SceneBam's data journalism director rejects the old "chart in a
+    // rounded app card" backdrop. The *same authored* safe zones and evidence
+    // remain, but the image is now a full editorial field: no fake dashboard
+    // chrome, no beveled sheet, no visual widget competing with the figures.
+    const stageBeat = plan.director_style === 'dataviz' && beat.composition &&
+      beat.composition.background
+      ? { ...beat, composition: { ...beat.composition,
+          background: { ...beat.composition.background,
+            layers: (beat.composition.background.layers || []).filter(layer =>
+              !['panel', 'hairline', 'plane', 'depth'].includes(layer.kind)) } } }
+      : beat;
+    const bg = buildBackground(stageBeat, bplan, root);
+    if (plan.director_style === 'dataviz' && beat.composition) {
+      const field = beat.composition.visual_zone;
+      // A quiet register separates source narration from visual evidence.
+      // It is background typography/ruling, never an unspoken data claim.
+      el('div', { position: 'absolute',
+        left: px(field.x - Math.max(12, plan.canvas.w * 0.015)),
+        top: px(field.y + field.h * 0.045),
+        width: '1px', height: px(field.h * 0.86),
+        background: rgbaOf(bplan.brand.ink, 0.13),
+        pointerEvents: 'none' }, root);
+    }
     const media = beat.media ? buildMedia(beat.media, bplan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
     const figure = beat.figure ? buildFigure(beat.figure, bplan, root, opts.peepsUrl) : null;
@@ -3598,9 +3622,13 @@
             cue.params.point_index !== i || !Number.isFinite(cue.start_ms))) return null;
       const zone = beat.composition.text_zone;
       const compact = plan.aspect !== '16x9';
-      const focusTop = zone.y + zone.h * (compact ? 0.64 : 0.70);
-      const focusHeight = zone.h * (compact ? 0.32 : 0.24);
-      const focusValueSize = Math.min(108, compact ? Math.max(64, zone.h * 0.27) : zone.h * 0.20);
+      const focusTop = zone.y + zone.h * (compact ? 0.61 : 0.63);
+      const focusHeight = zone.h * (compact ? 0.36 : 0.32);
+      // The spoken measure is the hero, not the surrounding dashboard:
+      // optically larger tabular numerals, still bounded by the verified
+      // source-safe text band for every native aspect.
+      const focusValueSize = Math.min(compact ? 142 : 160,
+        compact ? Math.max(66, zone.h * 0.31) : Math.max(92, zone.h * 0.27));
       const focusLabelSize = Math.max(14, Math.min(22, zone.h * 0.055));
       const largestTextHeight = Math.max(0, ...textBlocks.map((block) => block.bbox.h));
       const textBottom = textBlocks.length > 1 && voiceSequence
