@@ -75,6 +75,27 @@ def _bridge_eligible(prev: dict, current: dict) -> bool:
     return True
 
 
+def _subset_eligible(prev: dict, current: dict) -> bool:
+    """A numerator is part of the earlier whole only with explicit group language."""
+    narration = current["narration"]
+    if not re.search(r"\\b(only|just|merely|out of|subset|a fraction of)\\b", narration, re.I):
+        return False
+    if not re.search(r"\\b(inside|among|within|of those|of these|of them|of that group|of the group|in that group|out of|population|subset)\\b", narration, re.I):
+        return False
+    a, b = _quantity(prev), _quantity(current)
+    if not a or not b or a.get("unit") != b.get("unit") or a.get("unit") == "%":
+        return False
+    whole, part = Decimal(str(a["value"])), Decimal(str(b["value"]))
+    if whole != whole.to_integral_value() or part != part.to_integral_value():
+        return False
+    if whole < 20 or part < 1 or part >= whole:
+        return False
+    ratio = part / whole
+    if not Decimal(".005") <= ratio <= Decimal(".75"):
+        return False
+    return bool(_terms(prev["narration"]) & _terms(narration))
+
+
 def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
                    count: int) -> list[Opportunity]:
     ill = beat.get("illustration") or {}
@@ -104,6 +125,9 @@ def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
             ans.append(Opportunity("part_to_whole", 1.04, tuple(q["source"] for q in _measures(beat))))
         elif kind == "STAT" and n == 1:
             ans.append(Opportunity("evidence_stat", .82, (_measures(beat)[0]["source"],)))
+        if prev and _subset_eligible(prev, beat):
+            a, b = _quantity(prev), _quantity(beat)
+            ans.append(Opportunity("population_subset", 1.48, (a["source"], b["source"])))
         if prev and _bridge_eligible(prev, beat):
             a, b = _quantity(prev), _quantity(beat)
             ans.append(Opportunity("evidence_bridge", 1.42, (a["source"], b["source"])))
@@ -203,6 +227,63 @@ def _bridge(prev: dict, current: dict) -> bool:
     return True
 
 
+def _subset(prev: dict, current: dict) -> bool:
+    if not _subset_eligible(prev, current):
+        return False
+    whole, part = _quantity(prev), _quantity(current)
+    a, b = Decimal(str(whole["value"])), Decimal(str(part["value"]))
+    token = current["narration"].split()[0]
+    cue = str(part.get("anchor") or token)
+    # Original population is the denominator: only the *actual* share grows.
+    # Source values remain discrete integers; no invented percentage or cases.
+    number_text = format(a, ",.0f")
+    current["illustration"] = {
+        "form": "OBJECT_STAGE", "entities": [{
+            "id": "director_population_subset", "kind": "evidence",
+            "glyph": "DONUT", "size": "hero",
+            "label": "out of " + number_text,
+            "params": {"level": float(b / a), "count": int(b)}}],
+        "relations": [],
+        "program": [
+            {"op": "DRAW", "target": "director_population_subset",
+             "at": {"word": token}, "duration_ms": 260},
+            {"op": "GROW", "target": "director_population_subset",
+             "at": {"word": cue}, "duration_ms": 480,
+             "to": float(b / a)},
+            {"op": "COUNT", "target": "director_population_subset",
+             "at": {"word": cue}, "duration_ms": 460}],
+        "confirmation": False}
+    current.pop("data", None)
+    current["dominant_layer"] = "HYBRID"
+    current["director_evidence"] = [
+        {"beat_id": prev["beat_id"], "source": whole["source"], "value": whole["value"], "unit": whole.get("unit", "")},
+        {"beat_id": current["beat_id"], "source": part["source"], "value": part["value"], "unit": part.get("unit", "")}]
+    return True
+
+
+def build_explanation_map(beats: list[dict]) -> dict[str, Any]:
+    """Auditable full-film claim chain. No paraphrased or invented thesis."""
+    nodes = []
+    edges = []
+    for i, beat in enumerate(beats):
+        terms = sorted(_terms(beat["narration"]))
+        relations = (beat.get("illustration") or {}).get("relations") or []
+        nodes.append({"beat_id": beat["beat_id"], "claim": beat["narration"],
+                      "terms": terms,
+                      "quantities": [{"source": q["source"], "value": q["value"],
+                                      "unit": q.get("unit", "")} for q in _measures(beat)],
+                      "relations": [{"source": r["source"], "target": r["target"],
+                                     "type": r["type"]} for r in relations]})
+        for old in nodes[max(0, i-3):i]:
+            common = sorted(set(terms) & set(old["terms"]))
+            if common:
+                edges.append({"from": old["beat_id"], "to": beat["beat_id"],
+                              "type": "source_term_recurrence", "terms": common[:8]})
+    return {"opening_claim": nodes[0]["claim"] if nodes else "",
+            "closing_claim": nodes[-1]["claim"] if nodes else "",
+            "claims": nodes, "connections": edges}
+
+
 def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     """Apply a cross-beat film plan through the existing renderer contract."""
     plan = plan_film(style, beats)
@@ -216,7 +297,7 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
                 beat["beat_type"] = "CONTRAST"
         elif family == "mechanism":
             beat["pattern"] = "PROCESS_RAIL"
-        elif family in ("evidence_trend", "part_to_whole", "subset_explanation"):
+        elif family in ("evidence_trend", "part_to_whole", "subset_explanation", "population_subset"):
             beat["pattern"] = "HERO_TO_EVIDENCE_HANDOFF"
             if i not in (0, len(beats) - 1):
                 beat["beat_type"] = "PROOF"
@@ -230,6 +311,8 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             beat["pattern"] = "PROGRESSIVE_HERO_BUILD"
         if family == "evidence_bridge" and i:
             _bridge(beats[i-1], beat)
+        if family == "population_subset" and i:
+            _subset(beats[i-1], beat)
         entries.append({
             "beat_id": beat["beat_id"], "family": family,
             "evidence": list(selected.evidence),
@@ -237,4 +320,5 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             "form": (beat.get("illustration") or {}).get("form")})
     return {"version": "SCENEBAM_FILM_DIRECTOR_V1", "style": style,
             "scenes": entries, "global_lookahead": len(beats),
+            "explanation_map": build_explanation_map(beats),
             "source_integrity": "verbatim_narration_and_source_tracked_quantities"}
