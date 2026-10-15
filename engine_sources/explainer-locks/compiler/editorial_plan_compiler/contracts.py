@@ -264,6 +264,15 @@ class IllustrationEntity:
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
             params['points'] = [_unit(p) for p in pts]
+            if 'value_labels' in params:
+                labels = params['value_labels']
+                _need(isinstance(labels, list) and len(labels) == len(pts) and
+                      all(isinstance(v, str) and bool(v.strip()) and len(v) <= 24 for v in labels),
+                      'CHART_LABELS_INVALID', f'{eid}: every chart point needs a source value label', beat_id)
+                params['value_labels'] = [' '.join(v.split()) for v in labels]
+        if glyph == 'PILL' and 'plain_datum' in params:
+            _need(params['plain_datum'] is True and label is not None,
+                  'PLAIN_DATUM_INVALID', f'{eid}: plain datum needs a label and boolean true', beat_id)
         if 'level' in params:
             params['level'] = _unit(params['level'])
         if 'count' in params:
