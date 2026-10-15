@@ -6650,6 +6650,15 @@
       "questionnaire",
       "pass",
       "voucher"
+    ],
+    "list": [
+      "list",
+      "checklist",
+      "inventory",
+      "agenda",
+      "outline",
+      "roster",
+      "schedule"
     ]
   }
 }
