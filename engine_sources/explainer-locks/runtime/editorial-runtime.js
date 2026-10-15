@@ -3110,6 +3110,24 @@
       // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing. Opacity
       // is never sprung: it ramps ahead of the body and cannot cross 1.
       let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : EASE.outQuint(pEnt)) * dim;
+      // Semantic story staging: a receiver does not visually arrive before
+      // the voice has introduced that source-named receiver. This changes the
+      // information flow of the film, rather than merely decorating a diagram.
+      // If exact speech evidence is absent, preserve the original entrance.
+      let sourceReveal = 1;
+      if (ctx.directorStyle === 'sketch') {
+        const incomingHandoff = (ill.handoffs || []).find(h =>
+          h.cargo && h.recipient === node);
+        if (incomingHandoff) {
+          const named = sketchSpokenEntity(beat, node, 0);
+          if (named) {
+            const revealEnd = Math.min(beat.duration_ms,
+              Math.max(named.end_ms, named.start_ms + 180));
+            sourceReveal = EASE.outCubic(prog(lt, named.start_ms, revealEnd));
+          }
+        }
+      }
+      opacity *= sourceReveal;
       let scale = pose.scale;
       let ty = pose.ty;
       // Idle life once this entity's own program has fully run: a drift whose amplitude shrinks
@@ -3540,7 +3558,7 @@
       if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);
       // Connectors read these: a link is only as present as the bodies it joins, and it follows
       // them — the live offset of the body's centre from its laid-out box.
-      node.presence = preEntry ? 0 : dim;
+      node.presence = preEntry ? 0 : dim * sourceReveal;
       node.offset = { dx: pose.carry.dx + tx, dy: pose.carry.dy + ty };
       if (node.label) {
         const ls = node.label.wrap.style;
@@ -3548,7 +3566,7 @@
         // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
         // the same carry path so it never sits at the destination while the body is travelling.
         const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
-        let labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade;
+        let labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade * sourceReveal;
         // An actual measured bar carries its value and "before / after"
         // label, so neither may appear until the voice reaches that datum.
         if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
@@ -3585,8 +3603,11 @@
     // from narration cues. It is seek-safe and contains no per-script timing.
     for (const handoff of ill.handoffs || []) {
       if (handoff.roleLabel) {
-        const entered = EASE.outCubic(prog(lt, handoff.cue.start_ms,
-          handoff.cue.end_ms));
+        const named = sketchSpokenEntity(beat, handoff.actor, 0);
+        const begin = named ? named.start_ms : handoff.cue.start_ms;
+        const finish = named ? Math.min(beat.duration_ms, Math.max(named.end_ms,
+          named.start_ms + 180)) : handoff.cue.end_ms;
+        const entered = EASE.outCubic(prog(lt, begin, finish));
         handoff.roleLabel.style.opacity = (0.55 * entered).toFixed(4);
         continue;
       }
