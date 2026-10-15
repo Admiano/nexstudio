@@ -74,6 +74,32 @@ class SceneDirectorTests(unittest.TestCase):
                 self.assertEqual(len(result["explanation_map"]["claims"]), 2)
                 BeatTreatment.parse(beats[1])
 
+    def test_anaphora_preserves_previous_denominator_exactly(self):
+        examples = [
+            ("The survey logged 594 positive results.",
+             "But only 99 of those are genuine.", 594, 99),
+            ("The study counted 800 volunteers.",
+             "Only 120 of them were selected.", 800, 120),
+        ]
+        for first, second, whole, part in examples:
+            with self.subTest(first=first):
+                beats = [data_beat(first, 0, 2), data_beat(second, 1, 2)]
+                report = direct_film("dataviz", beats)
+                self.assertEqual(report["scenes"][-1]["family"], "population_subset")
+                self.assertEqual([int(x["value"]) for x in beats[1]["director_evidence"]],
+                                 [whole, part])
+                ent = beats[1]["illustration"]["entities"][0]
+                self.assertEqual(ent["glyph"], "DONUT")
+                self.assertAlmostEqual(ent["params"]["level"], part / whole)
+                self.assertEqual(ent["params"]["count"], part)
+                BeatTreatment.parse(beats[1])
+        # Deictic wording with an intervening named different product is not
+        # allowed to imply that muffins are part of a coffee denominator.
+        beats = [data_beat("The cafe sold 1000 coffees.", 0, 2),
+                 data_beat("Only 40 of those muffins were sold.", 1, 2)]
+        direct_film("dataviz", beats)
+        self.assertNotIn("director_evidence", beats[1])
+
     def test_population_subset_requires_explicit_group_membership(self):
         pairs = [
             ("The cafe sold 1,000 coffees.", "Only 40 muffins were sold inside the cafe."),
