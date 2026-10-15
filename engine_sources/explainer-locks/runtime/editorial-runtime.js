@@ -3169,10 +3169,10 @@
     });
 
     // A source-backed current figure fills the unused lower-left field.
-    // It is a figure, not duplicated transcript captions. Aspect-scoped:
-    // other aspect compositions and the four other styles remain unchanged.
+    // It is a figure, not a duplicated caption. All three aspects receive
+    // their own text-zone safe placement; other styles remain unchanged.
     const dataFocus = (() => {
-      if (plan.director_style !== 'dataviz' || plan.aspect !== '16x9' ||
+      if (plan.director_style !== 'dataviz' ||
           !beat.illustration || !beat.composition || !beat.composition.text_zone) return null;
       const chart = (beat.illustration.entities || []).find((e) => e.glyph === 'CHART_LINE');
       if (!chart || !chart.params || !Array.isArray(chart.params.value_labels)) return null;
@@ -3186,22 +3186,34 @@
           cues.length !== labels.length || cues.some((cue, i) =>
             cue.params.point_index !== i || !Number.isFinite(cue.start_ms))) return null;
       const zone = beat.composition.text_zone;
+      const compact = plan.aspect !== '16x9';
+      const focusTop = zone.y + zone.h * (compact ? 0.64 : 0.70);
+      const focusHeight = zone.h * (compact ? 0.32 : 0.24);
+      const focusValueSize = Math.min(108, compact ? Math.max(64, zone.h * 0.27) : zone.h * 0.20);
+      const focusLabelSize = Math.max(14, Math.min(22, zone.h * 0.055));
+      const largestTextHeight = Math.max(0, ...textBlocks.map((block) => block.bbox.h));
+      const textBottom = textBlocks.length > 1 && voiceSequence
+        ? zone.y + (zone.h - largestTextHeight) * 0.42 + largestTextHeight
+        : Math.max(zone.y, ...textBlocks.map((block) => block.bbox.y + block.bbox.h));
+      // Do not display the additional figure where it would overlap the
+      // displayed sentence or breach the native text safe area.
+      if (focusTop < textBottom + 12 || focusTop + focusHeight > zone.y + zone.h + 2) return null;
       const wrap = el('div', {
-        position: 'absolute', left: px(zone.x + 8), top: px(zone.y + zone.h * 0.70),
-        width: px(zone.w * 0.88), height: px(zone.h * 0.24), zIndex: '12',
+        position: 'absolute', left: px(zone.x + 8), top: px(focusTop),
+        width: px(zone.w * 0.88), height: px(focusHeight), zIndex: '12',
         pointerEvents: 'none', opacity: '0', transform: 'translateY(10px)',
         willChange: 'opacity, transform',
       }, root);
       wrap.dataset.director = 'data-focus';
       const period = el('div', {
         fontFamily: '"' + plan.fonts.families.text + '"', fontWeight: '650',
-        fontSize: px(Math.min(22, zone.h * 0.045)), lineHeight: '1.1',
+        fontSize: px(focusLabelSize), lineHeight: '1.1',
         letterSpacing: '0.12em', color: bplan.brand.ink,
         opacity: '0.56', textTransform: 'uppercase',
       }, wrap);
       const value = el('div', {
         fontFamily: '"' + (plan.fonts.families.data || plan.fonts.families.text) + '"',
-        fontWeight: '750', fontSize: px(Math.min(108, zone.h * 0.20)),
+        fontWeight: '750', fontSize: px(focusValueSize),
         lineHeight: '1.0', letterSpacing: '-0.055em',
         color: bplan.brand.accent || bplan.brand.ink,
         fontVariantNumeric: 'tabular-nums',
