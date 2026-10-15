@@ -2644,7 +2644,16 @@
             const self = centre(node.bb), origin = centre(sender.bb);
             const destination = centre(recipient.bb);
             const firstEnd = Math.max(receive.end_ms + 120, receive.start_ms + 380);
-            const lastEnd = Math.max(deliver.end_ms + 370, deliver.start_ms + 730);
+            // A named receiving noun is the true narrative destination. Use
+            // its original spoken onset as the landing authority; a short
+            // connector DRAW op must not make the payload teleport in advance.
+            const receiverNoun = String(recipient.ent.label && recipient.ent.label.text || '')
+              .toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+            const receiverWord = (beat.words || []).find((w) =>
+              String(w.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === receiverNoun &&
+              w.start_ms > deliver.start_ms);
+            const lastEnd = Math.max(deliver.end_ms + 370, deliver.start_ms + 730,
+              receiverWord ? receiverWord.start_ms + 210 : 0);
             const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
             const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
             // Enter from near the known sender, land on the named object,
@@ -2660,10 +2669,14 @@
             // the recipient's illustration/label box. Fade the object at
             // mid-flight and let the actual source-authored receiver react;
             // never place a message tile across the server's own name.
-            const absorbed = 1 - EASE.inOutCubic(prog(delivered, 0.30, 0.58));
+            const absorbed = 1 - EASE.inOutCubic(prog(delivered, 0.62, 0.84));
+            // A flying cargo label does not ride into the receiver's name.
+            // Retain the illustrated cargo long enough to visibly travel;
+            // drop the annotation near departure while the narrator speaks.
+            const labelExit = 1 - EASE.inOutCubic(prog(delivered, 0.07, 0.32));
             opacity *= visible * absorbed;
-            semanticLabelFade *= visible * absorbed;
-            node.payloadAbsorbed = delivered >= 0.58;
+            semanticLabelFade *= visible * labelExit;
+            node.payloadAbsorbed = delivered >= 0.84;
             g.dataset.actionPerformance = 'named-payload-flight';
           }
         }
@@ -2772,7 +2785,16 @@
           if (relation.rel.type !== 'flows_to' || relation.rel.target !== ent.id) continue;
           const cue = relation.ops.find((op) => op.op === 'CONNECT');
           if (!cue) continue;
-          const arrival = Math.max(cue.start_ms + 520, cue.end_ms + 160);
+          const payload = ill.ents.get(relation.rel.source);
+          const payloadNoun = String(payload && payload.ent.label && payload.ent.label.text || '')
+            .toLowerCase().replace(/[^a-z]/g, '').trim();
+          const portableCargo = /^(message|messages|file|files|letter|letters|package|packages|parcel|parcels|note|notes|document|documents|instruction|instructions)$/.test(payloadNoun);
+          const name = String(ent.label && ent.label.text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const receiverWord = portableCargo ? (beat.words || []).find((w) =>
+            String(w.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === name &&
+            w.start_ms > cue.start_ms) : null;
+          const arrival = Math.max(cue.start_ms + 520, cue.end_ms + 160,
+            receiverWord ? receiverWord.start_ms : 0);
           const receive = EASE.pulse(prog(lt, arrival - 110, arrival + 490));
           scale *= 1 + receive * 0.075;
           ty -= receive * Math.min(10, node.bb.h * 0.045);
