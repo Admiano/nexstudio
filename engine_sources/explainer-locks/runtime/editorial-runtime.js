@@ -2516,14 +2516,19 @@
         cards.forEach((cd, i) => {
           const cb = { x: b.x + i * (cw + gap), y: b.y, w: cw, h: b.h };
           const g2 = svgEl('g', {}, body);
-          const card = svgEl('path', { d: roundRectPath(cb, Math.min(cb.w, cb.h) * 0.06) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.55, 'stroke-opacity': 0.24 }, g2);
+          const card = svgEl('path', { d: roundRectPath(cb, Math.min(cb.w, cb.h) * 0.06) + 'Z',
+            fill: params.editorial_field ? paper : face,
+            'fill-opacity': params.editorial_field ? 0.10 : 1,
+            stroke: ink, 'stroke-width': sw * 0.55,
+            'stroke-opacity': params.editorial_field ? 0.55 : 0.24 }, g2);
           const markS = Math.min(cb.w, cb.h) * 0.42;
           const mb = { x: cb.x + (cb.w - markS) / 2, y: cb.y + cb.h * 0.12, w: markS, h: markS };
           svgEl('path', { d: roundRectPath(mb, markS * 0.2) + 'Z', fill: i === 0 ? accent : cardFg, 'fill-opacity': i === 0 ? 1 : 0.85 }, g2);
           wordMark(node, g2, mb, String(cd.mark || cd.title || ''), 'monogram', i === 0 ? cardFg : face, plan);
-          const fsT = Math.min(cb.h * 0.22, cb.w / 5.4);
+          const titleText = String(cd.title || '').slice(0, 20);
+          const fsT = Math.min(cb.h * 0.16, (cb.w * 0.85) / Math.max(4, titleText.length * 0.58));
           const t = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.66), 'text-anchor': 'middle', 'font-family': plan.fonts.families.display, 'font-weight': '800', 'font-size': f2(fsT), fill: cardFg, 'letter-spacing': '-0.02em' }, g2);
-          t.textContent = String(cd.title).slice(0, 14);
+          t.textContent = titleText;
           if (cd.sub) {
             const s = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.84), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fsT * 0.62), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.66 }, g2);
             s.textContent = String(cd.sub).slice(0, 22);
@@ -2600,15 +2605,22 @@
           const last = i === n - 1;
           svgEl('path', { d: roundRectPath(sb, Math.min(sb.w, sb.h) * 0.24) + 'Z', fill: last ? accent : face, stroke: ink, 'stroke-width': sw * 0.45, 'stroke-opacity': last ? 0 : 0.22 }, g2);
           const sText = (s && typeof s === 'object') ? (s.label || '') : String(s);
-          const fs = Math.min(sh * 0.58, sw2 / Math.max(4, sText.length) * 1.6);
-          const nb2 = { x: sb.x + sh * 0.12, y: sb.y + sh * 0.12, w: sh * 0.76, h: sh * 0.76 };
-          const nfs = Math.min(sh * 0.52, sw2 * 0.2);
-          if (sh * 0.76 > 8) {
+          // Reserve a dedicated ordinal column; letters must NEVER render
+          // behind the numbered badge. Fits both horizontal and vertical rails.
+          const badgeSize = Math.min(sh * 0.52, sw2 * 0.19);
+          const nb2 = { x: sb.x + sw2 * 0.045,
+                        y: sb.y + (sh - badgeSize) / 2,
+                        w: badgeSize, h: badgeSize };
+          const nfs = badgeSize * 0.65;
+          const contentX = nb2.x + nb2.w + sw2 * 0.04;
+          const contentW = Math.max(12, sb.x + sw2 * 0.98 - contentX);
+          const fs = Math.min(sh * 0.35, contentW / Math.max(4, sText.length * 0.56));
+          if (badgeSize > 8) {
             svgEl('path', { d: roundRectPath(nb2, Math.min(nb2.w, nb2.h) * 0.3) + 'Z', fill: cardFg }, g2);
             const nt = svgEl('text', { x: f2(nb2.x + nb2.w / 2), y: f2(nb2.y + nb2.h / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(nfs), fill: last ? accent : face }, g2);
             nt.textContent = String(i + 1);
           }
-          const t = svgEl('text', { x: f2(sb.x + sw2 / 2), y: f2(sb.y + sh / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
+          const t = svgEl('text', { x: f2(contentX + contentW / 2), y: f2(sb.y + sh / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
           t.textContent = sText.slice(0, 18);
           parts.push({ g: g2, i, cx: sb.x + sw2 / 2, cy: sb.y + sh / 2 });
           if (i < n - 1) {
@@ -2750,8 +2762,17 @@
         const lens = svgEl('g', {}, g);
         const lIn = svgEl('g', {}, lens);
         svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: face, 'fill-opacity': 0.94 }, lens);
-        const t2 = svgEl('text', { x: 0, y: 0, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs * zoom), fill: accent, 'clip-path': `url(#${clipId})` }, lIn);
+        const t2 = svgEl('text', { x: 0, y: 0, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs * zoom), fill: ink, 'clip-path': `url(#${clipId})` }, lIn);
         t2.textContent = t.textContent;
+        // A source-exact focal label remains readable within the travelling
+        // lens; the underlying zoom still animates as a separate scale layer.
+        const focusText = String(params.text || '').slice(0, 36);
+        const focusFs = Math.min(R * 0.40, R * 1.55 / Math.max(5, focusText.length * 0.57));
+        const focusLabel = svgEl('text', { x: 0, y: 0,
+          'text-anchor': 'middle', 'dominant-baseline': 'central',
+          'font-family': plan.fonts.families.data, 'font-weight': '800',
+          'font-size': f2(focusFs), fill: ink }, lens);
+        focusLabel.textContent = focusText;
         svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: 'none', stroke: ink, 'stroke-width': sw * 0.7 }, lens);
         svgEl('path', { d: `M${f2(R * 0.7)} ${f2(R * 0.7)} L${f2(R * 1.42)} ${f2(R * 1.42)}`, stroke: ink, 'stroke-width': sw * 1.1, 'stroke-linecap': 'round' }, lens);
         node.extra.magLens = lens;
