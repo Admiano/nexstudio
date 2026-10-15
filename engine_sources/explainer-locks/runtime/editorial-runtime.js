@@ -3103,8 +3103,15 @@
       // extended hand, rather than stopping between the people while the
       // "delivery" animation pretends otherwise. Cargo stays visible and its
       // outer edge clears the hand by a small ink gap.
-      const reach = Math.min(cargo.bb.w, cargo.bb.h) * 0.5 * 0.88;
-      const pad = reach + margin;
+      // Use the *drawn* cargo silhouette, not the empty outer layout
+      // carrier. A procedural sheet occupies 56% of its source box and ends
+      // at 88% transfer scale. Using half the entire carrier leaves the
+      // document visibly floating away from the recipient's hand.
+      const drawnHalfWidth = cargo.ent.params &&
+        cargo.ent.params.visual_class === 'document'
+        ? Math.min(cargo.bb.w, cargo.bb.h) * 0.56 * 0.5 * 0.88
+        : cargo.bb.w * 0.31;
+      const pad = drawnHalfWidth + sw * 0.85;
       origin = { x: fromHand.x, y: fromHand.y };
       stop = { x: toHand.x, y: toHand.y };
       origin[axis] += sign * pad;
@@ -4530,7 +4537,16 @@
           const readout = gl.extra.countText || body.querySelector('text') ||
             (gl.extra.wordHost && gl.extra.wordHost.querySelector('text'));
           const inside = node.label && node.label.inside;
-          if (!carried && !readout && !inside) flag('EMPTY_CHASSIS', beatId, node.ent.id, `${node.ent.glyph} body on stage with nothing inside`);
+          // Procedural illustration is not an empty shell: inspect the
+          // actual drawn strokes inside its registered source-art group.
+          // Checking only iconHost misclassifies every native hand-drawn
+          // character and physical document as EMPTY_CHASSIS, hiding real
+          // audit issues in the rendered video manifests.
+          const drawn = [...body.querySelectorAll('[data-drawing]')].some(group =>
+            group.querySelector(GRAPHIC));
+          if (!carried && !readout && !inside && !drawn)
+            flag('EMPTY_CHASSIS', beatId, node.ent.id,
+              `${node.ent.glyph} body on stage with nothing inside`);
           if (host && carried) {
             const geom = iconGeometry(node);
             if (geom && geom.fill < ICON_FILL_MIN) flag('ICON_UNDERFILL', beatId, node.ent.id, `mark covers ${(geom.fill * 100).toFixed(0)}% of its box`);
