@@ -253,11 +253,22 @@ class IllustrationEntity:
             _need(asset_ref is not None or concept is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
         if glyph in CARRIER_GLYPHS:
             # A housing is never staged empty: the tile / disc / row exists to carry a mark or a word.
-            carries = asset_ref is not None or concept is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
+            # Registered procedural art is a real drawable housed illustration,
+            # not an empty tile or a guessed icon. Its name remains source text.
+            visual = (d.get('params') or {}).get('visual_class')
+            carries = asset_ref is not None or concept is not None or (
+                label is not None and glyph in INSIDE_LABEL_GLYPHS) or (
+                label is not None and glyph == 'TILE' and visual in ('person', 'document'))
             _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no concept, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
+        if 'visual_class' in params:
+            _need(params['visual_class'] in ('person', 'document') and
+                  glyph == 'TILE' and kind == 'object' and label is not None
+                  and asset_ref is None and concept is None,
+                  'ILLUSTRATED_CLASS_INVALID',
+                  f'{eid}: author-approved procedural class needs a named source object', beat_id)
         if 'narrative_role' in params:
             _need(params['narrative_role'] == 'transferred_payload' and kind == 'object'
                   and glyph in ('PILL', 'CARD', 'TILE', 'ICON', 'CHIP', 'BADGE'),
