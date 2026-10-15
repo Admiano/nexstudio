@@ -2366,8 +2366,19 @@
       case 'DATA_BARS': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.035) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const series = (params.series || []).slice(0, 8), n = Math.max(1, series.length);
         const pad = Math.min(b.w, b.h) * 0.09, labelH = b.h * 0.115;
         const plot = { x: b.x + pad, y: b.y + pad * 1.1, w: b.w - pad * 2, h: b.h - pad * 2 - labelH };
@@ -2378,7 +2389,7 @@
         const maxLbl = Math.max(4, ...series.map((s) => String(s.label || '').slice(0, 16).length));
         const fsV = Math.min(plot.h * 0.2, b.w / (n * 2.9)), fsL = Math.min(labelH * 0.8, bw * 0.24, ((plot.w / n) * 0.92) / (maxLbl * 0.55));
         series.forEach((s, i) => {
-          const x = plot.x + i * (bw + gap), h = Math.max(plot.h * 0.11, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
+          const x = plot.x + i * (bw + gap), h = Math.max(params.editorial_field ? 0 : plot.h * 0.11, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
           const pop = s.tone === 'accent';
           const bar = svgEl('path', { d: roundRectPath({ x, y: base - h, w: bw, h }, Math.min(bw * 0.14, 7)) + 'Z', fill: pop ? accent : cardFg, 'fill-opacity': 1 }, body);
           bar.style.transformOrigin = `${f2(x + bw / 2)}px ${f2(base)}px`;
@@ -2403,8 +2414,19 @@
       case 'DATA_TABLE': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const header = (params.header || []).map(String), rows = (params.rows || []).slice(0, 6);
         const cols = Math.max(1, Math.max(header.length, ...rows.map((r) => r.length)));
         const pad = Math.min(b.w, b.h) * 0.07, tbl = { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 };
@@ -2438,8 +2460,19 @@
       case 'TIMELINE': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const evs = (params.events || []).slice(0, 6), n = Math.max(1, evs.length);
         const horiz = params.axis === 'v' ? false : params.axis === 'h' ? true : b.w >= b.h;
         const pad = Math.min(b.w, b.h) * 0.12;
@@ -2605,7 +2638,18 @@
       case 'PROGRESS': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.1) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
         const pad = Math.min(b.w, b.h) * 0.16, labelFs = b.h * 0.4;
         const track = { x: b.x + pad, y: b.y + b.h * 0.62, w: b.w - pad * 2, h: b.h * 0.22 };
         svgEl('path', { d: roundRectPath(track, track.h / 2) + 'Z', fill: cardFg, 'fill-opacity': 0.14 }, body);
