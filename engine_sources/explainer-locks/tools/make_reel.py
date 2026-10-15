@@ -800,14 +800,18 @@ def dataviz_beat(g, bi, n, media):
         # values still draw ONLY when their corresponding quantities are said.
         ops.append({"op": "DRAW", "target": eid,
                     "at": {"word": g[0]["text"]}, "duration_ms": 300})
-        land(qs[0], "DIM", eid)
+        # The chart's framework and the source-mentioned time categories are
+        # visible from the opening statement; measured values remain gated to
+        # their exact spoken words. No transcript caption layer is introduced.
         for i, q in enumerate(qs):
-            land(q, "GROW", eid, params={"point_index": i})
             pid = f"point{i + 1}"
             entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
                              "params": {"value": float(values[i]), "plain_datum": True},
                              "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"]))})
-            land(q, "DIM", pid)
+            ops.append({"op": "DIM", "target": pid,
+                        "at": {"word": g[0]["text"]}, "duration_ms": 300})
+            land(q, "GROW", eid, params={"point_index": i})
+            land(q, "SETTLE", pid)
     elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
         q, unit = qs[0], qs[0]["unit"]
         params = {"count": int(values[0]), "caption": q["label"], "tone": "dark"}
