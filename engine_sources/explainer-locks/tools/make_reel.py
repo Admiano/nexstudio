@@ -1024,19 +1024,15 @@ def sketch_groups(words):
 
 _SKETCH_NLP: Any = None
 _SKETCH_ASSETS: set[str] | None = None
-# Sketch has a coherent line-art language. The coloured icon catalogue
-# carries several ambiguous symbols ("customer" is a chat character), so a
-# coincidentally matching filename is not enough evidence to illustrate a
-# source entity. Use outline-only semantic matches; unmatched nouns keep
-# literal source typography instead of a misleading substitute.
 _SKETCH_ICON_FAMILIES = (
     "icon-park-outline", "lucide", "mingcute", "tabler", "carbon",
-    "ri", "healthicons", "ant-design",
+    "ri", "healthicons", "ant-design", "icon-park-color",
 )
 _SKETCH_FALSE_FRIEND_ASSETS = {
     "icon.icon-park-color.shade",        # umbrella, not cast shade
     "icon.icon-park-color.label",        # bookmark, not a physical label
     "icon.icon-park-color.instruction",  # code editor, not an instruction sent to a device
+    "icon.icon-park-color.customer",     # chat-head symbol, not a person receiving an item
 }
 
 
@@ -1159,7 +1155,7 @@ def sketch_asset(phrase, text):
                 return ref
     ref = BANK.get(key, {}).get("mono")
     suffix = (ref or "").rsplit(".", 1)[-1]
-    if ref in _SKETCH_ASSETS and not str(ref).startswith("icon.icon-park-color.") and (
+    if ref in _SKETCH_ASSETS and ref not in _SKETCH_FALSE_FRIEND_ASSETS and (
             suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
         return ref
     return None
