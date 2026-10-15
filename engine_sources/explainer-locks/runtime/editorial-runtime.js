@@ -1439,6 +1439,15 @@
         if (ent.glyph === 'PILL' && plan.director_style === 'sketch') {
           if (params.narrative_role === 'transferred_payload') {
             const x0 = b.x, x1 = b.x + b.w, y0 = b.y, y1 = b.y + b.h;
+            // An opaque source-named editorial slip masks its OWN travel
+            // rail, so a trajectory cannot strike through the spoken payload
+            // name. This is an abstract visual carrier, not a fabricated
+            // portrait, device or icon for the underlying object.
+            svgEl('rect', {
+              x: f2(x0), y: f2(y0), width: f2(b.w), height: f2(b.h),
+              rx: f2(sw * 0.9), fill: paper, 'fill-opacity': 0.97,
+              'data-action': 'named-transfer-carrier',
+            }, g);
             const corner = Math.min(b.w, b.h) * 0.18;
             const stroke = svgEl('path', { ...line,
               d: [
