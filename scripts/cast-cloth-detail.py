@@ -129,10 +129,10 @@ def close_pinholes(ob):
     bm.free();return len(new)
 
 def apply_cloth_detail(scene):
-    garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
+    garments=[o for o in scene.objects if o.type=='MESH' and not o.get('castWardrobeReplaced') and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and not o.get('castFitSource') and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and not any(k in o.name.lower() for k in ('shoe','sneaker','trouser','pants','jeans')) and not o.get('castGarmentSource')]
     # Never auto-fill intentional jacket openings, collars and neckwear on a
     # real multi-part formal UV mesh. Keep original casual garment behaviour.
-    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and o.get('castWardrobeKind')!='formal' and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
+    pinholes={o.name:n for o in scene.objects if o.type=='MESH' and not o.get('castFitSource') and not o.get('castWardrobeReplaced') and o.get('castWardrobeKind')!='formal' and any(m and m.get('castClothProfile')=='illustrated-fabric-v15' for m in o.data.materials) and (n:=close_pinholes(o))}
     rows=[]
     for ob in garments:
         # Formalwear and casualwear use the same shared collar and cloth detail

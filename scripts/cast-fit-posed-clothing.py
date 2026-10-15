@@ -107,7 +107,8 @@ def fit_posed_clothing(scene):
         source_name=result.get('castFitSource')
         if not source_name:continue
         source=bpy.data.objects.get(source_name)
-        if source is not None:source.hide_render=source.get('castFitOriginalHideRender',False)
+        if source is not None:
+            source.hide_render=True if source.get('castWardrobeReplaced') else source.get('castFitOriginalHideRender',False)
         mesh=result.data
         bpy.data.objects.remove(result,do_unlink=True)
         if mesh.users==0:bpy.data.meshes.remove(mesh)

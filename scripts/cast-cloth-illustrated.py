@@ -162,7 +162,7 @@ def fit_cloth(ob,body,covered):
 
 def apply_cloth_appearance(scene,character):
     palette=colours();body=bpy.data.objects['Host.body'];rows=[]
-    garments=[o for o in scene.objects if o.type=='MESH' and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and (
+    garments=[o for o in scene.objects if o.type=='MESH' and not o.get('castWardrobeReplaced') and (not o.hide_render or o.get('castFitOriginalHideRender') is False) and (
         (o.name.removeprefix('Host.') in palette and any(m and m.name.startswith(('V63_DRESS_','V70_G_')) for m in o.data.materials))
         or o.get('castWardrobeKind')=='formal')]
     for ob in garments:

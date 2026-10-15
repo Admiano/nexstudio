@@ -38,6 +38,9 @@ for frame in (27,338,891):
     assert any(m.type=='ARMATURE' and m.object==garment.parent for m in garment.modifiers)
     assert not any(x.get('castFitSource')==selected for x in scene.objects), 'ANIMATED_GARMENT_REPLACED_WITH_STATIC_MESH'
     assert match[0]['animatedSourcePreserved'] and not match[0]['bakedStillMesh']
+    leaked=[ob.name for ob in scene.objects
+            if ob.get('castWardrobeReplaced') and not ob.hide_render]
+    assert not leaked,'OLD_NATIVE_CLOTH_REAPPEARED:'+repr(leaked)
     bpy.context.view_layer.update()
 destination=Path(destination);destination.parent.mkdir(parents=True,exist_ok=True)
 # Actual render from the new native path, not the old post-pipeline donor preview.
@@ -67,7 +70,7 @@ bpy.ops.render.render(write_still=True)
 assert image_path.is_file() and image_path.stat().st_size>10000,'CAST_NATIVE_RENDER_MISSING'
 result={'variant':variant,'selectedGarment':selected,'nativePipeline':True,
         'selectionStage':'before-stable-finish','sharedStages':['cast-finish-upgrade','cast-garment-structure','cast-cloth-illustrated','cast-cloth-detail','cast-fit-posed-clothing'],
-        'poseFrames':[27,338,891],'nativePreviewPNG':image_path.name,
+        'poseFrames':[27,338,891],'replacedNativeGarmentsHidden':True,'nativePreviewPNG':image_path.name,
         'nativePreviewSHA256':hashlib.sha256(image_path.read_bytes()).hexdigest(),'fabric':finish,'structure':structure,
         'cloth':cloth,'detail':detail,'formal':report,'collisionCertified':False}
 destination.write_text(json.dumps(result,indent=2,default=str)+'\n')

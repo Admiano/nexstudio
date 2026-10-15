@@ -179,7 +179,8 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
         # material authority; no guessed fallback to the original O3/dress.
         prior=sorted({ob.name for ob in scene.objects
             if ob.type=='MESH' and ob.name.startswith('Host.')
-            and not ob.hide_render and not ob.get('castGarmentSource')
+            and (not ob.hide_render or ob.get('castFitOriginalHideRender') is False)
+            and not ob.get('castGarmentSource')
             and not ob.get('castGarmentProxySource') and not ob.get('castFitSource')
             and not any(k in ob.name.lower() for k in ('shoe','sneaker'))
             and any(m and m.name.startswith(('V63_DRESS_','V70_G_'))
@@ -203,6 +204,11 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
             obj.name.startswith('Host.lineart_lower_legs.'))
         if target or marks or redundant_leg_ink:
             obj.hide_render = True
+            if target:
+                # A source garment can be temporarily hidden by the ordinary
+                # posed-fit stage. Persist the explicit wardrobe replacement
+                # marker so later cleanup NEVER restores an old shirt.
+                obj['castWardrobeReplaced']=True
             hidden.append(obj.name)
     collection = bpy.data.collections.get('V26_GARMENT_MARKS')
     if collection:
