@@ -1024,9 +1024,14 @@ def sketch_groups(words):
 
 _SKETCH_NLP: Any = None
 _SKETCH_ASSETS: set[str] | None = None
+# Sketch has a coherent line-art language. The coloured icon catalogue
+# carries several ambiguous symbols ("customer" is a chat character), so a
+# coincidentally matching filename is not enough evidence to illustrate a
+# source entity. Use outline-only semantic matches; unmatched nouns keep
+# literal source typography instead of a misleading substitute.
 _SKETCH_ICON_FAMILIES = (
     "icon-park-outline", "lucide", "mingcute", "tabler", "carbon",
-    "ri", "healthicons", "ant-design", "icon-park-color",
+    "ri", "healthicons", "ant-design",
 )
 _SKETCH_FALSE_FRIEND_ASSETS = {
     "icon.icon-park-color.shade",        # umbrella, not cast shade
@@ -1154,7 +1159,8 @@ def sketch_asset(phrase, text):
                 return ref
     ref = BANK.get(key, {}).get("mono")
     suffix = (ref or "").rsplit(".", 1)[-1]
-    if ref in _SKETCH_ASSETS and (suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
+    if ref in _SKETCH_ASSETS and not str(ref).startswith("icon.icon-park-color.") and (
+            suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
         return ref
     return None
 
@@ -1369,6 +1375,12 @@ def sketch_beat(gwords, bi, n, previous, media):
                                 "at": {"word": anchor}, "duration_ms": 300})
             illustration = {"form": form, "entities": entities, "relations": relations,
                             "program": program,
+                            # True source-typed arrivals use recipient response.
+                            # Generic after-action EMIT can fire before the
+                            # receiver's spoken onset and falsely announce delivery.
+                            **({"confirmation": False} if any(
+                                e.get("params", {}).get("narrative_role") == "transferred_payload"
+                                for e in entities) else {}),
                             **({"carry": {"from_beat": f"b{bi:02d}", "entities": sorted(shared)}}
                                if shared else {})}
             return {
