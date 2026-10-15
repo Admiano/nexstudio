@@ -33,9 +33,11 @@ for frame in (27,338,891):
     assert selected in {x['object'] for x in cloth['garments']}
     assert selected in {x['object'] for x in detail['garments']}
     garment=bpy.data.objects[selected]
-    assert garment.hide_render and garment.get('castWardrobeOriginalUV')
-    visual=next(x for x in scene.objects if x.get('castFitSource')==selected)
-    assert not visual.hide_render and len(visual.data.materials)==len(garment.data.materials)
+    assert not garment.hide_render and garment.get('castWardrobeOriginalUV')
+    assert garment.parent==bpy.data.objects['Host.rig']
+    assert any(m.type=='ARMATURE' and m.object==garment.parent for m in garment.modifiers)
+    assert not any(x.get('castFitSource')==selected for x in scene.objects), 'ANIMATED_GARMENT_REPLACED_WITH_STATIC_MESH'
+    assert match[0]['animatedSourcePreserved'] and not match[0]['bakedStillMesh']
     bpy.context.view_layer.update()
 destination=Path(destination);destination.parent.mkdir(parents=True,exist_ok=True)
 # Actual render from the new native path, not the old post-pipeline donor preview.
@@ -43,6 +45,7 @@ destination=Path(destination);destination.parent.mkdir(parents=True,exist_ok=Tru
 scene.frame_set(27)
 preview_fit=load('cast-fit-posed-clothing.py')['fit_report']
 assert any(row.get('object')==selected and row.get('evaluatedPoseFrame')==27 for row in preview_fit)
+assert not any(obj.get('castFitSource')==selected for obj in scene.objects), 'CONTINUOUS_MOTION_GARMENT_BAKED'
 scene.render.engine='CYCLES'
 scene.cycles.samples=8
 scene.cycles.use_denoising=True

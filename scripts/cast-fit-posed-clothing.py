@@ -61,41 +61,43 @@ def _fit_cuff_edge(ob,mesh,stop):
     return moved
 
 def _fit_selected_formal(scene):
-    """Same evaluated-mesh pose-fit lifecycle as native garments.
+    """Validate the shared garment/rig at this pose without freezing animation.
 
-    Tailored source garments contain BOTH jacket and trousers, unlike the
-    ordinary male top/pants pairs. Evaluate the same rig+modifiers per frame,
-    then apply only bounded, local skin-clearance correction where required;
-    never turn the complete suit into an untucked shirt.
+    Unlike a one-frame casual preview-fit snapshot, full formal suits must
+    continue deforming for speaker switching, interviews and long productions.
+    The source garment already receives native structural and collar modifiers;
+    it stays visible and parented to Host.rig for every frame.
     """
     selected=[o for o in scene.objects if o.type=='MESH' and
               o.get('castWardrobeKind')=='formal' and not o.hide_render]
     if len(selected)!=1:
         raise RuntimeError('CAST_NATIVE_FORMAL_SELECTION_INVALID:'+str(len(selected)))
     source=selected[0]
-    body=bpy.data.objects['Host.body']
-    rig=bpy.data.objects['Host.rig']
+    rig=bpy.data.objects.get('Host.rig')
+    if not rig or source.parent!=rig or not any(m.type=='ARMATURE' and m.object==rig for m in source.modifiers):
+        raise RuntimeError('CAST_NATIVE_FORMAL_SOURCE_NOT_RIG_BOUND')
+    if any(o.get('castFitSource')==source.name for o in scene.objects):
+        raise RuntimeError('CAST_NATIVE_FORMAL_BAKED_PREVIEW_DETECTED')
+    bpy.context.view_layer.update()
     deps=bpy.context.evaluated_depsgraph_get()
     evaluated=source.evaluated_get(deps)
-    fitted=bpy.data.meshes.new_from_object(evaluated,depsgraph=deps)
-    if not fitted.vertices or not fitted.polygons:
-        raise RuntimeError('CAST_NATIVE_FORMAL_EVALUATED_MESH_EMPTY')
-    # Preserve authored bone-driven poses and finished material slots. A
-    # separate evaluated display is discarded/rebuilt on each frame.
-    display=bpy.data.objects.new(source.name+'.preview-fit',fitted)
-    display.matrix_world=source.matrix_world.copy()
-    for collection in source.users_collection:collection.objects.link(display)
-    display.pass_index=source.pass_index
-    display['castFitSource']=source.name
-    display['castWardrobeKind']='formal'
-    if 'castFitOriginalHideRender' not in source:
-        source['castFitOriginalHideRender']=source.hide_render
-    source.hide_render=True
-    bpy.context.view_layer.update()
-    return {'object':source.name,'vertexCount':len(fitted.vertices),'evaluatedPoseFrame':scene.frame_current,
-            'poseEvaluatedOnSharedRig':True,'sourceWeightsPreserved':True,
-            'sourceMaterialsPreserved':True,'collisionCertified':False,
-            'adjustedVertices':0,'reason':'single-piece formal suit with native rigging; no shirt-only fit assumptions'}
+    mesh=evaluated.to_mesh()
+    try:
+        if not mesh.vertices or not mesh.polygons:
+            raise RuntimeError('CAST_NATIVE_FORMAL_EVALUATED_MESH_EMPTY')
+        if any(not all(math.isfinite(float(axis)) for axis in vertex.co) for vertex in mesh.vertices):
+            raise RuntimeError('CAST_NATIVE_FORMAL_NONFINITE_GEOMETRY')
+        verts=len(mesh.vertices)
+        faces=len(mesh.polygons)
+    finally:
+        evaluated.to_mesh_clear()
+    return {'object':source.name,'vertexCount':verts,'faceCount':faces,
+            'evaluatedPoseFrame':scene.frame_current,
+            'poseEvaluatedOnSharedRig':True,'animatedSourcePreserved':True,
+            'originalArmatureModifierPreserved':True,
+            'sourceWeightsPreserved':True,'sourceMaterialsPreserved':True,
+            'collisionCertified':False,'bakedStillMesh':False,
+            'reason':'authored rig and native cloth clearance modifiers evaluate continuously'}
 
 def fit_posed_clothing(scene):
     # Evaluated meshes are disposable results. Restore source visibility and
