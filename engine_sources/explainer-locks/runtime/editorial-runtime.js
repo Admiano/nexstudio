@@ -2112,6 +2112,16 @@
         } else if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
+          if (isIllustrated) {
+            // Registry icons can carry hardwired brand colours (blue ticket,
+            // green tree, etc.). Sketch is a deliberate ONE-INK illustrated
+            // film. Keep the literal correct shape, but neutralise embedded
+            // catalogue hues so source-matched graphics coexist with our
+            // authored humans and paper art. Do not colourize screenshots,
+            // photographs, other director styles, or genuine brand marks.
+            host.style.filter = 'grayscale(1) contrast(1.25)';
+            host.dataset.treatment = 'ink-catalogue';
+          }
           node.inkEls.push(host);
           node.extra.iconHost = host;
           const pad = b.w * (isIllustrated ? 0.085 : 0.17);
