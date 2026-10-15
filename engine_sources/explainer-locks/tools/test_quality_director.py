@@ -54,6 +54,17 @@ class StyleScopedDirectorTests(unittest.TestCase):
         with self.assertRaises(TreatmentError):
             FilmTreatment.parse(visual)
 
+    def test_sketch_note_transformation_uses_a_real_document_shape(self):
+        film = treatment("sketch", "A note becomes a list.")
+        beat = film["beats"][0]
+        self.assertEqual(beat["illustration"]["form"], "STATE_TRANSFORMATION")
+        note = next(e for e in beat["illustration"]["entities"] if e["id"] == "sk_note")
+        self.assertEqual(note["glyph"], "CARD")
+        self.assertEqual(note["label"], "note")
+        self.assertEqual([r["type"] for r in beat["illustration"]["relations"]],
+                         ["transforms_into"])
+        self.assertEqual(FilmTreatment.parse(film).director_style, "sketch")
+
     def test_trend_values_are_literal_and_datum_shapes_are_not_buttons(self):
         cases = [
             ("In January, visits were 10. In February, they reached 20. In March, they reached 15.",
