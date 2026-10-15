@@ -28,7 +28,7 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # Illustration program: a per-beat visual argument. Forms are topologies, glyphs are drawable
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
-GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
+GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PUMP', 'TANK', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER',
           'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY')
 # Housings whose only job is to carry a mark; staged without one they read as generated filler.
