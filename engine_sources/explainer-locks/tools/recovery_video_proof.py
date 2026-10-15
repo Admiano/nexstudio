@@ -86,6 +86,11 @@ def main():
         cwd=ROOT / "compiler")
     for aspect in [a.strip() for a in args.aspects.split(",") if a.strip()]:
         plan = output / ("plan_" + aspect + ".json")
+        if args.style == "dataviz":
+            authored = json.loads(plan.read_text())
+            assert authored["captions_policy"] == "kinetic", "No duplicate lower thirds"
+            assert authored["captions"] == [], "Compiled karaoke captions forbidden"
+            assert all(b["typography"]["blocks"] for b in authored["beats"]), "Missing native text"
         run(["node", ROOT / "tools" / "render_reel.js", plan, output,
              "--fps", args.fps, "--workers", args.workers, "--preset", "ultrafast",
              "--web-crf", "29"])
