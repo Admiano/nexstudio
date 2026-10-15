@@ -217,7 +217,10 @@ class DataVizAuthoringTests(unittest.TestCase):
             for o in growth:
                 i = o["params"]["word_index"] + o["params"]["word_span"] - 1
                 self.assertEqual(o["end_ms"], clock.words[i].end_ms)
-            markers = [o for o in ops if o["op"] == "DIM" and o["target"].startswith("point")]
+            early_periods = [o for o in ops if o["op"] == "DIM" and o["target"].startswith("point")]
+            self.assertEqual(len(early_periods), 3)
+            self.assertTrue(all(o["start_ms"] <= clock.words[0].end_ms for o in early_periods))
+            markers = [o for o in ops if o["op"] == "SETTLE" and o["target"].startswith("point")]
             self.assertEqual([o["end_ms"] for o in markers], [o["end_ms"] for o in growth])
 
     def test_dated_sentences_form_one_supplied_trend(self):
