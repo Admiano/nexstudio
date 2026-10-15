@@ -91,6 +91,12 @@ def main():
             assert authored["captions_policy"] == "kinetic", "No duplicate lower thirds"
             assert authored["captions"] == [], "Compiled karaoke captions forbidden"
             assert all(b["typography"]["blocks"] for b in authored["beats"]), "Missing native text"
+            for beat in authored["beats"]:
+                phrases = [block["words"] for block in beat["typography"]["blocks"] if block.get("words")]
+                for earlier, later in zip(phrases, phrases[1:]):
+                    assert later[0]["start_ms"] >= earlier[-1]["start_ms"], (
+                        "Data Viz sentence timing restarted at an earlier identical word",
+                        earlier[-1], later[0])
         run(["node", ROOT / "tools" / "render_reel.js", plan, output,
              "--fps", args.fps, "--workers", args.workers, "--preset", "ultrafast",
              "--web-crf", "29"])
