@@ -111,7 +111,28 @@ def main():
                         "Data Viz sentence timing restarted at an earlier identical word",
                         earlier[-1], later[0])
         if args.style == 'sketch':
-            assert json.loads(plan.read_text())['director_style'] == 'sketch', 'Sketch direction missing'
+            authored = json.loads(plan.read_text())
+            assert authored['director_style'] == 'sketch', 'Sketch direction missing'
+            for beat in authored['beats']:
+                typed = beat['typography']
+                replacement = {e['unit_index'] for e in typed['events']
+                               if e['event'] == 'PHRASE_REPLACE'}
+                actual = {b['unit_index'] for b in typed['blocks']}
+                assert replacement <= actual, (
+                    'Sketch generated a replacement event without actual drawable text',
+                    replacement - actual)
+                for block in typed['blocks']:
+                    partner = block.get('replace_partner')
+                    if partner is None:
+                        continue
+                    next_block = next((b for b in typed['blocks']
+                                       if b['unit_index'] == partner), None)
+                    assert next_block is not None, 'Sketch replacement partner missing'
+                    a, b = sorted((block, next_block), key=lambda x: x['unit_index'])
+                    if a.get('words') and b.get('words'):
+                        assert b['words'][0]['start_ms'] >= a['words'][-1]['start_ms'], (
+                            'Sketch clause rewinds to an earlier repeated word',
+                            a['words'][-1], b['words'][0])
         run(["node", ROOT / "tools" / "render_reel.js", plan, output,
              "--fps", args.fps, "--workers", args.workers, "--preset", "ultrafast",
              "--web-crf", "29"])
