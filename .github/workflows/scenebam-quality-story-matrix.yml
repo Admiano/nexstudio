@@ -29,6 +29,7 @@ jobs:
           - {style: dataviz, scenario: decrease}
           - {style: dataviz, scenario: counter}
           - {style: dataviz, scenario: irregular}
+          - {style: dataviz, scenario: fivepoint}
           - {style: sketch, scenario: water}
           - {style: sketch, scenario: transform}
           - {style: sketch, scenario: attachment}
