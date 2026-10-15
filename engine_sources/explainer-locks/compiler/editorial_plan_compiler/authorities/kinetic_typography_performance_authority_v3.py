@@ -133,6 +133,14 @@ def choose_motif(beat_type:str,units:List[TextUnit],aspect:str,object_present:bo
     beat=beat_type.upper(); choices=list(BEAT_MOTIFS.get(beat,['PROMOTED_WORD_STACK']))
     promoted=_promote_index(units)
     replace=any(u.replace_group for u in units)
+    # The Sketch causal director explicitly authors TWO temporally alternative
+    # hero sentences. Generic SETUP/EXPLANATION motif lists may omit
+    # REPLACEMENT_LOCKUP, silently dropping the second sentence while a
+    # PHRASE_REPLACE event still runs. Honor the authoring contract and make
+    # both source sentences real drawable text blocks.
+    causal_heroes=sum(u.role=='hero' and u.replace_group=='sketch_causal_action' for u in units)
+    if causal_heroes==2:
+        return 'REPLACEMENT_LOCKUP'
     support=sum(u.role=='support' for u in units)
     if object_present and beat in {'REFRAME','EXPLANATION','PROOF'} and not replace:
         choices.insert(0,'WORD_OBJECT_BRIDGE')
