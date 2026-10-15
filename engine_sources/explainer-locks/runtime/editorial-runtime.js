@@ -2735,8 +2735,17 @@
           const travelEnd = Math.max(carry.end_ms, Math.min(beat.duration_ms - 280, carry.end_ms + 650));
           const p = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
           const from = centre(node.bb), to = centre(recipient.bb);
-          tx += (to.x - from.x) * 0.84 * p;
-          ty += (to.y - from.y) * 0.84 * p -
+          // Stop the moving carrier at the intended recipient's silhouette,
+          // not inside its icon card. A bee visits the flower without becoming
+          // indistinguishable from it; the same geometry serves packages,
+          // vehicles and other expressly narrated carrier chains.
+          const dx = to.x - from.x, dy = to.y - from.y;
+          const edgeX = (node.bb.w + recipient.bb.w) / 2 + ill.sw * 1.3;
+          const edgeY = (node.bb.h + recipient.bb.h) / 2 + ill.sw * 1.3;
+          const travelX = Math.sign(dx) * Math.max(0, Math.abs(dx) - edgeX);
+          const travelY = Math.sign(dy) * Math.max(0, Math.abs(dy) - edgeY);
+          tx += travelX * p;
+          ty += travelY * p -
             Math.sin(Math.PI * p) * node.bb.h * 0.12;
           scale *= (1 - 0.21 * p) * (1 + Math.sin(Math.PI * p) * 0.045);
           break;
@@ -2768,8 +2777,20 @@
             const target = centre(destination.bb);
             // Match the named carrier's destination. The carried noun stays
             // physically close to the subject instead of racing ahead of it.
-            offsetX = lerp(attached.x * cling, (target.x - from.x) * 0.70, arrive);
-            offsetY = lerp(attached.y * cling, (target.y - from.y) * 0.70, arrive);
+            // Cargo keeps its attached position relative to the SAME named
+            // carrier while approaching the recipient, instead of cutting its
+            // own shortcut and separating from the carrier in mid-flight.
+            const home = centre(host.bb);
+            const moveX = Math.sign(target.x - home.x) *
+              Math.max(0, Math.abs(target.x - home.x) -
+                (host.bb.w + destination.bb.w) / 2 - ill.sw * 1.3);
+            const moveY = Math.sign(target.y - home.y) *
+              Math.max(0, Math.abs(target.y - home.y) -
+                (host.bb.h + destination.bb.h) / 2 - ill.sw * 1.3);
+            const cargoEndX = home.x + moveX + (from.x + attached.x - home.x) - from.x;
+            const cargoEndY = home.y + moveY + (from.y + attached.y - home.y) - from.y;
+            offsetX = lerp(attached.x * cling, cargoEndX, arrive);
+            offsetY = lerp(attached.y * cling, cargoEndY, arrive);
             break;
           }
           tx += offsetX; ty += offsetY;
