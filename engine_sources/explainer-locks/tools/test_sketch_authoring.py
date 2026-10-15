@@ -267,6 +267,22 @@ class SketchAuthoringTests(unittest.TestCase):
                          beats[1]["illustration"]["carry"])
         self.assertFalse(any(p["op"] == "DRAW" for p in beats[1]["illustration"]["program"]))
 
+    def test_transported_source_survives_and_premature_confirmation_is_disabled(self):
+        for sentence in (
+            "A courier delivers an invoice to a customer.",
+            "A teacher forwards a worksheet to a student.",
+            "A device sends an instruction to a printer.",
+        ):
+            with self.subTest(sentence=sentence):
+                illustration = author(sentence)["beats"][0]["illustration"]
+                cargo = [e for e in illustration["entities"]
+                         if e.get("params", {}).get("narrative_role") == "transferred_payload"]
+                self.assertEqual(len(cargo), 1)
+                self.assertIs(illustration["confirmation"], False)
+                self.assertFalse(any(e.get("asset_ref", "").startswith("icon.icon-park-color.")
+                                     for e in illustration["entities"]))
+                FilmTreatment.parse(author(sentence))
+
     def test_typed_transfer_handles_unseen_nouns_and_verbs_without_word_whitelists(self):
         scenes = (
             ("A courier delivers an invoice to a customer.", "courier", "invoice", "customer"),
