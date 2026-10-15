@@ -1196,7 +1196,7 @@ def sketch_entities(gwords, media):
     collectives = STYLES.get("sketch_visual_classes", {}).get("population", [])
     mentioned = [(match.start(), noun)
                  for noun in collectives
-                 for match in re.finditer(r"\\b" + re.escape(noun) + r"\\b", text, re.I)]
+                 for match in re.finditer(r"\b" + re.escape(noun) + r"\b", text, re.I)]
     if mentioned:
         # The same plural group can appear as '10,000 people' in a noun chunk;
         # dedupe it onto the literal source noun instead of drawing a second
@@ -1205,7 +1205,7 @@ def sketch_entities(gwords, media):
         for candidate in candidates:
             original = candidate.lower().strip()
             group = next((noun for _, noun in mentioned
-                          if re.fullmatch(r"(?:(?:the|some|these|those|only|just|all|around|about|\\d[\\d,]*)\\s+)*" +
+                          if re.fullmatch(r"(?:(?:the|some|these|those|only|just|all|around|about|\d[\d,]*)\s+)*" +
                                           re.escape(noun), original, re.I)), None)
             canon.append(group or candidate)
         existing = set(canon)
