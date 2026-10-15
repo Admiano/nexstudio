@@ -23,8 +23,13 @@ export default function OptionImage({ character, category, option, label, note, 
   return (
     <button type="button" className="cast-image-option" aria-label={label} aria-pressed={selected} disabled={disabled} onClick={onSelect}>
       <span className="cast-image-option-art">
-        {category==='formal'&&disabled?<span aria-hidden="true" style={{display:"grid",placeItems:"center",minHeight:110,padding:12,textAlign:"center"}}>Verified render pending</span>:
-         <img src={castOptionImage(character, category, option)} alt="" width={224} height={224} loading="lazy" decoding="async" />}
+        <img src={castOptionImage(character, category, option)} alt="" width={224} height={224}
+          loading="lazy" decoding="async" style={disabled?{opacity:.74}:undefined}/>
+        {category==='formal'&&disabled&&<span aria-hidden="true"
+          style={{position:"absolute",bottom:7,left:7,right:7,padding:"5px 8px",borderRadius:6,
+            background:"rgba(24,24,27,.82)",color:"white",fontSize:11,fontWeight:650,textAlign:"center"}}>
+          Under QA · Not yet selectable
+        </span>}
         {selected && <span className="cast-image-option-check" aria-hidden="true">✓</span>}
       </span>
       <span className="cast-image-option-label">{label}</span>
