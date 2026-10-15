@@ -1,0 +1,88 @@
+name: SceneBam other-family native render regression
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-quality-other-style-regressions.yml"
+      - "engine_sources/explainer-locks/tools/quality_other_style_regression.py"
+      - "engine_sources/explainer-locks/runtime/**"
+      - "engine_sources/explainer-locks/compiler/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  legacy-family:
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [photo_story, emoji, journey, collage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install native renderer dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Full native film with unchanged family
+        working-directory: engine_sources/explainer-locks
+        run: python tools/quality_other_style_regression.py --style ${{ matrix.family }} --aspects 16x9 --fps 24 --workers 2
+      - name: Assert director changes did not invade this family
+        working-directory: engine_sources/explainer-locks
+        env:
+          FAMILY: ${{ matrix.family }}
+        run: |
+          python - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          family=os.environ['FAMILY']
+          src=Path('out/recovery-video-proof')/('recovery-proof-'+family)
+          plan=json.loads((src/'plan_16x9.json').read_text())
+          render=json.loads((src/'render_16x9.json').read_text())
+          assert plan.get('director_style') is None, 'Experimental director leaked to '+family
+          assert plan.get('captions_policy') != 'none' or plan.get('show') is not None
+          assert not render.get('page_errors'), render.get('page_errors')
+          assert plan['gate']['status']=='PASS', plan['gate']
+          video=src/('recovery-proof-'+family+'_16x9_web.mp4')
+          assert video.is_file() and video.stat().st_size>50000
+          png=src/'regression-preview.png'
+          subprocess.run(['ffmpeg','-y','-v','error','-ss','3.1','-i',str(video),'-frames:v','1',str(png)],check=True)
+          assert png.stat().st_size>5000
+          print('PASS',family, 'original family isolation, native rendering, MP4, PNG')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scenebam-original-family-${{ matrix.family }}
+          path: |
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*16x9_web.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/regression-preview.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_16x9.json
+          if-no-files-found: warn
+          retention-days: 14
