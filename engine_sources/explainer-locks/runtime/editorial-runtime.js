@@ -3218,7 +3218,27 @@
         color: bplan.brand.accent || bplan.brand.ink,
         fontVariantNumeric: 'tabular-nums',
       }, wrap);
-      return { wrap, period, value, cues, points, labels };
+      // A measured period is independently spoken before its number. Reveal
+      // that source-named period immediately, then hand the same focal field
+      // to the number ONLY at its actual GROW word. No previewed measurements,
+      // invented categories, or second caption stream.
+      const spoken = beat.words || [];
+      const months = new Set(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']);
+      const cleanPeriod = (value) => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+      const periodCues = cues.map((cue, i) => {
+        const term = cleanPeriod(points[i].label.text);
+        if (!term) return null;
+        const after = i ? cues[i - 1].start_ms : -1;
+        const candidates = spoken.filter((word) => {
+          const literal = cleanPeriod(word.text);
+          const matches = literal === term || (months.has(term) && literal.startsWith(term));
+          return matches && word.start_ms > after && word.start_ms < cue.start_ms;
+        });
+        return candidates.length ? candidates[candidates.length - 1].start_ms : null;
+      });
+      return { wrap, period, value, cues, points, labels, periodCues,
+        valueSize: focusValueSize, activeColor: bplan.brand.accent || bplan.brand.ink,
+        idleColor: bplan.brand.ink };
     })();
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
@@ -3362,20 +3382,40 @@
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
     if (bn.dataFocus) {
       const f = bn.dataFocus;
-      let active = -1;
+      let active = -1, pending = -1;
       for (let i = 0; i < f.cues.length; i++) {
-        if (lt >= f.cues[i].start_ms) active = i;
+        if (f.periodCues[i] != null && lt >= f.periodCues[i]) pending = i;
+        if (lt >= f.cues[i].start_ms) { active = i; pending = -1; }
       }
-      if (active < 0) {
+      // A period first enters when its actual noun is spoken; the quantity
+      // stays concealed until its own word. This replaces the obsolete JAN 10
+      // when the voice has already advanced to February but not said 20.
+      if (pending >= 0 && pending > active) {
+        const begin = f.periodCues[pending];
+        const enter = EASE.outCubic(prog(lt, begin, begin + 245));
+        f.period.textContent = '';
+        f.value.textContent = f.points[pending].label.text.toUpperCase();
+        f.value.style.color = f.idleColor;
+        f.value.style.fontSize = px(f.valueSize * 0.77);
+        f.wrap.dataset.activeDatum = 'period-' + pending;
+        f.wrap.style.opacity = (enter * (stageFade == null ? 1 : stageFade)).toFixed(4);
+        f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
+      } else if (active < 0) {
         f.wrap.style.opacity = '0';
+        f.wrap.dataset.activeDatum = 'none';
       } else {
-        const cue = f.cues[active], next = f.cues[active + 1];
+        const cue = f.cues[active];
+        const nextPeriod = f.periodCues[active + 1];
         const enter = EASE.outCubic(prog(lt, cue.start_ms - 45, cue.start_ms + 245));
-        const exit = next ? 1 - EASE.inCubic(prog(lt, next.start_ms - 130, next.start_ms + 25)) : 1;
+        const exit = nextPeriod != null
+          ? 1 - EASE.inCubic(prog(lt, nextPeriod - 120, nextPeriod + 45))
+          : 1;
         const level = Math.max(0, Math.min(enter, exit)) * (stageFade == null ? 1 : stageFade);
         f.period.textContent = f.points[active].label.text;
         f.value.textContent = f.labels[active];
-        f.wrap.dataset.activeDatum = String(active);
+        f.value.style.fontSize = px(f.valueSize);
+        f.value.style.color = f.activeColor;
+        f.wrap.dataset.activeDatum = 'value-' + active;
         f.wrap.style.opacity = level.toFixed(4);
         f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
       }
