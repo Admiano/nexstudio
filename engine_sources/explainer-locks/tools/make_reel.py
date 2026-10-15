@@ -810,7 +810,7 @@ def dataviz_beat(g, bi, n, media):
                 land(qs[0], "COUNT", eid)
             else:
                 beat["data"] = {"kind": "STAT", "value": dataviz_value(qs[0]), "label": qs[0]["label"]}
-    elif kind == "TREND" and len(qs) <= 4 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
+    elif kind == "TREND" and len(qs) <= 6 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
         eid = "trend"
         # A short source-exact metric title is useful when the chart becomes
         # numerical: "park visits" is not inferred from "January" or "10".
@@ -841,10 +841,17 @@ def dataviz_beat(g, bi, n, media):
             entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
                              "params": {"value": float(values[i]), "plain_datum": True},
                              "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"]))})
-            ops.append({"op": "DIM", "target": pid,
-                        "at": {"offset_ms": 0}, "duration_ms": 300})
+            # Three observations can afford extra punctual SETTLE cues.
+            # For a longer (up to six-point) source series, the period is
+            # already typeset in its own native cell and the chart's
+            # measurement is governed by GROW. Extra DIM/SETTLE ops would
+            # exhaust the native ten-op budget without conveying new facts.
+            if len(qs) <= 3:
+                ops.append({"op": "DIM", "target": pid,
+                            "at": {"offset_ms": 0}, "duration_ms": 300})
             land(q, "GROW", eid, params={"point_index": i})
-            land(q, "SETTLE", pid)
+            if len(qs) <= 3:
+                land(q, "SETTLE", pid)
     elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
         q, unit = qs[0], qs[0]["unit"]
         params = {"count": int(values[0]), "caption": q["label"], "tone": "dark"}
