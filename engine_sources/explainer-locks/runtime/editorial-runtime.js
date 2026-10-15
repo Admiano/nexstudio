@@ -2059,6 +2059,36 @@
           }
           // For delivered documents the same entire sheet, not a temporary
           // coloured dot, travels under the voice authority.
+        } else if (isIllustrated && params.visual_class === 'list') {
+          // The destination is a source-named list-like *structure*, not
+          // an arbitrary box labelled "list". Repeated rows are illustrative
+          // grammar, NOT a claim about the actual number of source entries.
+          const u = Math.min(b.w,b.h),cx=b.x+b.w*.50;
+          const ww=u*.68,hh=u*.70,x=cx-ww/2,y=b.y+b.h*.12;
+          const sheet=svgEl('g',{'data-drawing':'source-list'},g);
+          const page=svgEl('path',{fill:paper,stroke:ink,
+            'stroke-width':sw*1.45,'stroke-linejoin':'round',
+            d:`M${f2(x)} ${f2(y)} L${f2(x+ww)} ${f2(y)}
+               L${f2(x+ww)} ${f2(y+hh)}
+               L${f2(x)} ${f2(y+hh)}Z`},sheet);
+          node.outline.push(drawable(page,2*(ww+hh)));
+          const header=svgEl('path',{...line,
+            d:polyPath([[x+ww*.15,y+hh*.17],[x+ww*.69,y+hh*.17]]),
+            stroke:accent,'stroke-width':sw*1.5},sheet);
+          node.outline.push(drawable(header,ww*.54));
+          const rows=[];
+          for(let i=0;i<3;i++){
+            const yy=y+hh*(.36+i*.20);
+            const item=svgEl('g',{'data-item-structure':String(i)},sheet);
+            svgEl('circle',{cx:f2(x+ww*.18),cy:f2(yy),
+              r:f2(sw*.92),fill:accent},item);
+            const rule=svgEl('path',{...line,
+              d:polyPath([[x+ww*.29,yy],[x+ww*(i===2?.63:.79),yy]]),
+              'stroke-width':sw*1.05,'stroke-opacity':.58},item);
+            node.outline.push(drawable(rule,ww*.55));
+            rows.push(item);
+          }
+          node.extra.sourceListRows=rows;
         }
         const word = params.word ? String(params.word) : '';
         const fg = (dark && !isIllustrated) ? paper : ink;
@@ -3351,6 +3381,15 @@
         }
         const rotor = gl.extra.pumpRotor;
         rotor.group.setAttribute('transform', `rotate(${f2(turn)} ${f2(rotor.cx)} ${f2(rotor.cy)})`);
+      }
+      if (gl.extra.sourceListRows && ctx.directorStyle === 'sketch') {
+        const entry = node.ops.find(o => o.op === 'DRAW');
+        const p = entry ? prog(lt,entry.start_ms,entry.end_ms) : 1;
+        gl.extra.sourceListRows.forEach((row,i,all) => {
+          // Reveal sequential visual structure across the native DRAW cue.
+          // The illustration contains no invented written content.
+          row.style.opacity = EASE.outCubic(clamp(p * all.length - i,0,1)).toFixed(4);
+        });
       }
       if (gl.extra.semanticArm && ctx.directorStyle === 'sketch') {
         // Human drawings respond to authored motion semantics. A sender
