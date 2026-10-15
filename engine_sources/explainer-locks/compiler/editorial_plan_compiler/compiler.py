@@ -1224,6 +1224,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         film_failures += [f'{aspect}:{f}' for f in fails]
         film_warnings += [f"{aspect}:{bt['beat_id']}:{w}" for bt in beats for w in bt['gate']['warnings']]
         ow, oh = OUTPUT[aspect]
+        caption_policy = film.caption_policy or ('none' if show_map is not None else
+                          ('kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned'))
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
             'canvas': {'w': W, 'h': H}, 'output': {'w': ow, 'h': oh, 'scale': round(ow / W, 4)},
@@ -1237,8 +1239,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
-            'beats': beats, 'captions': [] if show_map is not None else _captions(beats),
-            'captions_policy': 'none' if show_map is not None else ('kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned'),
+            'beats': beats, 'captions': _captions(beats) if caption_policy == 'burned' else [],
+            'captions_policy': caption_policy,
             'show': ({'format': show_map['format'], 'subject': show_map['subject'],
                       'sections': [{'idx': i, 'name': n} for i, n in enumerate(show_map['sections'])],
                       'bands': show_bands(aspect)} if show_map is not None else None),
