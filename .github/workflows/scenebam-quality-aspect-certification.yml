@@ -1,0 +1,99 @@
+name: SceneBam quality three-aspect certification
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-quality-aspect-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  aspect:
+    strategy:
+      fail-fast: false
+      matrix:
+        aspect: ["16x9", "9x16", "1x1"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original artwork and native motion renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Run source and authoring checks
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+          python tools/test_quality_director.py -q
+          node --check runtime/editorial-runtime.js
+      - name: Render real Data Viz and Sketch videos
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/recovery_video_proof.py --style dataviz --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          python tools/recovery_video_proof.py --style sketch --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+      - name: Audit compiled plans and extract actual PNG frame
+        working-directory: engine_sources/explainer-locks
+        env:
+          ASPECT: ${{ matrix.aspect }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          a=os.environ["ASPECT"]
+          out=Path("out/recovery-video-proof")
+          png=Path("out/quality-aspect-previews")
+          png.mkdir(exist_ok=True)
+          for style in ("dataviz","sketch"):
+              parent=out/f"recovery-proof-{style}"
+              plan=json.loads((parent/f"plan_{a}.json").read_text())
+              render=json.loads((parent/f"render_{a}.json").read_text())
+              assert plan["director_style"]==style,(style,plan.get("director_style"))
+              assert plan.get("gate",{}).get("status")=="PASS",(style,a,plan.get("gate"))
+              assert not render.get("page_errors"),(style,a,render.get("page_errors"))
+              if style=="dataviz":
+                  assert plan["captions_policy"]=="kinetic"
+                  assert plan["captions"]==[]
+                  assert render.get("captions_burned",0)==0
+              src=parent/f"recovery-proof-{style}_{a}_web.mp4"
+              assert src.stat().st_size>50_000,(str(src),src.stat().st_size)
+              subprocess.run(["ffmpeg","-y","-v","error","-ss","4.4","-i",str(src),
+                              "-frames:v","1",str(png/f"{style}_{a}.png")],check=True)
+              print(f"{style} {a}: valid MP4 {src.stat().st_size} bytes")
+          PY
+      - name: Upload native videos, frames and audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenebam-quality-${{ matrix.aspect }}
+          path: |
+            engine_sources/explainer-locks/out/quality-aspect-previews/*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/contact_*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+          if-no-files-found: warn
+          retention-days: 21
