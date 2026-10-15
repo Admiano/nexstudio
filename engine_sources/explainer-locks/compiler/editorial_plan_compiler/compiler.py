@@ -684,7 +684,9 @@ class BeatCompiler:
         # stretching a landscape layout. All coordinates derive from the safe
         # frame for THIS aspect, and this never affects the other styles.
         if self.film.director_style == 'dataviz' and self.aspect in ('9x16', '1x1') and b.illustration:
-            field = comp['safe_area']
+            # Native profile exposes safe_area as [left, top, right, bottom];
+            # self.safe is the corresponding x/y/w/h box in actual canvas units.
+            field = self.safe
             text_h = field['h'] * (0.28 if self.aspect == '9x16' else 0.30)
             gap = max(18, field['h'] * 0.025)
             vis_x = max(self.frame['x'], field['x'] - 12)
