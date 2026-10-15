@@ -258,13 +258,13 @@ class IllustrationEntity:
             visual = (d.get('params') or {}).get('visual_class')
             carries = asset_ref is not None or concept is not None or (
                 label is not None and glyph in INSIDE_LABEL_GLYPHS) or (
-                label is not None and glyph == 'TILE' and visual in ('person', 'document'))
+                label is not None and glyph == 'TILE' and visual in ('person', 'document', 'list'))
             _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no concept, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
         if 'visual_class' in params:
-            _need(params['visual_class'] in ('person', 'document') and
+            _need(params['visual_class'] in ('person', 'document', 'list') and
                   glyph == 'TILE' and kind == 'object' and label is not None
                   and asset_ref is None and concept is None,
                   'ILLUSTRATED_CLASS_INVALID',
