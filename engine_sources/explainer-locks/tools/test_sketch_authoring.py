@@ -283,6 +283,21 @@ class SketchAuthoringTests(unittest.TestCase):
                                      for e in illustration["entities"]))
                 FilmTreatment.parse(author(sentence))
 
+    def test_receiver_is_not_emphasised_at_transfer_verb(self):
+        for sentence, recipient in (
+            ("A courier delivers an invoice to a customer.", "customer"),
+            ("A teacher forwards a worksheet to a student.", "student"),
+            ("A device sends an instruction to a printer.", "printer"),
+        ):
+            with self.subTest(sentence=sentence):
+                beat = author(sentence)["beats"][0]["illustration"]
+                highlights = [o for o in beat["program"]
+                              if o["op"] == "INK" and o["target"] == f"sk_{recipient}"]
+                self.assertEqual(len(highlights), 1)
+                self.assertEqual(highlights[0]["at"]["word"], recipient)
+                self.assertNotEqual(highlights[0]["at"]["word"],
+                                    sentence.split()[2].rstrip(".,;"))
+
     def test_native_handoff_composition_is_balanced_and_true_in_three_aspects(self):
         """An unseen payload may not shrink the source-authoritative receiver."""
         script = "A courier delivers an invoice to a customer."
