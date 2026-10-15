@@ -100,6 +100,14 @@ def _subset_eligible(prev: dict, current: dict) -> bool:
     counted_nouns = {w for w in re.findall(r"[a-z]+", group_label)
                      if len(w) > 3 and (w not in _STOP or w in ("people", "person"))}
     mentioned = set(re.findall(r"[a-z]+", narration.lower()))
+    # Explicit "of those are..." is a reference to the most recently
+    # introduced count. Require the copula immediately after the pronoun;
+    # "of those muffins" is NOT an automatic reference to prior coffee.
+    anaphora = re.search(
+        r"\bof\s+(?:those|these|them)\s+(?:are|were|is|was|have|had)\b",
+        narration, re.I)
+    if anaphora:
+        return True
     if not counted_nouns or not (counted_nouns & mentioned):
         return False
     return bool(_terms(prev["narration"]) & _terms(narration))
