@@ -1371,11 +1371,19 @@ def sketch_beat(gwords, bi, n, previous, media):
                                 "at": {"word": anchor}, "duration_ms": 360})
             if len(program) > 10:
                 raise ValueError("Sketch scene exceeds the native source-bound action budget")
-            for _, _, target, _, anchor in stages:
+            for _, cargo, target, relation, anchor in stages:
                 if len(program) == 10:
                     break
+                # The receiver cannot turn into the accent before being
+                # introduced by the voice. A timed transfer starts at its
+                # action verb, but its payoff belongs to the spoken recipient.
+                # Other non-transfer relations retain the established cue.
+                arrival_anchor = (target["phrase"].split()[-1]
+                                  if relation == "flows_to" and any(
+                                      x.get("params", {}).get("narrative_role") == "transferred_payload"
+                                      for x in cargo) else anchor)
                 program.append({"op": "INK", "target": target["id"],
-                                "at": {"word": anchor}, "duration_ms": 300})
+                                "at": {"word": arrival_anchor}, "duration_ms": 300})
             illustration = {"form": form, "entities": entities, "relations": relations,
                             "program": program,
                             # True source-typed arrivals use recipient response.
