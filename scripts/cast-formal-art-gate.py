@@ -1,44 +1,47 @@
 #!/usr/bin/env python3
-"""Fail-closed image-level SceneBam wardrobe regression test.
+"""Fail-closed SceneBam image-level wardrobe coverage QA.
 
-Detect clearly wrong flesh-colored fragments inside the leg of the female suit
-on the frozen 420x640, frame-27, front camera production-colour proof.
-This is NOT a general body intersection or design-quality certification.
+Frozen production proof profile: actual Blender V21 orthographic 420x640 frames.
+Look for exposed skin-colored islands inside opaque female trouser areas on
+front, 3/4, and gesture frames. This does not certify wider cloth collisions,
+character likeness, pose naturalness, or production VM parity.
 """
 import json
 import sys
 from pathlib import Path
 from PIL import Image
 
-ROOT = Path(sys.argv[1]) if len(sys.argv)>1 else Path('production-colour')
-FEMALE = ('female-double-breasted','female-statement')
-REPORT = {}
-for variant in FEMALE:
-    name = ROOT/(variant+'-ORIGINAL-ORIGINAL.png')
-    if not name.is_file():
-        raise SystemExit('CAST_FORMAL_ART_PROOF_MISSING:'+str(name))
-    with Image.open(name) as src:
-        if src.size != (420,640):
-            raise SystemExit('CAST_FORMAL_ART_GATE_CAMERA_CHANGED:'+repr(src.size))
-        pix=src.convert('RGBA').load()
-        holes=[]
-        # Fixed screen-space patch: thigh fabric, below the hands and jacket,
-        # away from any legitimately exposed human skin on the actual V21 host.
-        for y in range(490,540):
-            for x in range(220,255):
-                r,g,b,alpha=pix[x,y]
-                if alpha>=200 and r>175 and r>g>b and .68 < g/r < .95 and .64 < b/r < .89:
-                    holes.append((x,y))
-        REPORT[variant]={'fleshTintPixels':len(holes),
-                         'bbox':[min((x for x,y in holes),default=-1),
-                                 min((y for x,y in holes),default=-1),
-                                 max((x for x,y in holes),default=-1),
-                                 max((y for x,y in holes),default=-1)]}
-(ROOT/'art-gate-female-trouser.json').write_text(json.dumps(REPORT,indent=2)+'\n')
-print('SCENEBAM_FEMALE_TROUSER_ART_GATE',json.dumps(REPORT),flush=True)
-for variant,entry in REPORT.items():
-    # A few edge pixels are tolerated for antialiasing; a >20-pixel exposed
-    # skin island inside opaque formal trousers is not.
-    if entry['fleshTintPixels']>20:
-        raise SystemExit('CAST_FORMAL_ART_EXPOSED_TROUSER_SKIN:'+variant+':'+str(entry['fleshTintPixels']))
+root = Path(sys.argv[1]) if len(sys.argv)>1 else Path('production-colour')
+views = {
+    'ORIGINAL-ORIGINAL':(220,255,490,540),
+    'threeq-native':(235,265,490,540),
+    'pose-338':(220,255,490,540),
+    'pose-891':(220,255,490,540),
+}
+report={}
+for variant in ('female-double-breasted','female-statement'):
+    report[variant]={}
+    for view,(left,right,top,bottom) in views.items():
+        file=root/(variant+'-'+view+'.png')
+        if not file.is_file():
+            raise SystemExit('CAST_FORMAL_ART_PROOF_MISSING:'+str(file))
+        with Image.open(file) as src:
+            if src.size!=(420,640):
+                raise SystemExit('CAST_FORMAL_ART_GATE_CAMERA_CHANGED:'+repr(src.size))
+            pixels=src.convert('RGBA').load()
+            hits=[]
+            for y in range(top,bottom):
+                for x in range(left,right):
+                    r,g,b,alpha=pixels[x,y]
+                    if alpha>=200 and r>175 and r>g>b and .68<g/r<.95 and .64<b/r<.89:
+                        hits.append((x,y))
+        report[variant][view]={'exposedSkinPixels':len(hits),
+                              'bounds':([min(x for x,y in hits),min(y for x,y in hits),
+                                         max(x for x,y in hits),max(y for x,y in hits)] if hits else None)}
+(root/'art-gate-female-trouser.json').write_text(json.dumps(report,indent=2)+'\n')
+print('SCENEBAM_FEMALE_TROUSER_ART_GATE',json.dumps(report),flush=True)
+failed=[f'{variant}/{view}={d["exposedSkinPixels"]}' for variant,values in report.items()
+        for view,d in values.items() if d['exposedSkinPixels']>20]
+if failed:
+    raise SystemExit('CAST_FORMAL_ART_EXPOSED_TROUSER_SKIN:'+','.join(failed))
 print('CAST_FORMAL_ART_TROUSER_COVERAGE_PASS')
