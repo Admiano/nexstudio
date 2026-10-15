@@ -2550,6 +2550,32 @@
           }
           break;
         }
+        // A carrier participates in the transfer. Transporting only pollen
+        // while its bee remains parked misrepresents "the bee carries pollen".
+        // Follow the *same authored* attached payload's outgoing flow cue, so
+        // we do not move unrelated subjects or invent a new action.
+        for (const attachment of ill.rels.values()) {
+          if (attachment.rel.type !== 'connects' || attachment.rel.source !== ent.id) continue;
+          const stick = attachment.ops.find((op) => op.op === 'CONNECT' &&
+            /^(?:sticks?|attaches?)$/i.test(String(op.anchor && op.anchor.word || '')));
+          if (!stick) continue;
+          const cargo = ill.ents.get(attachment.rel.target);
+          if (!cargo) continue;
+          const delivery = [...ill.rels.values()].find((rel) =>
+            rel.rel.type === 'flows_to' && rel.rel.source === cargo.ent.id &&
+            rel.ops.some((op) => op.op === 'CONNECT' && op.start_ms > stick.start_ms));
+          if (!delivery) continue;
+          const carry = delivery.ops.find((op) => op.op === 'CONNECT' && op.start_ms > stick.start_ms);
+          const recipient = ill.ents.get(delivery.rel.target);
+          if (!carry || !recipient) continue;
+          const p = EASE.inOutCubic(prog(lt, carry.start_ms, carry.end_ms));
+          const from = centre(node.bb), to = centre(recipient.bb);
+          tx += (to.x - from.x) * 0.64 * p;
+          ty += (to.y - from.y) * 0.64 * p -
+            Math.sin(Math.PI * p) * node.bb.h * 0.09;
+          scale *= 1 + Math.sin(Math.PI * p) * 0.035;
+          break;
+        }
         // Attach-and-carry has a distinct physical grammar from "connects":
         // the source-mentioned payload moves toward its named host when it
         // sticks/attaches, and only departs when a later "carries" or "sends"
