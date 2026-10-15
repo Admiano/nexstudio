@@ -91,6 +91,46 @@ if variant.startswith('female') and suit=='ORIGINAL' and tie=='ORIGINAL':
     scene.render.filepath=str(target)
     report['skinGapDiagnostic']={'samples':samples,'bodyHiddenFrame':variant+'-diagnostic-body-hidden.png',
                                   'rayHitCounts':dict(Counter(x['object'] for x in samples))}
+    # A ray-cast can hit hide_render objects, so a ray hit is not reliable
+    # evidence of which surface contributes a rendered pixel. Render a
+    # reversible Object Info colour-ID pass with all real visibility rules.
+    # This is diagnostic evidence only: it cannot alter shipped textures.
+    import colorsys
+    palette={}
+    original_colors={}
+    candidates=[o for o in scene.objects if o.type=='MESH' and not o.hide_render]
+    for n,o in enumerate(sorted(candidates,key=lambda x:x.name)):
+        rgb=colorsys.hsv_to_rgb((n*0.61803398875)%1.0,0.84,0.94)
+        original_colors[o.name]=tuple(o.color)
+        o.color=(*rgb,1.0)
+        palette[o.name]=list(rgb)
+    id_material=bpy.data.materials.new('SCENEBAM_FORMAL_QA_ONLY_OBJECT_ID')
+    id_material.use_nodes=True
+    nodes=id_material.node_tree.nodes
+    nodes.clear()
+    info=nodes.new('ShaderNodeObjectInfo')
+    emiss=nodes.new('ShaderNodeEmission')
+    output=nodes.new('ShaderNodeOutputMaterial')
+    id_material.node_tree.links.new(info.outputs['Color'],emiss.inputs['Color'])
+    id_material.node_tree.links.new(emiss.outputs['Emission'],output.inputs['Surface'])
+    layer=scene.view_layers[0]
+    original_override=layer.material_override
+    original_freestyle=scene.render.use_freestyle
+    try:
+        layer.material_override=id_material
+        scene.render.use_freestyle=False
+        scene.render.filepath=str(dest/(variant+'-diagnostic-object-ids.png'))
+        bpy.ops.render.render(write_still=True)
+    finally:
+        layer.material_override=original_override
+        scene.render.use_freestyle=original_freestyle
+        scene.render.filepath=str(target)
+        for name,rgba in original_colors.items():
+            bpy.data.objects[name].color=rgba
+        bpy.data.materials.remove(id_material)
+    (dest/(variant+'-diagnostic-object-palette.json')).write_text(json.dumps(palette,indent=2)+'\n')
+    report['skinGapDiagnostic']['objectIdImage']=variant+'-diagnostic-object-ids.png'
+    report['skinGapDiagnostic']['objectIdPalette']=variant+'-diagnostic-object-palette.json'
 
 if len(args)>4 and args[4]=='poses':
  # Genuine proof of the same rigged garment in three-quarter and gesture
