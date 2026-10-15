@@ -76,6 +76,24 @@ class RepertoireTests(unittest.TestCase):
                 self.assertNotEqual(b["pattern"],"PROGRESSIVE_HERO_BUILD")
                 BeatTreatment.parse(b)
 
+    def test_every_scene_opportunity_has_typed_evidence_and_end_to_end_direction(self):
+        stories = [
+            ("sketch", "Never use the receipt."),
+            ("sketch", "Circle the receipt."),
+            ("sketch", "A courier transfers a letter to a driver."),
+            ("dataviz", "This campaign is 65 percent complete."),
+            ("dataviz", "40 apples, 25 bananas, and 30 oranges."),
+        ]
+        for style, source in stories:
+            with self.subTest(style=style, source=source):
+                b = beat(source, style)
+                options = candidates(style, b)
+                self.assertTrue(all(len(o) == 3 and isinstance(o[2], tuple)
+                                    for o in options))
+                report = direct_film(style, [b])
+                self.assertEqual(len(report["scenes"]), 1)
+                BeatTreatment.parse(b)
+
     def test_sketch_real_visual_markup_is_not_applied_to_negated_claims(self):
         cases=[
             ("Never use the receipt.", "negated_subject", "PROHIBIT","blocks"),
