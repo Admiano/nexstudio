@@ -900,6 +900,15 @@ def sketch_units(gwords: list[dict[str, Any]]) -> list[dict[str, Any]]:
     cut = next((i for i in cuts if keys[i] in qualifiers), None)
     if cut is None:
         cut = next((i for i in cuts if keys[i] in action_words), None)
+    # A short source-linked two-action scene has an intact first sentence and
+    # an intact second one. Never strand its second subject ("The bee") inside
+    # the first on-screen thought merely to cut at a later verb.
+    sentence_cut = next((i + 1 for i, w in enumerate(gwords[:-1])
+                         if i >= 2 and len(gwords) - i - 1 >= 3
+                         and CLAUSE_END.search(w["text"])
+                         and any(keys[j] in action_words for j in range(i + 1, len(gwords)))), None)
+    if sentence_cut is not None and action_words and len(gwords) <= 20:
+        cut = sentence_cut
     spans = [gwords[:cut], gwords[cut:]] if cut is not None else [gwords]
     units = []
     for i, span in enumerate(spans):
@@ -1226,6 +1235,14 @@ def sketch_beat(gwords, bi, n, previous, media):
             ent["label"] = ent["label"].split()[-1]
     is_interface = bool(_SKETCH_INTERFACE.search(narration))
     stages = sketch_action_stages(narration, entities) if not is_interface else []
+    if stages and len(units) == 2 and all(CLAUSE_END.search(u["text"]) for u in units):
+        # Alternating HERO treatments give each causal action commercial-sized
+        # typography in one deliberate stage. Replacement is keyed to the
+        # second spoken clause, with no invented timing or duplicate captions.
+        for ui, unit in enumerate(units):
+            unit.update(role="hero", can_promote=True, replace_group="sketch_causal_action",
+                        semantic_role="setup" if ui == 0 else "punch")
+            unit["emphasis"] = 0.92
     if stages:
         # Store every edge by its stable authored entity IDs, not object
         # identity. A physical payload must traverse BOTH source -> payload and
