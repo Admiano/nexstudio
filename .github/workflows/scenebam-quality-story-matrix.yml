@@ -38,6 +38,8 @@ jobs:
           - {style: sketch, scenario: dispatch}
           - {style: sketch, scenario: invoice}
           - {style: sketch, scenario: worksheet}
+          - {style: sketch, scenario: ticket}
+          - {style: sketch, scenario: contract}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
