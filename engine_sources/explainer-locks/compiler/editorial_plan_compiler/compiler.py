@@ -678,6 +678,21 @@ class BeatCompiler:
         comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
         if b.illustration is not None and not (b.illustration.carry_from and b.illustration.carry_from in self.illustrations):
             _rebalance(comp, self._text_share(b))
+        # Aspect-native data direction. Generic portrait stacks reserve a large
+        # empty textual hold even though the kinetic copy is one phrase at a
+        # time. Reclaim that area for the evidence without shrinking text or
+        # stretching a landscape layout. All coordinates derive from the safe
+        # frame for THIS aspect, and this never affects the other styles.
+        if self.film.director_style == 'dataviz' and self.aspect in ('9x16', '1x1') and b.illustration:
+            field = comp['safe_area']
+            text_h = field['h'] * (0.28 if self.aspect == '9x16' else 0.30)
+            gap = max(18, field['h'] * 0.025)
+            vis_x = max(self.frame['x'], field['x'] - 12)
+            vis_w = min(self.W - 2 * vis_x, field['w'] + 24)
+            vis_y = field['y'] + text_h + gap
+            vis_h = field['y'] + field['h'] - vis_y
+            comp['text_zone'] = _box(field['x'], field['y'], field['w'], text_h)
+            comp['visual_zone'] = _box(vis_x, vis_y, vis_w, vis_h)
         if self.carried_illustration and b.illustration is None:
             comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
         elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
