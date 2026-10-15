@@ -2696,7 +2696,13 @@
       const bounds = [];
       for (const ent of il.entities) {
         bounds.push(ent.bbox);
-        if (ent.label && ent.label.bbox) bounds.push(ent.label.bbox);
+        // Source-typed figures and sheets act the sentence rather than
+        // carrying its words as large duplicate captions. Unknown concepts
+        // retain labels and therefore still belong inside the shot bounds.
+        const illustrated = ent.params &&
+          ['person', 'document'].includes(ent.params.visual_class);
+        if (ent.label && ent.label.bbox && !illustrated)
+          bounds.push(ent.label.bbox);
       }
       const pad = Math.min(W, H) * 0.021;
       const x0 = Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
@@ -2737,7 +2743,14 @@
       g.style.willChange = 'transform, opacity';
       const glyph = buildGlyph(ent, il, plan, g, sw, opts);
       if (glyph.ready) ready.push(glyph.ready);
-      const label = buildLabel(ent, plan, artRoot);
+      // Keep semantic/source labels in the compiled plan. For a genuine
+      // illustrated delivery, the source-timed on-screen sentence already
+      // names the pictured people and document: second giant labels make
+      // an otherwise physical action resemble a labelled node diagram.
+      // Unknown/abstract actors keep their indispensable noun labels.
+      const physicalActor = sourceTransfer && ent.params &&
+        ['person', 'document'].includes(ent.params.visual_class);
+      const label = physicalActor ? null : buildLabel(ent, plan, artRoot);
       let media = null;
       if (ent.glyph === 'MEDIA') {
         media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
@@ -2791,6 +2804,9 @@
         // Editorial role annotations come from the relation itself; they do
         // not purport to be literal pictograms of unspecified people.
         for (const [actor, role] of [[sender, 'FROM'], [recipient, 'TO']]) {
+          // The spoken action already identifies recognizable human
+          // participants. Role labels are only needed for an abstract node.
+          if (actor.ent.params && actor.ent.params.visual_class === 'person') continue;
           const t = svgEl('text', {
             x: f2(actor.bb.x + actor.bb.w / 2),
             y: f2(actor.bb.y - sw * 4.0),
@@ -3714,7 +3730,7 @@
         // stays untouched. Only close shots receive focal safety limits.
         const subject = ending > 0.30 ? h.recipient :
           enter < 0.70 ? h.sender : null;
-        if (subject && subject.ent && subject.ent.label) {
+        if (subject && subject.ent && subject.ent.label && subject.label) {
           const b = subject.bb, label = subject.ent.label.bbox;
           const ext = {
             x: Math.min(b.x, label.x), y: Math.min(b.y, label.y),
