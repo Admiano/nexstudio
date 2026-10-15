@@ -96,8 +96,11 @@ def _subset_eligible(prev: dict, current: dict) -> bool:
     # Comparing coffee sales with muffin sales is NOT a part/whole inference,
     # even when both sentences mention the same shop. Require the explicitly
     # counted population noun to recur inside the proposed subset scene.
-    counted_nouns = _terms(str(a.get("label") or ""))
-    if not counted_nouns or not (counted_nouns & _terms(narration)):
+    group_label = str(a.get("label") or "").lower()
+    counted_nouns = {w for w in re.findall(r"[a-z]+", group_label)
+                     if len(w) > 3 and (w not in _STOP or w in ("people", "person"))}
+    mentioned = set(re.findall(r"[a-z]+", narration.lower()))
+    if not counted_nouns or not (counted_nouns & mentioned):
         return False
     return bool(_terms(prev["narration"]) & _terms(narration))
 
@@ -247,7 +250,7 @@ def _subset(prev: dict, current: dict) -> bool:
         "form": "OBJECT_STAGE", "entities": [{
             "id": "director_population_subset", "kind": "evidence",
             "glyph": "DONUT", "size": "hero",
-            "label": "out of " + number_text,
+            "label": "of " + number_text,
             "params": {"level": float(b / a), "count": int(b)}}],
         "relations": [],
         "program": [
