@@ -160,6 +160,10 @@ class SketchAuthoringTests(unittest.TestCase):
         beat = make_reel.sketch_beat(groups[0], 0, 1, set(), [])
         self.assertEqual(beat["narration"], text)
         self.assertGreaterEqual(len(beat["illustration"]["relations"]), 2)
+        edges = {(x["source"], x["target"]) for x in beat["illustration"]["relations"]}
+        self.assertIn(("sk_pump", "sk_water"), edges)
+        self.assertIn(("sk_water", "sk_tank"), edges, "The narrated water must reach the tank")
+        self.assertIn(("sk_tank", "sk_house"), edges)
         named = {e.get("phrase"): e["glyph"] for e in beat["illustration"]["entities"]}
         self.assertEqual(named.get("pump"), "PUMP")
         self.assertEqual(named.get("tank"), "TANK")
