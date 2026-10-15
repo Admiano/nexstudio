@@ -2639,6 +2639,7 @@
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
       node.payloadAbsorbed = false; // seek-safe: no state from a later frame leaks back
+      node.payloadFade = 1;
       g.style.visibility = 'visible';
       const pose = bodyPose(node, lt, ctx.motion);
       const pEnt = pose.pEnt;
@@ -2714,6 +2715,7 @@
             opacity *= visible * absorbed;
             semanticLabelFade *= visible * labelExit;
             node.payloadAbsorbed = delivered >= 0.84;
+            node.payloadFade = absorbed;
             g.dataset.actionPerformance = 'named-payload-flight';
           }
         }
@@ -3102,6 +3104,14 @@
       // the weaker endpoint's presence.
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
       if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
+      if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to') {
+        // A transfer edge belongs to its source-authored payload. Once that
+        // payload is absorbed by the receiving body, neither incoming nor
+        // outgoing temporary connector may survive as an orphan line. Keep
+        // the exact same ease as the departing body for deterministic scrubs.
+        if (endA) opacity *= endA.payloadFade == null ? 1 : endA.payloadFade;
+        if (endB) opacity *= endB.payloadFade == null ? 1 : endB.payloadFade;
+      }
       // Sketch transformations are performed by the moving source and the
       // emerging destination. The connector remains semantic for the compiler
       // but does not visually masquerade as a transfer or static relationship.
