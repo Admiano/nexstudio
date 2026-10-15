@@ -89,4 +89,27 @@
 - Baseline users' request: no redundant burned captions, copy follows the actual voice, no segmented playback voice.
 - Scope exclusions: production voice *quality* is not part of rating; the real audio synchronization workflow remains required before shipping.
 
+## Oct 15 semantic-hardcoding risk reduction checkpoint (current branch)
+
+**Source implementation** (latest engine commit `eb738bb3`, tests `eb738bb3`; PR #88 still draft):
+- [x] Remove render-time transfer whitelist (`message|file|letter|...`) in BOTH cargo and receiver branches. Authoring attaches an explicit `transferred_payload` role to source-mentioned cargo only when the sender -> cargo -> recipient chain is present. A new invoice/worksheet/specimen/ticket can move without a noun special case.
+- [x] Validate typed cargo against the native source entity contract. Missing/ambiguous graph relationships remain bounded/fail closed.
+- [x] Replace the cargo vanish-on-arrival ending with source cargo settling outside the receiver bounding box. Preserve cargo text and artwork, and suppress redundant anonymous flow tokens on typed cargo chains.
+- [x] Bind recipient response timing to the spoken receiver (when identifiable) rather than a fixed post-connector clock. Suppress generic premature recipient confirmation on cargo transfers.
+- [x] Preserve licensed literal icon art for water/tree while vetoing the proven misleading `customer` chat-head icon. Unknown nouns use their source text, never fabricated icons.
+- [x] Permit honest monotonically increasing irregular-year/week/month timelines; render actual temporal x positions in both chart path AND bottom category labels. Native chart compiler uses segment lengths based on those true x positions, and contract rejects out-of-order/nonfinite x positions.
+- [x] CI authoring: 24 Data Viz tests, Sketch tests and safety suite green at workflow [38734368153](https://github.com/Admiano/nexstudio/actions/runs/38734368153).
+- [x] **13 distinct native video scenarios** succeeded at workflow [38734359943](https://github.com/Admiano/nexstudio/actions/runs/38734359943), including unseen `invoice`, `worksheet` and irregular 2021/2024/2026 observations.
+- [x] Real three-aspect (16:9, 9:16, 1:1) native proof succeeded at workflow [38734359770](https://github.com/Admiano/nexstudio/actions/runs/38734359770); original two-style 16:9 video preview workflow [38734359774](https://github.com/Admiano/nexstudio/actions/runs/38734359774) green. Five unaffected family regression jobs (photo_story, emoji, journey, collage, newscast.neon) passed on directly prior runtime code at [38734065868](https://github.com/Admiano/nexstudio/actions/runs/38734065868).
+- [x] Inspected real revised invoice frames at ~55th/80th rendered frames: cargo remains visible at recipient and no misleading customer icon. Latest native invoice manifest `page_errors=[]`, `authorship.findings=[]`, 87 inspected frames. Irregular plot manifest likewise clean, 298 frames.
+
+**Risk register and creative gate, NOT yet resolved:**
+- [ ] The authoring verb recognizer is still a **finite fallback regex**; expanded verbs and typed object roles are not arbitrary-language semantic understanding. The optional NLP route is environment dependent. For commercial 90+, P8 must deliver explicit, independently validated typed semantic events, with safe coreference, negation, and confidence handling. The renderer must not infer actions from untrusted word matches.
+- [ ] The `TREND` authoring case still limits line presentations to 4 observations and has bounded native 7-entity/10-op scene budgets. Long dense series, mixed time units, unknown dates, and near-overlapping period labels need compositional or fail-closed redesign.
+- [ ] Strong source-correctness does **not** equal strong illustration craft: unseen non-tech subjects often render as large text nodes + connector lines. A human illustration/art language and better action choreography are still required. Do not award a 90 based on successful CI.
+- [ ] Several legacy animation paths retain fixed choreography offsets. Need musical/speech-aligned slow, normal and fast *real narration* tests; current synthetic espeak audio uses approximate word alignment. Voice **quality** remains excluded from aesthetic rating, but sync authority is a release blocker.
+- [ ] Formal 5+ scripts × 3 aspect × multiple playback check and three independent visual audits are not complete. Check for collisions, visual hierarchy, readable labels, and scale under real spoken delivery.
+
+**Checkpoint scoring policy:** Historical provisional single-reviewer scores (Data Viz 65/100; Sketch 68/100, no voice-quality score) are **not** re-rated merely because unit tests and render jobs passed. No claimed 90+ and no production merge/deployment until actual commercially strong frame-by-frame outputs repeat across the matrix.
+
 **Release state:** NOT PRODUCTION READY. No Oracle deployment, no merge.
