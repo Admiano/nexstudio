@@ -422,6 +422,13 @@
     if (typeof b.exit_ms === 'number' && lt >= b.exit_ms) {
       const p = EASE.inCubic(prog(lt, b.exit_ms, b.exit_ms + 300));
       clip = [p * 100, 0, 0, 0];
+      // Sketch statement handoffs are complete dissolves, never half-visible
+      // sentences escaping through the top edge during the next clause.
+      // Data Viz uses its own voice-sequenced exit and is unaffected.
+      if (ctx.directorStyle === 'sketch') {
+        const early = EASE.outCubic(prog(lt, b.exit_ms - 100, b.exit_ms + 150));
+        opacity *= 1 - early;
+      }
       ty -= p * em * 0.5;
       if (p >= 1) opacity = 0;
     }
