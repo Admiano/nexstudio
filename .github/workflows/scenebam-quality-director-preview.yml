@@ -92,6 +92,12 @@ jobs:
           render=json.loads((p.parent/"render_16x9.json").read_text())
           assert render.get("captions_burned",0)==0,render
           print("DATAVIZ CAPTIONS: suppressed at compiler + renderer")
+          for style in ("dataviz", "sketch"):
+              result=json.loads((p.parent.parent/f"recovery-proof-{style}"/"render_16x9.json").read_text())
+              orphans=[item for item in result.get("authorship",{}).get("findings",[])
+                       if item.get("code")=="ORPHAN_CONNECTOR"]
+              assert not orphans,(style,"visible orphan connectors",orphans)
+              print("SEMANTIC CONNECTORS: no orphan after delivery",style)
           PY
       - name: List render evidence
         if: always()
