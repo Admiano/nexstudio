@@ -1560,7 +1560,15 @@
           plan.aspect === '16x9' && b.w >= plan.canvas.w * 0.65;
         // Larger annotation floor needs real vertical breathing room: this
         // alters no values or relative source chronology, only plot padding.
-        const plotHeight = chartLed ? 0.82 : 0.9;
+        // Measured labels live fully ABOVE their vertices. The chart owns
+        // sufficient headroom for its largest evidence numeral, derived from
+        // its real field dimensions rather than a fixed pixel cutout. Without
+        // this the high-valued peak would collide with the active number.
+        const maxLabelSize = Math.min(56, b.h * 0.155, b.w * 0.11);
+        const labelHeadroom = plan.director_style === 'dataviz'
+          ? clamp((maxLabelSize * 1.8 + sw * 2) / b.h, 0.16, 0.36)
+          : 0.10;
+        const plotHeight = 1 - labelHeadroom;
         const pts = (params.points || [0.2, 0.8]).map((v, i, arr) =>
           [b.x + (params.x_positions ? params.x_positions[i] : i / (arr.length - 1)) * b.w,
            b.y + b.h - clamp(v, 0, 1) * b.h * plotHeight]);
@@ -1601,8 +1609,7 @@
             56, b.h * 0.155, b.w * 0.11,
             (Number.isFinite(gap) ? gap : b.w) * 1.25 /
               (textLength * 0.67)));
-          const labelY = Math.max(b.y + size * 1.08,
-            pts[i][1] - Math.max(sw * 5, size * 0.57 + 4));
+          const labelY = pts[i][1] - Math.max(sw * 5, size * 0.57 + 4);
           const label = svgEl('text', {
             x: f2(pts[i][0]), y: f2(labelY),
             'text-anchor': 'middle', fill: ink, 'fill-opacity': 0,
