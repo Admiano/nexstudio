@@ -150,6 +150,9 @@ jobs:
               assert (root/f'{variant}-{suffix}.png').stat().st_size>10000,(variant,suffix)
             print('CERTIFIED_MESH_COLOUR_DIFFERENCE',variant,'tie',sum(td),'suit',sum(sd),'nativeUV',True,flush=True)
           PY
+      - name: Gate production-render trouser coverage (no exposed skin gaps)
+        run: |
+          python3 scripts/cast-formal-art-gate.py production-colour
       - name: Export verified self-contained rigged garment assets and real previews
         run: |
           set -euo pipefail
