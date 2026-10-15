@@ -130,6 +130,30 @@ class SceneDirectorTests(unittest.TestCase):
                     for beat in beats:
                         BeatTreatment.parse(beat)
 
+    def test_sketch_real_population_art_is_tied_to_explicit_source_group(self):
+        examples = [
+            "Imagine 10,000 people tested for a rare condition.",
+            "The survey included 800 volunteers.",
+            "We interviewed 50 patients in the clinic.",
+            "A crowd watched the teacher."
+        ]
+        for sentence in examples:
+            with self.subTest(sentence=sentence):
+                entities = make_reel.sketch_entities(words(sentence), [])
+                pictured = [e for e in entities if e.get("params", {}).get("visual_class") == "population"]
+                self.assertTrue(pictured, "A source-named collective must not collapse into typography")
+                self.assertTrue(all(e["glyph"] == "TILE" and e["phrase"] in sentence.lower()
+                                    for e in pictured))
+                beat = make_reel.sketch_beat(words(sentence), 0, 1, set(), [])
+                self.assertTrue(any(e.get("params", {}).get("visual_class") == "population"
+                                    for e in beat["illustration"]["entities"]))
+                BeatTreatment.parse(beat)
+        # Singular role is a single figure; abstract/statistical words are not people.
+        person = make_reel.sketch_entities(words("A doctor holds a test."), [])
+        self.assertFalse(any(e.get("params", {}).get("visual_class") == "population" for e in person))
+        abstract = make_reel.sketch_entities(words("The model contains 5 categories."), [])
+        self.assertFalse(any(e.get("params", {}).get("visual_class") == "population" for e in abstract))
+
     def test_existing_native_integration_reports_scene_choices(self):
         script = ("The service processed 40 requests. "
                   "Yet the service rejected 20 requests. "
