@@ -170,7 +170,14 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
         target = any(obj.name == base or obj.name.startswith(base+'.')
                      or any(str(ref).startswith(base) for ref in refs if ref) for base in prior)
         marks = sex=='female' and (obj.name.startswith('Host.V64_dress_lines') or obj.name.startswith('Host.V26_garment'))
-        if target or marks:
+        # Both female suits share an exposed thigh artifact from the OLD
+        # character's illustrated lower-leg overlay. A true Cycles object-ID
+        # pass (QA run 38667001907) resolved the beige pixels to this mesh,
+        # NOT Host.body or the newly rigged suit. Never mutate original art.
+        redundant_leg_ink = sex=='female' and (
+            obj.name == 'Host.lineart_lower_legs' or
+            obj.name.startswith('Host.lineart_lower_legs.'))
+        if target or marks or redundant_leg_ink:
             obj.hide_render = True
             hidden.append(obj.name)
     collection = bpy.data.collections.get('V26_GARMENT_MARKS')

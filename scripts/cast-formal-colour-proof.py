@@ -30,6 +30,10 @@ for role,slot,hexcode in [('suit',1,suit),('tie',2,tie)]:
  assert any(m.type=='ARMATURE' and m.object==bpy.data.objects['Host.rig'] for m in obj.modifiers)
 assert report['restError']<1e-4
 assert report['torsoXDeviation']<=0.12,report
+if variant.startswith('female'):
+ leg_ink=bpy.data.objects.get('Host.lineart_lower_legs')
+ assert leg_ink is not None and leg_ink.hide_render,'CAST_FORMAL_LEGACY_LOWER_LEG_OVERLAY_STILL_VISIBLE'
+ assert 'Host.lineart_lower_legs' in report['hiddenOriginalGarments'],'CAST_FORMAL_CULPRIT_NOT_RECORDED'
 
 scene.frame_set(27)
 scene.render.engine='CYCLES'
@@ -53,7 +57,7 @@ assert target.stat().st_size>10000
 report.update({'output':target.name,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'renderSamples':8,'testFrame':27,'nativeUVRestored':suit=='ORIGINAL' and tie=='ORIGINAL'})
 # Diagnostic-only isolation of flesh-coloured pixels in two female trouser variants.
 # Never alter the approved garment/character or treat this as a fit repair.
-if variant.startswith('female') and suit=='ORIGINAL' and tie=='ORIGINAL':
+if os.environ.get('SCENEBAM_FORMAL_OBJECT_ID_DIAGNOSTICS')=='1' and variant.startswith('female') and suit=='ORIGINAL' and tie=='ORIGINAL':
     from collections import Counter
     from mathutils import Vector
     camera=scene.camera
