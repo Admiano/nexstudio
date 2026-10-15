@@ -2274,7 +2274,7 @@
         r.trace.dataset.draw = 'trace';
         // A semantic flow actually transfers a small payload along the link.
         // It appears ONLY when the source text authored flows_to.
-        if (rel.type === 'flows_to' && plan.brand.finish === 'PRODUCT_COLLAGE') {
+        if (rel.type === 'flows_to' && plan.director_style === 'sketch') {
           r.flowToken = svgEl('circle', {
             r: f2(sw * 1.85), fill: accent, stroke: plan.brand.paper,
             'stroke-width': f2(sw * 0.7), 'data-action': 'transfer',
@@ -2805,7 +2805,7 @@
     const figure = beat.figure ? buildFigure(beat.figure, bplan, root, opts.peepsUrl) : null;
     const data = beat.data ? buildData(beat.data, bplan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, bplan, root, { ...opts, fx }) : null;
-    const voiceSequence = plan.captions_policy === 'kinetic' && plan.brand.finish === 'EDITORIAL_FLAT';
+    const voiceSequence = plan.director_style === 'dataviz' && plan.captions_policy === 'kinetic';
     const textBlocks = beat.typography.blocks;
     const texts = textBlocks.map((b, i) => {
       // Display one message in the same hero position, rather than stacking
