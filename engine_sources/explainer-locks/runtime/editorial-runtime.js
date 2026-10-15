@@ -1948,9 +1948,10 @@
           // factual claim about who the person is.
           svgEl('circle', { cx: f2(cx), cy: f2(top + u * 0.44),
             r: f2(u * 0.40), fill: accent, 'fill-opacity': '0.075' }, portrait);
+          const face = svgEl('g', { 'data-drawing': 'source-actor-gaze' }, portrait);
           const head = svgEl('ellipse', { cx: f2(cx), cy: f2(headY),
             rx: f2(headR * 0.94), ry: f2(headR * 1.08),
-            fill: paper, stroke: ink, 'stroke-width': f2(sw * 1.6) }, portrait);
+            fill: paper, stroke: ink, 'stroke-width': f2(sw * 1.6) }, face);
           node.outline.push(drawable(head, 2 * Math.PI * headR));
           // Minimal but genuinely expressive human features, never a
           // guessed demographic: neutral gaze, brows and a small listening
@@ -1959,18 +1960,18 @@
           for (const side of [-1, 1]) {
             svgEl('circle', { cx:f2(cx + side * headR*.37),
               cy:f2(eyeY), r:f2(Math.max(1.6,sw*.55)),
-              fill:ink,'data-drawing':'source-eye' },portrait);
+              fill:ink,'data-drawing':'source-eye' },face);
             svgEl('path',{ d:polyPath([[cx+side*headR*.24,eyeY-headR*.25],
               [cx+side*headR*.50,eyeY-headR*.28]]),
               fill:'none', stroke:ink, 'stroke-width':sw*.52,
-              'stroke-linecap':'round' },portrait);
+              'stroke-linecap':'round' },face);
           }
           const expression = svgEl('path', { d:
             `M${f2(cx-headR*.23)} ${f2(headY+headR*.45)}
               Q${f2(cx)} ${f2(headY+headR*.60)}
                ${f2(cx+headR*.23)} ${f2(headY+headR*.45)}`,
             fill:'none',stroke:ink,'stroke-width':sw*.52,
-            'stroke-linecap':'round' },portrait);
+            'stroke-linecap':'round' },face);
           node.outline.push(drawable(expression,headR*.50));
           // Jacket-free universal anatomical block: shoulder/torso is a
           // recognizable editorial silhouette without any costume inference.
@@ -2057,6 +2058,7 @@
           // the written label. Never animate by hardcoded string matching.
           node.extra.semanticArm = {
             group: actionArm, shoulder: armBase, hand: armEnd, sign: rightSide,
+            face, headPivot: [cx, headY],
             isReceiving: connected.some(rel => rel.target === ent.id),
             isSending: connected.some(rel => rel.source === ent.id),
           };
@@ -3568,6 +3570,11 @@
         const angle = -arm.sign * 27 * lift;
         arm.group.setAttribute('transform',
           `rotate(${f2(angle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+        // The source-directed actor visually attends to the other participant
+        // as the annotated hand moves. It is not an autonomous idle head bob:
+        // the same narrated CONNECT cue gates the head's subtle turn.
+        if (arm.face) arm.face.setAttribute('transform',
+          `rotate(${f2(arm.sign * 9 * lift)} ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
       }
       if (gl.extra.tankWater) {
         let level = 0;
@@ -3791,7 +3798,12 @@
       const inkProgress = progress;
       const total = handoff.length + ill.sw * 3;
       route.style.strokeDashoffset = f2(total * (1 - inkProgress));
-      route.style.opacity = (0.20 + inkProgress * 0.48).toFixed(4);
+      // A genuinely illustrated hand-to-hand exchange should read through
+      // body performance and the physically travelling source document, not
+      // a neon chart line. Keep a quiet movement trace for drawn hands;
+      // abstract transfers retain the more legible editorial trajectory.
+      route.style.opacity = (geo.handoff
+        ? (0.025 + inkProgress * 0.075) : (0.20 + inkProgress * 0.48)).toFixed(4);
       if (lt < delivery.start_ms) route.style.opacity = '0';
       const response = EASE.pulse(prog(lt, finish - 0.15 * (finish - delivery.start_ms),
         finish + Math.max(120, delivery.end_ms - delivery.start_ms)));
