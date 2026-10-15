@@ -1414,13 +1414,24 @@
         const pts = (params.points || [0.2, 0.8]).map((v, i, arr) => [b.x + (i / (arr.length - 1)) * b.w, b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
         svgEl('path', { ...line, d: polyPath([[b.x, b.y + b.h], [b.x + b.w, b.y + b.h]]), 'stroke-width': sw * 0.7, 'stroke-opacity': 0.45 }, g);
         const p = svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.2 }, g);
-        const dot = svgEl('circle', { cx: pts[0][0], cy: pts[0][1], r: sw * 1.4, fill: ink }, g);
+        // One active value leads the gaze. Keep the underlying line neutral;
+        // a restrained accent tracker distinguishes the current spoken datum.
+        const halo = svgEl('circle', { cx: pts[0][0], cy: pts[0][1],
+          r: sw * 3.2, fill: 'none', stroke: accent,
+          'stroke-opacity': 0.24, 'stroke-width': sw * 0.8 }, g);
+        const dot = svgEl('circle', { cx: pts[0][0], cy: pts[0][1], r: sw * 1.8,
+          fill: accent, stroke: plan.brand.paper, 'stroke-width': sw * 0.6 }, g);
         node.outline.push(drawable(p, polyLength(pts)));
         node.extra.setGrow = (k) => {
           node.outline[0].set(k);
           const q = pointAlong(pts, k);
-          dot.setAttribute('cx', f2(q.x));
-          dot.setAttribute('cy', f2(q.y));
+          for (const el of [dot, halo]) {
+            el.setAttribute('cx', f2(q.x));
+            el.setAttribute('cy', f2(q.y));
+          }
+          const visible = k > 0.004;
+          dot.style.opacity = visible ? '1' : '0';
+          halo.style.opacity = visible ? '1' : '0';
         };
         break;
       }
