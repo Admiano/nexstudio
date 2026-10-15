@@ -396,6 +396,22 @@ class IllustrationSolver:
                 b = chart['bbox']
                 chart['bbox'] = _box(left, b['y'], right - left, b['h'])
                 chart['art_bbox'] = dict(chart['bbox'])
+                # Period labels must sit under their real source-dated x
+                # coordinates. Evenly spaced tiles under a non-uniform chart
+                # silently misstate chronology. Reposition chart annotations
+                # and their internal text boxes together to preserve fit.
+                xs = chart['params'].get('x_positions')
+                if xs:
+                    for item, x in zip(labels, xs):
+                        old = item['bbox']
+                        shift = left + x * (right - left) - _centre(old)[0]
+                        for key in ('bbox', 'art_bbox'):
+                            box = item.get(key)
+                            if box:
+                                item[key] = _box(box['x'] + shift, box['y'], box['w'], box['h'])
+                        if item.get('label'):
+                            box = item['label']['bbox']
+                            item['label']['bbox'] = _box(box['x'] + shift, box['y'], box['w'], box['h'])
         for e in il.entities:
             if e.id in contained:
                 host = placed[contained[e.id]]['art_bbox']
@@ -990,8 +1006,10 @@ class IllustrationSolver:
             if 'point_index' in op.params:
                 e = next(e for e in ents if e['id'] == op.target)
                 points, b = e['params']['points'], e['bbox']
-                distances = [math.hypot(b['w'] / (len(points) - 1), (v - u) * b['h'] * 0.9)
-                             for u, v in zip(points, points[1:])]
+                xs = e['params'].get('x_positions') or [
+                    j / (len(points) - 1) for j in range(len(points))]
+                distances = [math.hypot(b['w'] * (xb - xa), (v - u) * b['h'] * 0.9)
+                             for xa, xb, u, v in zip(xs, xs[1:], points, points[1:])]
                 i = op.params['point_index']
                 value_from = sum(distances[:max(0, i - 1)]) / sum(distances)
                 value_to = sum(distances[:i]) / sum(distances)
