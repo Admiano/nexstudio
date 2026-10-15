@@ -809,7 +809,7 @@ def dataviz_beat(g, bi, n, media):
                              "params": {"value": float(values[i]), "plain_datum": True},
                              "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"]))})
             ops.append({"op": "DIM", "target": pid,
-                        "at": {"word": g[0]["text"]}, "duration_ms": 300})
+                        "at": {"offset_ms": 0}, "duration_ms": 300})
             land(q, "GROW", eid, params={"point_index": i})
             land(q, "SETTLE", pid)
     elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
