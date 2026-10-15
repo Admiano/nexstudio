@@ -1936,7 +1936,44 @@
         // nouns are typed by a reviewed ontology; an unknown or ambiguous
         // noun NEVER gets a guessed person or document. The art itself is
         // generic (no invented age, gender, uniforms, branded paperwork).
-        if (isIllustrated && params.visual_class === 'person') {
+        if (isIllustrated && params.visual_class === 'population') {
+          // A representative group, NOT one dot per narrated person. We do
+          // not round 10,000 people to six marks or imply a false proportion.
+          // Exact counts remain native, spoken-source timed display units.
+          const u = Math.min(b.w, b.h);
+          const group = svgEl('g', { 'data-drawing': 'source-population' }, g);
+          const headR = u * 0.044;
+          const stroke = sw * 1.25;
+          for (let i = 0; i < 6; i++) {
+            const col = i % 3, row = Math.floor(i / 3);
+            const cx = b.x + b.w * (0.28 + 0.22 * col);
+            const hy = b.y + b.h * (0.18 + row * 0.38);
+            const head = svgEl('circle', { cx: f2(cx), cy: f2(hy),
+              r: f2(headR), fill: paper, stroke: ink, 'stroke-width': f2(stroke) }, group);
+            node.outline.push(drawable(head, 2 * Math.PI * headR));
+            const shoulderY = hy + headR * 1.68;
+            const waistY = shoulderY + u * 0.12;
+            const bodyPath = `M${f2(cx-headR*.89)} ${f2(shoulderY)}
+              Q${f2(cx)} ${f2(shoulderY-u*.022)}
+               ${f2(cx+headR*.89)} ${f2(shoulderY)}
+              L${f2(cx+headR*.76)} ${f2(waistY)}
+              L${f2(cx-headR*.76)} ${f2(waistY)}Z`;
+            const torso = svgEl('path', { d: bodyPath, fill: mixColor(paper, accent, .075),
+              stroke: ink, 'stroke-width': f2(stroke), 'stroke-linejoin': 'round' }, group);
+            node.outline.push(drawable(torso, u * .47));
+            const limbSegments = [
+              [[cx-headR*.8,shoulderY+headR*.3],[cx-headR*1.42,waistY-u*.008]],
+              [[cx+headR*.8,shoulderY+headR*.3],[cx+headR*1.42,waistY-u*.008]],
+              [[cx-headR*.35,waistY],[cx-headR*.43,waistY+u*.075]],
+              [[cx+headR*.35,waistY],[cx+headR*.43,waistY+u*.075]],
+            ];
+            for (const pts of limbSegments) {
+              const limb = svgEl('path', { ...line, d: polyPath(pts),
+                'stroke-width': f2(stroke*1.02), 'stroke-linecap': 'round' }, group);
+              node.outline.push(drawable(limb, polyLength(pts)));
+            }
+          }
+        } else if (isIllustrated && params.visual_class === 'person') {
           const u = Math.min(b.w, b.h);
           const cx = b.x + b.w * 0.5, top = b.y + b.h * 0.045;
           const headR = u * 0.108, headY = top + u * 0.17;
