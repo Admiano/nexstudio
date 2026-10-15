@@ -2439,6 +2439,30 @@
             r: f2(sw * 1.3), fill: 'none', stroke: accent,
             'stroke-width': f2(sw * 1.35), 'stroke-opacity': 0 }, g);
         }
+        if (rel.type === 'transforms_into' && plan.director_style === 'sketch') {
+          // Semantic reconfiguration: these are strokes of the existing source
+          // illustration migrating into its named successor, NOT a new object
+          // or a connector. The recipient glyph supplies the finishing shape.
+          const source = ents.get(rel.source), target = ents.get(rel.target);
+          if (source && target) {
+            const morphGroup = svgEl('g', { 'data-action': 'semantic-reconfigure' }, relLayer);
+            const from = source.bb, to = target.bb;
+            r.morphStrokes = Array.from({ length: 3 }, (_, i) => {
+              const row = (i + 1) / 4;
+              const a = [from.x + from.w * 0.24, from.y + from.h * (0.19 + row * 0.40)];
+              const b = [from.x + from.w * (0.45 + (2 - i) * 0.07), a[1]];
+              const c = [to.x + to.w * 0.24, to.y + to.h * (0.12 + row * 0.68)];
+              const d = [to.x + to.w * 0.72, c[1]];
+              const line = svgEl('line', {
+                x1: f2(a[0]), y1: f2(a[1]), x2: f2(b[0]), y2: f2(b[1]),
+                stroke: accent, 'stroke-width': f2(sw * 1.16),
+                'stroke-linecap': 'round', 'stroke-opacity': 0,
+                'data-morph-stroke': String(i),
+              }, morphGroup);
+              return { line, a, b, c, d };
+            });
+          }
+        }
         if (rel.type === 'connects' && plan.director_style === 'sketch') {
           // A connection is bidirectional as a relationship, NOT a narrated
           // payload transfer. Both known endpoints acknowledge the link.
@@ -2585,6 +2609,19 @@
     sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
+  function sketchTransformClock(beat, target, cue) {
+    const begin = cue.start_ms;
+    const label = String(target && target.ent.label && target.ent.label.text || '')
+      .toLowerCase().replace(/[^a-z0-9]/g, '');
+    const named = label && (beat.words || []).find((word) =>
+      word.start_ms >= begin &&
+      String(word.text || '').toLowerCase().replace(/[^a-z0-9]/g, '') === label);
+    const targetStart = named ? named.start_ms : begin + 400;
+    const finish = Math.max(begin + 590, cue.end_ms,
+      named ? Math.min(beat.duration_ms - 80, named.end_ms + 35) : 0);
+    return { begin, finish, targetStart };
+  }
+
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
@@ -2688,26 +2725,27 @@
           if (relation.rel.source !== ent.id && relation.rel.target !== ent.id) continue;
           const cue = relation.ops.find((op) => op.op === 'CONNECT');
           if (!cue) continue;
-          const begin = cue.start_ms, finish = Math.max(cue.end_ms, begin + 420);
+          const receiver = ill.ents.get(relation.rel.target);
+          if (!receiver) continue;
+          const { begin, finish, targetStart } =
+            sketchTransformClock(beat, receiver, cue);
           const p = EASE.inOutCubic(prog(lt, begin, finish));
           if (relation.rel.source === ent.id) {
-            const receiver = ill.ents.get(relation.rel.target);
-            if (!receiver) continue;
             const from = centre(node.bb), to = centre(receiver.bb);
-            tx += (to.x - from.x) * 0.78 * p;
-            ty += (to.y - from.y) * 0.78 * p;
-            scale *= 1 - p * 0.20;
+            tx += (to.x - from.x) * 0.70 * p;
+            ty += (to.y - from.y) * 0.70 * p;
+            scale *= 1 - p * 0.18;
+            // Preserve the source until the new named form is about to be
+            // spoken, then make room for it as the ink strokes reconfigure.
             const fade = 1 - EASE.inOutCubic(prog(lt,
-              begin + 0.16 * (finish - begin),
-              begin + 0.86 * (finish - begin)));
+              targetStart - 250, targetStart + 70));
             opacity *= fade;
             semanticLabelFade *= fade;
           } else {
-            const emerge = EASE.outCubic(prog(lt,
-              begin + 0.28 * (finish - begin), finish));
+            const emerge = EASE.outCubic(prog(lt, targetStart - 140, targetStart + 220));
             opacity *= emerge;
             semanticLabelFade *= emerge;
-            scale *= 0.84 + 0.16 * emerge;
+            scale *= 0.88 + 0.12 * emerge;
           }
           break;
         }
@@ -3073,6 +3111,30 @@
       // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
       // its connector behind.
       r.g.setAttribute('transform', retension(rel.path, endA && endA.offset, endB && endB.offset));
+      if (r.morphStrokes) {
+        const cue = r.ops.find((op) => op.op === 'CONNECT');
+        const receiver = ill.ents.get(rel.target);
+        if (cue && receiver) {
+          const { begin, finish } = sketchTransformClock(beat, receiver, cue);
+          r.morphStrokes.forEach((stroke, i) => {
+            const p = EASE.inOutCubic(prog(lt, begin + 80 * i, finish - 45 * (2 - i)));
+            const coords = [
+              ['x1', stroke.a[0], stroke.c[0]],
+              ['y1', stroke.a[1], stroke.c[1]],
+              ['x2', stroke.b[0], stroke.d[0]],
+              ['y2', stroke.b[1], stroke.d[1]],
+            ];
+            coords.forEach(([attribute, from, to]) =>
+              stroke.line.setAttribute(attribute, f2(lerp(from, to, p))));
+            const visible = lt >= begin + 80 * i && lt <= finish
+              ? 0.60 * EASE.pulse(prog(lt, begin + 80 * i, finish))
+              : 0;
+            stroke.line.style.strokeOpacity = visible.toFixed(3);
+          });
+        } else {
+          r.morphStrokes.forEach((item) => { item.line.style.strokeOpacity = '0'; });
+        }
+      }
       if (r.flowToken) {
         const action = r.ops.find((op) => op.op === 'CONNECT');
         const start = action ? action.start_ms : rel.enter_ms;
