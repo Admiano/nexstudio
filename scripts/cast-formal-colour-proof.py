@@ -51,6 +51,47 @@ scene.render.filepath=str(target)
 bpy.ops.render.render(write_still=True)
 assert target.stat().st_size>10000
 report.update({'output':target.name,'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'renderSamples':8,'testFrame':27,'nativeUVRestored':suit=='ORIGINAL' and tie=='ORIGINAL'})
+# Diagnostic-only isolation of flesh-coloured pixels in two female trouser variants.
+# Never alter the approved garment/character or treat this as a fit repair.
+if variant.startswith('female') and suit=='ORIGINAL' and tie=='ORIGINAL':
+    from collections import Counter
+    from mathutils import Vector
+    camera=scene.camera
+    corners=camera.data.view_frame(scene=scene)
+    xmin,xmax=min(p.x for p in corners),max(p.x for p in corners)
+    ymin,ymax=min(p.y for p in corners),max(p.y for p in corners)
+    depsgraph=bpy.context.evaluated_depsgraph_get()
+    direction=camera.matrix_world.to_quaternion() @ Vector((0,0,-1))
+    samples=[]
+    # These coordinates were measured on raw 420 x 640 real frames.
+    for py in (505,510,515,520,525):
+        for px in (225,230,234,238,242):
+            u=(px+0.5)/420
+            v=(py+0.5)/640
+            origin=camera.matrix_world @ Vector((xmin+u*(xmax-xmin),ymax-v*(ymax-ymin),0))
+            hit,location,normal,face_index,hit_object,_=scene.ray_cast(depsgraph,origin,direction,distance=100)
+            mat=None
+            if hit and hit_object.type=='MESH':
+                evaluated=hit_object.evaluated_get(depsgraph)
+                mesh_hit=evaluated.to_mesh()
+                try:
+                    if face_index>=0 and face_index<len(mesh_hit.polygons):
+                        slot=mesh_hit.polygons[face_index].material_index
+                        if slot<len(hit_object.material_slots) and hit_object.material_slots[slot].material:
+                            mat=hit_object.material_slots[slot].material.name
+                finally:
+                    evaluated.to_mesh_clear()
+            samples.append({'x':px,'y':py,'object':hit_object.name if hit else None,'material':mat})
+    body=bpy.data.objects['Host.body']
+    old_hidden=body.hide_render
+    body.hide_render=True
+    scene.render.filepath=str(dest/(variant+'-diagnostic-body-hidden.png'))
+    bpy.ops.render.render(write_still=True)
+    body.hide_render=old_hidden
+    scene.render.filepath=str(target)
+    report['skinGapDiagnostic']={'samples':samples,'bodyHiddenFrame':variant+'-diagnostic-body-hidden.png',
+                                  'rayHitCounts':dict(Counter(x['object'] for x in samples))}
+
 if len(args)>4 and args[4]=='poses':
  # Genuine proof of the same rigged garment in three-quarter and gesture
  # frames. No new assets or generated character imagery.
