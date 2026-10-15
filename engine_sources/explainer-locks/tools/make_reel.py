@@ -711,6 +711,24 @@ def dataviz_units(g, claim=None):
                        if re.search(r"\d", w["text"]) or
                        any(q["word_start"] <= k < q["word_end"] for q in qs)],
         })
+    # A six-measure source series may contain more than the native five
+    # typographic clauses. Merge neighbouring short phrases, never delete
+    # narration or invent shorter paraphrases. The audio-aligned word-cascade
+    # still owns every word inside the merged display unit.
+    while len(units) > MAX_UNITS_PER_BEAT:
+        choices = [(int(units[i]["role"] == "hero") +
+                    int(units[i + 1]["role"] == "hero"),
+                    len(units[i]["text"].split()) + len(units[i + 1]["text"].split()), i)
+                   for i in range(len(units) - 1)]
+        _, _, i = min(choices)
+        first, second = units[i], units[i + 1]
+        units[i:i + 2] = [{
+            **first,
+            "text": clean(first["text"] + " " + second["text"]),
+            "role": "hero" if "hero" in (first["role"], second["role"]) else "support",
+            "stress": first["stress"] + second["stress"],
+            "can_promote": first["can_promote"] or second["can_promote"],
+        }]
     return units
 
 
@@ -880,7 +898,7 @@ def dataviz_groups(words):
     i = 0
     while i < len(groups):
         candidates = []
-        for group in groups[i:i + 5]:
+        for group in groups[i:i + 6]:
             claim = dataviz_claim(" ".join(w["text"] for w in group), group)
             if not claim["quantities"] or not all(q["period"] for q in claim["quantities"]):
                 break
@@ -888,7 +906,7 @@ def dataviz_groups(words):
         for count in range(len(candidates), 1, -1):
             combined = [w for group in candidates[:count] for w in group]
             claim = dataviz_claim(" ".join(w["text"] for w in combined), combined)
-            if claim["kind"] == "TREND" and len(combined) <= 28:
+            if claim["kind"] == "TREND" and len(combined) <= MAX_UNITS_PER_BEAT * 8:
                 groups[i:i + count] = [combined]
                 break
         i += 1
