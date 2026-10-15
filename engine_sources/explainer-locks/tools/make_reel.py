@@ -760,6 +760,13 @@ def dataviz_beat(g, bi, n, media):
             eid = draw(q, "BAR", {"level": level, "value": float(values[i])}, clean(label + " " + dataviz_value(q) + " " + measure)
                        if before_after else clean(label + " " + dataviz_value(q)))
             land(q, "GROW", eid, value_to=level)
+            # Source-bound attention: each observed bar changes to the
+            # editorial accent only when its value is spoken.
+            land(q, "INK", eid)
+            if i == 1:
+                previous = next((e["id"] for e in entities if e["glyph"] == "BAR"), None)
+                if previous and previous != eid:
+                    land(q, "DIM", previous, value_to=0.66)
     elif kind == "SHARE" and not any(q["qualifier"] or q["signed"] for q in qs):
         share = values[0] / (100 if len(qs) == 1 else values[1])
         if 0 < share <= 1:
