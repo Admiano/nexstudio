@@ -432,6 +432,34 @@ class IllustrationSolver:
                         if item.get('label'):
                             box = item['label']['bbox']
                             item['label']['bbox'] = _box(box['x'] + shift, box['y'], box['w'], box['h'])
+                    # The x positions may be temporally irregular. An axis
+                    # label with the original even-grid cell width can collide
+                    # with its actual neighbour after repositioning. Derive
+                    # each cell width from its closest real chronological
+                    # neighbour, then refit and *enforce* the font floor.
+                    centres = [left + x * (right - left) for x in xs]
+                    gutter = max(3.0, zone['w'] * 0.009)
+                    for i, item in enumerate(labels):
+                        gaps = ([centres[i] - centres[i-1]] if i else []) + (
+                            [centres[i+1] - centres[i]] if i+1 < len(centres) else [])
+                        cap = max(0.0, min(gaps) - gutter) if gaps else item['bbox']['w']
+                        old = item['bbox']
+                        if cap >= old['w']:
+                            continue
+                        w = max(0.0, cap)
+                        item['bbox'] = _box(centres[i] - w/2, old['y'], w, old['h'])
+                        item['art_bbox'] = dict(item['bbox'])
+                        annotation = item.get('label')
+                        if annotation:
+                            inner = annotation['bbox']
+                            inner_w = min(inner['w'], w * 0.76)
+                            annotation['bbox'] = _box(centres[i] - inner_w/2, inner['y'],
+                                                      inner_w, inner['h'])
+                            updated = fit_text(annotation['text'], annotation['bbox'],
+                                               'label', 'SemiBold', self.canvas, max_lines=1)
+                            annotation['fit'] = asdict(updated)
+                            if updated.status != 'FIT':
+                                failures.append(f"ENTITY_LABEL_{updated.status}:{item['id']}")
         for e in il.entities:
             if e.id in contained:
                 host = placed[contained[e.id]]['art_bbox']
