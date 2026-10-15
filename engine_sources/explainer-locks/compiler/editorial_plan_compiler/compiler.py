@@ -426,6 +426,12 @@ class BeatCompiler:
         next spoken word. Stressed words are flagged for full-ink weight; the rest read tonal
         until the unit is complete."""
         reveal_start = {e['unit_index']: e['start_ms'] for e in reversed(events) if e['unit_index'] >= 0 and e['event'] not in ('HOLD', 'EXIT')}
+        # A single Data Viz beat can narrate several periods beginning with the
+        # same word ("In January ... In February ... In March ...").
+        # Matching each block from word zero moves later clauses into the first
+        # clause's window. Advance along the *intact master voice* monotonically.
+        narrative_cursor = 0
+        sequential = self.film.caption_policy == 'kinetic' and self.film.brand.finish == 'EDITORIAL_FLAT'
         for bl in blocks:
             i = bl['unit_index']
             unit = b.units[i]
@@ -438,12 +444,16 @@ class BeatCompiler:
             start = reveal_start.get(i, clock.landings_ms[i])
             times: List[Optional[int]] = [None] * len(tokens)
             if clock.landing_source[i] == 'WORD' and clock.words:
-                cursor = max(0, find_landing(clock.words, unit.anchor_word or tokens[0], 0) or 0)
+                anchor_from = narrative_cursor if sequential else 0
+                anchor_at = find_landing(clock.words, unit.anchor_word or tokens[0], anchor_from)
+                cursor = max(0, anchor_at if anchor_at is not None else anchor_from)
                 for k, tok in enumerate(tokens):
                     idx = find_landing(clock.words, tok, cursor)
                     if idx is not None and idx >= cursor and (idx - cursor) <= 3:
                         times[k] = clock.words[idx].start_ms
                         cursor = idx + 1
+                if sequential:
+                    narrative_cursor = max(narrative_cursor, cursor)
             # Fill unmatched words evenly between their spoken neighbours.
             if times and times[0] is None:
                 times[0] = start
