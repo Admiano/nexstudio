@@ -8,6 +8,8 @@ on:
       - "engine_sources/explainer-locks/tools/stress_bayes_andrew.py"
       - "engine_sources/explainer-locks/tools/make_reel.py"
       - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/styles.json"
+      - "engine_sources/explainer-locks/runtime/**"
       - "engine_sources/explainer-locks/tools/test_scene_director.py"
   workflow_dispatch:
 
