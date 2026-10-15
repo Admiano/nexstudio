@@ -13,6 +13,10 @@ on:
       - "engine_sources/explainer-locks/tools/test_scene_director.py"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
