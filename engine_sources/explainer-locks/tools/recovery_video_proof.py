@@ -39,6 +39,8 @@ SCRIPTS = {
         "dispatch": "A device sends an instruction to a printer.",
         "invoice": "A courier delivers an invoice to a customer.",
         "worksheet": "A teacher forwards a worksheet to a student.",
+        "ticket": "A baker delivers a ticket to a driver.",
+        "contract": "A student forwards a contract to a manager.",
     },
 }
 
