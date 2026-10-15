@@ -533,7 +533,12 @@ class IllustrationSolver:
                     bbox = _fit_aspect(zone, self._entity_ar(e, beat_id), 1.0)
                 else:
                     hx, hy = _centre(host)
-                    d = max(host['w'], host['h']) * 1.2
+                    # A long label carrier can be much wider than the native
+                    # illustration zone is tall. An unbounded circular overlay
+                    # spills into captions and fails even a truthful prohibition.
+                    # Cap to the SMALLER zone dimension before solving neighbours.
+                    d = min(max(host['w'], host['h']) * 1.2,
+                            zone['w'] * 0.86, zone['h'] * 0.86)
                     neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != host_id]
                     # The host's own caption is a neighbour too: a ring may not cut through it. The
                     # caption steps down to clear the ring when the zone allows; otherwise the ring shrinks.
