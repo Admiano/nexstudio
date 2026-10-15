@@ -124,6 +124,22 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertTrue(all(e["params"].get("plain_datum") is True for e in datums))
         self.assertEqual(len(datums), len(chart["params"]["points"]))
 
+    def test_metric_label_is_source_exact_and_optional(self):
+        source = authored(
+            "In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
+        chart = next(e for e in source["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["metric_label"], "park visits")
+        contradiction = deepcopy(source)
+        changed = next(e for e in contradiction["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        changed["params"]["metric_label"] = "daily revenue"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(contradiction)
+        fabricated = deepcopy(source)
+        changed = next(e for e in fabricated["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        changed["params"]["metric_label"] = "these are all the different visits"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(fabricated)
+
     def test_invalid_annotation_sizes_fail_closed(self):
         beat = authored("In 2021 sales were 10, in 2022 they were 20, and in 2023 they were 30.")
         chart = beat["illustration"]["entities"][0]
