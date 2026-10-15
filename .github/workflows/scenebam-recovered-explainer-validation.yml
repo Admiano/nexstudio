@@ -9,6 +9,10 @@ on:
       - recovery/devin-dataviz-sketch-20261014
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
