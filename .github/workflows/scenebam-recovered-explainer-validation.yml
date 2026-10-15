@@ -41,3 +41,6 @@ jobs:
       - name: Sketch authoring and preview tests
         working-directory: engine_sources/explainer-locks
         run: python tools/test_sketch_authoring.py -v
+      - name: Director opt-in and commercial safety tests
+        working-directory: engine_sources/explainer-locks
+        run: python tools/test_quality_director.py -v
