@@ -142,9 +142,26 @@ def _steps(beat: dict) -> list[str]:
     for i, item in enumerate(marks):
         tail = text[item.start(): marks[i+1].start() if i+1 < len(marks) else len(text)]
         words = re.findall(r"[A-Za-z][A-Za-z'-]*", tail)
-        if len(words) < 2:
+        if len(words) < 3:
             return []
-        spans.append(" ".join(words[:3]))
+        # The visual step must state a useful ACTION + OBJECT, not merely
+        # "First wash the" or "Then replace the". These words are selected
+        # verbatim from the corresponding spoken clause, never generated.
+        content = words[1:]  # drop spoken ordinal/connector
+        cutoff = next((i for i, w in enumerate(content)
+                       if w.lower() in ("because", "before", "after", "under", "during")),
+                      len(content))
+        content = [w for w in content[:cutoff]
+                   if w.lower() not in ("the", "a", "an", "this", "that", "those", "these")
+                   and not (w.lower().endswith("ly") and len(w) > 6)]
+        if len(content) < 2:
+            return []
+        caption = content[:3]
+        if len(" ".join(caption)) > 18:
+            caption = [content[0], content[-1]]
+        if len(" ".join(caption)) > 18:
+            return []
+        spans.append(" ".join(caption))
     return spans
 
 
