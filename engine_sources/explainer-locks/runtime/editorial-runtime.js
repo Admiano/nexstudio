@@ -2635,6 +2635,57 @@
         node.strike = strikeFor(b);
         break;
       }
+      case 'POPULATION_GRID': {
+        // A 100-cell population field is offered only when source part/whole
+        // amounts are an EXACT count of 100 units. No invented dot rounding.
+        // This is a distinct world/population scene, not a counter or donut.
+        const body = chassisBody(node, g);
+        const total = Number(params.total), part = Number(params.part);
+        const selectedCount = Math.round(part * 100 / total);
+        const cols = 10, rows = 10;
+        const u = Math.min(b.w / 13, b.h / 13.5);
+        const stepX = u * 1.17, stepY = u * 1.19, radius = u * 0.20;
+        const x0 = b.x + (b.w - (cols - 1) * stepX - u) / 2;
+        const y0 = b.y + (b.h - (rows - 1) * stepY - u) / 2 - u * 0.3;
+        const dots = [];
+        for (let i = 0; i < rows * cols; i++) {
+          const col = i % cols, row = Math.floor(i / cols);
+          const x = x0 + col * stepX, y = y0 + row * stepY;
+          const bar = { x: x + u * 0.12, y: y + u * 0.12, w: u * 0.76, h: u * 0.76 };
+          svgEl('path', {
+            d: roundRectPath(bar, radius) + 'Z',
+            fill: ink, 'fill-opacity': 0.095,
+            stroke: ink, 'stroke-opacity': 0.24,
+            'stroke-width': f2(sw * 0.36),
+          }, body);
+          if (i < selectedCount) {
+            const highlight = svgEl('path', {
+              d: roundRectPath(bar, radius) + 'Z',
+              fill: accent, 'fill-opacity': 0,
+              stroke: ink, 'stroke-opacity': 0.18,
+              'stroke-width': f2(sw * 0.34),
+            }, body);
+            dots.push(highlight);
+          }
+        }
+        const fs = Math.min(b.w * 0.064, b.h * 0.069);
+        const label = svgEl('text', {
+          x: f2(b.x + b.w / 2), y: f2(b.y + b.h * 0.94),
+          'text-anchor': 'middle', 'font-family': plan.fonts.families.data,
+          'font-size': f2(fs), 'font-weight': '700',
+          fill: ink, 'font-variant-numeric': 'tabular-nums',
+        }, body);
+        label.textContent = part.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US');
+        node.extra.setGrow = (k) => {
+          dots.forEach((dot, i) => {
+            const q = selectedCount === 1 ? k :
+              clamp((k - i * (0.64 / selectedCount)) * (selectedCount * 1.15), 0, 1);
+            dot.setAttribute('fill-opacity', f3(EASE.settle(clamp(q, 0, 1))));
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
       case 'PROGRESS': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
