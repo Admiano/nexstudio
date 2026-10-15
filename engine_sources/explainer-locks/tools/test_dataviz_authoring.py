@@ -88,6 +88,29 @@ class DataVizAuthoringTests(unittest.TestCase):
         mixed = authored("In 2021 books were 10; in 2022 chairs were 20; in 2023 shoes were 30.")
         self.assertNotIn("CHART_LINE", [e["glyph"] for e in mixed.get("illustration", {}).get("entities", [])])
 
+    def test_trend_annotations_are_source_values_not_pill_buttons(self):
+        beat = authored("In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
+        self.assertEqual(beat["data_claim"]["kind"], "TREND")
+        entities = beat["illustration"]["entities"]
+        chart = next(e for e in entities if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["value_labels"], ["10", "20", "15"])
+        datums = [e for e in entities if e["glyph"] == "PILL"]
+        self.assertEqual([e["label"] for e in datums], ["Jan 10", "Feb 20", "Mar 15"])
+        self.assertTrue(all(e["params"].get("plain_datum") is True for e in datums))
+        self.assertEqual(len(datums), len(chart["params"]["points"]))
+
+    def test_invalid_annotation_sizes_fail_closed(self):
+        beat = authored("In 2021 sales were 10, in 2022 they were 20, and in 2023 they were 30.")
+        chart = beat["illustration"]["entities"][0]
+        chart["params"]["value_labels"] = ["10"]
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(beat)
+        chart["params"]["value_labels"] = ["10", "20", "30"]
+        badge = next(e for e in beat["illustration"]["entities"] if e["glyph"] == "PILL")
+        badge["params"]["plain_datum"] = "yes"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(beat)
+
     def test_non_numeric_fallback_and_spoken_steps(self):
         steps = authored("First inspect the pump, then replace the valve.")
         self.assertEqual(steps["data"]["kind"], "SEQUENCE")
