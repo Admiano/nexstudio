@@ -273,6 +273,13 @@ class IllustrationEntity:
                       all(isinstance(v, str) and bool(v.strip()) and len(v) <= 24 for v in labels),
                       'CHART_LABELS_INVALID', f'{eid}: every chart point needs a source value label', beat_id)
                 params['value_labels'] = [' '.join(v.split()) for v in labels]
+            if 'metric_label' in params:
+                metric = params['metric_label']
+                _need(isinstance(metric, str) and len(_norm_words(metric)) in (1, 2, 3)
+                      and len(metric) <= 48 and bool(re.fullmatch(r'[A-Za-z0-9 -]+', metric)),
+                      'CHART_METRIC_LABEL_INVALID',
+                      f'{eid}: metric must be 1-3 source words, up to 48 characters', beat_id)
+                params['metric_label'] = ' '.join(metric.split())
         if glyph == 'PILL' and 'plain_datum' in params:
             _need(params['plain_datum'] is True and label is not None,
                   'PLAIN_DATUM_INVALID', f'{eid}: plain datum needs a label and boolean true', beat_id)
@@ -663,6 +670,17 @@ class BeatTreatment:
         if illus is not None:
             _need(media is None and data is None, 'ILLUSTRATION_WITH_MEDIA_OR_DATA', 'media and data belong inside the illustration as MEDIA/CHART entities', bid)
             check_labels(units, illus, bid)
+            # The metric header is a source noun phrase, not a claim generated
+            # from a chart label or an unsupplied unit. Reject invented charts.
+            source_tokens = _norm_words(narration)
+            for ent in illus.entities:
+                metric = ent.params.get('metric_label') if ent.glyph == 'CHART_LINE' else None
+                if metric:
+                    tokens = _norm_words(metric)
+                    _need(any(source_tokens[i:i + len(tokens)] == tokens
+                              for i in range(len(source_tokens) - len(tokens) + 1)),
+                          'CHART_METRIC_NOT_IN_SOURCE',
+                          f'{ent.id}: chart metric {metric!r} was not spoken', bid)
         if layer == 'FIGURE':
             _need(figure is not None, 'FIGURE_LAYER_WITHOUT_FIGURE', 'FIGURE dominant layer requires a figure directive', bid)
         if layer == 'EVIDENCE':
