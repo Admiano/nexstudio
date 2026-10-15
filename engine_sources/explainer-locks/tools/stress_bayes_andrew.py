@@ -171,11 +171,20 @@ def main():
     # choose the source-bound data scene rather than violating the treatment
     # contract. This is not a renderer change or a gate bypass.
     if args.style == "dataviz":
-        for beat in treatment["beats"]:
+        for index, beat in enumerate(treatment["beats"]):
             if beat.get("data") is not None and beat.get("illustration") is not None:
                 print("P8_DATA_ARBITRATION", beat["beat_id"], flush=True)
                 beat.pop("illustration")
                 beat["dominant_layer"] = "DATA"
+                # Numeric evidence replaces this beat's decorative source.
+                # A successor cannot carry pixels that were not drawn.
+                if index + 1 < len(treatment["beats"]):
+                    successor = treatment["beats"][index + 1]
+                    next_illustration = successor.get("illustration") or {}
+                    carry = next_illustration.get("carry") or {}
+                    if carry.get("from_beat") == beat["beat_id"]:
+                        print("P8_DROP_INVALID_CARRY", successor["beat_id"], flush=True)
+                        next_illustration.pop("carry", None)
     treatment["note"] += (
         "; difficult base-rate stress test; unmodified native engine; "
         f"single intact Andrew master audio, voice={VOICE}; timing={timing_source}"
