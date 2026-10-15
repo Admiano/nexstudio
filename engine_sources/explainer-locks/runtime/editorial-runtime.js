@@ -1458,6 +1458,41 @@
               ].map(parts => parts[0] + parts.slice(1).map(f2).join(' ')).join(' '),
               'stroke-width': sw * 0.65, 'stroke-opacity': 0.78 }, g);
             node.outline.push(drawable(stroke, corner * 8));
+          } else {
+            // Unknown source actors stay literal typography, but acquire
+            // an illustrated editorial *baseline* that integrates them with
+            // the action instead of making them bare words at opposite edges.
+            // Only graph endpoints qualify; this is not a guessed object.
+            const participating = il.relations.some(rel =>
+              rel.type === 'flows_to' &&
+              (rel.source === ent.id || rel.target === ent.id));
+            if (participating) {
+              const baseY = b.y + b.h * 0.81;
+              const fromX = b.x + b.w * 0.13;
+              const toX = b.x + b.w * 0.87;
+              const measure = Math.max(sw * 1.6, b.w * 0.015);
+              const strokes = [
+                [[fromX, baseY], [toX, baseY]],
+                [[fromX + measure, baseY + sw * 1.45],
+                 [toX - measure * 1.4, baseY + sw * 1.45]]
+              ];
+              for (let i = 0; i < strokes.length; i++) {
+                const stroke = svgEl('path', { ...line,
+                  d: polyPath(strokes[i]), stroke: i === 0 ? accent : ink,
+                  'stroke-opacity': i === 0 ? 0.94 : 0.22,
+                  'stroke-width': sw * (i === 0 ? 1.45 : 0.64),
+                }, g);
+                node.outline.push(drawable(stroke, polyLength(strokes[i])));
+              }
+              // Printed registration marks finish the visual grammar. They
+              // denote the artwork field, not an unspoken participant.
+              for (const x of [fromX, toX]) {
+                svgEl('line', { ...line,
+                  x1: f2(x), x2: f2(x),
+                  y1: f2(baseY - sw * 1.1), y2: f2(baseY + sw * 2),
+                  'stroke-width': sw * 0.6, 'stroke-opacity': 0.32 }, g);
+              }
+            }
           }
           break;
         }
@@ -1821,27 +1856,44 @@
         const r = Math.min(b.w, b.h) * 0.24;
         const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
         const body = chassisBody(node, g);
-        // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
-        // stroked last, so the outline is one continuous weight around every corner.
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : (isIllustrated ? paper : housing.light) }, body);
-        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13,
-          alpha: isIllustrated ? 0.09 : 0.28 };
-        if (!dark && !isIllustrated) {
-          // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
-          const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
-          svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
-          svgEl('path', {
-            d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
-          }, body);
-        }
-        svgEl('path', { d: shape, fill: 'none', stroke: ink,
-          'stroke-width': f2(sw * (isIllustrated ? 0.75 : 0.55)),
-          'stroke-opacity': isIllustrated ? 0.65 : 0.55 }, body);
-        if (!isIllustrated)
+        if (isIllustrated) {
+          // Sketch pictures are ART, never buttons. The licensed literal
+          // drawing floats directly in the paper field with a restrained
+          // hand-inked grounding arc and a signature baseline. No enclosing
+          // rounded app tile or screenshot-like shadow survives.
+          const c = centre(b), floor = b.y + b.h * 0.96;
+          const arc = [
+            [b.x + b.w * 0.18, floor],
+            [c.x, floor + sw * 1.2],
+            [b.x + b.w * 0.82, floor],
+          ];
+          const ground = svgEl('path', { ...line, d: polyPath(arc),
+            stroke: ink, 'stroke-width': sw * 0.75,
+            'stroke-opacity': 0.27 }, body);
+          node.outline.push(drawable(ground, polyLength(arc)));
+          const accentDash = svgEl('path', { ...line,
+            d: polyPath([[c.x - b.w * 0.16, floor + sw * 3],
+                         [c.x + b.w * 0.16, floor + sw * 3]]),
+            stroke: accent, 'stroke-width': sw * 1.25 }, body);
+          node.outline.push(drawable(accentDash, b.w * 0.32));
+        } else {
+          // Other product-style families retain the existing physical frame.
+          const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
+          node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
+          if (!dark) {
+            const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
+            svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
+            svgEl('path', {
+              d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
+              fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
+            }, body);
+          }
+          svgEl('path', { d: shape, fill: 'none', stroke: ink,
+            'stroke-width': sw * 0.55, 'stroke-opacity': 0.55 }, body);
           node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
+        }
         const word = params.word ? String(params.word) : '';
-        const fg = dark ? paper : ink;
+        const fg = (dark && !isIllustrated) ? paper : ink;
         // The name sits above the accent fill so an inked tile keeps it, in the paper colour.
         const wordHost = svgEl('g', {}, g);
         node.extra.wordHost = wordHost;
@@ -1864,7 +1916,7 @@
           host.style.color = fg;
           node.inkEls.push(host);
           node.extra.iconHost = host;
-          const pad = b.w * 0.17;
+          const pad = b.w * (isIllustrated ? 0.085 : 0.17);
           if (word) {
             // Composite: the mark takes the upper body, the concept's own name is set beneath it.
             const ih = b.h * 0.5;
