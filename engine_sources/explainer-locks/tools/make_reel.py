@@ -1596,6 +1596,7 @@ def build_treatment(args, style, words, media_files, film_id):
         "aspects": args.aspects.split(","),
         "fps": 30,
         **({"caption_policy": "kinetic"} if style["id"] == "dataviz" else {}),
+        **({"director_style": style["id"]} if style["id"] in ("dataviz", "sketch") else {}),
         "brand": {**style["palette"], "finish": style["finish"]},
         "typography": {"reveal": style["reveal"], "tonal_ink": 0.42, "min_visual_share": 0.6},
         "voice": {"source": "MASTER", "audio_path": "voice.mp3",
