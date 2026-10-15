@@ -113,3 +113,16 @@
 **Checkpoint scoring policy:** Historical provisional single-reviewer scores (Data Viz 65/100; Sketch 68/100, no voice-quality score) are **not** re-rated merely because unit tests and render jobs passed. No claimed 90+ and no production merge/deployment until actual commercially strong frame-by-frame outputs repeat across the matrix.
 
 **Release state:** NOT PRODUCTION READY. No Oracle deployment, no merge.
+
+## Persistent native proof checkpoint — October 15, latest independent render review
+
+This section is the authoritative resume point after an interrupted ChatGPT session. Keep it on this durable Git branch instead of trusting conversation-local files.
+
+- **Verified branch commit before checkpoint note:** `f6edc183c63bcf2119ce8462460250cee964cda2`, PR [#88](https://github.com/Admiano/nexstudio/pull/88), **draft** and **not merged/deployed**.
+- **All HEAD CI checks succeeded:** [16/16 diverse-story native render jobs](https://github.com/Admiano/nexstudio/actions/runs/38762300630), [3/3 native aspect jobs](https://github.com/Admiano/nexstudio/actions/runs/38762300674), [5/5 other-family regression jobs](https://github.com/Admiano/nexstudio/actions/runs/38762300930), [director preview](https://github.com/Admiano/nexstudio/actions/runs/38762300751), and [authoring/source validation](https://github.com/Admiano/nexstudio/actions/runs/38762308331). The workflow artifacts contain the real MP4s, compiled plans, render manifests and PNGs. They may expire per GitHub's artifact retention policy.
+- **Verified the actual late-run MP4s visually**, sampling ~12/32/52/72/90% of duration for landscape and portrait invoice handoffs and five-period Data Viz. Their manifests report zero page errors and zero authorship findings.
+- **Not acceptable as 90+ commercial work:** Portrait Sketch actors and payload are **far too small** compared with frame height; excessive empty space, hard-to-read visual motion/hand contact. The 16:9 Sketch is substantially clearer but still minimal/iconographic. Data Viz source-value chronology and graph correctness are better, but portrait hierarchy and visual impact are too weak.
+- **Next work, strictly in this order:** (1) portrait-aware illustration composition and actor scale; (2) hand/contact and meaningful physical acting; (3) more sophisticated, truthful high-density editorial graph staging; (4) test with real uninterrupted narration and source word-alignment; (5) compare multiple distinct complete films in all three aspects and get independent visual score. Source-traceable figure/icon art must not be replaced with fabricated assets.
+- **Scoring policy:** Previous provisional scores Data Viz 65 and Sketch 68 remain historical values; no higher score is certified by green CI. Voice quality itself is excluded, but voice *synchronization* remains a release gate.
+- **Safe workflow:** continue coding on this draft branch and rerun the native matrix. Do not merge to main, deploy, delete source assets or call the work complete until the actual films meet the commercial bar.
+
