@@ -24,12 +24,17 @@ SCRIPTS = {
         "default": "In January, park visits were 10. In February, they reached 20. In March, they reached 15.",
         "comparison": "Rent rose from 900 dollars to 1,200 dollars.",
         "share": "A survey found 30 percent prefer buses.",
+        "decrease": "Rent fell from 1,200 dollars to 900 dollars.",
+        "counter": "Twenty-five trains arrived this morning.",
     },
     "sketch": {
         "default": "A phone sends a message to a server. The server connects to a database.",
         "water": "A pump sends water to a tank. The tank feeds a house.",
         "transform": "A note becomes a list.",
         "attachment": "Pollen sticks to the bee. The bee carries pollen to another flower.",
+        "contrast": "A pencil is lighter than a brick.",
+        "connection": "The server connects to a database.",
+        "dispatch": "A device sends an instruction to a printer.",
     },
 }
 
