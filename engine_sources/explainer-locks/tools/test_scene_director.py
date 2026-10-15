@@ -51,6 +51,43 @@ class SceneDirectorTests(unittest.TestCase):
                 self.assertNotIn("data", bridge)
                 BeatTreatment.parse(bridge)
 
+    def test_population_subset_uses_only_observed_whole_and_part(self):
+        examples = [
+            ("Imagine 10,000 people tested for a rare condition.",
+             "Inside that group of people, only 100 have the condition.", 10000, 100),
+            ("The study enrolled 800 volunteers.",
+             "Among those volunteers only 120 finished the study.", 800, 120),
+        ]
+        for first, second, whole, part in examples:
+            with self.subTest(first=first):
+                beats = [data_beat(first, 0, 2), data_beat(second, 1, 2)]
+                narration = [b["narration"] for b in beats]
+                result = direct_film("dataviz", beats)
+                self.assertEqual(result["scenes"][-1]["family"], "population_subset")
+                evidence = beats[1]["director_evidence"]
+                self.assertEqual([int(e["value"]) for e in evidence], [whole, part])
+                entity = beats[1]["illustration"]["entities"][0]
+                self.assertEqual(entity["glyph"], "DONUT")
+                self.assertAlmostEqual(entity["params"]["level"], part / whole)
+                self.assertEqual(entity["params"]["count"], part)
+                self.assertEqual([b["narration"] for b in beats], narration)
+                self.assertEqual(len(result["explanation_map"]["claims"]), 2)
+                BeatTreatment.parse(beats[1])
+
+    def test_population_subset_requires_explicit_group_membership(self):
+        pairs = [
+            ("The cafe sold 1,000 coffees.", "Only 40 muffins were sold inside the cafe."),
+            ("The app gained 300 users.", "Only 100 dollars remained in the account."),
+            ("We employed 100 staff.", "Only 120 of those staff attended."),
+            ("We surveyed 200 patients.", "We found 40 positive tests."),
+        ]
+        for first, second in pairs:
+            with self.subTest(first=first):
+                beats = [data_beat(first, 0, 2), data_beat(second, 1, 2)]
+                direct_film("dataviz", beats)
+                self.assertNotEqual(beats[1].get("illustration", {}).get("entities", [{}])[0].get("id"),
+                                    "director_population_subset")
+
     def test_unrelated_numbers_never_bridge(self):
         examples = [
             ("The turbine produced 40 kilowatts.", "Yet the library received 70 books."),
