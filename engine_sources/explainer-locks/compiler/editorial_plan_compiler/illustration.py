@@ -34,7 +34,7 @@ EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community'
 PREFLIGHT_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'preflight.json'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
-GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
+GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8, 'PUMP': 1.1, 'TANK': 0.78,
                 'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0,
                 'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
                 'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9, 'BADGE': 1.0, 'COUNTER': 1.5,
