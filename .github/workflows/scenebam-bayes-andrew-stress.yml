@@ -8,6 +8,8 @@ on:
       - "engine_sources/explainer-locks/tools/stress_bayes_andrew.py"
       - "engine_sources/explainer-locks/tools/make_reel.py"
       - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/test_scene_repertoire.py"
       - "engine_sources/explainer-locks/styles.json"
       - "engine_sources/explainer-locks/runtime/**"
       - "engine_sources/explainer-locks/tools/test_scene_director.py"
@@ -56,6 +58,7 @@ jobs:
           npm ci --prefix engine_sources/explainer-locks
           python -m py_compile engine_sources/explainer-locks/tools/stress_bayes_andrew.py
           python -m py_compile engine_sources/explainer-locks/tools/scene_director.py
+          python -m py_compile engine_sources/explainer-locks/tools/scene_repertoire.py
           python -m py_compile engine_sources/explainer-locks/tools/make_reel.py
           command -v google-chrome || command -v google-chrome-stable || command -v chromium
       - name: Confirm source authoring, not a canned Bayes renderer
@@ -64,6 +67,7 @@ jobs:
           python tools/test_dataviz_authoring.py -q
           python tools/test_sketch_authoring.py -q
           python tools/test_scene_director.py -q
+          python tools/test_scene_repertoire.py -q
       - name: Synthesize Microsoft Andrew and render 2 real aspect videos
         working-directory: engine_sources/explainer-locks
         run: |
