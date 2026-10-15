@@ -1590,6 +1590,7 @@ def build_treatment(args, style, words, media_files, film_id):
         "note": f"auto-authored by make_reel.py (style={style['id']})",
         "aspects": args.aspects.split(","),
         "fps": 30,
+        **({"caption_policy": "kinetic"} if style["id"] == "dataviz" else {}),
         "brand": {**style["palette"], "finish": style["finish"]},
         "typography": {"reveal": style["reveal"], "tonal_ink": 0.42, "min_visual_share": 0.6},
         "voice": {"source": "MASTER", "audio_path": "voice.mp3",
