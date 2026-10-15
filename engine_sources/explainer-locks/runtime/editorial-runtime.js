@@ -1432,6 +1432,10 @@
         // A measured datum is a label, not an interactive button. Its existing
         // fitted HTML text is revealed by the native op; omit the pill housing.
         if (ent.glyph === 'PILL' && ent.params && ent.params.plain_datum === true) break;
+        // The Sketch fallback for an explicitly named but unpictured concept
+        // is edited typography, not a counterfeit app button. The exact label
+        // is still drawn in its source-authoritative bbox by buildIllustration.
+        if (ent.glyph === 'PILL' && plan.director_style === 'sketch') break;
         const r = ent.glyph === 'PILL' ? b.h / 2 : Math.min(b.w, b.h) * 0.09;
         const inner = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
         svgEl('path', { d: roundRectPath(inner, r), fill: paper }, g);
@@ -3074,7 +3078,9 @@
         const shift = carryLabelShift(node, pose.carry);
         const lScale = lagged.scale * amb.s;
         ls.transform = `translate(${f2(shift.x + tx)}px, ${f2(ty - pose.ty + lagged.ty + shift.y)}px) scale(${lScale.toFixed(4)})`;
-        node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
+        node.label.text.style.color = (ctx.directorStyle === 'sketch' && ent.glyph === 'PILL')
+          ? ((inkLevel > 0.5 && (inkP.accent || swap.accent)) ? accent : ink)
+          : node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
         applyMediaState(node.media, lt, beat, ctx, {
