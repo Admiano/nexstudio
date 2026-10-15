@@ -78,9 +78,9 @@ def _bridge_eligible(prev: dict, current: dict) -> bool:
 def _subset_eligible(prev: dict, current: dict) -> bool:
     """A numerator is part of the earlier whole only with explicit group language."""
     narration = current["narration"]
-    if not re.search(r"\\b(only|just|merely|out of|subset|a fraction of)\\b", narration, re.I):
+    if not re.search(r"\b(only|just|merely|out of|subset|a fraction of)\b", narration, re.I):
         return False
-    if not re.search(r"\\b(inside|among|within|of those|of these|of them|of that group|of the group|in that group|out of|population|subset)\\b", narration, re.I):
+    if not re.search(r"\b(inside|among|within|of those|of these|of them|of that group|of the group|in that group|out of|population|subset)\b", narration, re.I):
         return False
     a, b = _quantity(prev), _quantity(current)
     if not a or not b or a.get("unit") != b.get("unit") or a.get("unit") == "%":
