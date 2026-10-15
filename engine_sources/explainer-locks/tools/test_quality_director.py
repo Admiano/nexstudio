@@ -38,7 +38,7 @@ class StyleScopedDirectorTests(unittest.TestCase):
         self.assertEqual(FilmTreatment.parse(sketch).director_style, "sketch")
 
     def test_other_style_treatments_do_not_opt_into_new_director(self):
-        for family in ("photo_story", "emoji", "journey", "collage", "newscast"):
+        for family in ("photo_story", "emoji", "journey", "collage", "newscast.neon"):
             with self.subTest(family=family):
                 result = treatment(family, "A person opens a book at a desk.")
                 self.assertNotIn("director_style", result)
