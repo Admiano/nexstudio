@@ -3,7 +3,17 @@ on:
   push:
     branches:
       - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-quality-director-preview.yml"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/recovery_video_proof.py"
+      - "engine_sources/explainer-locks/runtime/**"
+      - "engine_sources/explainer-locks/compiler/**"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
