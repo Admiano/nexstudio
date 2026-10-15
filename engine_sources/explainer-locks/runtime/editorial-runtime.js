@@ -3419,8 +3419,34 @@
         });
         return candidates.length ? candidates[candidates.length - 1].start_ms : null;
       });
+      // An author-supplied metric is guaranteed verbatim by the contract.
+      // Give the repeated month/number handoffs a semantic subject, but only
+      // after the exact metric words have been spoken. This is a topic label,
+      // not another burned voice caption or a fabricated measurement.
+      const metricWords = String(chart.params.metric_label || '').toLowerCase()
+        .split(/\s+/).filter(Boolean);
+      const voiceWords = spoken.map((w) => cleanPeriod(w.text));
+      const metricIndex = metricWords.length
+        ? voiceWords.findIndex((_, i) =>
+            metricWords.every((w, j) => voiceWords[i + j] === w)) : -1;
+      const canFitMetric = metricIndex >= 0 &&
+        focusTop + focusHeight + 25 <= zone.y + zone.h;
+      const metricEl = canFitMetric ? el('div', {
+        position: 'absolute', left: 0, top: px(focusHeight + 4),
+        maxWidth: px(zone.w * 0.88), overflow: 'hidden',
+        whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+        fontFamily: '"' + plan.fonts.families.text + '"',
+        fontWeight: '650', fontSize: px(Math.min(17, focusLabelSize * 0.84)),
+        lineHeight: '1.1', letterSpacing: '0.095em',
+        textTransform: 'uppercase', color: bplan.brand.ink,
+        opacity: '0', willChange: 'opacity, transform',
+      }, wrap) : null;
+      if (metricEl) metricEl.textContent = chart.params.metric_label;
+      const metricCue = metricIndex >= 0
+        ? spoken[metricIndex + metricWords.length - 1].start_ms : null;
       return { wrap, period, value, cues, points, labels, periodCues,
-        valueSize: focusValueSize, activeColor: bplan.brand.accent || bplan.brand.ink,
+        metricEl, metricCue, valueSize: focusValueSize,
+        activeColor: bplan.brand.accent || bplan.brand.ink,
         idleColor: bplan.brand.ink };
     })();
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
@@ -3565,6 +3591,11 @@
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
     if (bn.dataFocus) {
       const f = bn.dataFocus;
+      if (f.metricEl && f.metricCue != null) {
+        const entered = EASE.outCubic(prog(lt, f.metricCue, f.metricCue + 300));
+        f.metricEl.style.opacity = (entered * 0.65).toFixed(4);
+        f.metricEl.style.transform = 'translateY(' + f2((1 - entered) * 8) + 'px)';
+      }
       let active = -1, pending = -1;
       for (let i = 0; i < f.cues.length; i++) {
         if (f.periodCues[i] != null && lt >= f.periodCues[i]) pending = i;
