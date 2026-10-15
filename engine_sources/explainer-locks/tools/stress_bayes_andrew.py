@@ -169,15 +169,25 @@ def main():
         f"single intact Andrew master audio, voice={VOICE}; timing={timing_source}"
     )
     (fixture / "treatment.json").write_text(json.dumps(treatment, indent=2))
-    execute([sys.executable, "-m", "editorial_plan_compiler",
-             fixture / "treatment.json", out], cwd=ROOT / "compiler")
+    # In a stress test, a failed creative gate is meaningful evidence, not
+    # permission to replace the script or silently relax the native gate.
+    # The compiler still writes real aspect plans on exit code 3.
+    compiler = subprocess.run(
+        [sys.executable, "-m", "editorial_plan_compiler",
+         str(fixture / "treatment.json"), str(out)],
+        cwd=ROOT / "compiler", check=False)
+    if compiler.returncode not in (0, 3):
+        raise RuntimeError(f"NATIVE_COMPILER_ERROR_EXIT_{compiler.returncode}")
+    gate_report = json.loads((out / "gate_report.json").read_text())
+    print("STRESS_COMPILER_GATE:", json.dumps(gate_report)[:5000], flush=True)
 
     proofs = {}
     for aspect in ASPECTS:
         plan = out / f"plan_{aspect}.json"
         compiled = json.loads(plan.read_text())
         assert compiled["director_style"] == args.style
-        assert compiled["gate"]["status"] == "PASS", compiled["gate"]
+        # A FAIL result is retained in the report while the actual movie
+        # renders, so the user can judge the original difficult request.
         spoken = " ".join(b.get("narration", "") for b in compiled["beats"])
         for number in ("10,000", "100", "99", "495", "594", "16.7"):
             assert number in spoken, (aspect, "missing source number", number)
@@ -230,6 +240,8 @@ def main():
             "provider_word_boundaries": len(boundaries),
             "voice_substitution_allowed": False,
         },
+        "gate_status": gate_report.get("status"), "gate_failures": gate_report.get("failures", []),
+        "note": "Native compiler failure is reported, never ignored or called a pass.",
         "videos": proofs,
     }
     (out / "stress_report.json").write_text(json.dumps(report, indent=2))
