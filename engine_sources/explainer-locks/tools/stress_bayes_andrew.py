@@ -24,13 +24,15 @@ from make_reel import build_treatment, style_of
 from voice_registry import VOICES
 
 SCRIPT = (
-    "Picture 10,000 people taking a test for a rare condition. "
-    "Just 100 actually have it. The test catches 99 of them. "
-    "But 495 healthy people also get a positive result. "
-    "Now there are 594 positive tests. Only 99 are true positives: "
-    "that is 16.7 percent. The twist is that a test can catch nearly "
-    "every real case while most positive results are false, "
-    "because the condition is so rare."
+    "Imagine 10,000 people tested for a rare condition. "
+    "Only 100 actually have it. The test identifies 99 genuine cases. "
+    "Yet 495 healthy people also test positive. "
+    "That makes 594 positive results altogether. "
+    "But only 99 of those are genuine. "
+    "So, when the test is positive, the chance of truly having the condition "
+    "is just 16.7 percent. That's the base-rate paradox. "
+    "Even a highly sensitive test can produce mostly false alarms "
+    "when the condition is rare."
 )
 ASPECTS = ("9x16", "1x1")
 VOICE_ID = "andrew"
@@ -53,7 +55,7 @@ async def microsoft_andrew(mp3_path):
     import edge_tts
     chunks = bytearray()
     boundaries = []
-    stream = edge_tts.Communicate(text=SCRIPT, voice=VOICE, rate="+0%")
+    stream = edge_tts.Communicate(text=SCRIPT, voice=VOICE, rate="-18%")
     async for event in stream.stream():
         if event["type"] == "audio":
             chunks.extend(event["data"])
