@@ -260,12 +260,19 @@ def _subset(prev: dict, current: dict) -> bool:
     # Original population is the denominator: only the *actual* share grows.
     # Source values remain discrete integers; no invented percentage or cases.
     number_text = format(a, ",.0f")
+    # A crowd deserves a population depiction, not an automatic donut.
+    # 100 graphical cells must be integer-exact; nondivisible source ratios
+    # remain true proportions in the existing DONUT renderer.
+    exact_grid = (a >= 100 and a % 100 == 0 and (b * 100) % a == 0)
+    glyph = "POPULATION_GRID" if exact_grid else "DONUT"
+    population_params = ({"total": int(a), "part": int(b)}
+                         if exact_grid else {"level": float(b / a), "count": int(b)})
     current["illustration"] = {
         "form": "OBJECT_STAGE", "entities": [{
             "id": "director_population_subset", "kind": "evidence",
-            "glyph": "DONUT", "size": "hero",
-            "label": "of " + number_text,
-            "params": {"level": float(b / a), "count": int(b)}}],
+            "glyph": glyph, "size": "hero",
+            **({} if exact_grid else {"label": "of " + number_text}),
+            "params": population_params}],
         "relations": [],
         "program": [
             {"op": "DRAW", "target": "director_population_subset",
