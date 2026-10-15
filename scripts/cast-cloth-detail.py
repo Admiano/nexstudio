@@ -95,6 +95,16 @@ def collar_clearance(ob,body):
         bpy.context.scene.collection.objects.link(target);target.hide_render=True;target['castInternalTarget']=True
     coords=[v.co for v in ob.data.vertices];top=max(v.z for v in coords);centre=sum(v.x for v in coords)/len(coords)
     selected=[i for i,p in enumerate(coords) if p.z>top-.13 and abs(p.x-centre)<.215]
+    if ob.get('castWardrobeKind')=='formal':
+        # The native shrinkwrap collar pass belongs on JACKET cloth, not on
+        # independent neckwear. The real UV tie remains anchored to its rig
+        # and never gets snapped onto the character's bare neck surface.
+        suit_slot=int(ob.get('castSuitMaterialSlot',-1))
+        if suit_slot<0 or suit_slot>=len(ob.data.materials):
+            raise RuntimeError('CAST_FORMAL_SUIT_ROLE_MISSING')
+        suit_vertices={vi for face in ob.data.polygons if face.material_index==suit_slot
+                       for vi in face.vertices}
+        selected=[i for i in selected if i in suit_vertices]
     if not selected:return None
     group=ob.vertex_groups.get('Cast V16 collar clearance') or ob.vertex_groups.new(name='Cast V16 collar clearance');group.add(selected,1,'REPLACE')
     mod=ob.modifiers.get('Cast V16 collar clearance') or ob.modifiers.new('Cast V16 collar clearance','SHRINKWRAP')

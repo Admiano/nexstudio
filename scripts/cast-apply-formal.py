@@ -239,6 +239,10 @@ def apply_formal(scene, variant, suit_hex, tie_hex):
         for index in indices:mesh.polygons[index].material_index=2
     roles={'suit': [stats for _,stats in suits],'tie':[stats for _,stats in tie],
            'preserve':[stats for _,stats in other]}
+    # Wardrobe semantic material roles follow the garment into native cloth
+    # finishing; never infer a tie from neck-height or face order downstream.
+    donor['castSuitMaterialSlot']=1
+    donor['castTieMaterialSlot']=2
     # Require exact partition of all polygons and physical separation.
     assert sum(sum(len(ids) for ids,_ in group) for group in (suits,tie,other))==len(mesh.polygons)
     assert all(mesh.polygons[i].material_index==2 for ids,_ in tie for i in ids)
