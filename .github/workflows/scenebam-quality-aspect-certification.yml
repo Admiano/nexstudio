@@ -81,6 +81,9 @@ jobs:
               assert plan["director_style"]==style,(style,plan.get("director_style"))
               assert plan.get("gate",{}).get("status")=="PASS",(style,a,plan.get("gate"))
               assert not render.get("page_errors"),(style,a,render.get("page_errors"))
+              orphans=[q for q in render.get("authorship",{}).get("findings",[])
+                       if q.get("code")=="ORPHAN_CONNECTOR"]
+              assert not orphans,(style,a,orphans)
               if style=="dataviz":
                   assert plan["captions_policy"]=="kinetic"
                   assert plan["captions"]==[]
