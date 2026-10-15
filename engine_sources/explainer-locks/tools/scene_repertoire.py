@@ -204,14 +204,28 @@ def _progress(beat: dict) -> dict | None:
     return qs[0]
 
 
+def _source_overlay_target(beat: dict) -> dict | None:
+    il = beat.get("illustration") or {}
+    if il.get("form") != "OBJECT_STAGE" or il.get("carry") or il.get("persist_to") or il.get("relations"):
+        return None
+    ents = [e for e in (il.get("entities") or []) if e.get("kind") == "object"]
+    if len(ents) == 1:
+        return ents[0]
+    # A source may contain incidental words alongside exactly ONE real object.
+    # Carry the identifiable drawing, not a text collage of those adjectives.
+    drawn = [e for e in ents if e.get("asset_ref") or
+             (e.get("params") or {}).get("visual_class")]
+    return drawn[0] if len(drawn) == 1 else None
+
+
 def _safe_overlay(beat: dict, *, block: bool) -> bool:
     il = beat.get("illustration") or {}
     if il.get("form") != "OBJECT_STAGE" or il.get("carry") or il.get("persist_to"):
         return False
-    ents = il.get("entities") or []
-    if len(ents) != 1 or ents[0].get("kind") != "object":
+    target = _source_overlay_target(beat)
+    if not target:
         return False
-    target = ents[0]
+    ents = [target]
     name = target.get("phrase") or ""
     if not name or not re.search(rf"\b{re.escape(name)}\b", beat["narration"], re.I):
         return False
@@ -226,10 +240,13 @@ def _safe_overlay(beat: dict, *, block: bool) -> bool:
             return False
         graphic, typ, form, op = "MARK_CIRCLE", "marks", "OBJECT_STAGE", "TRACE"
     mark = "director_overlay"
-    current = list(il.get("program") or [])
+    current = ([op for op in (il.get("program") or []) if op.get("target") == target["id"]]
+               if len(il.get("entities") or []) == 1 else
+               [_op("DRAW", target["id"], text.split()[0], 460)])
     if len(current) >= 9:
         return False
     ents.append(_glyph(mark, graphic))
+    il["entities"] = ents
     il["relations"] = (il.get("relations") or []) + [
         {"type": typ, "source": mark, "target": target["id"]}]
     il["program"] = current + [_op(op, mark, text.split()[0])]
@@ -268,7 +285,7 @@ def candidates(style: str, beat: dict) -> list[tuple[str, float, tuple[str, ...]
             ans.append(("editorial_magnification", 1.12, (focus,)))
     if style == "sketch":
         il = beat.get("illustration") or {}
-        if il.get("form") == "OBJECT_STAGE" and len(il.get("entities") or []) == 1:
+        if _source_overlay_target(beat):
             if re.search(r"\b(?:do not|don't|never|avoid|prohibit|forbid)\s+(?:use|select|choose|open|install|connect)\b", beat["narration"], re.I):
                 ans.append(("negated_subject", 1.18, ()))
             elif re.search(r"\b(highlight|circle|mark|point out|identify|single out)\b", beat["narration"], re.I):
