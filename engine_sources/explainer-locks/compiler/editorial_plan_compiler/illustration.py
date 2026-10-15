@@ -372,6 +372,15 @@ class IllustrationSolver:
             # especially in 9:16 where a giant server obscures the database.
             cells = self._cells(zone, top, zone['h'] > zone['w'] * 1.15,
                                 CONNECTOR_GAP_FRAC)
+        elif il.form == 'PROCESS_PIPELINE' and len(top) == 3 and sum(
+                (e.params or {}).get('narrative_role') == 'transferred_payload'
+                for e in top) == 1 and all(
+                r.type == 'flows_to' for r in il.relations):
+            # A source -> named object -> recipient story is one visual arc.
+            # Generic collage-hub placement gave the sender a giant headline
+            # and starved its actual receiver. This semantic composition stays
+            # field-native in each aspect and never changes other styles.
+            cells = self._source_handoff_cells(top, zone)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
             cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
                      else self._collage_layout(il, top, zone))
@@ -795,6 +804,34 @@ class IllustrationSolver:
             cells.update(self._cells(_box(zone['x'], zone['y'], zone['w'], hero_h), heroes, False))
             row = _box(zone['x'], zone['y'] + hero_h + gap, zone['w'], bottom - zone['y'] - hero_h - gap)
             cells.update(self._wrap_cells(row, sats, False))
+        return cells
+
+    def _source_handoff_cells(self, top: List[IllustrationEntity],
+                              zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
+        """Balanced three-role visual argument from the actual relation order.
+
+        Equal importance to the two spoken participants, with a smaller
+        movable payload between them. No fabricated symbols or fixed script.
+        Landscape reads left-to-right; portrait top-to-bottom. Native solver
+        still enforces label floors and safe areas on each resulting cell.
+        """
+        payload = next(e for e in top if
+                       (e.params or {}).get('narrative_role') == 'transferred_payload')
+        others = [e for e in top if e is not payload]
+        ordered = [others[0], payload, others[1]]
+        horizontal = zone['w'] >= zone['h'] * 1.2
+        span = zone['w'] if horizontal else zone['h']
+        gap = span * 0.045
+        available = span - 2 * gap
+        weights = (0.37, 0.26, 0.37)
+        cells: Dict[str, Dict[str, float]] = {}
+        cursor = zone['x'] if horizontal else zone['y']
+        for e, weight in zip(ordered, weights):
+            length = available * weight
+            cells[e.id] = (_box(cursor, zone['y'], length, zone['h'])
+                           if horizontal else
+                           _box(zone['x'], cursor, zone['w'], length))
+            cursor += length + gap
         return cells
 
     def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool, label_space: bool = False) -> Dict[str, Dict[str, float]]:
