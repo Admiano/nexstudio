@@ -1,0 +1,94 @@
+name: SceneBam quality director 16x9 previews
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original film renderer and runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+          command -v google-chrome || command -v google-chrome-stable || command -v chromium
+      - name: Check authoring and script syntax
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python -m py_compile tools/make_reel.py tools/recovery_video_proof.py compiler/editorial_plan_compiler/{contracts,compiler,schemas}.py
+          node --check runtime/editorial-runtime.js
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+      - name: Render Data Viz actual 16x9 film
+        working-directory: engine_sources/explainer-locks
+        run: python tools/recovery_video_proof.py --style dataviz --aspects 16x9 --fps 24 --workers 2
+      - name: Render Sketch actual 16x9 film
+        working-directory: engine_sources/explainer-locks
+        run: python tools/recovery_video_proof.py --style sketch --aspects 16x9 --fps 24 --workers 2
+      - name: Extract truthful frames from real finished MP4s
+        working-directory: engine_sources/explainer-locks
+        run: |
+          mkdir -p out/quality-png-previews
+          for style in dataviz sketch; do
+            src="out/recovery-video-proof/recovery-proof-${style}/recovery-proof-${style}_16x9_web.mp4"
+            test -s "$src"
+            ffmpeg -y -v error -ss 4.4 -i "$src" -frames:v 1 "out/quality-png-previews/${style}_landscape_frame.png"
+            test -s "out/quality-png-previews/${style}_landscape_frame.png"
+            ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 "$src"
+          done
+      - name: Verify Data Viz captions were suppressed by native compiler
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("out/recovery-video-proof/recovery-proof-dataviz/plan_16x9.json")
+          plan=json.loads(p.read_text())
+          assert plan["captions_policy"]=="kinetic",plan["captions_policy"]
+          assert not plan["captions"]
+          render=json.loads((p.parent/"render_16x9.json").read_text())
+          assert render.get("captions_burned",0)==0,render
+          print("DATAVIZ CAPTIONS: suppressed at compiler + renderer")
+          PY
+      - name: List render evidence
+        if: always()
+        run: |
+          find engine_sources/explainer-locks/out -type f \( -name '*.mp4' -o -name '*_landscape_frame.png' -o -name 'contact_16x9.png' \) -printf '%p %k KB\n' | head -50 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scenebam-quality-director-landscape
+          path: |
+            engine_sources/explainer-locks/out/quality-png-previews/*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*16x9*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/contact_16x9.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_16x9.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_16x9.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+          if-no-files-found: warn
+          retention-days: 21
