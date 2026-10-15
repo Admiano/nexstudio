@@ -2016,7 +2016,7 @@
           // A source-relationship gesture uses the same semantic ops as
           // the written label. Never animate by hardcoded string matching.
           node.extra.semanticArm = {
-            group: actionArm, shoulder: armBase, sign: rightSide,
+            group: actionArm, shoulder: armBase, hand: armEnd, sign: rightSide,
             isReceiving: connected.some(rel => rel.target === ent.id),
             isSending: connected.some(rel => rel.source === ent.id),
           };
@@ -2706,8 +2706,9 @@
           geo.stop.y - geo.origin.y) * 1.03;
         route.style.strokeDasharray = f2(approx + sw * 3);
         const receipt = svgEl('circle', {
-          cx: f2(geo.to.x), cy: f2(geo.to.y),
-          r: f2(Math.min(recipient.bb.w, recipient.bb.h) * 0.5 + sw * 1.5),
+          cx: f2(geo.receipt.x), cy: f2(geo.receipt.y),
+          r: f2(geo.handoff ? sw * 3.0 :
+            Math.min(recipient.bb.w, recipient.bb.h) * 0.5 + sw * 1.5),
           fill: 'none', stroke: accent, 'stroke-width': f2(sw * 0.9),
           'data-action': 'source-receiver-receipt',
         }, relLayer);
@@ -3020,23 +3021,57 @@
   // The same source-bound geometry drives the flying object, its ink trail and
   // its reception marker. Coordinates derive from native layout, not noun lists
   // or one showcase script. All regions stay inside their illustration field.
+  function sketchReachPoint(node) {
+    // A physically authored human figure can offer/reach. Use the final
+    // gesture endpoint in exactly the same local coordinate system as its
+    // animated arm (no guessed person-specific pose or script exception).
+    const arm = node.glyph && node.glyph.extra && node.glyph.extra.semanticArm;
+    if (!arm || !arm.hand || !arm.shoulder) return null;
+    const angle = -arm.sign * 27 * Math.PI / 180;
+    const dx = arm.hand[0] - arm.shoulder[0];
+    const dy = arm.hand[1] - arm.shoulder[1];
+    return {
+      x: arm.shoulder[0] + Math.cos(angle) * dx - Math.sin(angle) * dy,
+      y: arm.shoulder[1] + Math.sin(angle) * dx + Math.cos(angle) * dy
+    };
+  }
+
   function sketchHandoffGeometry(sender, cargo, recipient, sw) {
     const from = centre(sender.bb), home = centre(cargo.bb), to = centre(recipient.bb);
-    const dx = to.x - home.x, dy = to.y - home.y;
+    const dx = to.x - from.x, dy = to.y - from.y;
     const horizontal = Math.abs(dx) >= Math.abs(dy);
-    const margin = sw * 2.2;
-    const stop = horizontal
-      ? { x: to.x - Math.sign(dx) * ((recipient.bb.w + cargo.bb.w) / 2 + margin),
-          y: to.y }
-      : { x: to.x,
-          y: to.y - Math.sign(dy) * ((recipient.bb.h + cargo.bb.h) / 2 + margin) };
-    const origin = {
-      x: home.x + (from.x - home.x) * 0.74,
-      y: home.y + (from.y - home.y) * 0.74,
-    };
+    const axis = horizontal ? 'x' : 'y';
+    const sign = Math.sign(horizontal ? dx : dy) || 1;
+    const fromHand = sketchReachPoint(sender), toHand = sketchReachPoint(recipient);
+    const margin = sw * 3.2;
+    let origin, stop, receipt;
+    if (fromHand && toHand) {
+      // In a human-to-human story the paper actually meets the receiver's
+      // extended hand, rather than stopping between the people while the
+      // "delivery" animation pretends otherwise. Cargo stays visible and its
+      // outer edge clears the hand by a small ink gap.
+      const reach = Math.min(cargo.bb.w, cargo.bb.h) * 0.5 * 0.88;
+      const pad = reach + margin;
+      origin = { x: fromHand.x, y: fromHand.y };
+      stop = { x: toHand.x, y: toHand.y };
+      origin[axis] += sign * pad;
+      stop[axis] -= sign * pad;
+      receipt = toHand;
+    } else {
+      // For a documented sender/recipient without an illustrated body, use
+      // the actual native geometry. No synthetic hand gets invented.
+      origin = {
+        x: home.x + (from.x - home.x) * 0.74,
+        y: home.y + (from.y - home.y) * 0.74,
+      };
+      stop = horizontal
+        ? { x: to.x - sign * ((recipient.bb.w + cargo.bb.w) / 2 + margin), y: to.y }
+        : { x: to.x, y: to.y - sign * ((recipient.bb.h + cargo.bb.h) / 2 + margin) };
+      receipt = to;
+    }
     const travel = Math.hypot(stop.x - origin.x, stop.y - origin.y);
     const bow = Math.min(cargo.bb.h * 0.12, travel * 0.06);
-    return { from, home, to, stop, origin, bow };
+    return { from, home, to, stop, origin, receipt, bow, handoff: !!(fromHand && toHand) };
   }
 
   function sketchTransformClock(beat, target, cue) {
@@ -3568,9 +3603,9 @@
       const response = EASE.pulse(prog(lt, finish - 0.15 * (finish - delivery.start_ms),
         finish + Math.max(120, delivery.end_ms - delivery.start_ms)));
       receipt.style.opacity = (0.48 * response).toFixed(4);
-      receipt.setAttribute('r', f2((Math.min(handoff.recipient.bb.w,
-        handoff.recipient.bb.h) * 0.48 + ill.sw * 1.7) *
-        (1 + response * 0.10)));
+      const baseRadius = geo.handoff ? ill.sw * 3.0 :
+        Math.min(handoff.recipient.bb.w, handoff.recipient.bb.h) * 0.48 + ill.sw * 1.7;
+      receipt.setAttribute('r', f2(baseRadius * (1 + response * 1.15)));
     }
     // A source-verified change arrow follows the second actual bar value.
     // It cannot show while only the baseline has been mentioned.
