@@ -44,6 +44,20 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertEqual(0.66, fade[0]["to"])
         self.assertEqual("1,200", fade[0]["at"]["word"])
 
+    def test_source_verbs_produce_only_truthful_comparison_direction(self):
+        higher = authored("Rent rose from 900 dollars to 1,200 dollars.")
+        bars = higher["illustration"]["entities"]
+        self.assertEqual(bars[1]["params"]["change_direction"], "up")
+        lower = authored("Rent fell from 1,200 dollars to 900 dollars.")
+        self.assertEqual(lower["illustration"]["entities"][1]["params"]["change_direction"], "down")
+        neutral = authored("Rent moved from 900 dollars to 1,200 dollars.")
+        self.assertNotIn("change_direction", neutral["illustration"]["entities"][1]["params"])
+        contradictory = authored("Rent rose from 1,200 dollars to 900 dollars.")
+        self.assertNotIn("change_direction", contradictory["illustration"]["entities"][1]["params"])
+        higher["illustration"]["entities"][1]["params"]["change_direction"] = "down"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(higher)
+
     def test_long_claim_keeps_every_word_and_measure(self):
         text = "Imagine a neighborhood bookstore's weekly sales rising from 40 books to 60 books over the summer."
         beat = authored(text)
