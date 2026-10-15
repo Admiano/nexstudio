@@ -160,6 +160,9 @@ class SketchAuthoringTests(unittest.TestCase):
         beat = make_reel.sketch_beat(groups[0], 0, 1, set(), [])
         self.assertEqual(beat["narration"], text)
         self.assertGreaterEqual(len(beat["illustration"]["relations"]), 2)
+        print("ACTION_DIAG", [(x["id"],x.get("phrase")) for x in beat["illustration"]["entities"]],
+              [(a["id"],[p["id"] for p in payload],t["id"],relation,anchor)
+               for a,payload,t,relation,anchor in make_reel.sketch_action_stages(text, beat["illustration"]["entities"])], flush=True)
         edges = {(x["source"], x["target"]) for x in beat["illustration"]["relations"]}
         self.assertIn(("sk_pump", "sk_water"), edges)
         self.assertIn(("sk_water", "sk_tank"), edges, "The narrated water must reach the tank")
