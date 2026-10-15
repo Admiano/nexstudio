@@ -2417,6 +2417,16 @@
             r: f2(sw * 1.3), fill: 'none', stroke: accent,
             'stroke-width': f2(sw * 1.35), 'stroke-opacity': 0 }, g);
         }
+        if (rel.type === 'connects' && plan.director_style === 'sketch') {
+          // A connection is bidirectional as a relationship, NOT a narrated
+          // payload transfer. Both known endpoints acknowledge the link.
+          r.connectionAck = [rel.path[0], rel.path[rel.path.length - 1]].map((q) =>
+            svgEl('circle', {
+              cx: f2(q[0]), cy: f2(q[1]), r: f2(sw * 1.5),
+              fill: 'none', stroke: accent, 'stroke-width': f2(sw * 1.15),
+              'stroke-opacity': 0, 'data-action': 'connection-ack',
+            }, g));
+        }
         const m = pointAlong(rel.path, 0.5), k = clamp(r.len * 0.16, sw * 3.2, sw * 6);
         const sp = svgEl('path', { ...line, d: polyPath([[m.x - k, m.y + k], [m.x + k, m.y - k]]), 'stroke-width': sw * 1.35 }, g);
         r.strike = drawable(sp, k * 2.83, 'strike');
@@ -2955,6 +2965,16 @@
           r.arrivalRipple.setAttribute('r', f2(ill.sw * (1.4 + rp * 5.6)));
           r.arrivalRipple.style.strokeOpacity = living ? (0.52 * (1 - rp)).toFixed(3) : '0';
         }
+      }
+      if (r.connectionAck) {
+        const cue = r.ops.find(op => op.op === 'CONNECT');
+        const begin = cue ? cue.end_ms - 110 : rel.enter_ms + rel.enter_duration_ms - 110;
+        const ack = prog(lt, begin, begin + 520);
+        const active = lt >= begin && lt <= begin + 520 && opacity > 0.08;
+        r.connectionAck.forEach((mark) => {
+          mark.setAttribute('r', f2(ill.sw * (1.65 + 5.2 * EASE.outCubic(ack))));
+          mark.style.strokeOpacity = active ? (0.62 * (1 - EASE.outCubic(ack))).toFixed(3) : '0';
+        });
       }
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.
