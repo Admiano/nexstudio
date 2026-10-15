@@ -1759,8 +1759,36 @@ def build_treatment(args, style, words, media_files, film_id):
             "display_units": units,
             "illustration": illustration,
         })
+    director_report = None
     if style["id"] == "dataviz":
+        # Central production authoring arbitration: numerical DATA and a full
+        # illustration are alternative treatments, not simultaneous layers.
+        # The former Bayes stress harness had to repair this test-by-test.
+        for beat in beats:
+            if beat.get("data") is not None and beat.get("illustration") is not None:
+                beat.pop("illustration")
+                beat["dominant_layer"] = "DATA"
         dataviz_continuity(beats)
+    if style["id"] in ("sketch", "dataviz"):
+        from scene_director import direct_film
+        director_report = direct_film(style["id"], beats)
+        # A source removed by arbitration cannot feed downstream carry, and a
+        # remapped evidence bridge must not keep an unrelated prior persist.
+        for i, beat in enumerate(beats):
+            illustration = beat.get("illustration") or {}
+            if i:
+                carry = illustration.get("carry") or {}
+                previous = beats[i-1]
+                if carry and (carry.get("from_beat") != previous["beat_id"] or
+                              not previous.get("illustration") or
+                              not set(carry.get("entities", [])).issubset({
+                                  e["id"] for e in previous["illustration"]["entities"]})):
+                    illustration.pop("carry", None)
+            if i + 1 < len(beats) and illustration.get("persist_to"):
+                target = beats[i+1]
+                actual = (target.get("illustration") or {}).get("carry") or {}
+                if actual.get("from_beat") != beat["beat_id"]:
+                    illustration.pop("persist_to", None)
     media_library = []
     for mi, p in enumerate(media_files):
         p = Path(p)
@@ -1775,7 +1803,8 @@ def build_treatment(args, style, words, media_files, film_id):
     return {
         "schema": "NexStudioEditorialTreatmentV2",
         "film_id": film_id,
-        "note": f"auto-authored by make_reel.py (style={style['id']})",
+        "note": f"auto-authored by make_reel.py (style={style['id']}); film_scene_director_v1={director_report is not None}",
+        **({"director_report": director_report} if director_report is not None else {}),
         "aspects": args.aspects.split(","),
         "fps": 30,
         **({"caption_policy": "kinetic"} if style["id"] == "dataviz" else {}),
