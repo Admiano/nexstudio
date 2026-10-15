@@ -333,7 +333,8 @@ class IllustrationSolver:
             ar = self._entity_ar(e, beat_id)
             vb_ar = ar * (ab['h'] / ab['w']) if ab['w'] else ar
             bbox = _fit_aspect(body, vb_ar, scale)
-        elif e.glyph == 'CHART_LINE' and self.finish == 'EDITORIAL_FLAT':
+        elif e.glyph == 'CHART_LINE' and (self.finish == 'EDITORIAL_FLAT' or
+                                             (e.params or {}).get('x_positions')):
             # Evidence journalism: use the whole source-authoritative chart
             # area, not the default icon-aspect thumbnail. Never scale the
             # data value itself; only the available spatial field changes.
@@ -865,7 +866,11 @@ class IllustrationSolver:
                        (e.params or {}).get('narrative_role') == 'transferred_payload')
         others = [e for e in top if e is not payload]
         ordered = [others[0], payload, others[1]]
-        horizontal = zone['w'] >= zone['h'] * 1.2
+        # Near-square visual stages belong to full-size horizontally staged
+        # human performances even when the output is a portrait film.
+        # Only truly narrow visual fields stack the participants; no actor
+        # name or one-off demonstration script determines the geometry.
+        horizontal = zone['w'] >= zone['h'] * 0.84
         span = zone['w'] if horizontal else zone['h']
         gap = span * 0.045
         available = span - 2 * gap
@@ -890,10 +895,10 @@ class IllustrationSolver:
         others = [e for e in top if e is not chart]
         if not others:
             return {chart.id: dict(zone)}
-        strip = zone['h'] * 0.22
+        strip = zone['h'] * 0.19
         bottom = min(zone['y'] + zone['h'], self.caption_floor) if label_space else zone['y'] + zone['h']
         row_y = bottom - strip
-        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], row_y - zone['y'] - zone['h'] * 0.04)}
+        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], row_y - zone['y'] - zone['h'] * 0.025)}
         row = _box(zone['x'], row_y, zone['w'], strip)
         cells.update(self._cells(row, others, False))
         return cells
