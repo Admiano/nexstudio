@@ -73,8 +73,10 @@ class NativeSketchActorStatesTests(unittest.TestCase):
                      "at":{"word":"concept"},"duration_ms":420}],
                 "confirmation":False},
         }
-        with self.assertRaisesRegex(ValueError, "SKETCH_VISUAL_SUBJECT_REQUIRED"):
-            direct_film("sketch", [beat])
+        report = direct_film("sketch", [beat])
+        self.assertEqual(report["sketch_visual_coverage_failures"], ["b01"])
+        self.assertEqual(beat["features"]["sketch_visual_coverage"], 0.0)
+        self.assertEqual(beat["narration"], "A hypothetical concept is mentioned.")
 
     def test_film_director_integrates_identity_and_script_actions(self):
         b=shot("The nurse inspects the document.")
