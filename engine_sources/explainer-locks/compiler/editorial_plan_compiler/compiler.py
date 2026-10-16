@@ -787,8 +787,11 @@ class BeatCompiler:
             # Float beats keep their own composition: the carried entity travels
             # stage-to-stage (that IS the momentum), while locking the whole zone
             # to the source beat would starve this beat's text split.
-            if self.film.brand.finish != 'FLOAT_FIELD':
+            if self.film.brand.finish != 'FLOAT_FIELD' and not placement:
                 comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+            # In director-managed scenes, the source actor has explicit carry
+            # motion between native composition boxes. Reusing the old zone
+            # here would intersect this beat's text and squeeze it to nothing.
         if self.show_map is not None and b.illustration is not None:
             _SHOW_WIDGETS = {'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY'}
             if {e.glyph for e in b.illustration.entities} & _SHOW_WIDGETS:
