@@ -3910,16 +3910,25 @@
           const armAngle = ({
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
             PRESENT: -38, POINT: -46, AGREE: -7,
-            LISTEN: -5, TURN: 0, WALK: 0, RUN: 0, JUMP: 0
+            LISTEN: -5, TURN: 0, WALK: 0, RUN: 0, JUMP: 0,
+            WAVE: -58, WRITE: 24, LIFT: -54, STOP: -43
           })[act] || 0;
-          const gestureAngle = -arm.sign * 27 * lift + arm.sign * armAngle * pulse;
+          const actionOscillation = (act === 'WAVE'
+            ? Math.sin(delta / 95) * 11 * pulse :
+              act === 'WRITE' ? Math.sin(delta / 115) * 6 * pulse : 0);
+          const gestureAngle = -arm.sign * 27 * lift +
+            arm.sign * (armAngle * pulse + actionOscillation);
           arm.group.setAttribute('transform',
             `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
           const focusAngle = (act === 'INSPECT' ? 9 :
             act === 'AGREE' ? Math.sin(delta / 90) * 8 :
             act === 'PRESENT' ? -5 : act === 'POINT' ? -9 :
             act === 'LISTEN' ? 7 : act === 'TURN' ? 15 :
-            act === 'RECEIVE' ? -4 : 0);
+            act === 'RECEIVE' ? -4 :
+            act === 'WRITE' ? 11 :
+            act === 'LIFT' ? -6 :
+            act === 'WAVE' ? -5 :
+            act === 'STOP' ? 3 : 0);
           if (arm.face) arm.face.setAttribute('transform',
             `rotate(${f2(arm.sign * 9 * lift + focusAngle * pulse)}
               ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
