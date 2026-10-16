@@ -1137,6 +1137,20 @@ class IllustrationSolver:
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
+            if (e.get('params') or {}).get('voice_cued'):
+                # By default historical scenes establish all of their props
+                # during the opening lead-in. A director-authored voice cue
+                # instead owns each named person's/subject's entrance. The
+                # first DRAW is the same source-word event that animates the
+                # artwork; start arriving just before that word is heard.
+                authored_draws = [op for op in ops
+                                  if op['target'] == e['id']
+                                  and op['op'] == 'DRAW'
+                                  and 'word' in op.get('anchor', {})]
+                if authored_draws:
+                    cue = min(authored_draws, key=lambda op: op['start_ms'])
+                    lead = min(100, max(40, int(cue['end_ms']-cue['start_ms'])//5))
+                    t = max(LEAD_IN_MS // 5, cue['start_ms'] - lead)
             # A body a connector lands on has finished arriving before the stroke completes.
             joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
                       and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
