@@ -1239,6 +1239,13 @@ def sketch_entities(gwords, media):
             match = re.search(r"\b" + re.escape(noun) + r"\b", text, re.I)
             if match:
                 native_mentions.append((match.start(), noun))
+    # The original native physical glyphs are equally strong evidence of
+    # a visual subject; do not let the noun parser suppress an explicitly
+    # mentioned pump or tank in favor of a vague modifier.
+    for source_name in ("pump", "tank", "note"):
+        match = re.search(r"\b" + re.escape(source_name) + r"\b", text, re.I)
+        if match:
+            native_mentions.append((match.start(), source_name))
     # Use recognized source nouns first, but maintain first-spoken order;
     # remaining source terms are available for transport/payload semantics.
     if native_mentions:
