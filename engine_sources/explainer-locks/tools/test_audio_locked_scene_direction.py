@@ -96,7 +96,9 @@ class AudioLockedSceneDirectionTests(unittest.TestCase):
                                  enters[target]+ENTER_MS)
             self.assertGreaterEqual(connection["end_ms"], latest_visible)
             self.assertTrue(connection["params"]["voice_link_waits_for_endpoint"])
-        self.assertLess(scheduled[3]["start_ms"], enters["parcel"])
+        initial_transfer = next(o for o in scheduled if
+                                o["target"] == "courier->parcel")
+        self.assertLess(initial_transfer["start_ms"], enters["parcel"])
         self.assertLessEqual(max(o["end_ms"] for o in scheduled), clock.duration_ms)
 
     def test_late_data_does_not_reveal_before_its_word(self):
