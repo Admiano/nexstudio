@@ -70,28 +70,42 @@ def bind_actor_performances(beat: dict) -> list[dict]:
             continue
         params["actor_state"] = state
         ent["params"] = params
-        # A real native actor stage has a voice-triggered, seek-safe onset.
-        # SETTLE is existing compiler grammar and does not add off-script VO.
-        if len(il.get("program") or []) >= 10:
-            continue
-        # Sketchbook's controller has distinct anticipation and end-walk
-        # states. Keep the native 2D adaptation small, but author the same
-        # explicit IDLE -> prepare -> action -> recover -> IDLE lifecycle.
-        # These durations are attached to the SPOKEN action, not a fixed
-        # per-scene loop or an invented autonomous character behaviour.
-        locomotion = state in ("WALK", "RUN")
-        action_ms = (920 if state == "RUN" else
-                     860 if state == "WALK" else
-                     740 if state in ("JUMP", "TURN") else 600)
-        stages = (["IDLE", "START_MOVE", state, "END_MOVE", "IDLE"]
-                  if locomotion else
-                  ["IDLE", "ANTICIPATE", state, "RECOVER", "IDLE"])
-        il.setdefault("program", []).append({
-            "op": "SETTLE", "target": ent["id"],
-            "at": {"word": candidate}, "duration_ms": action_ms,
-            "params": {"actor_action": True, "actor_state_path": stages},
-        })
-        touched.append({"actor":ident,"state":state,"word":candidate})
+        # A continuous subject can execute more than one explicitly spoken
+        # action (e.g. "The courier walks then waves"). The old adapter
+        # dropped every action after the first. Do not follow a new named
+        # grammatical subject or invent transitional actions.
+        action_words = [candidate]
+        remainder = clause[leading.end():]
+        next_action = re.compile(
+            r"\b(?:and\s+then|and|then)\s+"
+            r"(?:(?:carefully|quickly|slowly|also|briefly)\s+){0,2}"
+            r"([A-Za-z][A-Za-z'-]*)", re.I)
+        for later in next_action.finditer(remainder):
+            verb = later.group(1)
+            if next((name for name, pattern in STATE_ACTIONS
+                     if re.fullmatch(pattern, verb, re.I)), None):
+                action_words.append(verb)
+        # A cue's own state travels with the op. A static entity can no
+        # longer accidentally replay its first gesture for every later word.
+        for spoken in action_words:
+            mode = next((name for name, pattern in STATE_ACTIONS
+                        if re.fullmatch(pattern, spoken, re.I)), None)
+            if mode is None or len(il.get("program") or []) >= 10:
+                continue
+            locomotion = mode in ("WALK", "RUN")
+            action_ms = (920 if mode == "RUN" else
+                         860 if mode == "WALK" else
+                         740 if mode in ("JUMP", "TURN") else 600)
+            stages = (["IDLE", "START_MOVE", mode, "END_MOVE", "IDLE"]
+                      if locomotion else
+                      ["IDLE", "ANTICIPATE", mode, "RECOVER", "IDLE"])
+            il.setdefault("program", []).append({
+                "op": "SETTLE", "target": ent["id"],
+                "at": {"word": spoken}, "duration_ms": action_ms,
+                "params": {"actor_action": True, "actor_state": mode,
+                           "actor_state_path": stages, "voice_sync": True},
+            })
+            touched.append({"actor": ident, "state": mode, "word": spoken})
     return touched
 
 
