@@ -416,11 +416,11 @@ def restore_kinetic_hierarchy(beat: dict) -> None:
     # fragments. Early negations/actions, or an early measurement, are heroes;
     # otherwise setup leads to the eventual narrated finding.
     early = " ".join(first).lower()
-    early_action = bool(re.search(r"\\b(never|do not|avoid|circle|highlight|"
+    early_action = bool(re.search(r"\b(never|do not|avoid|circle|highlight|"
                                   r"send|sends|carry|carries|connect|connects|"
-                                  r"transfer|transfers|look closely|zoom|inspect)\\b", early))
-    early_number = any(re.search(r"\\d", w) for w in first)
-    later_number = any(re.search(r"\\d", w) for w in second)
+                                  r"transfer|transfers|look closely|zoom|inspect)\b", early))
+    early_number = any(re.search(r"\d", w) for w in first)
+    later_number = any(re.search(r"\d", w) for w in second)
     hero_first = (early_action or early_number) and not later_number
     new = []
     for i, phrase in enumerate((first, second)):
@@ -432,7 +432,7 @@ def restore_kinetic_hierarchy(beat: dict) -> None:
             "emphasis": .94 if hero else .52,
             "semantic_role": "punch" if hero else "setup",
             "can_promote": hero, "reveal": "WORD_CASCADE",
-            "stress": [w for w in phrase if re.search(r"\\d",w)]})
+            "stress": [w for w in phrase if re.search(r"\d",w)]})
     if " ".join(u["text"] for u in new) == beat["narration"]:
         beat["display_units"] = new
 
