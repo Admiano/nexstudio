@@ -29,6 +29,12 @@ STATE_ACTIONS = (
     ("WRITE", r"writes?|signs?|draws?"),
     ("LIFT", r"lifts?|raises?|hoists?"),
     ("STOP", r"stops?|halts?"),
+    ("CONNECT", r"connects?|links?|attaches?"),
+    ("REPAIR", r"repairs?|replaces?|fixes?"),
+    ("TEST", r"tests?|verifies?"),
+    ("ASK", r"asks?|questions?"),
+    ("SHRUG", r"shrugs?"),
+    ("CLAP", r"claps?|applauds?"),
 )
 # Every state has an explicit rest. Source actions are transient performances,
 # not a new character identity per scene. No unrelated action is ever inferred.
@@ -57,7 +63,10 @@ def bind_actor_performances(beat: dict) -> list[dict]:
         # Actor must be the grammatical subject of the verb. A courier
         # gives a parcel TO a driver: don't animate the driver giving.
         after = narration[match.end():]
-        clause = re.split(r"[.!?;]|\b(?:and|but|while|when)\b", after, maxsplit=1, flags=re.I)[0]
+        # A coordinating "and" does not end the subject: "driver turns
+        # toward the door and points" is TWO gestures by the SAME driver.
+        # An explicit new noun subject after "and the ..." is never borrowed.
+        clause = re.split(r"[.!?;]|\b(?:but|while|when)\b", after, maxsplit=1, flags=re.I)[0]
         leading = re.match(r"^\s+(?:carefully\s+|then\s+|also\s+|now\s+|quickly\s+|slowly\s+){0,3}([A-Za-z][A-Za-z'-]*)", clause)
         if not leading:
             ent["params"] = params
@@ -74,7 +83,7 @@ def bind_actor_performances(beat: dict) -> list[dict]:
         # action (e.g. "The courier walks then waves"). The old adapter
         # dropped every action after the first. Do not follow a new named
         # grammatical subject or invent transitional actions.
-        action_words = [candidate]
+        action_words = [(candidate, leading.start(1))]
         remainder = clause[leading.end():]
         next_action = re.compile(
             r"\b(?:and\s+then|and|then)\s+"
@@ -84,13 +93,22 @@ def bind_actor_performances(beat: dict) -> list[dict]:
             verb = later.group(1)
             if next((name for name, pattern in STATE_ACTIONS
                      if re.fullmatch(pattern, verb, re.I)), None):
-                action_words.append(verb)
-        # A cue's own state travels with the op. A static entity can no
-        # longer accidentally replay its first gesture for every later word.
-        for spoken in action_words:
+                action_words.append((verb, leading.end() + later.start(1)))
+        # A cue's own state travels with the op. Repeated verbs can be
+        # disambiguated by their exact source-word index on the voice clock.
+        for spoken, character_offset in action_words:
             mode = next((name for name, pattern in STATE_ACTIONS
                         if re.fullmatch(pattern, spoken, re.I)), None)
             if mode is None or len(il.get("program") or []) >= 10:
+                continue
+            # Exact 0-based spoken token position, not first vague
+            # occurrence of "walks" or "points" in another clause.
+            absolute = match.end() + character_offset
+            word_index = len(narration[:absolute].split())
+            spoken_tokens = narration.split()
+            if word_index >= len(spoken_tokens) or (
+                    re.sub(r"[^a-z0-9]", "", spoken_tokens[word_index].lower())
+                    != re.sub(r"[^a-z0-9]", "", spoken.lower())):
                 continue
             locomotion = mode in ("WALK", "RUN")
             action_ms = (920 if mode == "RUN" else
@@ -103,7 +121,8 @@ def bind_actor_performances(beat: dict) -> list[dict]:
                 "op": "SETTLE", "target": ent["id"],
                 "at": {"word": spoken}, "duration_ms": action_ms,
                 "params": {"actor_action": True, "actor_state": mode,
-                           "actor_state_path": stages, "voice_sync": True},
+                           "actor_state_path": stages, "voice_sync": True,
+                           "word_index": word_index},
             })
             touched.append({"actor": ident, "state": mode, "word": spoken})
     return touched
