@@ -136,7 +136,8 @@ class RepertoireTests(unittest.TestCase):
                 subject = next(e for e in illustration["entities"] if e["glyph"] == "TILE")
                 self.assertEqual(subject["phrase"], target)
                 self.assertEqual(subject["params"]["visual_class"], "document")
-                self.assertNotIn("label", subject)
+                self.assertEqual(subject["label"], target)
+                self.assertTrue(subject["params"]["caption_suppressed"])
                 self.assertEqual(illustration["relations"][0]["type"], "scans")
                 self.assertTrue(any(o["op"] == "TRAVEL" and
                                     subject["id"] in o["params"]["over"]
