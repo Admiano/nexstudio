@@ -88,11 +88,34 @@ def _narrated_stage_ops(beat: dict, glyphs: list[dict],
     # reveals progressive chart components; these ops become its timeline.
     result = [op for op in ops if op["op"] != "GROW"]
     n = len(cues)
+    # Bind the precise occurrence in the spoken master word stream. This
+    # matters for repeated labels such as "in 2020 ... in 2021" and avoids
+    # the global find-first-word ambiguity that revealed steps too soon.
+    normalize = lambda word: re.sub(r"[^a-z0-9%]", "", word.lower())
+    cursor = 0
     for index, cue in enumerate(cues):
+        cue_key = normalize(cue)
+        if kind in ("DATA_BARS", "DATA_TABLE") and index < len(_qs(beat)):
+            explicit = _qs(beat)[index].get("word_start")
+        else:
+            explicit = None
+        if (isinstance(explicit, int) and 0 <= explicit < len(source_words)
+                and normalize(source_words[explicit]) == cue_key
+                and explicit >= cursor):
+            at_index = explicit
+        else:
+            at_index = next((i for i in range(cursor, len(source_words))
+                             if normalize(source_words[i]) == cue_key), None)
+        if at_index is None:
+            # A semantic claim without a verifiable word anchor must never
+            # receive a fabricated millisecond or appear as a late surprise.
+            return ops
         result.append({"op": "GROW", "target": graphic["id"],
                        "at": {"word": cue}, "duration_ms": 320,
                        "from": round(index/n, 5),
-                       "to": round((index+1)/n, 5)})
+                       "to": round((index+1)/n, 5),
+                       "params": {"word_index": at_index}})
+        cursor = at_index + 1
     return result
 
 
