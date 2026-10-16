@@ -697,6 +697,12 @@ class BeatCompiler:
     def compile(self, b: BeatTreatment, clock: BeatClock, beat_offset_ms: int, beat_index: int = 0) -> Dict[str, Any]:
         failures: List[str] = []
         warnings: List[str] = []
+        if (self.film.director_style == 'sketch' and
+                b.features.get('sketch_visual_coverage', 1.0) < 0.5):
+            # A scene of nothing but caption fragments, pills or word cards
+            # is not a Sketch explainer. Keep compiling its source/timing
+            # diagnostics, but fail the native gate so no fake "pass" renders.
+            failures.append('SKETCH_VISUAL_SUBJECT_REQUIRED')
         comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
         if b.illustration is not None and not (b.illustration.carry_from and b.illustration.carry_from in self.illustrations):
             _rebalance(comp, self._text_share(b))
