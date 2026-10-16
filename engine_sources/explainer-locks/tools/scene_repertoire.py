@@ -353,6 +353,31 @@ def _safe_overlay(beat: dict, *, block: bool) -> bool:
     return True
 
 
+def _sketch_comparison_subject(phrase: str, text: str, side: str) -> dict | None:
+    """Build a pictured comparison endpoint from a literally spoken source noun.
+
+    Use only an existing reviewed drawing class or licensed registry mark.
+    A word card or inferred human appearance is never substituted as artwork.
+    """
+    from make_reel import STYLES, sketch_asset
+    noun = re.sub(r"^(?:the|a|an|some|these|those)\s+", "", phrase.strip().lower())
+    classes = STYLES.get("sketch_visual_classes") or {}
+    kind = next((name for name, names in classes.items()
+                 if noun in names and name in ("person", "document", "list",
+                                                "population", "package")), None)
+    eid = "director_compare_" + side
+    if kind:
+        return {"id": eid, "kind": "object", "glyph": "TILE",
+                "size": "hero", "label": noun, "phrase": noun,
+                "params": {"visual_class": kind,
+                           "caption_suppressed": True}}
+    asset_ref = sketch_asset(noun, text)
+    if asset_ref:
+        return {"id": eid, "kind": "object", "glyph": "ICON",
+                "size": "hero", "phrase": noun, "asset_ref": asset_ref}
+    return None
+
+
 def candidates(style: str, beat: dict) -> list[tuple[str, float, tuple[str, ...]]]:
     """Only return opportunities that have a real executable native scene."""
     ans: list[tuple[str, float, tuple[str, ...]]] = []
@@ -377,7 +402,9 @@ def candidates(style: str, beat: dict) -> list[tuple[str, float, tuple[str, ...]
         if steps:
             ans.append(("spoken_process", 1.48 if style == "sketch" else 1.35, tuple(steps)))
         comparison = _versus(beat)
-        if comparison:
+        if comparison and (style != "sketch" or all(
+                _sketch_comparison_subject(s, beat["narration"], side)
+                for side, s in zip(("left", "right"), comparison))):
             ans.append(("verbal_versus", 1.14, comparison))
         focus = _focus(beat)
         if focus:
@@ -503,6 +530,32 @@ def realize(family: str, beat: dict, *, style: str | None = None) -> bool:
         pair = _versus(beat)
         if not pair:
             return False
+        if style == "sketch":
+            a = _sketch_comparison_subject(pair[0], text, "left")
+            b = _sketch_comparison_subject(pair[1], text, "right")
+            if not a or not b:
+                return False
+            # Animate TWO source-named real objects. The comparison
+            # connector follows the second introduced subject; no text-only
+            # monogram cards falsely qualify as a Sketch illustration.
+            parts = text.split()
+            right_word = b["phrase"].split()[0]
+            left_word = a["phrase"].split()[0]
+            right_idx = next((i for i, w in enumerate(parts)
+                              if re.sub(r"[^a-z0-9]", "", w.lower()) ==
+                                 re.sub(r"[^a-z0-9]", "", right_word)), -1)
+            if right_idx < 0:
+                return False
+            _commit(beat, [a, b], [
+                _op("DRAW", a["id"], left_word, 380),
+                _op("DRAW", b["id"], right_word, 400),
+                _op("CONNECT", a["id"] + "->" + b["id"],
+                    right_word, 530, params={"word_index": right_idx}),
+            ], form="COMPARISON",
+                relations=[{"type": "compares", "source": a["id"],
+                            "target": b["id"]}],
+                evidence=[{"source": a["phrase"]}, {"source": b["phrase"]}])
+            return True
         graphic = _glyph("scene_versus", "VS_CARDS",
                          {"cards": [{"title": pair[0]}, {"title": pair[1]}]})
         pair_words = [pair[0].split()[0], pair[1].split()[0]]
