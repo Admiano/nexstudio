@@ -437,6 +437,37 @@ def restore_kinetic_hierarchy(beat: dict) -> None:
         beat["display_units"] = new
 
 
+def time_subject_arrivals(beat: dict) -> None:
+    """Use the original source noun as the entry cue for drawn actors/objects.
+
+    Existing generic Sketch stage creators previously DRAW every person and
+    prop on the first word; relations might animate later, but the film had
+    already shown the complete scene. Preserve explicit transformation and
+    carry programs; only retime the generic early DRAW entrance for newly
+    introduced standalone objects.
+    """
+    il = beat.get("illustration") or {}
+    if il.get("carry") or il.get("persist_to"):
+        return
+    narration = beat["narration"]
+    for ent in il.get("entities") or []:
+        if ent.get("kind") not in ("object", "agent"):
+            continue
+        phrase = str(ent.get("phrase") or ent.get("label") or "")
+        if not phrase:
+            continue
+        m = re.search(r"\b" + re.escape(phrase) + r"\b", narration, re.I)
+        if not m:
+            continue
+        # Anchors are guaranteed verbatim tokens in the narration, not
+        # semantic guesses: e.g. 'driver' enters on DRIVER, not 'The'.
+        word = narration[m.start():m.end()].split()[0]
+        for op in il.get("program") or []:
+            if op.get("op") == "DRAW" and op.get("target") == ent.get("id"):
+                op["at"] = {"word": word}
+                op["duration_ms"] = max(280, min(560, int(op.get("duration_ms", 480))))
+
+
 def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     """Apply a cross-beat film plan through the existing renderer contract."""
     plan = plan_film(style, beats)
@@ -478,6 +509,8 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             _subset(beats[i-1], beat)
         if style in ("sketch", "dataviz"):
             restore_kinetic_hierarchy(beat)
+        if style == "sketch":
+            time_subject_arrivals(beat)
         entries.append({
             "beat_id": beat["beat_id"], "family": family,
             "evidence": list(selected.evidence),
