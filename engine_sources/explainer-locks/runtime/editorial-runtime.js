@@ -1843,6 +1843,63 @@
         node.extra.rotateDeg = -2.4;
         break;
       }
+      case 'BASE10_TALLY': {
+        // Exact source numeral, expressed as hundreds/tens/ones drawn ink.
+        // It never approximates 594 objects with six arbitrary icons: five
+        // HUNDREDS, nine TENS and four ONES are mathematically exact.
+        const body = chassisBody(node, g);
+        const value = Math.max(1, Math.min(999, Number(params.value) || 1));
+        const digits = [Math.floor(value/100), Math.floor(value/10)%10, value%10];
+        const labels = ['100s', '10s', '1s'];
+        const gap = b.w * .045, colW = (b.w-gap*2)/3;
+        const groups = [];
+        digits.forEach((digit, ix) => {
+          const x = b.x + ix*(colW+gap);
+          const g2 = svgEl('g', { 'data-place': labels[ix] }, body);
+          const head = svgEl('text', {
+            x:f2(x+colW*.5), y:f2(b.y+b.h*.13),
+            'text-anchor':'middle', 'font-family':plan.fonts.families.data,
+            'font-size':f2(Math.min(colW*.20,b.h*.095)),
+            'font-weight':'600', fill:ink, 'fill-opacity':.68
+          },g2);head.textContent=labels[ix];
+          const tile=Math.min(colW*.24,b.h*.095),sep=tile*1.12;
+          const originX=x+colW*.5-sep*1.0,originY=b.y+b.h*.30;
+          const marks=[];
+          for(let i=0;i<digit;i++){
+            const cx=originX+(i%3)*sep,cy=originY+Math.floor(i/3)*sep*1.12;
+            const glyph = ix===0
+              ? svgEl('rect',{x:f2(cx-tile*.43),y:f2(cy-tile*.43),
+                  width:f2(tile*.86),height:f2(tile*.86),rx:f2(tile*.08),
+                  stroke:ink,'stroke-width':f2(sw*.75),fill:'none'},g2)
+              : ix===1
+              ? svgEl('path',{d:polyPath([[cx-tile*.27,cy+tile*.35],
+                   [cx+tile*.27,cy-tile*.35]]),stroke:ink,'stroke-width':f2(sw*1.25),
+                   'stroke-linecap':'round',fill:'none'},g2)
+              : svgEl('circle',{cx:f2(cx),cy:f2(cy),r:f2(tile*.25),fill:accent},g2);
+            marks.push(glyph);
+          }
+          groups.push(marks);
+        });
+        const count = svgEl('text',{
+          x:f2(b.x+b.w*.5),y:f2(b.y+b.h*.89),
+          'text-anchor':'middle','font-family':plan.fonts.families.data,
+          'font-size':f2(Math.min(b.w*.11,b.h*.15)),
+          'font-weight':'800',fill:ink,'font-variant-numeric':'tabular-nums'
+        },body);count.textContent=value.toLocaleString('en-US');
+        node.extra.setGrow=(k)=>{
+          groups.forEach((marks,ix)=>{
+            marks.forEach((mark,j)=>{
+              const idx=ix*9+j;
+              const fraction=EASE.outCubic(clamp((k-(idx/27)*.58)*3.8,0,1));
+              mark.setAttribute('opacity',f3(fraction));
+            });
+          });
+          count.setAttribute('opacity',f3(EASE.outCubic(clamp(k*1.9-.32,0,1))));
+        };
+        node.extra.setGrow(0);
+        node.strike=strikeFor(b);
+        break;
+      }
       case 'DONUT': {
         // A progress ring: paper track + an arc that GROW sweeps, with an optional COUNT readout.
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw * 1.6;
