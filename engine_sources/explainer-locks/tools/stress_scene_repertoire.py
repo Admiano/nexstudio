@@ -40,10 +40,10 @@ SCRIPTS={
         "Circle the safety document so the team can identify the approved inspection record. "
         "Look closely at the warning label to confirm the instruction written on the equipment. "
         "First inspect the machine carefully, then replace the worn seal, finally test the pump under normal pressure. "
-        "A crowd gathers outside the depot to watch the restored delivery system start operating again. "
         "The courier walks toward the driver as the next shipment arrives at the loading station. "
         "The courier walks then waves to the driver before greeting the waiting customer. "
-        "The driver turns toward the loading platform and points at the delivery document."
+        "The driver turns toward the loading platform and points at the delivery document. "
+        "A crowd gathers outside the depot to watch the restored delivery system start operating again."
     ),
 }
 ASPECTS=("1x1",)
