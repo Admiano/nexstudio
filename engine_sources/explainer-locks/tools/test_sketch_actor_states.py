@@ -40,10 +40,23 @@ class NativeSketchActorStatesTests(unittest.TestCase):
                             if e.get("phrase")==actor)
                 self.assertEqual(entity["params"]["actor_identity"],actor)
                 self.assertEqual(entity["params"]["actor_state"],state)
-                self.assertTrue(any(o["op"]=="SETTLE" and o["target"]==entity["id"]
-                                    and o["at"]=={"word":word} and
-                                    o.get("params",{}).get("actor_action") is True
-                                    for o in b["illustration"]["program"]))
+                cues = [o for o in b["illustration"]["program"]
+                        if o["op"] == "SETTLE" and o["target"] == entity["id"]
+                        and o["at"] == {"word": word}
+                        and o.get("params", {}).get("actor_action") is True]
+                self.assertEqual(len(cues), 1)
+                cue = cues[0]
+                self.assertIn(cue["duration_ms"], (600, 740, 860, 920))
+                stages = cue["params"]["actor_state_path"]
+                self.assertEqual(stages[0], "IDLE")
+                self.assertEqual(stages[-1], "IDLE")
+                self.assertEqual(stages[2], state)
+                if state in ("WALK", "RUN"):
+                    self.assertEqual(stages[1:4],
+                                     ["START_MOVE", state, "END_MOVE"])
+                else:
+                    self.assertEqual(stages[1:4],
+                                     ["ANTICIPATE", state, "RECOVER"])
                 BeatTreatment.parse(b)
 
     def test_recipient_does_not_act_as_source(self):
