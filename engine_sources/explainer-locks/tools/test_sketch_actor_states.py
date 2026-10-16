@@ -63,6 +63,65 @@ class NativeSketchActorStatesTests(unittest.TestCase):
                                      ["ANTICIPATE", state, "RECOVER"])
                 BeatTreatment.parse(b)
 
+    def test_walk_then_wave_is_two_distinct_source_word_states(self):
+        beat = shot("The courier walks then waves to the driver.")
+        actions = bind_actor_performances(beat)
+        self.assertEqual(actions, [
+            {"actor": "courier", "state": "WALK", "word": "walks"},
+            {"actor": "courier", "state": "WAVE", "word": "waves"}])
+        actor = next(e for e in beat["illustration"]["entities"]
+                     if e.get("phrase") == "courier")
+        actions_ops = [op for op in beat["illustration"]["program"]
+                       if op["target"] == actor["id"]
+                       and op.get("params", {}).get("actor_action")]
+        self.assertEqual(len(actions_ops), 2)
+        self.assertEqual([op["at"]["word"] for op in actions_ops],
+                         ["walks", "waves"])
+        self.assertEqual([op["params"]["actor_state"] for op in actions_ops],
+                         ["WALK", "WAVE"])
+        self.assertEqual([op["params"]["actor_state_path"] for op in actions_ops],
+                         [["IDLE","START_MOVE","WALK","END_MOVE","IDLE"],
+                          ["IDLE","ANTICIPATE","WAVE","RECOVER","IDLE"]])
+        self.assertTrue(all(op["params"]["voice_sync"] for op in actions_ops))
+        self.assertEqual(beat["narration"], "The courier walks then waves to the driver.")
+        BeatTreatment.parse(beat)
+
+    def test_new_subject_does_not_inherit_actor_gestures(self):
+        beat = shot("The courier walks and the driver waves.")
+        actions = bind_actor_performances(beat)
+        self.assertFalse(any(a["actor"] == "courier" and a["state"] == "WAVE"
+                             for a in actions))
+        BeatTreatment.parse(beat)
+
+    def test_actor_actions_schedule_on_separate_spoken_words(self):
+        from editorial_plan_compiler.timing import Word, BeatClock
+        from editorial_plan_compiler.illustration import IllustrationSolver
+        from editorial_plan_compiler.contracts import IllustrationDirective
+        beat = shot("The courier walks then waves to the driver.")
+        bind_actor_performances(beat)
+        il = IllustrationDirective.parse(beat["illustration"],
+                                         len(beat["display_units"]), beat["beat_id"])
+        words = [Word(token, 100 + i * 480, 100 + i*480 + 280)
+                 for i, token in enumerate(beat["narration"].split())]
+        clock = BeatClock(beat_id=beat["beat_id"], duration_ms=4100,
+                          voice_offset_ms=0, voice_duration_ms=3800,
+                          words=words, landings_ms=[180] * len(beat["display_units"]),
+                          landing_source=["WORD"]*len(beat["display_units"]),
+                          source="MASTER", exit_ms=220)
+        scheduled, _, errors = IllustrationSolver.schedule(
+            il, clock, beat["illustration"]["entities"], set(), beat["beat_id"])
+        self.assertEqual(errors, [])
+        ops = [op for op in scheduled if op["op"] == "SETTLE"
+               and op["params"].get("actor_action")]
+        self.assertEqual(len(ops), 2)
+        self.assertEqual([o["params"]["actor_state"] for o in ops],
+                         ["WALK","WAVE"])
+        onset = {w.text: w.start_ms for w in words}
+        for word, op in zip(("walks","waves"), ops):
+            self.assertGreaterEqual(op["start_ms"], onset[word]-100)
+            self.assertLessEqual(op["start_ms"], onset[word]+60)
+        self.assertLess(ops[0]["start_ms"], ops[1]["start_ms"])
+
     def test_recipient_does_not_act_as_source(self):
         b=shot("The courier gives a package to the driver.")
         actions=bind_actor_performances(b)
