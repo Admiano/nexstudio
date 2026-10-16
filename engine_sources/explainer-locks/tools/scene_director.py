@@ -491,6 +491,10 @@ def time_subject_arrivals(beat: dict) -> None:
             if op.get("op") == "DRAW" and op.get("target") == ent.get("id"):
                 op["at"] = {"word": word}
                 op["duration_ms"] = max(280, min(560, int(op.get("duration_ms", 480))))
+                # The compiler's old scheduling put EVERY new object on stage
+                # inside the lead-in, long before its source noun was spoken.
+                # Mark genuinely sourced DRAWs for voice-governed arrival.
+                ent.setdefault("params", {})["voice_cued"] = True
 
 
 def _sketch_has_meaningful_visual(beat: dict) -> bool:
