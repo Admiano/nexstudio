@@ -1414,9 +1414,14 @@ def sketch_beat(gwords, bi, n, previous, media):
         r"\b(?:versus|vs\.?|compared (?:to|with)|than|whereas)\b",
         narration, re.I)
     if not stages and not is_interface and not explicit_comparison:
-        visual_entities = [e for e in entities if e.get("kind") == "evidence" or (
-            e["glyph"] == "TILE" and (
-                e.get("asset_ref") or e.get("params", {}).get("visual_class")))]
+        # A real native drawn PUMP/TANK/VESSEL is physical evidence, just as
+        # an illustrated TILE is. Never discard it simply because this beat
+        # has no explicit two-endpoint action grammar.
+        visual_entities = [e for e in entities if e.get("kind") == "evidence"
+                           or e["glyph"] in ("PUMP", "TANK", "VESSEL")
+                           or (e["glyph"] == "TILE" and (
+                               e.get("asset_ref") or
+                               e.get("params", {}).get("visual_class")))]
         if visual_entities:
             entities = visual_entities
             for ei, ent in enumerate(entities):
