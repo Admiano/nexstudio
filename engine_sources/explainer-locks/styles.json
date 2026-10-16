@@ -6666,7 +6666,9 @@
       "transcript",
       "questionnaire",
       "pass",
-      "voucher"
+      "voucher",
+      "warning label",
+      "safety label"
     ],
     "list": [
       "list",
