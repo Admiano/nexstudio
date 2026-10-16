@@ -1272,6 +1272,18 @@ def sketch_entities(gwords, media):
             continue
         if not re.search(rf"\b{re.escape(phrase)}\b", text, re.I):
             continue
+        # The fallback parser sometimes selects a modifier directly before
+        # a recognized physical noun ("sealed parcel", "same parcel",
+        # "waiting customer", "water tank"). That modifier is NOT a separate
+        # scene object. The source-grounded object carries the claim instead.
+        # This is syntactic and source-dependent, not a list of subject scripts.
+        source_objects = {noun for _, noun in native_mentions}
+        if phrase not in source_objects and source_objects:
+            next_known = "|".join(re.escape(noun) for noun in
+                                  sorted(source_objects, key=len, reverse=True))
+            if re.search(r"\b" + re.escape(phrase) +
+                         r"\s+(?:" + next_known + r")\b", text, re.I):
+                continue
         seen.add(entity_id)
         ref = sketch_asset(phrase, text)
         # When no licensed catalog symbol matches, use only narrowly defined
