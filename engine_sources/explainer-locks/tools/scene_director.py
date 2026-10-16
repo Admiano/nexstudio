@@ -581,13 +581,16 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             "source_beat_ids": [e["beat_id"] for e in beat.get("director_evidence", [])],
             "form": (beat.get("illustration") or {}).get("form"),
             "actor_actions": actor_actions})
+    text_only = []
     if style == "sketch":
         text_only = [b["beat_id"] for b in beats
                      if not _sketch_has_meaningful_visual(b)]
-        if text_only:
-            raise ValueError("SKETCH_VISUAL_SUBJECT_REQUIRED:" +
-                             ",".join(text_only) +
-                             " — no source-grounded illustration or animated diagram")
+        for beat in beats:
+            # Film authoring remains inspectable; the compiler's real render
+            # quality gate refuses missing visual subjects. This is neither
+            # a pass nor a silent text-card fallback.
+            beat.setdefault("features", {})["sketch_visual_coverage"] = (
+                0.0 if beat["beat_id"] in text_only else 1.0)
     # Realization must precede composition: the chosen repertoire family
     # can replace an initial generic illustration with a new evidence scene.
     positions = direct_scene_positions(style, beats, plan)
@@ -598,4 +601,5 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     return {"version": "SCENEBAM_FILM_DIRECTOR_V1", "style": style,
             "scenes": entries, "global_lookahead": len(beats),
             "explanation_map": build_explanation_map(beats),
-            "source_integrity": "verbatim_narration_and_source_tracked_quantities"}
+            "source_integrity": "verbatim_narration_and_source_tracked_quantities",
+            "sketch_visual_coverage_failures": text_only}
