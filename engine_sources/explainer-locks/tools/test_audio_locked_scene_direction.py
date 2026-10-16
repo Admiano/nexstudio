@@ -13,7 +13,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "tools"), str(ROOT / "compiler")]
 import make_reel
-from scene_director import direct_film
+from scene_director import direct_film, time_subject_arrivals
 from editorial_plan_compiler.contracts import IllustrationDirective, BeatTreatment
 from editorial_plan_compiler.illustration import IllustrationSolver, ENTER_MS
 from editorial_plan_compiler.timing import BeatClock, Word
@@ -100,6 +100,35 @@ class AudioLockedSceneDirectionTests(unittest.TestCase):
                                 o["target"] == "courier->parcel")
         self.assertLess(initial_transfer["start_ms"], enters["parcel"])
         self.assertLessEqual(max(o["end_ms"] for o in scheduled), clock.duration_ms)
+
+    def test_continuing_scene_keeps_existing_subjects_and_times_new_recipient(self):
+        beat = {
+            "beat_id": "b02",
+            "narration": "The driver carries a parcel to the customer.",
+            "illustration": {
+                "form": "OBJECT_STAGE",
+                "carry": {"from_beat": "b01", "entities": ["driver", "parcel"]},
+                "entities": [
+                    {"id": "driver", "kind": "object", "glyph": "TILE",
+                     "label": "driver", "params": {"visual_class": "person"}},
+                    {"id": "parcel", "kind": "object", "glyph": "TILE",
+                     "label": "parcel", "params": {"visual_class": "package"}},
+                    {"id": "customer", "kind": "object", "glyph": "TILE",
+                     "label": "customer", "params": {"visual_class": "person"}}],
+                "program": [{"op": "DRAW", "target": "customer",
+                             "at": {"word": "The"}, "duration_ms": 390}],
+                "relations": [],
+                "confirmation": False}}
+        time_subject_arrivals(beat)
+        ent = {e["id"]: e for e in beat["illustration"]["entities"]}
+        self.assertNotIn("voice_cued", ent["driver"]["params"])
+        self.assertNotIn("voice_cued", ent["parcel"]["params"])
+        self.assertTrue(ent["customer"]["params"]["voice_cued"])
+        op = beat["illustration"]["program"][0]
+        self.assertEqual(op["at"], {"word": "customer"})
+        self.assertEqual(beat["illustration"]["carry"]["entities"],
+                         ["driver", "parcel"])
+        IllustrationDirective.parse(beat["illustration"], 1, "b02")
 
     def test_late_data_does_not_reveal_before_its_word(self):
         clock = make_clock([("There", 160), ("were", 410),
