@@ -258,7 +258,14 @@ def _focus(beat: dict) -> str | None:
     # Explicit call to inspect a named phrase, not a guess that every claim
     # deserves a magnifying glass.
     match = re.search(r"\b(?:look closely at|zoom in on|focus on|inspect)\s+(?:the\s+|a\s+|an\s+)?([A-Za-z][A-Za-z'-]*(?:\s+[A-Za-z][A-Za-z'-]*){0,2})", beat["narration"], re.I)
-    return match.group(1) if match else None
+    if not match:
+        return None
+    # Stop at the next purpose/preposition, not at the arbitrary third token.
+    # "warning label to confirm" is a source-named warning label, NOT a
+    # three-word object called "warning label to".
+    phrase = re.split(r"\b(?:to|so|because|when|while|for|and|that)\b",
+                      match.group(1), maxsplit=1, flags=re.I)[0].strip()
+    return phrase or None
 
 
 def _progress(beat: dict) -> dict | None:
@@ -385,7 +392,7 @@ def candidates(style: str, beat: dict) -> list[tuple[str, float, tuple[str, ...]
     return ans
 
 
-def realize(family: str, beat: dict) -> bool:
+def realize(family: str, beat: dict, *, style: str | None = None) -> bool:
     """Realize precisely one selected family using the native contract.
 
     The film director owns the selection; the renderer owns every pixel.
@@ -514,6 +521,51 @@ def realize(family: str, beat: dict) -> bool:
         phrase = _focus(beat)
         if not phrase:
             return False
+        if style == "sketch":
+            # Sketch must magnify REAL pictorial evidence, not typeset a
+            # magnifying-glass card around exactly the same headline.
+            # Reuse a drawn source entity first. Only when necessary build a
+            # native physical subject from the existing reviewed noun taxonomy.
+            il = beat.get("illustration") or {}
+            available = [
+                e for e in (il.get("entities") or [])
+                if e.get("phrase", "").lower() == phrase.lower() and
+                (e.get("asset_ref") or (e.get("params") or {}).get("visual_class"))
+            ]
+            if available:
+                subject = dict(available[0])
+                subject["params"] = dict(subject.get("params") or {})
+                subject.pop("label", None)
+            else:
+                from make_reel import STYLES
+                taxonomy = STYLES.get("sketch_visual_classes") or {}
+                kind = next((klass for klass, terms in taxonomy.items()
+                             if phrase.lower() in terms and
+                             klass in ("document", "list", "package", "person")), None)
+                if kind is None:
+                    # Unsupported abstract subjects cannot become an invented
+                    # physical drawing. Strict Sketch visual QA rejects them.
+                    return False
+                subject = {"id": "director_focus_subject",
+                           "kind": "object", "glyph": "TILE", "size": "hero",
+                           "phrase": phrase.lower(),
+                           "params": {"visual_class": kind}}
+            subject["size"] = "hero"
+            lens_id = "director_focus_lens"
+            subject_word = phrase.split()[0]
+            lens = {"id": lens_id, "kind": "evidence",
+                    "glyph": "LENS", "size": "support"}
+            _commit(
+                beat, [subject, lens], [
+                    _op("DRAW", lens_id, first, 230),
+                    _op("DRAW", subject["id"], subject_word, 360),
+                    _op("TRAVEL", lens_id, phrase.split()[-1], 560,
+                        params={"over": [subject["id"]]}),
+                ], form="CALLOUT_LENS",
+                relations=[{"type": "scans", "source": lens_id,
+                            "target": subject["id"]}],
+                evidence=[{"source": phrase}])
+            return True
         graphic = _glyph("scene_magnification", "MAGNIFY",
                          {"text": phrase, "zoom": 1.7})
         _commit(beat, [graphic], [
