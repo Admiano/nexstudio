@@ -96,7 +96,9 @@ def main():
         actor_events=[event for scene in director["scenes"]
                       for event in scene.get("actor_actions",[])]
         observed={(event["actor"],event["state"]) for event in actor_events}
-        required={("courier","WALK"),("courier","WAVE")}
+        required={("courier","WALK"),("courier","WAVE"),
+                  ("driver","TURN"),("driver","POINT"),
+                  ("technician","CONNECT")}
         if not required.issubset(observed):
             raise RuntimeError("SKETCH_NATIVE_ACTOR_STATES_NOT_DIRECTED: "+repr(actor_events))
         for beat in treatment["beats"]:
@@ -124,6 +126,50 @@ def main():
         assert actual_source==text
         if args.style=="dataviz":
             assert compiled["captions_policy"]=="kinetic" and compiled["captions"]==[]
+        actor_snapshots = []
+        if args.style=="sketch":
+            # Render must use the same spoken-clock cues from the accepted
+            # compilation. Audit repeated verbs, actor identity, no overlaps,
+            # no anticipatory animation, and the actual voice-word offset.
+            checked_states=set()
+            for b in compiled["beats"]:
+                words=b["words"]
+                illustrated=b.get("illustration") or {}
+                persons={ent["id"]: ent.get("params", {}).get("actor_identity")
+                         for ent in illustrated.get("entities", [])
+                         if ent.get("params", {}).get("visual_class")=="person"}
+                by_actor={}
+                for op in illustrated.get("ops", []):
+                    prm=op.get("params") or {}
+                    if not prm.get("actor_action"):
+                        continue
+                    identity=persons.get(op["target"])
+                    if not identity or not prm.get("voice_sync"):
+                        raise RuntimeError("ACTOR_CUE_NOT_SOURCE_BOUND")
+                    idx=prm.get("word_index")
+                    if not isinstance(idx,int) or idx<0 or idx>=len(words):
+                        raise RuntimeError("ACTOR_WORD_INDEX_INVALID")
+                    normalize=lambda s: "".join(x for x in s.lower() if x.isalnum())
+                    if normalize(words[idx]["text"]) != normalize(op["anchor"]["word"]):
+                        raise RuntimeError("ACTOR_WORD_NOT_MATCHED")
+                    # The native scheduler anchors to source word -60ms, and
+                    # the first-frame minimum lead-in is 110ms.
+                    expected=max(110,words[idx]["start_ms"]-60)
+                    if abs(op["start_ms"]-expected)>4:
+                        raise RuntimeError("ACTOR_WORD_DESYNCHRONIZED")
+                    by_actor.setdefault(op["target"],[]).append(op)
+                    checked_states.add((identity,prm["actor_state"]))
+                    if prm["actor_state"] in ("WALK","WAVE","TURN","POINT","CONNECT"):
+                        actor_snapshots.append((b["start_ms"]+op["start_ms"]+
+                                                min(180,(op["end_ms"]-op["start_ms"])//2),
+                                                identity+"_"+prm["actor_state"]))
+                for cues in by_actor.values():
+                    cues.sort(key=lambda o:o["start_ms"])
+                    for earlier,later in zip(cues,cues[1:]):
+                        if earlier["end_ms"]>later["start_ms"]:
+                            raise RuntimeError("OVERLAPPING_ACTOR_STATES")
+            if not required.issubset(checked_states):
+                raise RuntimeError("ACTOR_STATES_NOT_IN_COMPILED_VIDEO: "+str(checked_states))
         voice_driver.execute(["node",ROOT/"tools"/"render_reel.js",plan,out,
                               "--fps",args.fps,"--workers",args.workers,
                               "--preset","ultrafast","--web-crf","29"])
@@ -141,12 +187,24 @@ def main():
             voice_driver.execute(["ffmpeg","-y","-v","error","-ss",
                                   f"{duration_ms*position/1000:.3f}","-i",video,
                                   "-frames:v","1",image])
+        if args.style=="sketch":
+            # Exact render-frame evidence of the source action, not a fake
+            # standalone character image. The MP4's audio remains intact.
+            for stamp, name in actor_snapshots[:8]:
+                image=out/("actor_"+aspect+"_"+name+".png")
+                voice_driver.execute(["ffmpeg","-y","-v","error","-ss",
+                                      f"{stamp/1000:.3f}","-i",video,
+                                      "-frames:v","1",image])
+                if image.stat().st_size<2000:
+                    raise RuntimeError("ACTOR_ACTION_FRAME_EMPTY")
         recordings[aspect]={
             "filename":video.name,"sha256":hashlib.sha256(video.read_bytes()).hexdigest(),
             "bytes":video.stat().st_size,"size":[vid["width"],vid["height"]],
             "gate":compiled["gate"]["status"],"page_errors":[]}
     report={
         "style":args.style,"script":text,"director_scene_count":len(director["scenes"]),
+        "actor_sync_verified_against_supplied_word_clock":args.style=="sketch",
+        "word_clock_is_measured":alignment_source=="EDGE_MEASURED_WORD_BOUNDARIES",
         "scene_types":dict(choices),"source_integrity":True,
         "microsoft_voice":voice_driver.VOICE,"alignment":alignment_source,
         "native_compiler_gate":gate.get("status"),"compiler_failures":gate.get("failures",[]),
