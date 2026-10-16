@@ -56,6 +56,47 @@ class AudioLockedSceneDirectionTests(unittest.TestCase):
         self.assertFalse(old_errors)
         self.assertLess(old["courier"], 220)
 
+    def test_spoken_connection_finishes_with_recipient_not_a_disembodied_line(self):
+        clock = make_clock([("The", 120), ("courier", 510),
+                            ("sends", 1260), ("parcel", 2870),
+                            ("to", 3090), ("driver", 4020)], window=6450)
+        entities = [
+            {"id": ident, "kind": "object", "glyph": "TILE",
+             "size": "hero" if i == 0 else "support",
+             "params": {"voice_cued": True}}
+            for i, ident in enumerate(("courier", "parcel", "driver"))]
+        d = {
+            "form": "PROCESS_PIPELINE", "entities": entities,
+            "relations": [
+                {"type": "flows_to", "source": "courier", "target": "parcel"},
+                {"type": "flows_to", "source": "parcel", "target": "driver"}],
+            "program": [
+                *[{"op": "DRAW", "target": name,
+                   "at": {"word": name}, "duration_ms": 420,
+                   "params": {"voice_sync": True}}
+                  for name in ("courier", "parcel", "driver")],
+                {"op": "CONNECT", "target": "courier->parcel",
+                 "at": {"word": "sends"}, "duration_ms": 370,
+                 "params": {"voice_sync": True}},
+                {"op": "CONNECT", "target": "parcel->driver",
+                 "at": {"word": "to"}, "duration_ms": 370,
+                 "params": {"voice_sync": True}}],
+            "confirmation": False}
+        il = IllustrationDirective.parse(d, 1, "b01")
+        scheduled, enters, failures = IllustrationSolver.schedule(
+            il, clock, entities, set(), "b01")
+        self.assertEqual(failures, [])
+        self.assertGreater(enters["parcel"], 2600)
+        self.assertGreater(enters["driver"], 3700)
+        for connection in (op for op in scheduled if op["op"] == "CONNECT"):
+            source, target = connection["target"].split("->")
+            latest_visible = max(enters[source]+ENTER_MS,
+                                 enters[target]+ENTER_MS)
+            self.assertGreaterEqual(connection["end_ms"], latest_visible)
+            self.assertTrue(connection["params"]["voice_link_waits_for_endpoint"])
+        self.assertLess(scheduled[3]["start_ms"], enters["parcel"])
+        self.assertLessEqual(max(o["end_ms"] for o in scheduled), clock.duration_ms)
+
     def test_late_data_does_not_reveal_before_its_word(self):
         clock = make_clock([("There", 160), ("were", 410),
                             ("only", 900), ("99", 2100)],
