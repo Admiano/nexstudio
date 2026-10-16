@@ -172,6 +172,45 @@ class NativeSketchActorStatesTests(unittest.TestCase):
             self.assertLessEqual(op["start_ms"], onset[word]+60)
         self.assertLess(ops[0]["start_ms"], ops[1]["start_ms"])
 
+    def test_multiple_actions_use_actual_spoken_time_without_overlap(self):
+        from editorial_plan_compiler.timing import Word, BeatClock
+        from editorial_plan_compiler.illustration import IllustrationSolver
+        from editorial_plan_compiler.contracts import IllustrationDirective
+        phrase = "The courier walks then waves and walks toward the driver."
+        b = shot(phrase)
+        perf = bind_actor_performances(b)
+        self.assertEqual([x["state"] for x in perf],
+                         ["WALK", "WAVE", "WALK"])
+        directive = IllustrationDirective.parse(
+            b["illustration"], len(b["display_units"]), b["beat_id"])
+        spoken = phrase.split()
+        # Deliberately fast source speech: without clipping, three full
+        # performances would overlap despite describing serial actions.
+        words = [Word(s, 140 + i * 230, 300 + i * 230)
+                 for i, s in enumerate(spoken)]
+        clock = BeatClock(
+            beat_id=b["beat_id"], duration_ms=3100,
+            voice_offset_ms=0, voice_duration_ms=2600,
+            words=words, landings_ms=[180] * len(b["display_units"]),
+            landing_source=["WORD"] * len(b["display_units"]),
+            source="MASTER", exit_ms=200)
+        scheduled, _, errors = IllustrationSolver.schedule(
+            directive, clock, b["illustration"]["entities"], set(), b["beat_id"])
+        self.assertEqual(errors, [])
+        actions = [o for o in scheduled
+                   if o["op"]=="SETTLE" and o["params"].get("actor_action")]
+        self.assertEqual(len(actions), 3)
+        self.assertEqual([o["params"]["word_index"] for o in actions],
+                         [2, 4, 6])
+        for i, op in enumerate(actions):
+            word = words[op["params"]["word_index"]]
+            self.assertEqual(op["start_ms"], word.start_ms-60)
+            if i+1 < len(actions):
+                self.assertLess(op["end_ms"], actions[i+1]["start_ms"])
+                self.assertTrue(op["params"]["ended_for_next_voice_action"])
+        self.assertEqual([x["params"]["actor_state"] for x in actions],
+                         ["WALK", "WAVE", "WALK"])
+
     def test_recipient_does_not_act_as_source(self):
         b=shot("The courier gives a package to the driver.")
         actions=bind_actor_performances(b)
