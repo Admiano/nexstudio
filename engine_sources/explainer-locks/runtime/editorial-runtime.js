@@ -2410,7 +2410,10 @@
         if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const series = (params.series || []).slice(0, 8), n = Math.max(1, series.length);
         const pad = Math.min(b.w, b.h) * 0.09, labelH = b.h * 0.115;
-        const plot = { x: b.x + pad, y: b.y + pad * 1.1, w: b.w - pad * 2, h: b.h - pad * 2 - labelH };
+        // Reserve a proper value-readout band so the tallest source bar never
+        // collides with the top editorial rule or has its number cropped.
+        const plot = { x: b.x + pad, y: b.y + pad * 1.78,
+                       w: b.w - pad * 2, h: b.h - pad * 2.78 - labelH };
         const base = plot.y + plot.h, maxV = Math.max(1e-9, ...series.map((s) => Math.abs(Number(s.value) || 0)));
         svgEl('path', { d: `M${f2(plot.x - pad * 0.3)} ${f2(base)} L${f2(plot.x + plot.w + pad * 0.3)} ${f2(base)}`, stroke: cardFg, 'stroke-width': sw * 0.42, 'stroke-opacity': 0.5 }, body);
         const bw = Math.min(plot.h * 0.62, (plot.w - plot.w * 0.05 * (n - 1)) / n), gap = (plot.w - bw * n) / Math.max(1, n - 1);
@@ -2508,7 +2511,8 @@
         const spine = horiz ? { x: b.x + pad, y: b.y + b.h / 2, len: b.w - pad * 2 } : { x: b.x + b.w / 2, y: b.y + pad, len: b.h - pad * 2 };
         const spineP = svgEl('path', { d: horiz ? `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x + spine.len)} ${f2(spine.y)}` : `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x)} ${f2(spine.y + spine.len)}`, stroke: cardFg, 'stroke-width': sw * 0.45, 'stroke-opacity': 0.55, 'stroke-linecap': 'round' }, body);
         const items = [];
-        const fs = Math.min(b.w, b.h) * 0.105;
+        const fs = Math.min(Math.min(b.w, b.h) * 0.095,
+                            b.w / Math.max(3.2, n * 4.8));
         evs.forEach((ev, i) => {
           const u = n === 1 ? 0.5 : i / (n - 1);
           const sx = horiz ? spine.x + u * spine.len : spine.x, sy = horiz ? spine.y : spine.y + u * spine.len;
@@ -2517,7 +2521,10 @@
           svgEl('path', { d: horiz ? `M${f2(sx)} ${f2(sy)} L${f2(sx)} ${f2(sy + side * tick)}` : `M${f2(sx)} ${f2(sy)} L${f2(sx + side * tick)} ${f2(sy)}`, stroke: cardFg, 'stroke-width': sw * 0.4, 'stroke-opacity': 0.6 }, g2);
           svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(Math.min(b.w, b.h) * 0.026), fill: i === n - 1 ? accent : face, stroke: cardFg, 'stroke-width': sw * 0.4 }, g2);
           const lx = horiz ? sx : sx + side * (tick + fs * 0.6), ly = horiz ? sy + side * (tick + fs * 1.2) : sy;
-          const anch = horiz ? 'middle' : (side > 0 ? 'start' : 'end');
+          // At the ends of a horizontal time axis the captions grow
+          // inward, instead of extending outside the frame.
+          const anch = horiz ? (i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle')
+                             : (side > 0 ? 'start' : 'end');
           const t1 = svgEl('text', { x: f2(lx), y: f2(ly), 'text-anchor': anch, 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
           t1.textContent = String(ev.label).slice(0, 16);
           if (ev.sub) {
