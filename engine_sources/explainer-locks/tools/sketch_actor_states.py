@@ -71,3 +71,53 @@ def bind_actor_performances(beat: dict) -> list[dict]:
         })
         touched.append({"actor":ident,"state":state,"word":candidate})
     return touched
+
+
+def ensure_source_count_visual(beat: dict) -> bool:
+    """Visualize literal integer counts using exact base-ten place values.
+
+    The Sketch director calls this only when it otherwise has a text-only
+    scene. This is a semantic, script-agnostic final realization, not a
+    hardcoded Bayes exception. A count must be explicitly measured in source.
+    """
+    narration = beat["narration"]
+    digits = list(re.finditer(r"(?<![\w\d,.])([1-9]\d{0,2})(?![\w\d,.])", narration))
+    if len(digits) != 1:
+        return False
+    number = int(digits[0].group(1))
+    # Neither arbitrary identifiers, dates, percentages nor currency become
+    # false population counts. A nearby source noun or explicit anaphora is
+    # the licence for an accurate place-value object.
+    if re.search(r"[$£€₦]|\b(?:19|20)\d\d\b", narration):
+        return False
+    around = narration[max(0,digits[0].start()-28):digits[0].end()+45]
+    if re.search(r"\b(?:percent|per cent|percentage|years? old)\b|%", around, re.I):
+        return False
+    if not re.search(
+            r"\b(cases?|results?|people|patients?|tests?|items?|volunteers?|"
+            r"workers?|units?|orders?|calls?|users?|objects?|responses?|"
+            r"requests?|messages?|records?|events?|of those|of these|of them)\b",
+            narration, re.I):
+        return False
+    source_word=digits[0].group(1)
+    graphic_id="source_place_values"
+    beat["illustration"]={
+        "form":"OBJECT_STAGE",
+        "entities":[{"id":graphic_id,"kind":"evidence","glyph":"BASE10_TALLY",
+                     "size":"hero","params":{"value":number}}],
+        "relations":[],
+        "program":[
+            {"op":"DRAW","target":graphic_id,
+             "at":{"word":source_word},"duration_ms":260},
+            {"op":"GROW","target":graphic_id,
+             "at":{"word":source_word},"duration_ms":620},
+        ],
+        "confirmation":False,
+    }
+    beat.pop("data",None)
+    beat["dominant_layer"]="HYBRID"
+    beat["director_evidence"]=[{
+        "beat_id":beat["beat_id"],"source":source_word,
+        "value":str(number),"unit":"count",
+    }]
+    return True
