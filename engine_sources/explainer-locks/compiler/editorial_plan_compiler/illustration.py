@@ -1105,8 +1105,20 @@ class IllustrationSolver:
             start = max(LEAD_IN_MS // 2, start)
             end = start + op.duration_ms
             if end > latest_end:
-                end = latest_end
-                start = max(LEAD_IN_MS // 2, end - op.duration_ms)
+                if op.params.get('voice_sync') and 'word' in op.at:
+                    # The intact narration is the clock. A late measurement
+                    # must NOT animate while the speaker is still presenting
+                    # a different earlier number. Trim the effect's tail
+                    # into the actual voice window instead of shifting its
+                    # source-word start backward.
+                    end = min(end, max(start + 120,
+                                       clock.duration_ms - min(clock.exit_ms // 3, 90)))
+                    end = min(end, clock.duration_ms)
+                    if end - start < 120:
+                        failures.append(f'AUDIO_CUE_TOO_LATE:{op.op}:{op.target}')
+                else:
+                    end = latest_end
+                    start = max(LEAD_IN_MS // 2, end - op.duration_ms)
             value_from, value_to = op.value_from, op.value_to
             if 'point_index' in op.params:
                 e = next(e for e in ents if e['id'] == op.target)
