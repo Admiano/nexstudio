@@ -404,7 +404,8 @@ def realize(family: str, beat: dict) -> bool:
         # all six data values when only the first/last number was spoken.
         # word_index disambiguates repeated numbers in the intact voice.
         stages = [_op("GROW", graphic["id"], str(q["anchor"]), 320,
-                      params={"stage_index": i, "word_index": int(q["word_start"])})
+                      params={"stage_index": i, "word_index": int(q["word_start"])},
+                      to=(i+1)/len(qs))
                   for i, q in enumerate(qs)]
         _commit(beat, [graphic],
                 [_op("DRAW", graphic["id"], first, 220)] + stages,
@@ -417,7 +418,8 @@ def realize(family: str, beat: dict) -> bool:
         graphic = _glyph("scene_table", "DATA_TABLE",
                          {"rows": [[label, str(value)] for label, value, _ in rows]})
         stages = [_op("GROW", graphic["id"], str(q["anchor"]), 300,
-                      params={"stage_index": i, "word_index": int(q["word_start"])})
+                      params={"stage_index": i, "word_index": int(q["word_start"])},
+                      to=(i+1)/len(qs))
                   for i, q in enumerate(qs)]
         _commit(beat, [graphic],
                 [_op("DRAW", graphic["id"], first, 220)] + stages,
@@ -445,7 +447,7 @@ def realize(family: str, beat: dict) -> bool:
         _commit(beat, [graphic],
                 [_op("DRAW", graphic["id"], first, 220)] +
                 [_op("GROW", graphic["id"], year, 310,
-                     params={"stage_index": i})
+                     params={"stage_index": i}, to=(i+1)/len(events))
                  for i, (year, _) in enumerate(events)],
                 evidence=[{"source": y, "event": e} for y, e in events])
         return True
@@ -485,7 +487,8 @@ def realize(family: str, beat: dict) -> bool:
                 [_op("DRAW", graphic["id"], first, 220)] +
                 [_op("GROW", graphic["id"], m.group(0), 320,
                      params={"stage_index": i,
-                             "word_index": len(text[:m.start()].split())})
+                             "word_index": len(text[:m.start()].split())},
+                     to=(i+1)/len(cues))
                  for i, m in enumerate(cues)],
                 evidence=[{"source": step} for step in steps])
         return True
@@ -502,7 +505,8 @@ def realize(family: str, beat: dict) -> bool:
         _commit(beat, [graphic],
                 [_op("DRAW", graphic["id"], first, 220)] +
                 [_op("GROW", graphic["id"], pair_words[i], 330,
-                     params={"stage_index": i, "word_index": anchors[i]})
+                     params={"stage_index": i, "word_index": anchors[i]},
+                     to=(i+1)/2)
                  for i in range(2)],
                 evidence=[{"source": s} for s in pair])
         return True
