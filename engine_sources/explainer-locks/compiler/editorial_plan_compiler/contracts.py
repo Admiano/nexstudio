@@ -746,7 +746,7 @@ class BeatTreatment:
         layout = dict(d.get('director_layout') or {})
         valid = {'1x1': ('TEXT_TOP', 'TEXT_BOTTOM'),
                  '9x16': ('TEXT_TOP', 'TEXT_BOTTOM'),
-                 '16x9': ('TEXT_LEFT', 'TEXT_RIGHT')}
+                 '16x9': ('TEXT_LEFT', 'TEXT_RIGHT', 'EVIDENCE_WIDE')}
         _need(all(aspect in valid and orient in valid[aspect] for aspect, orient in layout.items()),
               'DIRECTOR_LAYOUT_INVALID', f'{bid}: invalid aspect/side {layout}', bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
