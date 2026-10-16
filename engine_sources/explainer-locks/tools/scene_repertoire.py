@@ -400,10 +400,15 @@ def realize(family: str, beat: dict) -> bool:
         graphic = _glyph("scene_categories", "DATA_BARS",
                          {"series": [{"label": label, "value": float(value),
                                       "value_text": source} for label, value, source in rows]})
-        _commit(beat, [graphic], [
-            _op("DRAW", graphic["id"], first, 280),
-            _op("GROW", graphic["id"], str(qs[-1].get("anchor") or first), 740)],
-            evidence=[{"source": s, "value": str(v), "label": l} for l, v, s in rows])
+        # Every bar follows its OWN source quantity, instead of sweeping
+        # all six data values when only the first/last number was spoken.
+        # word_index disambiguates repeated numbers in the intact voice.
+        stages = [_op("GROW", graphic["id"], str(q["anchor"]), 320,
+                      params={"stage_index": i, "word_index": int(q["word_start"])})
+                  for i, q in enumerate(qs)]
+        _commit(beat, [graphic],
+                [_op("DRAW", graphic["id"], first, 220)] + stages,
+                evidence=[{"source": s, "value": str(v), "label": l} for l, v, s in rows])
         return True
     if family == "categorical_table":
         rows = _category_rows(beat)
@@ -411,10 +416,12 @@ def realize(family: str, beat: dict) -> bool:
             return False
         graphic = _glyph("scene_table", "DATA_TABLE",
                          {"rows": [[label, str(value)] for label, value, _ in rows]})
-        _commit(beat, [graphic], [
-            _op("DRAW", graphic["id"], first, 320),
-            _op("GROW", graphic["id"], str(qs[0].get("anchor") or first), 680)],
-            evidence=[{"source": s, "value": str(v), "label": l} for l, v, s in rows])
+        stages = [_op("GROW", graphic["id"], str(q["anchor"]), 300,
+                      params={"stage_index": i, "word_index": int(q["word_start"])})
+                  for i, q in enumerate(qs)]
+        _commit(beat, [graphic],
+                [_op("DRAW", graphic["id"], first, 220)] + stages,
+                evidence=[{"source": s, "value": str(v), "label": l} for l, v, s in rows])
         return True
     if family == "completion_meter":
         q = _progress(beat)
@@ -435,10 +442,12 @@ def realize(family: str, beat: dict) -> bool:
         graphic = _glyph("scene_timeline", "TIMELINE",
                          {"events": [{"label": year, "sub": subtitle}
                                      for year, subtitle in events]})
-        _commit(beat, [graphic], [
-            _op("DRAW", graphic["id"], first, 300),
-            _op("GROW", graphic["id"], events[0][0], 720)],
-            evidence=[{"source": y, "event": e} for y, e in events])
+        _commit(beat, [graphic],
+                [_op("DRAW", graphic["id"], first, 220)] +
+                [_op("GROW", graphic["id"], year, 310,
+                     params={"stage_index": i})
+                 for i, (year, _) in enumerate(events)],
+                evidence=[{"source": y, "event": e} for y, e in events])
         return True
     if family == "spoken_process":
         steps = _steps(beat)
@@ -470,10 +479,15 @@ def realize(family: str, beat: dict) -> bool:
             if len(units) == len(positions) and " ".join(
                     unit["text"] for unit in units) == text:
                 beat["display_units"] = units
-        _commit(beat, [graphic], [
-            _op("DRAW", graphic["id"], first, 300),
-            _op("GROW", graphic["id"], first, 830)],
-            evidence=[{"source": step} for step in steps])
+        cues = list(re.finditer(
+            r"\b(first|second|third|fourth|then|next|finally)\b", text, re.I))
+        _commit(beat, [graphic],
+                [_op("DRAW", graphic["id"], first, 220)] +
+                [_op("GROW", graphic["id"], m.group(0), 320,
+                     params={"stage_index": i,
+                             "word_index": len(text[:m.start()].split())})
+                 for i, m in enumerate(cues)],
+                evidence=[{"source": step} for step in steps])
         return True
     if family == "verbal_versus":
         pair = _versus(beat)
@@ -481,10 +495,16 @@ def realize(family: str, beat: dict) -> bool:
             return False
         graphic = _glyph("scene_versus", "VS_CARDS",
                          {"cards": [{"title": pair[0]}, {"title": pair[1]}]})
-        _commit(beat, [graphic], [
-            _op("DRAW", graphic["id"], first, 330),
-            _op("GROW", graphic["id"], first, 680)],
-            evidence=[{"source": s} for s in pair])
+        pair_words = [pair[0].split()[0], pair[1].split()[0]]
+        anchors = [next((i for i, w in enumerate(text.split())
+                         if w.lower().strip(".,;:") == phrase.lower()), 0)
+                   for phrase in pair_words]
+        _commit(beat, [graphic],
+                [_op("DRAW", graphic["id"], first, 220)] +
+                [_op("GROW", graphic["id"], pair_words[i], 330,
+                     params={"stage_index": i, "word_index": anchors[i]})
+                 for i in range(2)],
+                evidence=[{"source": s} for s in pair])
         return True
     if family == "editorial_magnification":
         phrase = _focus(beat)
