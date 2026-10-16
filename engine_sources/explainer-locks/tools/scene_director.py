@@ -509,7 +509,10 @@ def _sketch_has_meaningful_visual(beat: dict) -> bool:
         "VESSEL", "PUMP", "TANK", "ICON", "MEDIA", "CHART_LINE",
         "RING", "BAR", "DONUT", "PROGRESS", "POPULATION_GRID", "BASE10_TALLY",
         "DATA_BARS", "DATA_TABLE", "TIMELINE", "FLOW_STEPS",
-        "MAGNIFY", "VS_CARDS", "LOGO_GRID", "SQUIGGLE",
+        "SQUIGGLE",
+        # Text inside a magnifier or VS monogram cards is NOT a physical
+        # drawing. Those styles may exist in Data Viz, but cannot satisfy the
+        # strict no-text-only Sketch illustration obligation.
     }
     for e in entities:
         if e.get("asset_ref") or e.get("media_ref"):
