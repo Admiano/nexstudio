@@ -758,6 +758,20 @@ class BeatCompiler:
                                            visual_y,
                                            min(self.W - 2 * max(self.frame['x'], field['x'] - 9),
                                                field['w'] + 18), vh)
+            elif placement == 'EVIDENCE_WIDE':
+                # Five or more observations need horizontal time/category
+                # resolution. A 43%-wide split chart loses evidence labels.
+                # Reserve a full-width mathematical field and a voiced
+                # headline band rather than forcing a left/right card.
+                th = field['h'] * .29
+                gap = max(14., field['h'] * .027)
+                inset = field['w'] * .012
+                comp['text_zone'] = _box(field['x'], field['y'],
+                                         field['w'], th)
+                comp['visual_zone'] = _box(field['x'] + inset,
+                                           field['y'] + th + gap,
+                                           field['w'] - 2*inset,
+                                           field['h'] - th - gap)
             else:
                 gap = max(16.0, field['w'] * .02)
                 tw = field['w'] * max(.40, min(.46, ratio + .09))
