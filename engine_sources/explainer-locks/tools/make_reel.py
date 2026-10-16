@@ -1236,7 +1236,7 @@ def sketch_entities(gwords, media):
     native_mentions = []
     for drawing_class, nouns in reviewed.items():
         for noun in nouns:
-            match = re.search(r"\\b" + re.escape(noun) + r"\\b", text, re.I)
+            match = re.search(r"\b" + re.escape(noun) + r"\b", text, re.I)
             if match:
                 native_mentions.append((match.start(), noun))
     # Use recognized source nouns first, but maintain first-spoken order;
