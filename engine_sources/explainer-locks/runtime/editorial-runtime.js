@@ -3895,14 +3895,20 @@
         // Sketchbook-inspired IDLE -> action -> settle actor state.
         // We adapt the state grammar, NOT its 3D physics or rig. Never make
         // an actor gesture for a verb not attached to its exact source noun.
-        const actorCue = node.ops.find(o => o.op === 'SETTLE' &&
-          o.params && o.params.actor_action === true);
+        const actorCues = node.ops.filter(o => o.op === 'SETTLE' &&
+          o.params && o.params.actor_action === true)
+          .sort((a,b) => a.start_ms - b.start_ms);
+        // Select the LAST action whose spoken verb has arrived. Future
+        // gestures must never be previewed early; the old .find() always
+        // performed the first action, even while narrating a second one.
+        const actorCue = actorCues.filter(o => lt >= o.start_ms).slice(-1)[0];
         if (actorCue) {
           // Sketchbook-style semantic state lifecycle: IDLE -> spoken action
           // -> IDLE. A gait/gesture must not continue long after the narrator
           // moves on to the next thought. Fully deterministic at any seek time.
           const progress = clamp(prog(lt, actorCue.start_ms, actorCue.end_ms), 0, 1);
-          const act = arm.state;
+          const act = (actorCue.params && actorCue.params.actor_state) ||
+            arm.state;
           const locomotion = act === 'WALK' || act === 'RUN';
           // Sketchbook-style separate start, active, end phases. All phases
           // derive from the actual voice word cue, and are seek-deterministic.
@@ -3919,10 +3925,7 @@
           // distance and a counter-swinging arm; gestures stay at their
           // original world position. No autonomous looping or motion guessed
           // from the script's general subject.
-          const travel = locomotion
-            ? EASE.inOutCubic(clamp((progress - attackEnd * .42) /
-              (releaseStart - attackEnd * .42), 0, 1))
-            : 0;
+
           const armAngle = ({
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
             PRESENT: -38, POINT: -46, AGREE: -7,
@@ -3984,13 +3987,28 @@
             const liftY = act === 'JUMP' ? -unit * 0.078 * pulse :
               act === 'RUN' ? -unit * 0.013 * Math.abs(Math.sin(delta/76)) * pulse :
               act === 'WALK' ? -unit * 0.008 * Math.abs(Math.sin(delta/125)) * pulse : 0;
-            const travelX = (act === 'RUN' ? unit * .16 :
-                             act === 'WALK' ? unit * .095 : 0) * travel * arm.sign;
+            // Integrate motion across every earlier voiced locomotion cue.
+            // A character who walks, then waves stays at the walked-to
+            // location; it must not snap home at the second spoken verb.
+            const travelX = actorCues.reduce((sum, cue) => {
+              const state = cue.params && cue.params.actor_state;
+              if (state !== 'WALK' && state !== 'RUN') return sum;
+              const duration = Math.max(1, cue.end_ms - cue.start_ms);
+              const position = clamp((lt - cue.start_ms) / duration, 0, 1);
+              const ease = EASE.inOutCubic(clamp((position - .07) / .79, 0, 1));
+              return sum + (state === 'RUN' ? unit * .16 : unit * .095) * ease;
+            }, 0) * arm.sign;
             // Whole-body displacement and feet share a single transform;
             // direction follows the already source-grounded nearby actor.
             arm.portrait.setAttribute('transform',
               `translate(${f2(travelX)} ${f2(liftY)})`);
           }
+        } else {
+          // Addressable first frames and random seek positions start at IDLE.
+          // No inherited transform from a previously rendered time sample.
+          if (arm.counterArm) arm.counterArm.removeAttribute('transform');
+          if (arm.legs) arm.legs.forEach(leg => leg.group.removeAttribute('transform'));
+          if (arm.portrait) arm.portrait.removeAttribute('transform');
         }
       }
       if (gl.extra.tankWater) {
