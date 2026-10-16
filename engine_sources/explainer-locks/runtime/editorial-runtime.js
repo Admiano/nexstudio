@@ -4116,8 +4116,24 @@
         // transfer pull back to a full two-party overview.
         const actorHeight = Math.max(h.sender.bb.h, h.recipient.bb.h, 1);
         const closeScale = clamp(viewport.h * 0.59 / actorHeight, 1.30, 2.08);
-        const openingScale = closeScale, overviewScale = 1.005,
-          endingScale = closeScale;
+        // Shot safety is geometry-led, not a hardcoded 2.08x camera crop.
+        // Fit the ACTUAL painted actor and any source-owned caption inside
+        // the viewport, including in portrait. A dramatic close-up that cuts
+        // off the face/hands/label is worse than a fully legible medium shot.
+        const subjectFit = (node) => {
+          const b = node.bb, l = node.label && node.ent.label &&
+            node.ent.label.bbox;
+          const x0 = l ? Math.min(b.x,l.x) : b.x;
+          const y0 = l ? Math.min(b.y,l.y) : b.y;
+          const x1 = l ? Math.max(b.x+b.w,l.x+l.w) : b.x+b.w;
+          const y1 = l ? Math.max(b.y+b.h,l.y+l.h) : b.y+b.h;
+          const safeW = viewport.w * 0.93, safeH = viewport.h * 0.93;
+          return Math.max(1, Math.min(closeScale,
+            safeW / Math.max(1,x1-x0),
+            safeH / Math.max(1,y1-y0)));
+        };
+        const openingScale = subjectFit(h.sender), overviewScale = 1.005,
+          endingScale = subjectFit(h.recipient);
         const scale = lerp(lerp(openingScale, overviewScale, enter),
           endingScale, ending);
         const focalX = lerp(lerp(init.x, mid.x, enter), finish.x, ending);
