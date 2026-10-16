@@ -2167,6 +2167,32 @@
           svgEl('ellipse', { cx:f2(armEnd[0]), cy:f2(armEnd[1]),
             rx:f2(sw*.96), ry:f2(sw*.88), fill:paper,
             stroke:ink,'stroke-width':f2(sw*.85)},actionArm);
+          // A real vocabulary of 2D acting poses, not one shoulder rotation
+          // relabelled WALK, OFFER, POINT and WAVE. Details are all children
+          // of the articulated arm and therefore follow the actual hand.
+          const handPoint = svgEl('path', {
+            'data-performance':'point-finger',
+            d:polyPath([[armEnd[0],armEnd[1]],
+                        [armEnd[0]+rightSide*u*.074,armEnd[1]-u*.023]]),
+            stroke:ink,'stroke-width':f2(sw*.78),
+            'stroke-linecap':'round',fill:'none',opacity:'0'},actionArm);
+          const handPalm = svgEl('path', {
+            'data-performance':'open-palm',
+            d:`M${f2(armEnd[0]-rightSide*u*.018)} ${f2(armEnd[1]+u*.016)}
+              Q${f2(armEnd[0]+rightSide*u*.06)} ${f2(armEnd[1]+u*.006)}
+              ${f2(armEnd[0]+rightSide*u*.077)} ${f2(armEnd[1]-u*.066)}`,
+            stroke:ink,'stroke-width':f2(sw*.78),
+            'stroke-linecap':'round',fill:'none',opacity:'0'},actionArm);
+          const waveLines = svgEl('g', {
+            'data-performance':'wave-lines',opacity:'0' },actionArm);
+          for (const spread of [-1,1]) {
+            const waves=svgEl('path',{
+              d:polyPath([[armEnd[0]+rightSide*u*.067,armEnd[1]+spread*u*.018],
+                          [armEnd[0]+rightSide*u*.098,armEnd[1]+spread*u*.062]]),
+              stroke:accent,'stroke-width':f2(sw*1.2),fill:'none',
+              'stroke-linecap':'round'},waveLines);
+            node.outline.push(drawable(waves,u*.058));
+          }
           const quietArmGroup = svgEl('g', { 'data-drawing':'source-counter-arm' }, portrait);
           const quietShoulder = [cx - shoulder * rightSide, shoulderY + u * .09];
           const quietArm = svgEl('path', { fill: 'none',
@@ -2194,6 +2220,7 @@
             isSending: connected.some(rel => rel.source === ent.id),
             legs: actorLegs, counterArm: quietArmGroup,
             counterShoulder: quietShoulder,
+            handPoint, handPalm, waveLines,
             identity: params.actor_identity || ent.id,
             state: params.actor_state || 'IDLE',
             portrait, motionUnit: u,
@@ -3930,7 +3957,9 @@
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
             PRESENT: -38, POINT: -46, AGREE: -7,
             LISTEN: -5, TURN: 0, WALK: 0, RUN: 0, JUMP: 0,
-            WAVE: -58, WRITE: 24, LIFT: -54, STOP: -43
+            WAVE: -58, WRITE: 24, LIFT: -54, STOP: -43,
+            CONNECT: -42, REPAIR: 20, TEST: -34,
+            ASK: -25, SHRUG: 12, CLAP: -36
           })[act] || 0;
           const actionOscillation = (act === 'WAVE'
             ? Math.sin(delta / 95) * 11 * pulse :
@@ -3945,13 +3974,27 @@
           if (arm.counterArm) {
             const opposite = -gaitSwing * .86 +
               (act === 'PRESENT' ? -18 : act === 'AGREE' ? 5 :
-               act === 'JUMP' ? -28 : act === 'STOP' ? -16 : 0) * pulse;
+               act === 'JUMP' ? -28 : act === 'STOP' ? -16 :
+               act === 'CONNECT' ? -11 : act === 'REPAIR' ? 14 :
+               act === 'TEST' ? -12 : act === 'ASK' ? -22 :
+               act === 'SHRUG' ? 24 : act === 'CLAP' ? -39 : 0) * pulse;
             arm.counterArm.setAttribute('transform',
               `rotate(${f2(arm.sign * opposite)}
                 ${f2(arm.counterShoulder[0])} ${f2(arm.counterShoulder[1])})`);
           }
           arm.group.setAttribute('transform',
             `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+          // Separate finger, palm and emphatic-motion details are gated to
+          // their own spoken state. No visual hint appears before the word.
+          if (arm.handPoint) arm.handPoint.setAttribute('opacity', f3(
+            (act === 'POINT' || act === 'CONNECT' || act === 'INSPECT' ||
+             act === 'TEST') ? pulse : 0));
+          if (arm.handPalm) arm.handPalm.setAttribute('opacity', f3(
+            (act === 'OFFER' || act === 'RECEIVE' || act === 'PRESENT' ||
+             act === 'WAVE' || act === 'SHRUG' || act === 'ASK') ? pulse : 0));
+          if (arm.waveLines) arm.waveLines.setAttribute('opacity', f3(
+            (act === 'WAVE' || act === 'CLAP') ?
+            pulse * (.55 + .45 * Math.abs(Math.sin(delta / 90))) : 0));
           const focusAngle = (act === 'INSPECT' ? 9 :
             act === 'AGREE' ? Math.sin(delta / 90) * 8 :
             act === 'PRESENT' ? -5 : act === 'POINT' ? -9 :
@@ -3960,7 +4003,10 @@
             act === 'WRITE' ? 11 :
             act === 'LIFT' ? -6 :
             act === 'WAVE' ? -5 :
-            act === 'STOP' ? 3 : 0);
+            act === 'STOP' ? 3 : act === 'CONNECT' ? -7 :
+            act === 'REPAIR' ? 9 : act === 'TEST' ? 11 :
+            act === 'ASK' ? -10 : act === 'SHRUG' ? -6 :
+            act === 'CLAP' ? -3 : 0);
           if (arm.face) arm.face.setAttribute('transform',
             `rotate(${f2(arm.sign * 9 * lift + focusAngle * pulse)}
               ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
@@ -4006,6 +4052,9 @@
         } else {
           // Addressable first frames and random seek positions start at IDLE.
           // No inherited transform from a previously rendered time sample.
+          if (arm.handPoint) arm.handPoint.setAttribute('opacity', '0');
+          if (arm.handPalm) arm.handPalm.setAttribute('opacity', '0');
+          if (arm.waveLines) arm.waveLines.setAttribute('opacity', '0');
           if (arm.counterArm) arm.counterArm.removeAttribute('transform');
           if (arm.legs) arm.legs.forEach(leg => leg.group.removeAttribute('transform'));
           if (arm.portrait) arm.portrait.removeAttribute('transform');
