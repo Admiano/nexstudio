@@ -2495,11 +2495,17 @@
           bars.push(bar); caps.push(cap); names.push(nm);
         });
         node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           bars.forEach((bar, i) => {
             const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
+            // The bar mentioned NOW is the focal evidence. Earlier bars remain
+            // as dimmed context; future quantities stay entirely invisible.
+            const contextual = spokenStage >= 0 && i < spokenStage ? 0.50 : 1;
             bar.style.transform = `scaleY(${f3(Math.max(0.001, EASE.settle(kk)))})`;
-            caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1)) : '0');
-            names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1)));
+            bar.style.opacity = f3(kk > 0 ? contextual : 0);
+            caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1) * contextual) : '0');
+            names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1) * contextual));
           });
         };
         node.strike = strikeFor(b);
@@ -2542,9 +2548,13 @@
         if (header.length) emitRow(header, 0, true);
         rows.forEach((r, i) => emitRow(r, i + (header.length ? 1 : 0), false));
         node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           rowEls.forEach((g2, i) => {
-            const kk = node.extra.stageFraction ? node.extra.stageFraction(Math.max(0, i - (header.length ? 1 : 0)), lt) : clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
-            g2.setAttribute('opacity', f3(kk));
+            const row = Math.max(0, i - (header.length ? 1 : 0));
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(row, lt) : clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
+            const contextual = spokenStage >= 0 && row < spokenStage ? 0.49 : 1;
+            g2.setAttribute('opacity', f3(kk * contextual));
             g2.setAttribute('transform', `translate(0 ${f2((1 - EASE.settle(kk)) * rh * 0.55)})`);
           });
         };
@@ -2597,9 +2607,12 @@
         });
         const dots = items;
         node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           dots.forEach((g2, i) => {
             const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
-            g2.setAttribute('opacity', f3(kk));
+            const contextual = spokenStage >= 0 && i < spokenStage ? 0.46 : 1;
+            g2.setAttribute('opacity', f3(kk * contextual));
           });
         };
         node.strike = strikeFor(b);
