@@ -2189,6 +2189,7 @@
             isSending: connected.some(rel => rel.source === ent.id),
             legs: actorLegs, identity: params.actor_identity || ent.id,
             state: params.actor_state || 'IDLE',
+            portrait, motionUnit: u,
           };
         } else if (isIllustrated && params.visual_class === 'document') {
           const u = Math.min(b.w, b.h), cx = b.x + b.w / 2;
@@ -3870,30 +3871,48 @@
         const actorCue = node.ops.find(o => o.op === 'SETTLE' &&
           o.params && o.params.actor_action === true);
         if (actorCue) {
-          const arriving = EASE.outCubic(prog(lt, actorCue.start_ms,
-            actorCue.end_ms));
+          // Sketchbook-style semantic state lifecycle: IDLE -> spoken action
+          // -> IDLE. A gait/gesture must not continue long after the narrator
+          // moves on to the next thought. Fully deterministic at any seek time.
+          const progress = clamp(prog(lt, actorCue.start_ms, actorCue.end_ms), 0, 1);
+          const pulse = Math.sin(Math.PI * progress);
           const delta = Math.max(0, lt - actorCue.start_ms);
           const act = arm.state;
           const armAngle = ({
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
-            PRESENT: -38, AGREE: -7, WALK: 0, JUMP: 0
+            PRESENT: -38, POINT: -46, AGREE: -7,
+            LISTEN: -5, TURN: 0, WALK: 0, RUN: 0, JUMP: 0
           })[act] || 0;
-          const gestureAngle = -arm.sign * 27 * lift + arm.sign * armAngle * arriving;
+          const gestureAngle = -arm.sign * 27 * lift + arm.sign * armAngle * pulse;
           arm.group.setAttribute('transform',
             `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
           const focusAngle = (act === 'INSPECT' ? 9 :
-            act === 'AGREE' ? Math.sin(delta / 150) * 6 :
-            act === 'PRESENT' ? -5 : act === 'RECEIVE' ? -4 : 0);
+            act === 'AGREE' ? Math.sin(delta / 90) * 8 :
+            act === 'PRESENT' ? -5 : act === 'POINT' ? -9 :
+            act === 'LISTEN' ? 7 : act === 'TURN' ? 15 :
+            act === 'RECEIVE' ? -4 : 0);
           if (arm.face) arm.face.setAttribute('transform',
-            `rotate(${f2(arm.sign * 9 * lift + focusAngle * arriving)}
+            `rotate(${f2(arm.sign * 9 * lift + focusAngle * pulse)}
               ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
           if (arm.legs) {
             arm.legs.forEach((leg,i) => {
-              const gait = act === 'WALK' ? Math.sin(delta / 125 + i*Math.PI)*12*arriving :
-                act === 'JUMP' ? (i===0 ? -9 : 9)*Math.sin(Math.PI*arriving) : 0;
+              const walkCycle = Math.sin(delta / 125 + i*Math.PI) * 12;
+              const runCycle = Math.sin(delta / 76 + i*Math.PI) * 20;
+              const gait = (act === 'WALK' ? walkCycle :
+                act === 'RUN' ? runCycle :
+                act === 'JUMP' ? (i===0 ? -11 : 11) : 0) * pulse;
               leg.group.setAttribute('transform',
                 `rotate(${f2(gait)} ${f2(leg.hip[0])} ${f2(leg.hip[1])})`);
             });
+          }
+          // Move the whole source actor by a tiny, contained amount, not just
+          // one wrist. The recovered character retains its exact proportions.
+          if (arm.portrait) {
+            const unit = arm.motionUnit || 120;
+            const liftY = act === 'JUMP' ? -unit * 0.078 * pulse :
+              act === 'RUN' ? -unit * 0.013 * Math.abs(Math.sin(delta/76)) * pulse :
+              act === 'WALK' ? -unit * 0.008 * Math.abs(Math.sin(delta/125)) * pulse : 0;
+            arm.portrait.setAttribute('transform', `translate(0 ${f2(liftY)})`);
           }
         }
       }
