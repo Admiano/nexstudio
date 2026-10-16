@@ -383,6 +383,60 @@ def direct_scene_positions(style: str, beats: list[dict],
     return result
 
 
+def restore_kinetic_hierarchy(beat: dict) -> None:
+    """Restage an unbroken sentence as differently weighted spoken thoughts.
+
+    No subtitles, no per-script templates, no rewritten narration. Reintroduce
+    support-vs-hero typographic contrast with word-level entrances. The former
+    12+-word single-hero block caused the same two large lines in every scene.
+    Keep established multi-unit explanations (trends / process) unchanged.
+    """
+    units = beat.get("display_units") or []
+    if len(units) != 1 or units[0].get("role") != "hero":
+        return
+    words = beat["narration"].split()
+    n = len(words)
+    if n < 9:
+        return
+    # Keep the number of display units low enough to preserve native readable
+    # type size; support/hero size differentiation does the editorial work.
+    lo, hi = max(3, int(n * .30)), min(n - 3, int(n * .68))
+    if lo > hi:
+        return
+    cue = re.compile(r"^(?:because|although|however|whereas|while|before|after|"
+                     r"therefore|instead|but|yet|so|then|which|when|to)$", re.I)
+    natural = [(abs(k - n * .50), k) for k in range(lo, hi+1)
+               if cue.fullmatch(words[k].strip(".,;:!?")) or
+               words[k-1].endswith((",", ";", ":"))]
+    cut = min(natural)[1] if natural else min(hi, max(lo, n//2))
+    first, second = words[:cut], words[cut:]
+    if not first or not second:
+        return
+    # Promote the source's central actionable claim, not incidental sentence
+    # fragments. Early negations/actions, or an early measurement, are heroes;
+    # otherwise setup leads to the eventual narrated finding.
+    early = " ".join(first).lower()
+    early_action = bool(re.search(r"\\b(never|do not|avoid|circle|highlight|"
+                                  r"send|sends|carry|carries|connect|connects|"
+                                  r"transfer|transfers|look closely|zoom|inspect)\\b", early))
+    early_number = any(re.search(r"\\d", w) for w in first)
+    later_number = any(re.search(r"\\d", w) for w in second)
+    hero_first = (early_action or early_number) and not later_number
+    new = []
+    for i, phrase in enumerate((first, second)):
+        hero = (i == 0) if hero_first else (i == 1)
+        new.append({
+            "text": " ".join(phrase),
+            "role": "hero" if hero else "support",
+            "anchor_word": phrase[0],
+            "emphasis": .94 if hero else .52,
+            "semantic_role": "punch" if hero else "setup",
+            "can_promote": hero, "reveal": "WORD_CASCADE",
+            "stress": [w for w in phrase if re.search(r"\\d",w)]})
+    if " ".join(u["text"] for u in new) == beat["narration"]:
+        beat["display_units"] = new
+
+
 def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     """Apply a cross-beat film plan through the existing renderer contract."""
     plan = plan_film(style, beats)
@@ -422,6 +476,8 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             _bridge(beats[i-1], beat)
         if family in ("population_subset", "population_grid") and i:
             _subset(beats[i-1], beat)
+        if style in ("sketch", "dataviz"):
+            restore_kinetic_hierarchy(beat)
         entries.append({
             "beat_id": beat["beat_id"], "family": family,
             "evidence": list(selected.evidence),
