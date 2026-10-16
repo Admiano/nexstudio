@@ -532,24 +532,29 @@ def realize(family: str, beat: dict, *, style: str | None = None) -> bool:
                 if e.get("phrase", "").lower() == phrase.lower() and
                 (e.get("asset_ref") or (e.get("params") or {}).get("visual_class"))
             ]
-            if available:
+            from make_reel import STYLES
+            taxonomy = STYLES.get("sketch_visual_classes") or {}
+            kind = next((klass for klass, terms in taxonomy.items()
+                         if phrase.lower() in terms and
+                         klass in ("document", "list", "package", "person")), None)
+            if kind is not None:
+                # The licensed pictorial taxonomy is the visual authority for
+                # a named source item. Retain its mandatory source noun, but
+                # do not print it as a duplicate illustrated-object caption.
+                # A former registered TILE icon would otherwise mask the
+                # reviewed source-specific procedural drawing.
+                subject = {
+                    "id": available[0]["id"] if available else "director_focus_subject",
+                    "kind": "object", "glyph": "TILE", "size": "hero",
+                    "phrase": phrase.lower(), "label": phrase.lower(),
+                    "params": {"visual_class": kind, "caption_suppressed": True}}
+            elif available and available[0].get("asset_ref"):
                 subject = dict(available[0])
-                subject["params"] = dict(subject.get("params") or {})
                 subject.pop("label", None)
             else:
-                from make_reel import STYLES
-                taxonomy = STYLES.get("sketch_visual_classes") or {}
-                kind = next((klass for klass, terms in taxonomy.items()
-                             if phrase.lower() in terms and
-                             klass in ("document", "list", "package", "person")), None)
-                if kind is None:
-                    # Unsupported abstract subjects cannot become an invented
-                    # physical drawing. Strict Sketch visual QA rejects them.
-                    return False
-                subject = {"id": "director_focus_subject",
-                           "kind": "object", "glyph": "TILE", "size": "hero",
-                           "phrase": phrase.lower(),
-                           "params": {"visual_class": kind}}
+                # No source-supported physical subject: do not fabricate one
+                # merely so the film can have a magnifying-glass animation.
+                return False
             subject["size"] = "hero"
             lens_id = "director_focus_lens"
             subject_word = phrase.split()[0]
