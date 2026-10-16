@@ -320,6 +320,69 @@ def build_explanation_map(beats: list[dict]) -> dict[str, Any]:
             "claims": nodes, "connections": edges}
 
 
+def direct_scene_positions(style: str, beats: list[dict],
+                           plan: list[Opportunity]) -> list[dict[str, str]]:
+    """Choose a film-wide *spatial* grammar with aspect-native reading order.
+
+    Distinct scene intent drives positions: dense evidence earns the dominant
+    canvas before its annotation; causal/process stories usually introduce the
+    text first. A global beam balances clarity with visual repetition. It
+    does not assign placement by script topic, fixed beat index, or template ID.
+    """
+    if not beats:
+        return []
+    result = [{} for _ in beats]
+    proof = {"evidence_compare", "evidence_bridge", "evidence_trend",
+             "part_to_whole", "population_subset", "population_grid",
+             "categorical_columns", "categorical_table", "completion_meter",
+             "milestone_timeline"}
+    mechanism = {"mechanism", "spoken_process", "physical_stage",
+                 "highlighted_subject", "negated_subject"}
+    for aspect in ("1x1", "9x16", "16x9"):
+        names = ("TEXT_LEFT", "TEXT_RIGHT") if aspect == "16x9" else ("TEXT_TOP", "TEXT_BOTTOM")
+        beam = [(0.0, ())]
+        for i, (b, p) in enumerate(zip(beats, plan)):
+            if not b.get("illustration"):
+                # The authored source has no independent evidence layer:
+                # preserve its native typography-only composition.
+                continue
+            words = len(b["narration"].split())
+            new = []
+            for score, path in beam:
+                for side in names:
+                    text_first = side in ("TEXT_LEFT", "TEXT_TOP")
+                    value = .0
+                    if p.family in proof:
+                        value += (.36 if not text_first else -.12)
+                    if p.family in mechanism:
+                        value += (.40 if text_first else -.08)
+                    if p.family in ("resolve", "editorial_reveal",
+                                    "editorial_magnification"):
+                        value += (.17 if text_first else .08)
+                    if words >= 19:
+                        value += (.17 if text_first else 0)
+                    if p.family in ("population_grid", "evidence_trend"):
+                        value += (.26 if not text_first else 0)
+                    if path and path[-1] == side:
+                        value -= .27
+                    if len(path) >= 2 and path[-1] == path[-2] == side:
+                        value -= .38
+                    if i > 0 and b.get("illustration", {}).get("carry"):
+                        # The same evidence does not teleport across a
+                        # continuing scene. Reuse its prior placement.
+                        if path and path[-1] != side:
+                            value -= 3.0
+                    new.append((score+value, path+(side,)))
+            beam = sorted(new, key=lambda entry:(-entry[0], entry[1]))[:14]
+        active = [i for i,b in enumerate(beats) if b.get("illustration")]
+        if not active:
+            continue
+        sides = beam[0][1]
+        for i, side in zip(active, sides):
+            result[i][aspect] = side
+    return result
+
+
 def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     """Apply a cross-beat film plan through the existing renderer contract."""
     plan = plan_film(style, beats)
@@ -364,6 +427,13 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             "evidence": list(selected.evidence),
             "source_beat_ids": [e["beat_id"] for e in beat.get("director_evidence", [])],
             "form": (beat.get("illustration") or {}).get("form")})
+    # Realization must precede composition: the chosen repertoire family
+    # can replace an initial generic illustration with a new evidence scene.
+    positions = direct_scene_positions(style, beats, plan)
+    for beat, entry, layout in zip(beats, entries, positions):
+        if layout:
+            beat["director_layout"] = layout
+            entry["director_layout"] = layout
     return {"version": "SCENEBAM_FILM_DIRECTOR_V1", "style": style,
             "scenes": entries, "global_lookahead": len(beats),
             "explanation_map": build_explanation_map(beats),
