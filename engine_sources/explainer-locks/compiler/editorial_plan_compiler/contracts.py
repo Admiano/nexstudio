@@ -136,6 +136,13 @@ def check_labels(units: List['DisplayUnit'], illus: 'IllustrationDirective', bea
     for e in illus.entities:
         if not e.label:
             continue
+        # A photographed/illustrated SOURCE noun can have its visible caption
+        # suppressed when a voice-timed headline is already saying it. The
+        # source label remains mandatory to license the pictorial class.
+        if (e.glyph == 'TILE' and e.params.get('caption_suppressed') is True
+                and e.params.get('visual_class') in
+                    ('person', 'document', 'list', 'population', 'package')):
+            continue
         words = _norm_words(e.label)
         if not words:
             continue
@@ -263,6 +270,15 @@ class IllustrationEntity:
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
+        if 'caption_suppressed' in params:
+            _need(params['caption_suppressed'] is True and
+                  params.get('visual_class') in
+                  ('person', 'document', 'list', 'population', 'package')
+                  and label is not None and glyph == 'TILE'
+                  and asset_ref is None and concept is None,
+                  'SOURCE_CAPTION_SUPPRESSION_INVALID',
+                  f'{eid}: only a source-labelled procedural drawing can suppress its duplicate caption',
+                  beat_id)
         if 'visual_class' in params:
             _need(params['visual_class'] in ('person', 'document', 'list', 'population', 'package') and
                   glyph == 'TILE' and kind == 'object' and label is not None
