@@ -512,11 +512,13 @@ def time_subject_arrivals(beat: dict) -> None:
     introduced standalone objects.
     """
     il = beat.get("illustration") or {}
-    if il.get("carry") or il.get("persist_to"):
-        return
+    # A continuing Sketch scene may retain two figures while introducing a
+    # THIRD character. Never retime the carried bodies, but the new participant
+    # still belongs to the spoken noun rather than the beginning of the cut.
+    carried = set((il.get("carry") or {}).get("entities") or [])
     narration = beat["narration"]
     for ent in il.get("entities") or []:
-        if ent.get("kind") not in ("object", "agent"):
+        if ent.get("id") in carried or ent.get("kind") not in ("object", "agent"):
             continue
         phrase = str(ent.get("phrase") or ent.get("label") or "")
         if not phrase:
