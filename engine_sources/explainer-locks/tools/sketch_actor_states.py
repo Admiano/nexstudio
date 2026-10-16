@@ -12,12 +12,18 @@ from __future__ import annotations
 import re
 
 STATE_ACTIONS = (
-    ("WALK", r"walks?|runs?|moves?|approaches?|steps?"),
+    # Distinct locomotion and explicit short gestures. A narrated RUN must
+    # never silently degrade into WALK; no state is inferred from context.
+    ("RUN", r"runs?|sprints?|dashes?"),
+    ("WALK", r"walks?|moves?|approaches?|steps?"),
+    ("TURN", r"turns?|rotates?|faces?"),
+    ("POINT", r"points?|indicates?"),
     ("OFFER", r"carries|carry|sends?|hands?|gives?|delivers?|passes?|offers?"),
     ("RECEIVE", r"receives?|accepts?|takes?|catches?"),
     ("INSPECT", r"checks?|inspects?|examines?|reads?|looks?|watches?"),
-    ("PRESENT", r"points?|shows?|presents?|explains?|teaches?|demonstrates?"),
+    ("PRESENT", r"shows?|presents?|explains?|teaches?|demonstrates?"),
     ("AGREE", r"agrees?|nods?|confirms?"),
+    ("LISTEN", r"listens?|hears?"),
     ("JUMP", r"jumps?|leaps?"),
 )
 # Every state has an explicit rest. Source actions are transient performances,
@@ -62,7 +68,7 @@ def bind_actor_performances(beat: dict) -> list[dict]:
         ent["params"] = params
         # A real native actor stage has a voice-triggered, seek-safe onset.
         # SETTLE is existing compiler grammar and does not add off-script VO.
-        if len(il.get("program") or []) >= 11:
+        if len(il.get("program") or []) >= 10:
             continue
         il.setdefault("program", []).append({
             "op": "SETTLE", "target": ent["id"],
