@@ -25,6 +25,10 @@ STATE_ACTIONS = (
     ("AGREE", r"agrees?|nods?|confirms?"),
     ("LISTEN", r"listens?|hears?"),
     ("JUMP", r"jumps?|leaps?"),
+    ("WAVE", r"waves?|greets?"),
+    ("WRITE", r"writes?|signs?|draws?"),
+    ("LIFT", r"lifts?|raises?|hoists?"),
+    ("STOP", r"stops?|halts?"),
 )
 # Every state has an explicit rest. Source actions are transient performances,
 # not a new character identity per scene. No unrelated action is ever inferred.
