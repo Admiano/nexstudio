@@ -6575,7 +6575,20 @@
     "₿": "bitcoin"
   },
   "sketch_visual_classes": {
-    "population": ["people", "crowd", "population", "audience", "villagers", "residents", "citizens", "volunteers", "patients", "customers", "workers", "participants"],
+    "population": [
+      "people",
+      "crowd",
+      "population",
+      "audience",
+      "villagers",
+      "residents",
+      "citizens",
+      "volunteers",
+      "patients",
+      "customers",
+      "workers",
+      "participants"
+    ],
     "person": [
       "teacher",
       "student",
@@ -6627,7 +6640,10 @@
       "neighbor",
       "neighbour",
       "volunteer",
-      "reporter"
+      "reporter",
+      "technician",
+      "mechanic",
+      "operator"
     ],
     "document": [
       "invoice",
@@ -6660,6 +6676,13 @@
       "outline",
       "roster",
       "schedule"
+    ],
+    "package": [
+      "parcel",
+      "package",
+      "box",
+      "crate",
+      "carton"
     ]
   }
 }
