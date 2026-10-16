@@ -11,6 +11,8 @@ on:
       - "engine_sources/explainer-locks/tools/scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/sketch_actor_states.py"
       - "engine_sources/explainer-locks/tools/test_sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/test_audio_locked_scene_direction.py"
+      - "engine_sources/explainer-locks/compiler/editorial_plan_compiler/illustration.py"
       - "engine_sources/explainer-locks/tools/test_scene_repertoire.py"
       - "engine_sources/explainer-locks/styles.json"
       - "engine_sources/explainer-locks/runtime/**"
@@ -72,6 +74,7 @@ jobs:
           python tools/test_scene_director.py -q
           python tools/test_scene_repertoire.py -q
           python tools/test_sketch_actor_states.py -q
+          python tools/test_audio_locked_scene_direction.py -q
       - name: Synthesize Microsoft Andrew and render 2 real aspect videos
         working-directory: engine_sources/explainer-locks
         run: |
