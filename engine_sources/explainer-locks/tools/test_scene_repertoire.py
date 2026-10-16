@@ -117,6 +117,33 @@ class RepertoireTests(unittest.TestCase):
         self.assertEqual(highlight["illustration"]["entities"][-1]["glyph"], "MARK_CIRCLE")
         BeatTreatment.parse(highlight)
 
+    def test_sketch_magnification_scans_real_source_art_not_text_card(self):
+        # The same direction works for genuinely different licensed objects.
+        examples = [
+            ("Look closely at the warning label to confirm the instruction.", "warning label"),
+            ("Inspect the receipt to verify the payment.", "receipt"),
+            ("Focus on the document because it contains the rule.", "document"),
+        ]
+        for narration, target in examples:
+            with self.subTest(target=target):
+                b = beat(narration, "sketch")
+                report = direct_film("sketch", [b])
+                self.assertEqual(report["sketch_visual_coverage_failures"], [])
+                self.assertEqual(report["scenes"][0]["family"], "editorial_magnification")
+                illustration = b["illustration"]
+                self.assertEqual(illustration["form"], "CALLOUT_LENS")
+                self.assertEqual({e["glyph"] for e in illustration["entities"]}, {"TILE", "LENS"})
+                subject = next(e for e in illustration["entities"] if e["glyph"] == "TILE")
+                self.assertEqual(subject["phrase"], target)
+                self.assertEqual(subject["params"]["visual_class"], "document")
+                self.assertNotIn("label", subject)
+                self.assertEqual(illustration["relations"][0]["type"], "scans")
+                self.assertTrue(any(o["op"] == "TRAVEL" and
+                                    subject["id"] in o["params"]["over"]
+                                    for o in illustration["program"]))
+                self.assertEqual(b["narration"], narration)
+                BeatTreatment.parse(b)
+
     def test_sketch_real_visual_markup_is_not_applied_to_negated_claims(self):
         cases=[
             ("Never use the receipt.", "negated_subject", "PROHIBIT","blocks"),
