@@ -3435,6 +3435,18 @@
       // If exact speech evidence is absent, preserve the original entrance.
       let sourceReveal = 1;
       if (ctx.directorStyle === 'sketch') {
+        // Sketch visuals must be drawn with their literal spoken nouns.
+        // The old early-furniture entry rendered a whole actor/object before
+        // its narrator-owned DRAW command, leaving only static words to move.
+        // Applied equally to people and source-grounded physical objects.
+        const sourceDraw = node.ops.find(o => o.op === 'DRAW' &&
+          o.anchor && typeof o.anchor.word === 'string');
+        const pictured = ent.params && (ent.params.visual_class || ent.asset) ||
+          ['PUMP','TANK','VESSEL','POPULATION_GRID'].includes(ent.glyph);
+        if (pictured && sourceDraw) {
+          sourceReveal = EASE.outCubic(prog(lt,
+            sourceDraw.start_ms - 80, sourceDraw.end_ms));
+        }
         const incomingHandoff = (ill.handoffs || []).find(h =>
           h.cargo && h.recipient === node);
         if (incomingHandoff) {
@@ -3442,7 +3454,7 @@
           if (named) {
             const revealEnd = Math.min(beat.duration_ms,
               Math.max(named.end_ms, named.start_ms + 180));
-            sourceReveal = EASE.outCubic(prog(lt, named.start_ms, revealEnd));
+            sourceReveal *= EASE.outCubic(prog(lt, named.start_ms, revealEnd));
           }
         }
       }
@@ -3481,7 +3493,7 @@
             cue.start_ms - 50, cue.end_ms + 380));
         }
       }
-      let semanticLabelFade = 1;
+      let semanticLabelFade = ctx.directorStyle === 'sketch' ? sourceReveal : 1;
       if (ctx.directorStyle === 'sketch') {
         // Two authored flow edges through a named, portable object express
         // source -> payload -> recipient. Move that SAME existing illustration
