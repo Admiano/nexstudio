@@ -50,9 +50,56 @@ def _op(name: str, target: str, word: str, duration: int = 460, **fields) -> dic
             "duration_ms": duration, **fields}
 
 
+def _narrated_stage_ops(beat: dict, glyphs: list[dict],
+                         ops: list[dict]) -> list[dict]:
+    """Progress real SVG bars, rows, steps and evidence *as each is spoken*.
+
+    The master voice remains continuous. This method only supplies native
+    illustration operation anchors; the compiler maps original narration words
+    to the recorded speech clock. Neither video time nor source values are
+    hardcoded.
+    """
+    if len(glyphs) != 1:
+        return ops
+    graphic = glyphs[0]
+    kind = graphic["glyph"]
+    cues = []
+    source_words = beat["narration"].split()
+    if kind in ("DATA_BARS", "DATA_TABLE"):
+        cues = [str(q.get("anchor") or q["source"].split()[0])
+                for q in _qs(beat) if q.get("source")]
+    elif kind == "TIMELINE":
+        cues = [event["label"] for event in graphic["params"]["events"]]
+    elif kind == "FLOW_STEPS":
+        cues = [m.group() for m in re.finditer(
+            r"\b(first|second|third|fourth|then|next|finally)\b",
+            beat["narration"], re.I)]
+    elif kind == "VS_CARDS":
+        cues = [card["title"].split()[0] for card in graphic["params"]["cards"]]
+    if not (2 <= len(cues) <= 8):
+        return ops
+    # An anchor absent from the actual recorded words cannot be silently
+    # converted to an arbitrary timestamp; use the original program instead.
+    lexical = {re.sub(r"[^a-z0-9]", "", w.lower()) for w in source_words}
+    if any(re.sub(r"[^a-z0-9]", "", cue.lower()) not in lexical for cue in cues):
+        return ops
+    # Consecutive small steps reveal exact matching evidence pieces as voice
+    # reaches their source. setGrow(k) in the original native runtime already
+    # reveals progressive chart components; these ops become its timeline.
+    result = [op for op in ops if op["op"] != "GROW"]
+    n = len(cues)
+    for index, cue in enumerate(cues):
+        result.append({"op": "GROW", "target": graphic["id"],
+                       "at": {"word": cue}, "duration_ms": 320,
+                       "from": round(index/n, 5),
+                       "to": round((index+1)/n, 5)})
+    return result
+
+
 def _commit(beat: dict, glyphs: list[dict], ops: list[dict], *,
             form: str = "OBJECT_STAGE", relations: list[dict] | None = None,
             evidence: list[dict] | None = None) -> None:
+    ops = _narrated_stage_ops(beat, glyphs, ops)
     beat["illustration"] = {"form": form, "entities": glyphs,
                             "relations": relations or [], "program": ops,
                             "confirmation": False}
