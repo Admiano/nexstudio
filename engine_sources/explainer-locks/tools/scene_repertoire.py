@@ -262,7 +262,28 @@ def _source_overlay_target(beat: dict) -> dict | None:
     # Carry the identifiable drawing, not a text collage of those adjectives.
     drawn = [e for e in ents if e.get("asset_ref") or
              (e.get("params") or {}).get("visual_class")]
-    return drawn[0] if len(drawn) == 1 else None
+    if len(drawn) == 1:
+        return drawn[0]
+    if not drawn:
+        return None
+    # Multiple illustrated nouns may be present, but the *imperative* has a
+    # single directly named object. "Never use the damaged receipt because
+    # the delivery..." must mark the RECEIPT, not the incidental delivery.
+    # An instruction naming two objects stays uncommitted rather than
+    # arbitrarily choosing the first.
+    source = beat["narration"]
+    imperative = re.search(
+        r"\b(?:never\s+use|do\s+not\s+use|don't\s+use|avoid|"
+        r"prohibit|forbid|circle|highlight|mark|identify|single\s+out)\b",
+        source, re.I)
+    if not imperative:
+        return None
+    instruction = re.split(r"\b(?:because|so that|so the|which|whereas)\b",
+                           source[imperative.end():], maxsplit=1, flags=re.I)[0]
+    named = [e for e in drawn
+             if e.get("phrase") and re.search(
+                 r"\b"+re.escape(e["phrase"])+r"\b", instruction, re.I)]
+    return named[0] if len(named) == 1 else None
 
 
 def _safe_overlay(beat: dict, *, block: bool) -> bool:
@@ -287,16 +308,17 @@ def _safe_overlay(beat: dict, *, block: bool) -> bool:
             return False
         graphic, typ, form, op = "MARK_CIRCLE", "marks", "OBJECT_STAGE", "TRACE"
     mark = "director_overlay"
+    target_cue = name.split()[0]
     current = ([op for op in (il.get("program") or []) if op.get("target") == target["id"]]
                if len(il.get("entities") or []) == 1 else
-               [_op("DRAW", target["id"], text.split()[0], 460)])
+               [_op("DRAW", target["id"], target_cue, 460)])
     if len(current) >= 9:
         return False
     ents.append(_glyph(mark, graphic))
     il["entities"] = ents
     il["relations"] = (il.get("relations") or []) + [
         {"type": typ, "source": mark, "target": target["id"]}]
-    il["program"] = current + [_op(op, mark, text.split()[0])]
+    il["program"] = current + [_op(op, mark, target_cue)]
     beat["illustration"] = il
     return True
 
