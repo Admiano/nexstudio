@@ -56,6 +56,26 @@ class NativeSketchActorStatesTests(unittest.TestCase):
         self.assertEqual(actions,[])
         BeatTreatment.parse(b)
 
+    def test_sketch_refuses_word_only_card(self):
+        beat = {
+            "beat_id": "b01", "narration": "A hypothetical concept is mentioned.",
+            "beat_type": "SETUP", "pattern": "PROGRESSIVE_HERO_BUILD",
+            "dominant_layer": "HYBRID",
+            "display_units": [{
+                "text": "A hypothetical concept is mentioned.",
+                "role": "hero", "anchor_word": "A", "reveal": "WORD_CASCADE"}],
+            "illustration": {
+                "form": "OBJECT_STAGE",
+                "entities": [{"id":"concept","kind":"object","glyph":"PILL",
+                              "size":"hero","label":"concept","phrase":"concept"}],
+                "relations": [], "program": [
+                    {"op":"DRAW","target":"concept",
+                     "at":{"word":"concept"},"duration_ms":420}],
+                "confirmation":False},
+        }
+        with self.assertRaisesRegex(ValueError, "SKETCH_VISUAL_SUBJECT_REQUIRED"):
+            direct_film("sketch", [beat])
+
     def test_film_director_integrates_identity_and_script_actions(self):
         b=shot("The nurse inspects the document.")
         report=direct_film("sketch",[b])
