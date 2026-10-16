@@ -1973,6 +1973,35 @@
               node.outline.push(drawable(limb, polyLength(pts)));
             }
           }
+        } else if (isIllustrated && params.visual_class === 'package') {
+          // Source-mentioned package: a spatially legible editorial parcel,
+          // not an arbitrary word in a UI pill or an invented branded item.
+          const u = Math.min(b.w, b.h), cx = b.x + b.w * 0.51;
+          const cy = b.y + b.h * 0.51, bw = u * 0.58, bh = u * 0.43;
+          const depth = u * 0.13;
+          const x = cx - bw * 0.5, y = cy - bh * 0.38;
+          const group = svgEl('g', {'data-drawing': 'source-parcel'}, g);
+          const panels = [
+            {pts:[[x,y],[x+depth,y-depth],[x+bw+depth,y-depth],[x+bw,y]],
+             fill:mixColor(paper,accent,0.16)},
+            {pts:[[x+bw,y],[x+bw+depth,y-depth],[x+bw+depth,y+bh-depth],[x+bw,y+bh]],
+             fill:mixColor(paper,ink,0.15)},
+            {pts:[[x,y],[x+bw,y],[x+bw,y+bh],[x,y+bh]],
+             fill:mixColor(paper,accent,0.055)}
+          ];
+          panels.forEach(panel=>{
+            const pts=panel.pts;
+            const p=svgEl('path',{d:polyPath([...pts,pts[0]]),fill:panel.fill,
+              stroke:ink,'stroke-width':f2(sw*1.4),
+              'stroke-linejoin':'round'},group);
+            node.outline.push(drawable(p,polyLength([...pts,pts[0]])));
+          });
+          const tape = svgEl('path',{
+            d:polyPath([[cx-u*.10,y-u*.003],[cx+depth*.47,y-depth*.98],
+              [cx+depth*.47,y+bh-depth*.98]]),
+            fill:'none',stroke:accent,'stroke-width':f2(sw*1.85),
+            'stroke-linecap':'round','stroke-linejoin':'round'},group);
+          node.outline.push(drawable(tape,u*.53));
         } else if (isIllustrated && params.visual_class === 'person') {
           const u = Math.min(b.w, b.h);
           const cx = b.x + b.w * 0.5, top = b.y + b.h * 0.045;
