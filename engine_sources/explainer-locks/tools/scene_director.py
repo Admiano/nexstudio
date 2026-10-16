@@ -570,8 +570,13 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
         if style in ("sketch", "dataviz"):
             restore_kinetic_hierarchy(beat)
         if style == "sketch":
+            from sketch_actor_states import bind_actor_performances, ensure_source_count_visual
+            # No text-only Sketch scenes. Before failing closed, realize exact
+            # source-spoken counts as a native base-ten drawing (ones/tens/
+            # hundreds). No decorative placeholder or inferred denominator.
+            if not _sketch_has_meaningful_visual(beat):
+                ensure_source_count_visual(beat)
             time_subject_arrivals(beat)
-            from sketch_actor_states import bind_actor_performances
             actor_actions = bind_actor_performances(beat)
         else:
             actor_actions = []
