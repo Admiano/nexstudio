@@ -84,6 +84,24 @@ class SceneDirectorTests(unittest.TestCase):
                     if entity.get("phrase") in ("pump", "tank"):
                         self.assertEqual(entity["glyph"], entity["phrase"].upper())
 
+    def test_source_subjects_do_not_turn_modifiers_into_objects(self):
+        scenes = [
+            ("A courier sends a sealed parcel to a driver.",
+             {"courier", "parcel", "driver"}, {"sealed"}),
+            ("The driver carries the same parcel to a waiting customer.",
+             {"driver", "parcel", "customer"}, {"same", "waiting"}),
+            ("A technician connects the pump to the water tank.",
+             {"technician", "pump", "tank"}, {"water"}),
+        ]
+        for source, expected, excluded in scenes:
+            with self.subTest(source=source):
+                b = make_reel.sketch_beat(words(source), 0, 1, set(), [])
+                names = {e.get("phrase") for e in b["illustration"]["entities"]}
+                self.assertTrue(expected <= names, (source, expected, names))
+                self.assertFalse(names & excluded, (source, excluded, names))
+                self.assertEqual(b["narration"], source)
+                BeatTreatment.parse(b)
+
     def test_kinetic_copy_restores_hierarchy_without_rewriting_audio(self):
         examples = [
             "A courier carefully sends a sealed parcel to a driver at the main station.",
