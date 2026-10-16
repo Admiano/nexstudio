@@ -462,6 +462,46 @@ def restore_kinetic_hierarchy(beat: dict) -> None:
         beat["display_units"] = new
 
 
+def direct_spoken_stat_typography(beat: dict) -> None:
+    """Small narrated lead-in -> large source measurement, timed independently.
+
+    A seven-word sentence should not always become two uniform full-width
+    rows. Give the meaning-carrying numerical assertion the typographic
+    emphasis, on the same exact source word that animates the numeric graphic.
+    Neither audio nor authored wording is replaced or shortened.
+    """
+    units = beat.get("display_units") or []
+    measures = _measures(beat)
+    if len(units) != 1 or len(measures) != 1 or units[0].get("role") != "hero":
+        return
+    words = beat["narration"].split()
+    q = measures[0]
+    idx = q.get("word_start")
+    if not isinstance(idx, int) or not (2 <= idx <= min(7,len(words)-2)):
+        return
+    if not (5 <= len(words) <= 11):
+        return
+    # Approximate or negated values should retain the original grammatical
+    # qualifier rather than receive a false precise-stat punch.
+    if q.get("qualifier") or q.get("signed"):
+        return
+    first, second = words[:idx], words[idx:]
+    if not first or not second:
+        return
+    new = [
+        {"text": " ".join(first), "role": "support",
+         "anchor_word": first[0], "emphasis": .48,
+         "semantic_role": "setup", "can_promote": False,
+         "reveal": "WORD_CASCADE", "stress": []},
+        {"text": " ".join(second), "role": "hero",
+         "anchor_word": second[0], "emphasis": .96,
+         "semantic_role": "proof", "can_promote": True,
+         "reveal": "WORD_CASCADE",
+         "stress": [second[0]]}]
+    if " ".join(u["text"] for u in new) == beat["narration"]:
+        beat["display_units"] = new
+
+
 def time_subject_arrivals(beat: dict) -> None:
     """Use the original source noun as the entry cue for drawn actors/objects.
 
@@ -575,6 +615,8 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
         if family in ("population_subset", "population_grid") and i:
             _subset(beats[i-1], beat)
         if style in ("sketch", "dataviz"):
+            if style == "dataviz":
+                direct_spoken_stat_typography(beat)
             restore_kinetic_hierarchy(beat)
             # A spoken noun/measurement is the timing authority for both the
             # kinetic sentence and its scene's state changes. Compiler may
