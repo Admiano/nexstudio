@@ -2129,8 +2129,16 @@
           for (const pts of limbs) {
             const leg = svgEl('g', { 'data-drawing': 'source-actor-leg' }, portrait);
             const limb = svgEl('path', { ...line, d: polyPath(pts),
-              'stroke-width': sw * 1.7 }, leg);
+              'stroke-width': sw * 1.7, 'stroke-linecap': 'round' }, leg);
             node.outline.push(drawable(limb, polyLength(pts)));
+            // The planted shoe BELONGS to this moving leg. In the recovered
+            // actor it was painted onto the torso group while the shin swung
+            // independently, making the feet visibly detach during walking.
+            const side = pts[1][0] < cx ? -1 : 1;
+            svgEl('ellipse', { cx: f2(pts[1][0] + side * u * .025),
+              cy: f2(pts[1][1] + sw * .45), rx: f2(u * .069),
+              ry: f2(Math.max(sw * .86, u * .019)), fill: ink,
+              'data-drawing': 'source-actor-foot' }, leg);
             actorLegs.push({ group: leg, hip: pts[0] });
           }
           const connected = (il.relations || []).filter(rel =>
@@ -2145,12 +2153,7 @@
           // Rounded limbs, small hands and grounded feet make a body feel
           // deliberately drawn rather than a wire-frame icon. No profession,
           // age, race, uniform or other unsupported trait is inferred.
-          for (const side of [-1,1]) {
-            const fx = cx + side*u*.105, fy = footY;
-            svgEl('ellipse', { cx:f2(fx+side*u*.025), cy:f2(fy+sw*.45),
-              rx:f2(u*.069), ry:f2(Math.max(sw*.86,u*.019)),
-              fill:ink },portrait);
-          }
+
           const actionArm = svgEl('g', { 'data-drawing': 'source-gesture' }, portrait);
           const armBase = [cx + shoulder * rightSide, shoulderY + u * .09];
           const armEnd = [cx + u * .30 * rightSide, top + u * .54];
@@ -2164,17 +2167,19 @@
           svgEl('ellipse', { cx:f2(armEnd[0]), cy:f2(armEnd[1]),
             rx:f2(sw*.96), ry:f2(sw*.88), fill:paper,
             stroke:ink,'stroke-width':f2(sw*.85)},actionArm);
+          const quietArmGroup = svgEl('g', { 'data-drawing':'source-counter-arm' }, portrait);
+          const quietShoulder = [cx - shoulder * rightSide, shoulderY + u * .09];
           const quietArm = svgEl('path', { fill: 'none',
-            d: `M${f2(cx - shoulder * rightSide)} ${f2(shoulderY + u * .09)}
+            d: `M${f2(quietShoulder[0])} ${f2(quietShoulder[1])}
                 Q${f2(cx - u*.28*rightSide)} ${f2(top + u*.53)}
                   ${f2(cx - u*.185*rightSide)} ${f2(top + u*.65)}`,
             stroke: ink, 'stroke-width': f2(sw * 1.65),
-            'stroke-linecap': 'round' }, portrait);
+            'stroke-linecap': 'round' }, quietArmGroup);
           node.outline.push(drawable(quietArm, u * .36));
           const restingHand = [cx-u*.185*rightSide,top+u*.65];
           svgEl('ellipse',{cx:f2(restingHand[0]),cy:f2(restingHand[1]),
             rx:f2(sw*.86),ry:f2(sw*.74),fill:paper,
-            stroke:ink,'stroke-width':f2(sw*.75)},portrait);
+            stroke:ink,'stroke-width':f2(sw*.75)},quietArmGroup);
           const baseline = svgEl('path', { ...line,
             d: polyPath([[cx - u*.21, footY + sw * 1.7],
                          [cx + u*.21, footY + sw * 1.7]]),
@@ -2187,7 +2192,9 @@
             face, headPivot: [cx, headY],
             isReceiving: connected.some(rel => rel.target === ent.id),
             isSending: connected.some(rel => rel.source === ent.id),
-            legs: actorLegs, identity: params.actor_identity || ent.id,
+            legs: actorLegs, counterArm: quietArmGroup,
+            counterShoulder: quietShoulder,
+            identity: params.actor_identity || ent.id,
             state: params.actor_state || 'IDLE',
             portrait, motionUnit: u,
           };
@@ -3907,6 +3914,15 @@
             clamp((progress - releaseStart) / (1 - releaseStart), 0, 1));
           const pulse = phaseIn * phaseOut;
           const delta = Math.max(0, lt - actorCue.start_ms);
+          // Sketchbook-style controller: one explicit anticipation, action
+          // and deceleration sequence. Locomotion has a physical travelled
+          // distance and a counter-swinging arm; gestures stay at their
+          // original world position. No autonomous looping or motion guessed
+          // from the script's general subject.
+          const travel = locomotion
+            ? EASE.inOutCubic(clamp((progress - attackEnd * .42) /
+              (releaseStart - attackEnd * .42), 0, 1))
+            : 0;
           const armAngle = ({
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
             PRESENT: -38, POINT: -46, AGREE: -7,
@@ -3916,8 +3932,21 @@
           const actionOscillation = (act === 'WAVE'
             ? Math.sin(delta / 95) * 11 * pulse :
               act === 'WRITE' ? Math.sin(delta / 115) * 6 * pulse : 0);
+          const gaitSwing = locomotion
+            ? Math.sin(Math.max(0, delta - (actorCue.end_ms -
+              actorCue.start_ms) * attackEnd) /
+              (act === 'RUN' ? 76 : 125)) * (act === 'RUN' ? 16 : 11) * pulse
+            : 0;
           const gestureAngle = -arm.sign * 27 * lift +
-            arm.sign * (armAngle * pulse + actionOscillation);
+            arm.sign * (armAngle * pulse + actionOscillation + gaitSwing);
+          if (arm.counterArm) {
+            const opposite = -gaitSwing * .86 +
+              (act === 'PRESENT' ? -18 : act === 'AGREE' ? 5 :
+               act === 'JUMP' ? -28 : act === 'STOP' ? -16 : 0) * pulse;
+            arm.counterArm.setAttribute('transform',
+              `rotate(${f2(arm.sign * opposite)}
+                ${f2(arm.counterShoulder[0])} ${f2(arm.counterShoulder[1])})`);
+          }
           arm.group.setAttribute('transform',
             `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
           const focusAngle = (act === 'INSPECT' ? 9 :
@@ -3955,7 +3984,12 @@
             const liftY = act === 'JUMP' ? -unit * 0.078 * pulse :
               act === 'RUN' ? -unit * 0.013 * Math.abs(Math.sin(delta/76)) * pulse :
               act === 'WALK' ? -unit * 0.008 * Math.abs(Math.sin(delta/125)) * pulse : 0;
-            arm.portrait.setAttribute('transform', `translate(0 ${f2(liftY)})`);
+            const travelX = (act === 'RUN' ? unit * .16 :
+                             act === 'WALK' ? unit * .095 : 0) * travel * arm.sign;
+            // Whole-body displacement and feet share a single transform;
+            // direction follows the already source-grounded nearby actor.
+            arm.portrait.setAttribute('transform',
+              `translate(${f2(travelX)} ${f2(liftY)})`);
           }
         }
       }
