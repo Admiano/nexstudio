@@ -340,7 +340,17 @@ def direct_scene_positions(style: str, beats: list[dict],
                  "highlighted_subject", "negated_subject"}
     def needs_wide_evidence(b: dict) -> bool:
         il = b.get("illustration") or {}
-        for entity in il.get("entities") or []:
+        entities = il.get("entities") or []
+        # Three+ physical subjects / connectors cannot be compressed to one
+        # half of a landscape canvas without losing their nouns and motion.
+        # Keep full-width story space for dense *graph topology*, not only
+        # numeric trend lines. Two-object portraits can still alternate
+        # text-left and text-right.
+        if len(entities) >= 3 and il.get("form") in (
+                "PROCESS_PIPELINE", "RELATIONSHIP", "STATE_TRANSFORMATION",
+                "COMPARISON"):
+            return True
+        for entity in entities:
             g = entity.get("glyph")
             params = entity.get("params") or {}
             if (g == "CHART_LINE" and len(params.get("points") or []) >= 5 or
