@@ -1166,7 +1166,11 @@ class IllustrationSolver:
             # A body a connector lands on has finished arriving before the stroke completes.
             joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
                       and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
-            if joined:
+            if joined and not (e.get('params') or {}).get('voice_cued'):
+                # Historical diagrams still establish all endpoints before a
+                # connector. A source-named actor, however, must enter when
+                # the narrator names it rather than being pulled onstage
+                # early by an unrelated outgoing rail.
                 t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
         for o in ops:
