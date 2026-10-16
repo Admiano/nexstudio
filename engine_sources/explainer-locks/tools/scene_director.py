@@ -536,11 +536,16 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             restore_kinetic_hierarchy(beat)
         if style == "sketch":
             time_subject_arrivals(beat)
+            from sketch_actor_states import bind_actor_performances
+            actor_actions = bind_actor_performances(beat)
+        else:
+            actor_actions = []
         entries.append({
             "beat_id": beat["beat_id"], "family": family,
             "evidence": list(selected.evidence),
             "source_beat_ids": [e["beat_id"] for e in beat.get("director_evidence", [])],
-            "form": (beat.get("illustration") or {}).get("form")})
+            "form": (beat.get("illustration") or {}).get("form"),
+            "actor_actions": actor_actions})
     # Realization must precede composition: the chosen repertoire family
     # can replace an initial generic illustration with a new evidence scene.
     positions = direct_scene_positions(style, beats, plan)
