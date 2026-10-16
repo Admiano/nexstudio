@@ -6,6 +6,8 @@ on:
       - ".github/workflows/scenebam-scene-richness-proofs.yml"
       - "engine_sources/explainer-locks/tools/stress_scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/test_sketch_actor_states.py"
       - "engine_sources/explainer-locks/tools/scene_director.py"
       - "engine_sources/explainer-locks/tools/make_reel.py"
       - "engine_sources/explainer-locks/tools/test_scene_director.py"
@@ -54,6 +56,7 @@ jobs:
         working-directory: engine_sources/explainer-locks
         run: |
           python tools/test_scene_repertoire.py -q
+          python tools/test_sketch_actor_states.py -q
           python tools/test_scene_director.py -q
       - name: Render real multi-scene film using Microsoft Andrew
         working-directory: engine_sources/explainer-locks
