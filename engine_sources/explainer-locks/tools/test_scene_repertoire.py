@@ -145,6 +145,30 @@ class RepertoireTests(unittest.TestCase):
                 self.assertEqual(b["narration"], narration)
                 BeatTreatment.parse(b)
 
+    def test_sketch_comparison_draws_two_sourced_people_instead_of_words(self):
+        for source in ("A doctor versus a nurse.", "A courier versus a driver."):
+            with self.subTest(source=source):
+                beat_source = beat(source, "sketch")
+                report = direct_film("sketch", [beat_source])
+                self.assertEqual(report["sketch_visual_coverage_failures"], [])
+                self.assertEqual(report["scenes"][0]["family"], "verbal_versus")
+                illustration = beat_source["illustration"]
+                self.assertEqual(illustration["form"], "COMPARISON")
+                self.assertEqual([e["glyph"] for e in illustration["entities"]],
+                                 ["TILE", "TILE"])
+                self.assertTrue(all(e["params"]["visual_class"] == "person"
+                                    and e["params"]["caption_suppressed"]
+                                    for e in illustration["entities"]))
+                self.assertEqual(illustration["relations"][0]["type"],
+                                 "compares")
+                self.assertTrue(any(o["op"] == "CONNECT" for o in
+                                    illustration["program"]))
+                self.assertEqual(beat_source["narration"], source)
+                BeatTreatment.parse(beat_source)
+        abstract = beat("A hypothesis versus a philosophy.", "sketch")
+        self.assertNotIn("verbal_versus", [x[0] for x in
+                                          candidates("sketch", abstract)])
+
     def test_sketch_real_visual_markup_is_not_applied_to_negated_claims(self):
         cases=[
             ("Never use the receipt.", "negated_subject", "PROHIBIT","blocks"),
