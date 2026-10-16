@@ -40,7 +40,10 @@ SCRIPTS={
         "Circle the safety document so the team can identify the approved inspection record. "
         "Look closely at the warning label to confirm the instruction written on the equipment. "
         "First inspect the machine carefully, then replace the worn seal, finally test the pump under normal pressure. "
-        "A crowd gathers outside the depot to watch the restored delivery system start operating again."
+        "A crowd gathers outside the depot to watch the restored delivery system start operating again. "
+        "The courier walks toward the driver as the next shipment arrives at the loading station. "
+        "The courier walks then waves to the driver before greeting the waiting customer. "
+        "The driver turns toward the loading platform and points at the delivery document."
     ),
 }
 ASPECTS=("1x1",)
@@ -89,6 +92,18 @@ def main():
     director=treatment["director_report"]
     choices=Counter(s["family"] for s in director["scenes"])
     print("DIVERSE_SCENE_SELECTION",dict(choices),flush=True)
+    if args.style=="sketch":
+        actor_events=[event for scene in director["scenes"]
+                      for event in scene.get("actor_actions",[])]
+        observed={(event["actor"],event["state"]) for event in actor_events}
+        required={("courier","WALK"),("courier","WAVE")}
+        if not required.issubset(observed):
+            raise RuntimeError("SKETCH_NATIVE_ACTOR_STATES_NOT_DIRECTED: "+repr(actor_events))
+        for beat in treatment["beats"]:
+            for op in (beat.get("illustration") or {}).get("program",[]):
+                if op.get("params",{}).get("actor_action"):
+                    assert op["at"].get("word") in beat["narration"].split()
+                    assert op["params"]["voice_sync"]
     # A single generated card repeated N times would fail this evidence gate.
     if len(choices) < 3:
         raise RuntimeError("DIVERSITY_GATE_INSUFFICIENT_SCENE_FAMILIES")
