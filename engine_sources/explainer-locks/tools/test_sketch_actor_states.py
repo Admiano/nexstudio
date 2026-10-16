@@ -28,6 +28,10 @@ class NativeSketchActorStatesTests(unittest.TestCase):
             ("The courier runs toward the customer.", "courier", "RUN", "runs"),
             ("The driver turns toward the door.", "driver", "TURN", "turns"),
             ("The nurse listens to the patient.", "nurse", "LISTEN", "listens"),
+            ("The courier waves to the driver.", "courier", "WAVE", "waves"),
+            ("The nurse writes a note.", "nurse", "WRITE", "writes"),
+            ("The driver lifts the parcel.", "driver", "LIFT", "lifts"),
+            ("The teacher stops the group.", "teacher", "STOP", "stops"),
             ("The mechanic agrees with the driver.", "mechanic", "AGREE", "agrees"),
         ]
         for source, actor, state, word in cases:
