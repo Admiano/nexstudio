@@ -70,10 +70,22 @@ def bind_actor_performances(beat: dict) -> list[dict]:
         # SETTLE is existing compiler grammar and does not add off-script VO.
         if len(il.get("program") or []) >= 10:
             continue
+        # Sketchbook's controller has distinct anticipation and end-walk
+        # states. Keep the native 2D adaptation small, but author the same
+        # explicit IDLE -> prepare -> action -> recover -> IDLE lifecycle.
+        # These durations are attached to the SPOKEN action, not a fixed
+        # per-scene loop or an invented autonomous character behaviour.
+        locomotion = state in ("WALK", "RUN")
+        action_ms = (920 if state == "RUN" else
+                     860 if state == "WALK" else
+                     740 if state in ("JUMP", "TURN") else 600)
+        stages = (["IDLE", "START_MOVE", state, "END_MOVE", "IDLE"]
+                  if locomotion else
+                  ["IDLE", "ANTICIPATE", state, "RECOVER", "IDLE"])
         il.setdefault("program", []).append({
             "op": "SETTLE", "target": ent["id"],
-            "at": {"word": candidate}, "duration_ms": 480,
-            "params": {"actor_action": True},
+            "at": {"word": candidate}, "duration_ms": action_ms,
+            "params": {"actor_action": True, "actor_state_path": stages},
         })
         touched.append({"actor":ident,"state":state,"word":candidate})
     return touched
