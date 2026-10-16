@@ -507,7 +507,7 @@ def _sketch_has_meaningful_visual(beat: dict) -> bool:
         return False
     graphic_glyphs = {
         "VESSEL", "PUMP", "TANK", "ICON", "MEDIA", "CHART_LINE",
-        "RING", "BAR", "DONUT", "PROGRESS", "POPULATION_GRID",
+        "RING", "BAR", "DONUT", "PROGRESS", "POPULATION_GRID", "BASE10_TALLY",
         "DATA_BARS", "DATA_TABLE", "TIMELINE", "FLOW_STEPS",
         "MAGNIFY", "VS_CARDS", "LOGO_GRID", "SQUIGGLE",
     }
