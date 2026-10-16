@@ -74,6 +74,7 @@ jobs:
           path: |
             engine_sources/explainer-locks/out/repertoire-stress/**/*.mp4
             engine_sources/explainer-locks/out/repertoire-stress/**/proof_*.png
+            engine_sources/explainer-locks/out/repertoire-stress/**/actor_*.png
             engine_sources/explainer-locks/out/repertoire-stress/**/contact_*.png
             engine_sources/explainer-locks/out/repertoire-stress/**/plan_*.json
             engine_sources/explainer-locks/out/repertoire-stress/**/render_*.json
