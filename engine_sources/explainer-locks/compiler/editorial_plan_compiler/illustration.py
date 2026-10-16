@@ -1133,6 +1133,21 @@ class IllustrationSolver:
             ops.append({'op': op.op, 'target': op.target, 'start_ms': int(start), 'end_ms': int(end), 'from': value_from, 'to': value_to,
                         'params': op.params, 'state_change': op.op in STATE_CHANGE_OPS, 'anchor': op.at})
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
+        # Character performance is an exclusive state machine per actor.
+        # "walks then waves" must never run two incompatible gestures
+        # simultaneously. End WALK at the *actual next narrated cue* and
+        # let the next gesture anticipate rather than playing a hidden tail.
+        actor_ops = {}
+        for command in ops:
+            if command['op'] == 'SETTLE' and command['params'].get('actor_action'):
+                actor_ops.setdefault(command['target'], []).append(command)
+        for seq in actor_ops.values():
+            for previous, following in zip(seq, seq[1:]):
+                if previous['end_ms'] > following['start_ms']:
+                    previous['end_ms'] = max(previous['start_ms'] + 1,
+                                             following['start_ms'] - 1)
+                    previous['params'] = {**previous['params'],
+                                           'ended_for_next_voice_action': True}
         # Entrance: every entity is on stage before its first op, in layout order, before the first landing.
         # The stage must never stand empty while voice is already running: the first furniture always enters
         # inside the lead-in, and the rest of the scene staggers after it.
