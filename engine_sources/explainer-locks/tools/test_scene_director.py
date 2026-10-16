@@ -53,6 +53,37 @@ class SceneDirectorTests(unittest.TestCase):
                 self.assertEqual(set(actual), valid)
                 self.assertEqual(layouts, direct_scene_positions("dataviz", beats, choices))
 
+    def test_five_observation_landscape_chart_preserves_evidence_width(self):
+        chart = {"beat_id": "b01", "narration": "Five measured observations.",
+                 "illustration": {"entities": [{"glyph": "CHART_LINE",
+                                    "params": {"points": [.1, .3, .2, .5, .4]}}]}}
+        action = {"beat_id": "b02", "narration": "The technician checks the pump.",
+                  "illustration": {"entities": [{"glyph": "PUMP", "params": {}}]}}
+        decisions = direct_scene_positions("dataviz", [chart, action],
+                        [Opportunity("evidence_trend", 1.), Opportunity("mechanism", 1.)])
+        self.assertEqual(decisions[0]["16x9"], "EVIDENCE_WIDE")
+        self.assertIn(decisions[1]["16x9"], {"TEXT_LEFT", "TEXT_RIGHT"})
+        self.assertIn(decisions[0]["1x1"], {"TEXT_TOP", "TEXT_BOTTOM"})
+        self.assertIn(decisions[0]["9x16"], {"TEXT_TOP", "TEXT_BOTTOM"})
+
+    def test_source_named_package_and_mechanism_receive_drawable_art(self):
+        cases = [
+            ("A courier hands the parcel to a driver.", {"courier", "parcel", "driver"}),
+            ("A technician connects the pump to a tank.", {"technician", "pump", "tank"}),
+        ]
+        for narration, required in cases:
+            with self.subTest(narration=narration):
+                entities = make_reel.sketch_entities(words(narration), [])
+                named = {e.get("phrase"): e for e in entities}
+                self.assertTrue(required <= named.keys(), (required, named.keys()))
+                self.assertEqual(named.get("parcel", {}).get("params", {}).get("visual_class"),
+                                 "package" if "parcel" in required else None)
+                for entity in entities:
+                    if entity.get("phrase") in ("courier", "technician", "driver", "parcel"):
+                        self.assertEqual(entity["glyph"], "TILE")
+                    if entity.get("phrase") in ("pump", "tank"):
+                        self.assertEqual(entity["glyph"], entity["phrase"].upper())
+
     def test_kinetic_copy_restores_hierarchy_without_rewriting_audio(self):
         examples = [
             "A courier carefully sends a sealed parcel to a driver at the main station.",
