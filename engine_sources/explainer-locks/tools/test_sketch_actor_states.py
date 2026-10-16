@@ -93,6 +93,56 @@ class NativeSketchActorStatesTests(unittest.TestCase):
                              for a in actions))
         BeatTreatment.parse(beat)
 
+    def test_two_coordinated_actions_belong_to_the_same_explicit_actor(self):
+        for speech, who, expected in [
+            ("The driver turns toward the loading platform and points at the document.",
+             "driver", [("TURN", "turns"), ("POINT", "points")]),
+            ("The technician connects the pump and tests the pressure.",
+             "technician", [("CONNECT", "connects"), ("TEST", "tests")]),
+            ("The nurse inspects the folder and writes a note.",
+             "nurse", [("INSPECT", "inspects"), ("WRITE", "writes")]),
+            ("The mechanic repairs the pump and checks the valve.",
+             "mechanic", [("REPAIR", "repairs"), ("INSPECT", "checks")]),
+        ]:
+            with self.subTest(speech=speech):
+                b=shot(speech)
+                perf=bind_actor_performances(b)
+                own=[x for x in perf if x["actor"]==who]
+                self.assertEqual([(x["state"],x["word"]) for x in own], expected)
+                actions=[o for o in b["illustration"]["program"]
+                         if o.get("params",{}).get("actor_action")
+                         and o["target"]=="sk_"+who]
+                self.assertEqual([o["params"]["actor_state"] for o in actions],
+                                 [x[0] for x in expected])
+                for o in actions:
+                    index=o["params"]["word_index"]
+                    self.assertEqual(b["narration"].split()[index].strip(".,!?").lower(),
+                                     o["at"]["word"].lower())
+                    self.assertTrue(o["params"]["voice_sync"])
+                BeatTreatment.parse(b)
+
+    def test_new_subject_never_steals_second_actor_action(self):
+        b=shot("The courier walks and the driver waves to the customer.")
+        perf=bind_actor_performances(b)
+        self.assertNotIn(("courier", "WAVE"),
+                         {(e["actor"], e["state"]) for e in perf})
+        self.assertIn(("driver", "WAVE"),
+                      {(e["actor"], e["state"]) for e in perf})
+
+    def test_duplicate_spoken_verb_has_distinct_voice_indices(self):
+        b=shot("The courier walks then waves and walks toward the depot.")
+        perf=bind_actor_performances(b)
+        self.assertEqual([e["state"] for e in perf
+                          if e["actor"]=="courier"], ["WALK","WAVE","WALK"])
+        ops=[o for o in b["illustration"]["program"]
+             if o.get("params",{}).get("actor_action")
+             and o["target"]=="sk_courier"]
+        indices=[o["params"]["word_index"] for o in ops]
+        self.assertEqual(len(indices), 3)
+        self.assertEqual(sorted(indices),indices)
+        self.assertEqual(len(set(indices)),3)
+        BeatTreatment.parse(b)
+
     def test_actor_actions_schedule_on_separate_spoken_words(self):
         from editorial_plan_compiler.timing import Word, BeatClock
         from editorial_plan_compiler.illustration import IllustrationSolver
