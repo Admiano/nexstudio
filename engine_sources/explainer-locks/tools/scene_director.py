@@ -576,6 +576,13 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             _subset(beats[i-1], beat)
         if style in ("sketch", "dataviz"):
             restore_kinetic_hierarchy(beat)
+            # A spoken noun/measurement is the timing authority for both the
+            # kinetic sentence and its scene's state changes. Compiler may
+            # shorten an overlong effect but must NEVER move it earlier than
+            # that source word to satisfy a synthetic end-of-beat hold.
+            for cue in (beat.get("illustration") or {}).get("program") or []:
+                if "word" in (cue.get("at") or {}):
+                    cue.setdefault("params", {})["voice_sync"] = True
         if style == "sketch":
             from sketch_actor_states import bind_actor_performances, ensure_source_count_visual
             # No text-only Sketch scenes. Before failing closed, realize exact
