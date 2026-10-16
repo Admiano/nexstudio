@@ -338,11 +338,25 @@ def direct_scene_positions(style: str, beats: list[dict],
              "milestone_timeline"}
     mechanism = {"mechanism", "spoken_process", "physical_stage",
                  "highlighted_subject", "negated_subject"}
+    def needs_wide_evidence(b: dict) -> bool:
+        il = b.get("illustration") or {}
+        for entity in il.get("entities") or []:
+            g = entity.get("glyph")
+            params = entity.get("params") or {}
+            if (g == "CHART_LINE" and len(params.get("points") or []) >= 5 or
+                g == "DATA_BARS" and len(params.get("series") or []) >= 5 or
+                g == "DATA_TABLE" and len(params.get("rows") or []) >= 5 or
+                g == "TIMELINE" and len(params.get("events") or []) >= 5):
+                return True
+        return False
+
     for aspect in ("1x1", "9x16", "16x9"):
         names = ("TEXT_LEFT", "TEXT_RIGHT") if aspect == "16x9" else ("TEXT_TOP", "TEXT_BOTTOM")
+        wide = {i for i,b in enumerate(beats) if aspect == "16x9" and
+                needs_wide_evidence(b)}
         beam = [(0.0, ())]
         for i, (b, p) in enumerate(zip(beats, plan)):
-            if not b.get("illustration"):
+            if not b.get("illustration") or i in wide:
                 # The authored source has no independent evidence layer:
                 # preserve its native typography-only composition.
                 continue
@@ -374,12 +388,13 @@ def direct_scene_positions(style: str, beats: list[dict],
                             value -= 3.0
                     new.append((score+value, path+(side,)))
             beam = sorted(new, key=lambda entry:(-entry[0], entry[1]))[:14]
-        active = [i for i,b in enumerate(beats) if b.get("illustration")]
-        if not active:
-            continue
+        active = [i for i,b in enumerate(beats)
+                  if b.get("illustration") and i not in wide]
         sides = beam[0][1]
         for i, side in zip(active, sides):
             result[i][aspect] = side
+        for i in wide:
+            result[i][aspect] = "EVIDENCE_WIDE"
     return result
 
 
