@@ -64,7 +64,8 @@ class AudioLockedSceneDirectionTests(unittest.TestCase):
             {"id": ident, "kind": "object", "glyph": "TILE",
              "size": "hero" if i == 0 else "support",
              "label": ident, "phrase": ident,
-             "params": {"voice_cued": True}}
+             "params": {"voice_cued": True,
+                        "visual_class": "package" if ident == "parcel" else "person"}}
             for i, ident in enumerate(("courier", "parcel", "driver"))]
         d = {
             "form": "PROCESS_PIPELINE", "entities": entities,
