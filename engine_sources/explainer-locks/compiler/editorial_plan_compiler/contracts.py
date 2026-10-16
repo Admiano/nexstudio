@@ -31,7 +31,7 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
 GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PUMP', 'TANK', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER',
-          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'POPULATION_GRID', 'SQUIGGLE', 'MAGNIFY')
+          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'POPULATION_GRID', 'BASE10_TALLY', 'SQUIGGLE', 'MAGNIFY')
 # Housings whose only job is to carry a mark; staged without one they read as generated filler.
 CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 # Housings whose label is set inside the body, so a word alone is content.
@@ -412,6 +412,13 @@ class IllustrationEntity:
             params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
                                for s in steps]
             _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
+        if glyph == 'BASE10_TALLY':
+            # Exact place-value illustration: hundreds, tens and ones, NOT a
+            # rounded cloud of dots misleadingly representing source count.
+            count = params.get('value')
+            _need(isinstance(count,int) and not isinstance(count,bool) and 1 <= count <= 999,
+                  'BASE10_TALLY_SOURCE_COUNT_INVALID', f'{eid}: tally requires exact 1-999 spoken integer', beat_id)
+            params['value'] = count
         if glyph == 'POPULATION_GRID':
             # One cell must represent an exact integer number of source units.
             # A misleading rounded dot count is worse than a faithful donut.
