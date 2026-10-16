@@ -6,6 +6,7 @@ on:
       - ".github/workflows/scenebam-scene-richness-proofs.yml"
       - "engine_sources/explainer-locks/tools/stress_scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/test_scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/sketch_actor_states.py"
       - "engine_sources/explainer-locks/tools/test_sketch_actor_states.py"
       - "engine_sources/explainer-locks/tools/scene_director.py"
