@@ -2068,10 +2068,13 @@
             [[cx - u*.082, hipY + u*.016], [cx - u*.105, footY]],
             [[cx + u*.082, hipY + u*.016], [cx + u*.105, footY]],
           ];
+          const actorLegs = [];
           for (const pts of limbs) {
+            const leg = svgEl('g', { 'data-drawing': 'source-actor-leg' }, portrait);
             const limb = svgEl('path', { ...line, d: polyPath(pts),
-              'stroke-width': sw * 1.7 }, portrait);
+              'stroke-width': sw * 1.7 }, leg);
             node.outline.push(drawable(limb, polyLength(pts)));
+            actorLegs.push({ group: leg, hip: pts[0] });
           }
           const connected = (il.relations || []).filter(rel =>
             rel.type === 'flows_to' &&
@@ -2127,6 +2130,8 @@
             face, headPivot: [cx, headY],
             isReceiving: connected.some(rel => rel.target === ent.id),
             isSending: connected.some(rel => rel.source === ent.id),
+            legs: actorLegs, identity: params.actor_identity || ent.id,
+            state: params.actor_state || 'IDLE',
           };
         } else if (isIllustrated && params.visual_class === 'document') {
           const u = Math.min(b.w, b.h), cx = b.x + b.w / 2;
@@ -3777,6 +3782,38 @@
         // the same narrated CONNECT cue gates the head's subtle turn.
         if (arm.face) arm.face.setAttribute('transform',
           `rotate(${f2(arm.sign * 9 * lift)} ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
+        // Sketchbook-inspired IDLE -> action -> settle actor state.
+        // We adapt the state grammar, NOT its 3D physics or rig. Never make
+        // an actor gesture for a verb not attached to its exact source noun.
+        const actorCue = node.ops.find(o => o.op === 'SETTLE' &&
+          o.params && o.params.actor_action === true);
+        if (actorCue) {
+          const arriving = EASE.outCubic(prog(lt, actorCue.start_ms,
+            actorCue.end_ms));
+          const delta = Math.max(0, lt - actorCue.start_ms);
+          const act = arm.state;
+          const armAngle = ({
+            OFFER: -29, RECEIVE: -19, INSPECT: -12,
+            PRESENT: -38, AGREE: -7, WALK: 0, JUMP: 0
+          })[act] || 0;
+          const gestureAngle = -arm.sign * 27 * lift + arm.sign * armAngle * arriving;
+          arm.group.setAttribute('transform',
+            `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+          const focusAngle = (act === 'INSPECT' ? 9 :
+            act === 'AGREE' ? Math.sin(delta / 150) * 6 :
+            act === 'PRESENT' ? -5 : act === 'RECEIVE' ? -4 : 0);
+          if (arm.face) arm.face.setAttribute('transform',
+            `rotate(${f2(arm.sign * 9 * lift + focusAngle * arriving)}
+              ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
+          if (arm.legs) {
+            arm.legs.forEach((leg,i) => {
+              const gait = act === 'WALK' ? Math.sin(delta / 125 + i*Math.PI)*12*arriving :
+                act === 'JUMP' ? (i===0 ? -9 : 9)*Math.sin(Math.PI*arriving) : 0;
+              leg.group.setAttribute('transform',
+                `rotate(${f2(gait)} ${f2(leg.hip[0])} ${f2(leg.hip[1])})`);
+            });
+          }
+        }
       }
       if (gl.extra.tankWater) {
         let level = 0;
