@@ -535,7 +535,7 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     for i, (beat, selected) in enumerate(zip(beats, plan)):
         family = selected.family
         from scene_repertoire import realize as realize_scene
-        realized = realize_scene(family, beat)
+        realized = realize_scene(family, beat, style=style)
         # Existing cinema patterns and beat types are native contract values.
         if family in ("evidence_compare", "contrast", "evidence_bridge"):
             beat["pattern"] = "CONTRAST_RECONFIGURATION"
