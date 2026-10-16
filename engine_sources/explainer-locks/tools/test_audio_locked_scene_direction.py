@@ -63,6 +63,7 @@ class AudioLockedSceneDirectionTests(unittest.TestCase):
         entities = [
             {"id": ident, "kind": "object", "glyph": "TILE",
              "size": "hero" if i == 0 else "support",
+             "label": ident, "phrase": ident,
              "params": {"voice_cued": True}}
             for i, ident in enumerate(("courier", "parcel", "driver"))]
         d = {
