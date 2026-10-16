@@ -2432,9 +2432,9 @@
           nm.textContent = lbl;
           bars.push(bar); caps.push(cap); names.push(nm);
         });
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           bars.forEach((bar, i) => {
-            const kk = clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
             bar.style.transform = `scaleY(${f3(Math.max(0.001, EASE.settle(kk)))})`;
             caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1)) : '0');
             names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1)));
@@ -2479,9 +2479,9 @@
         };
         if (header.length) emitRow(header, 0, true);
         rows.forEach((r, i) => emitRow(r, i + (header.length ? 1 : 0), false));
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           rowEls.forEach((g2, i) => {
-            const kk = clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(Math.max(0, i - (header.length ? 1 : 0)), lt) : clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
             g2.setAttribute('opacity', f3(kk));
             g2.setAttribute('transform', `translate(0 ${f2((1 - EASE.settle(kk)) * rh * 0.55)})`);
           });
@@ -2534,9 +2534,9 @@
           items.push(g2);
         });
         const dots = items;
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           dots.forEach((g2, i) => {
-            const kk = clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
             g2.setAttribute('opacity', f3(kk));
           });
         };
@@ -2576,14 +2576,14 @@
         svgEl('circle', { cx: f2(b.x + b.w / 2), cy: f2(b.y + b.h / 2), r: f2(vr), fill: cardFg }, vg);
         const vt = svgEl('text', { x: f2(b.x + b.w / 2), y: f2(b.y + b.h / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.display, 'font-weight': '900', 'font-size': f2(vr * 0.8), fill: face, 'font-style': 'italic' }, vg);
         vt.textContent = vs;
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           parts.forEach((p, i) => {
-            const kk = clamp((k - i * 0.28) * 2.4, 0, 1), e = EASE.settle(kk);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * 0.28) * 2.4, 0, 1), e = EASE.settle(kk);
             p.g.setAttribute('transform', `translate(${f2(p.fromX * (1 - e))} 0) scale(${f3(Math.max(0.001, e))})`);
             p.g.setAttribute('opacity', f3(kk));
             p.g.style.transformOrigin = `${f2(b.x + (i + 0.5) * b.w * 0.46)}px ${f2(b.y + b.h / 2)}px`;
           });
-          const vk = clamp((k - 0.3) * 2.8, 0, 1), e = EASE.settle(vk);
+          const vk = node.extra.stageFraction ? node.extra.stageFraction(1, lt) : clamp((k - 0.3) * 2.8, 0, 1), e = EASE.settle(vk);
           vg.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
           vg.setAttribute('opacity', f3(vk));
           vg.style.transformOrigin = `${f2(b.x + b.w / 2)}px ${f2(b.y + b.h / 2)}px`;
@@ -2667,15 +2667,15 @@
             parts.push({ arrow: drawable(ap, polyLength(m) * 1.7), i });
           }
         });
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           parts.forEach((p) => {
             if (p.g) {
-              const kk = clamp((k - p.i * (0.55 / n)) * (n * 1.4), 0, 1), e = EASE.settle(kk);
+              const kk = node.extra.stageFraction ? node.extra.stageFraction(p.i, lt) : clamp((k - p.i * (0.55 / n)) * (n * 1.4), 0, 1), e = EASE.settle(kk);
               p.g.setAttribute('opacity', f3(kk));
               p.g.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
               p.g.style.transformOrigin = `${f2(p.cx)}px ${f2(p.cy)}px`;
             } else {
-              const kk = clamp((k - (p.i + 0.55) * (0.55 / n)) * (n * 1.4), 0, 1);
+              const kk = node.extra.stageFraction ? node.extra.stageFraction(p.i + 1, lt) : clamp((k - (p.i + 0.55) * (0.55 / n)) * (n * 1.4), 0, 1);
               p.arrow.set(kk);
             }
           });
@@ -2945,6 +2945,19 @@
       const g = svgEl('g', { 'data-entity': ent.id }, entLayer);
       g.style.willChange = 'transform, opacity';
       const glyph = buildGlyph(ent, il, plan, g, sw, opts);
+      // Each diagram component is owned by a specific spoken evidence cue.
+      // Do not reveal the next row/bar/actor through a generic scene-wide
+      // progress fraction. The program comes from the single master audio.
+      const sequential = (opsFor.get(ent.id) || []).filter(o => o.op === 'GROW')
+        .sort((a,b) => a.start_ms - b.start_ms);
+      if (plan.director_style === 'dataviz' && sequential.length >= 2) {
+        glyph.extra.stageCues = sequential;
+        glyph.extra.stageFraction = (index, time) => {
+          const cue = sequential[index];
+          if (!cue) return 0;
+          return EASE.outCubic(prog(time, cue.start_ms, Math.max(cue.start_ms + 120, cue.end_ms)));
+        };
+      }
       if (glyph.ready) ready.push(glyph.ready);
       // Keep semantic/source labels in the compiled plan. For a genuine
       // illustrated delivery, the source-timed on-screen sentence already
