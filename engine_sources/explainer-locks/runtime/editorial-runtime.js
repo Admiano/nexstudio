@@ -3528,6 +3528,26 @@
             sourceReveal *= EASE.outCubic(prog(lt, named.start_ms, revealEnd));
           }
         }
+      } else if (ctx.directorStyle === 'dataviz') {
+        // A dataset must not be visible before its FIRST spoken datum. The
+        // old scene-wide DRAW could expose all chart furniture when the voice
+        // was still stating the introduction. The graphical stage itself now
+        // enters at the first exact source GROW cue; its bars, rows, points
+        // and comparison sides retain their own individual spoken-stage gates.
+        const itemized = ['DATA_BARS','DATA_TABLE','TIMELINE','FLOW_STEPS',
+                          'VS_CARDS','POPULATION_GRID','PROGRESS'];
+        if (itemized.includes(ent.glyph)) {
+          const firstSource = node.ops.filter(o => o.op === 'GROW' &&
+            Number.isFinite(o.start_ms) &&
+            (o.params && Number.isInteger(o.params.stage_index) ||
+             ent.glyph === 'PROGRESS' || ent.glyph === 'POPULATION_GRID'))
+            .sort((a,b) => a.start_ms - b.start_ms)[0];
+          if (firstSource) {
+            sourceReveal = EASE.outCubic(prog(
+              lt, firstSource.start_ms - 65,
+              Math.max(firstSource.start_ms + 130, firstSource.end_ms - 95)));
+          }
+        }
       }
       opacity *= sourceReveal;
       let scale = pose.scale;
