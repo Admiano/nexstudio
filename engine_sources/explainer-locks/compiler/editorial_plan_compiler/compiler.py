@@ -737,6 +737,36 @@ class BeatCompiler:
             vis_h = field['y'] + field['h'] - vis_y
             comp['text_zone'] = _box(field['x'], field['y'], field['w'], text_h)
             comp['visual_zone'] = _box(vis_x, vis_y, vis_w, vis_h)
+        # Script-directed composition is aspect-specific. In portrait and
+        # square films typography may sit ABOVE or BELOW the depicted event;
+        # in landscape it may sit LEFT or RIGHT. Earlier data direction forced
+        # text to the top, leaving every shot with the same visual silhouette.
+        # Make the film planner's selected stage geometry the actual authority.
+        placement = b.director_layout.get(self.aspect) if b.illustration else None
+        if placement and self.film.director_style in ('sketch', 'dataviz'):
+            field = self.safe
+            ratio = self._text_share(b)
+            if self.aspect in ('9x16', '1x1'):
+                ratio = min(.39, max(.28, ratio))
+                gap = max(16.0, field['h'] * .026)
+                th = field['h'] * ratio
+                vh = field['h'] - th - gap
+                text_y = field['y'] if placement == 'TEXT_TOP' else field['y'] + vh + gap
+                visual_y = field['y'] + th + gap if placement == 'TEXT_TOP' else field['y']
+                comp['text_zone'] = _box(field['x'], text_y, field['w'], th)
+                comp['visual_zone'] = _box(max(self.frame['x'], field['x'] - 9),
+                                           visual_y,
+                                           min(self.W - 2 * max(self.frame['x'], field['x'] - 9),
+                                               field['w'] + 18), vh)
+            else:
+                gap = max(16.0, field['w'] * .02)
+                tw = field['w'] * max(.40, min(.46, ratio + .09))
+                vw = field['w'] - tw - gap
+                text_x = field['x'] if placement == 'TEXT_LEFT' else field['x'] + vw + gap
+                visual_x = field['x'] + tw + gap if placement == 'TEXT_LEFT' else field['x']
+                comp['text_zone'] = _box(text_x, field['y'], tw, field['h'])
+                comp['visual_zone'] = _box(visual_x, field['y'], vw, field['h'])
+            comp['director_position'] = placement
         if self.carried_illustration and b.illustration is None:
             comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
         elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
