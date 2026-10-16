@@ -682,6 +682,9 @@ class BeatTreatment:
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
     section: Optional[str] = None  # show grammar: numbered-section name this beat plays under
+    # Film director chooses the layout PER ASPECT, not from a fixed first-two-lines template.
+    # The compiler validates every orientation and keeps other style families unchanged.
+    director_layout: Dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -740,8 +743,14 @@ class BeatTreatment:
         if sec is not None:
             section = ' '.join(str(sec).split()).upper()[:SHOW_SECTION_MAX_CHARS]
             _need(bool(SECTION_WORD_RE.match(section)), 'SHOW_SECTION_INVALID', f'{section!r}: 1-{SHOW_SECTION_MAX_CHARS} chars, uppercase word', bid)
+        layout = dict(d.get('director_layout') or {})
+        valid = {'1x1': ('TEXT_TOP', 'TEXT_BOTTOM'),
+                 '9x16': ('TEXT_TOP', 'TEXT_BOTTOM'),
+                 '16x9': ('TEXT_LEFT', 'TEXT_RIGHT')}
+        _need(all(aspect in valid and orient in valid[aspect] for aspect, orient in layout.items()),
+              'DIRECTOR_LAYOUT_INVALID', f'{bid}: invalid aspect/side {layout}', bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, section)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, section, layout)
 
     @property
     def has_visual(self) -> bool:
