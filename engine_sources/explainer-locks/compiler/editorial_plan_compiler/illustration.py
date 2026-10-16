@@ -1173,6 +1173,30 @@ class IllustrationSolver:
                 # early by an unrelated outgoing rail.
                 t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
+        # A source-authored CONNECT is one continuous physical action from its
+        # spoken verb to the arrival of the last named endpoint. Previously
+        # it completed *before* a later noun was introduced, or we had to
+        # reveal every object early. Preserve the verb's original start_ms;
+        # only extend the travelling stroke to the audible destination.
+        by_id = {e['id']: e for e in ents}
+        for conn in ops:
+            if conn['op'] != 'CONNECT' or '->' not in conn['target']:
+                continue
+            source, target = conn['target'].split('->', 1)
+            if source not in enter or target not in enter:
+                continue
+            if not any((by_id[e].get('params') or {}).get('voice_cued')
+                       for e in (source, target)):
+                continue
+            required = max(enter[source] + (0 if source in carried_ids else ENTER_MS),
+                           enter[target] + (0 if target in carried_ids else ENTER_MS))
+            if conn['end_ms'] < required:
+                if required > clock.duration_ms:
+                    failures.append(f'VOICE_CONNECT_OUTLASTS_AUDIO:{conn["target"]}')
+                else:
+                    conn['end_ms'] = required
+                    conn['params'] = {**conn['params'],
+                                      'voice_link_waits_for_endpoint': True}
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
                 failures.append(f"OP_SQUEEZED:{o['op']}:{o['target']}")
