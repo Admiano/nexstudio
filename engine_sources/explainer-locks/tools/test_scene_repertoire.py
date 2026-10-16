@@ -161,6 +161,30 @@ class RepertoireTests(unittest.TestCase):
                 if "In 2023" in text:
                     self.assertNotIn("milestone_timeline",offered)
 
+    def test_spoken_data_items_each_have_source_word_index(self):
+        examples = [
+            ("Breakdown: 40 apples, 25 bananas, and 30 oranges.", "categorical_columns", 3),
+            ("The report breakdown includes 40 apples, 25 bananas, and 30 oranges.", "categorical_table", 3),
+            ("In 2020 the firm opened; in 2022 it expanded; in 2024 it shipped.", "milestone_timeline", 3),
+            ("First sort the beans, then roast the beans, finally pack the beans.", "spoken_process", 3),
+            ("Solar panels versus wind turbines.", "verbal_versus", 2),
+        ]
+        for source, family, expected in examples:
+            with self.subTest(family=family):
+                b = beat(source)
+                self.assertTrue(realize(family, b))
+                op = [x for x in b["illustration"]["program"] if x["op"] == "GROW"]
+                self.assertEqual(len(op), expected)
+                positions = [o["params"]["word_index"] for o in op]
+                self.assertEqual(positions, sorted(positions))
+                self.assertEqual(len(set(positions)), len(positions))
+                voice = source.split()
+                for o in op:
+                    spoken = voice[o["params"]["word_index"]]
+                    canon = lambda w: "".join(c for c in w.lower() if c.isalnum() or c == "%")
+                    self.assertEqual(canon(o["at"]["word"]), canon(spoken))
+                BeatTreatment.parse(b)
+
     def test_real_build_treatment_keeps_the_approved_contract(self):
         scripts=[
             "First sort the seeds, then plant the seeds, finally water the seeds.",
