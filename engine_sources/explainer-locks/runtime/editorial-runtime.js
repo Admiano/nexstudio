@@ -3875,9 +3875,18 @@
           // -> IDLE. A gait/gesture must not continue long after the narrator
           // moves on to the next thought. Fully deterministic at any seek time.
           const progress = clamp(prog(lt, actorCue.start_ms, actorCue.end_ms), 0, 1);
-          const pulse = Math.sin(Math.PI * progress);
-          const delta = Math.max(0, lt - actorCue.start_ms);
           const act = arm.state;
+          const locomotion = act === 'WALK' || act === 'RUN';
+          // Sketchbook-style separate start, active, end phases. All phases
+          // derive from the actual voice word cue, and are seek-deterministic.
+          // A leg never instantly swings from idle at the first voiced phoneme.
+          const attackEnd = locomotion ? 0.18 : 0.24;
+          const releaseStart = locomotion ? 0.79 : 0.75;
+          const phaseIn = EASE.inOutCubic(clamp(progress / attackEnd, 0, 1));
+          const phaseOut = 1 - EASE.inOutCubic(
+            clamp((progress - releaseStart) / (1 - releaseStart), 0, 1));
+          const pulse = phaseIn * phaseOut;
+          const delta = Math.max(0, lt - actorCue.start_ms);
           const armAngle = ({
             OFFER: -29, RECEIVE: -19, INSPECT: -12,
             PRESENT: -38, POINT: -46, AGREE: -7,
@@ -3896,8 +3905,13 @@
               ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
           if (arm.legs) {
             arm.legs.forEach((leg,i) => {
-              const walkCycle = Math.sin(delta / 125 + i*Math.PI) * 12;
-              const runCycle = Math.sin(delta / 76 + i*Math.PI) * 20;
+              // Opposed left/right hip swing during the active gait only.
+              // Ease both into a neutral, planted stance before releasing to
+              // the next narrated object or sentence.
+              const activeMs = Math.max(0, lt - actorCue.start_ms -
+                (actorCue.end_ms - actorCue.start_ms) * attackEnd);
+              const walkCycle = Math.sin(activeMs / 125 + i*Math.PI) * 15;
+              const runCycle = Math.sin(activeMs / 76 + i*Math.PI) * 23;
               const gait = (act === 'WALK' ? walkCycle :
                 act === 'RUN' ? runCycle :
                 act === 'JUMP' ? (i===0 ? -11 : 11) : 0) * pulse;
