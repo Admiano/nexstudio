@@ -10,7 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "tools"), str(ROOT / "compiler")]
 
 import make_reel
-from scene_director import direct_film, plan_film, _bridge_eligible
+from scene_director import (direct_film, plan_film, _bridge_eligible,
+                            direct_scene_positions, Opportunity,
+                            restore_kinetic_hierarchy, time_subject_arrivals)
+from scene_repertoire import candidates as scene_candidates, realize as realize_scene
 from editorial_plan_compiler.contracts import BeatTreatment, FilmTreatment
 
 
@@ -26,6 +29,87 @@ def data_beat(text, i, count):
 
 
 class SceneDirectorTests(unittest.TestCase):
+    def test_scene_direction_has_readable_aspect_native_positions(self):
+        seq = [
+            ("First connect the device to the router.", "mechanism"),
+            ("The observed results were 40 and 60.", "evidence_compare"),
+            ("Then the operator checks the connection.", "spoken_process"),
+            ("The measured results were 90 and 120.", "evidence_compare"),
+        ]
+        beats = [{"beat_id": f"b{i+1:02d}", "narration": narration,
+                  "illustration": {"form": "OBJECT_STAGE", "entities": [],
+                                   "relations": [], "program": []}}
+                 for i, (narration, _) in enumerate(seq)]
+        choices = [Opportunity(family, 1.0) for _, family in seq]
+        layouts = direct_scene_positions("dataviz", beats, choices)
+        self.assertEqual(len(layouts), len(beats))
+        for aspect, valid in [
+            ("1x1", {"TEXT_TOP", "TEXT_BOTTOM"}),
+            ("9x16", {"TEXT_TOP", "TEXT_BOTTOM"}),
+            ("16x9", {"TEXT_LEFT", "TEXT_RIGHT"})
+        ]:
+            with self.subTest(aspect=aspect):
+                actual = [layout[aspect] for layout in layouts]
+                self.assertEqual(set(actual), valid)
+                self.assertEqual(layouts, direct_scene_positions("dataviz", beats, choices))
+
+    def test_kinetic_copy_restores_hierarchy_without_rewriting_audio(self):
+        examples = [
+            "A courier carefully sends a sealed parcel to a driver at the main station.",
+            "The installation project has already reached 72 percent completion this week.",
+            "Never use the damaged receipt because it is an invalid delivery record.",
+        ]
+        for source in examples:
+            with self.subTest(source=source):
+                beat = {"narration": source, "display_units": [{
+                    "text": source, "role": "hero", "anchor_word": source.split()[0]}]}
+                restore_kinetic_hierarchy(beat)
+                units = beat["display_units"]
+                self.assertEqual(len(units), 2)
+                self.assertEqual({u["role"] for u in units}, {"hero", "support"})
+                self.assertTrue(all(u["reveal"] == "WORD_CASCADE" for u in units))
+                self.assertEqual(" ".join(u["text"] for u in units), source)
+                self.assertEqual({u["can_promote"] for u in units}, {True, False})
+
+    def test_native_evidence_animation_has_distinct_spoken_word_cues(self):
+        scripts = [
+            ("The depot recorded 40 cars, 25 vans, and 30 buses.", "categorical_columns", 3),
+            ("In 2020 the depot opened and in 2022 the depot expanded and in 2024 it grew.", "milestone_timeline", 3),
+            ("First sort the boxes, then label the boxes, finally load the boxes.", "spoken_process", 3),
+            ("Solar panels versus wind turbines.", "verbal_versus", 2),
+        ]
+        for source, family, n in scripts:
+            with self.subTest(family=family):
+                beat = data_beat(source, 0, 1)
+                self.assertIn(family, [x[0] for x in scene_candidates("dataviz", beat)])
+                self.assertTrue(realize_scene(family, beat))
+                grow = [op for op in beat["illustration"]["program"] if op["op"] == "GROW"]
+                self.assertEqual(len(grow), n)
+                self.assertEqual([round(op["to"], 5) for op in grow],
+                                 [round((i+1)/n, 5) for i in range(n)])
+                self.assertNotEqual(len({op["at"]["word"].lower() for op in grow}), 1)
+                for op in grow:
+                    self.assertIn(op["at"]["word"].lower(),
+                                  [w.strip(".,;:").lower() for w in source.split()])
+                BeatTreatment.parse(beat)
+
+    def test_sketch_object_draws_wait_for_its_source_noun(self):
+        source = "A courier sends a parcel to a driver."
+        b = make_reel.sketch_beat(words(source), 0, 1, set(), [])
+        time_subject_arrivals(b)
+        name_to_anchor = {}
+        by_id = {ent["id"]: ent for ent in b["illustration"]["entities"]}
+        for op in b["illustration"]["program"]:
+            if op["op"] == "DRAW" and op["target"] in by_id:
+                ent = by_id[op["target"]]
+                phrase = ent.get("phrase")
+                if phrase:
+                    name_to_anchor[phrase] = op["at"]["word"].lower()
+        self.assertEqual(name_to_anchor.get("courier"), "courier")
+        self.assertEqual(name_to_anchor.get("driver"), "driver")
+        self.assertNotEqual(name_to_anchor.get("driver"), source.split()[0].lower())
+        BeatTreatment.parse(b)
+
     def test_evidence_bridge_reuses_only_exact_spoken_source_values(self):
         examples = (
             ("The test identified 99 genuine cases.",
