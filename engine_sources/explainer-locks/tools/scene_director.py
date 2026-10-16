@@ -493,6 +493,41 @@ def time_subject_arrivals(beat: dict) -> None:
                 op["duration_ms"] = max(280, min(560, int(op.get("duration_ms", 480))))
 
 
+def _sketch_has_meaningful_visual(beat: dict) -> bool:
+    """No typography-only card can masquerade as a Sketch scene.
+
+    Words inside shapes are not pictorial evidence. Genuine drawing, a
+    timed relation with at least two source endpoints, or a voice-built
+    evidence diagram counts. An unillustratable claim must be replanned,
+    not supplied a false person, object, or decorative fake.
+    """
+    il = beat.get("illustration") or {}
+    entities = il.get("entities") or []
+    if not entities:
+        return False
+    graphic_glyphs = {
+        "VESSEL", "PUMP", "TANK", "ICON", "MEDIA", "CHART_LINE",
+        "RING", "BAR", "DONUT", "PROGRESS", "POPULATION_GRID",
+        "DATA_BARS", "DATA_TABLE", "TIMELINE", "FLOW_STEPS",
+        "MAGNIFY", "VS_CARDS", "LOGO_GRID", "SQUIGGLE",
+    }
+    for e in entities:
+        if e.get("asset_ref") or e.get("media_ref"):
+            return True
+        if (e.get("params") or {}).get("visual_class"):
+            return True
+        if e.get("glyph") in graphic_glyphs:
+            return True
+    relation_ids = {e.get("id") for e in entities}
+    if (len(relation_ids) >= 2 and any(
+        r.get("source") in relation_ids and r.get("target") in relation_ids
+        for r in (il.get("relations") or [])
+    ) and any(op.get("op") in ("CONNECT", "TRAVEL", "SWAP")
+              for op in il.get("program") or [])):
+        return True
+    return False
+
+
 def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
     """Apply a cross-beat film plan through the existing renderer contract."""
     plan = plan_film(style, beats)
@@ -546,6 +581,13 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
             "source_beat_ids": [e["beat_id"] for e in beat.get("director_evidence", [])],
             "form": (beat.get("illustration") or {}).get("form"),
             "actor_actions": actor_actions})
+    if style == "sketch":
+        text_only = [b["beat_id"] for b in beats
+                     if not _sketch_has_meaningful_visual(b)]
+        if text_only:
+            raise ValueError("SKETCH_VISUAL_SUBJECT_REQUIRED:" +
+                             ",".join(text_only) +
+                             " — no source-grounded illustration or animated diagram")
     # Realization must precede composition: the chosen repertoire family
     # can replace an initial generic illustration with a new evidence scene.
     positions = direct_scene_positions(style, beats, plan)
