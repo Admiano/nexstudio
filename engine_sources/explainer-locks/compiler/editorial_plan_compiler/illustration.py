@@ -319,8 +319,12 @@ class IllustrationSolver:
 
         For an ICON the drawn artwork (not its viewBox padding) is what fills the cell; the returned bbox is
         the viewBox the runtime maps, so the art lands exactly where the solver measured it."""
-        label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in LABEL_CARRIERS else 0.0
-        if e.label:
+        # Preserve the semantic noun for audited procedural artwork while
+        # keeping the frame clean when narration already types the same noun.
+        # Do not reserve a non-existent caption strip below the real drawing.
+        caption_visible = bool(e.label and not e.params.get('caption_suppressed'))
+        label_h = zone['h'] * LABEL_H_FRAC if caption_visible and e.glyph not in LABEL_CARRIERS else 0.0
+        if caption_visible:
             cell = dict(cell)
             cell['h'] = max(0.0, min(cell['y'] + cell['h'], self.caption_floor) - cell['y'])
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
