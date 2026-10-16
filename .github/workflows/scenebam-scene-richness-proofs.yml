@@ -7,6 +7,9 @@ on:
       - "engine_sources/explainer-locks/tools/stress_scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/scene_repertoire.py"
       - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/test_scene_director.py"
+      - "engine_sources/explainer-locks/styles.json"
       - "engine_sources/explainer-locks/compiler/**"
       - "engine_sources/explainer-locks/runtime/**"
   workflow_dispatch:
