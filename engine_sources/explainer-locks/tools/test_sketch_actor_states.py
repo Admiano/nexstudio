@@ -24,7 +24,10 @@ class NativeSketchActorStatesTests(unittest.TestCase):
             ("The driver carries the parcel.", "driver", "OFFER", "carries"),
             ("The nurse inspects the document.", "nurse", "INSPECT", "inspects"),
             ("The courier walks toward the customer.", "courier", "WALK", "walks"),
-            ("The teacher points at the report.", "teacher", "PRESENT", "points"),
+            ("The teacher points at the report.", "teacher", "POINT", "points"),
+            ("The courier runs toward the customer.", "courier", "RUN", "runs"),
+            ("The driver turns toward the door.", "driver", "TURN", "turns"),
+            ("The nurse listens to the patient.", "nurse", "LISTEN", "listens"),
             ("The mechanic agrees with the driver.", "mechanic", "AGREE", "agrees"),
         ]
         for source, actor, state, word in cases:
@@ -77,6 +80,22 @@ class NativeSketchActorStatesTests(unittest.TestCase):
         self.assertEqual(report["sketch_visual_coverage_failures"], ["b01"])
         self.assertEqual(beat["features"]["sketch_visual_coverage"], 0.0)
         self.assertEqual(beat["narration"], "A hypothetical concept is mentioned.")
+
+    def test_unillustrated_exact_counts_gain_native_visual_without_false_people(self):
+        for claim, count in [
+            ("The test identifies 99 genuine cases.", 99),
+            ("That makes 594 positive results altogether.", 594),
+            ("But only 99 of those are genuine.", 99),
+        ]:
+            with self.subTest(claim=claim):
+                beat = shot(claim)
+                report = direct_film("sketch", [beat])
+                self.assertEqual(report["sketch_visual_coverage_failures"], [])
+                visual = beat["illustration"]["entities"]
+                self.assertEqual(visual[0]["glyph"], "BASE10_TALLY")
+                self.assertEqual(visual[0]["params"]["value"], count)
+                self.assertEqual(beat["narration"], claim)
+                BeatTreatment.parse(beat)
 
     def test_film_director_integrates_identity_and_script_actions(self):
         b=shot("The nurse inspects the document.")
