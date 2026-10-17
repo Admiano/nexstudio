@@ -13,7 +13,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from scene_director import direct_film, plan_film, _mature_sketch_action
+from scene_director import direct_film, plan_film, _mature_sketch_action, time_subject_arrivals
 
 
 def source_beat(person=False):
@@ -85,6 +85,35 @@ class UnauthorizedSketchCharacterRegression(unittest.TestCase):
         self.assertFalse(_mature_sketch_action(stripped))
         self.assertEqual(plan_film("sketch", [stripped])[0].family,
                          "spoken_process")
+
+    def test_repeated_noun_is_drawn_on_first_actual_spoken_occurrence(self):
+        # Program order is bee, pollen but master voice order begins pollen,
+        # then bee, then a SECOND pollen. DRAW must not bind to that repeat.
+        phrase = "Pollen sticks to the bee. The bee carries pollen to another flower."
+        beat = {
+            "beat_id": "b01", "narration": phrase,
+            "illustration": {
+                "entities": [
+                    {"id": "bee", "kind": "object", "phrase": "bee",
+                     "label": "bee", "params": {}},
+                    {"id": "pollen", "kind": "object", "phrase": "pollen",
+                     "label": "pollen", "params": {}},
+                ],
+                "program": [
+                    {"op": "DRAW", "target": "bee", "at": {"word": "bee"},
+                     "duration_ms": 500},
+                    {"op": "DRAW", "target": "pollen", "at": {"word": "Pollen"},
+                     "duration_ms": 500},
+                ],
+            },
+        }
+        time_subject_arrivals(beat)
+        bee_op, pollen_op = beat["illustration"]["program"]
+        self.assertEqual(bee_op["params"]["word_index"], 4)
+        self.assertEqual(pollen_op["params"]["word_index"], 0)
+        self.assertTrue(all(
+            e["params"]["voice_cued"]
+            for e in beat["illustration"]["entities"]))
 
     def test_no_old_actor_binding_from_director(self):
         source = (ROOT / "tools" / "scene_director.py").read_text()
