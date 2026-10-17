@@ -116,7 +116,13 @@ def main():
             assert authored["captions"] == [], "Compiled karaoke captions forbidden"
             assert all(b["typography"]["blocks"] for b in authored["beats"]), "Missing native text"
             for beat in authored["beats"]:
-                phrases = [block["words"] for block in beat["typography"]["blocks"] if block.get("words")]
+                # Composition may place an emphasised later claim ABOVE its
+                # setup, or on the opposite side. Array/spatial order is not
+                # narration order. Inspect original source-unit indices when
+                # checking that speech timing never rewinds or repeats.
+                in_voice_order = sorted(beat["typography"]["blocks"],
+                                        key=lambda block: block["unit_index"])
+                phrases = [block["words"] for block in in_voice_order if block.get("words")]
                 for earlier, later in zip(phrases, phrases[1:]):
                     assert later[0]["start_ms"] >= earlier[-1]["start_ms"], (
                         "Data Viz sentence timing restarted at an earlier identical word",
