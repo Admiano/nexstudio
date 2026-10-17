@@ -1588,6 +1588,7 @@ def build_treatment(args, style, words, media_files, film_id):
         "schema": "NexStudioEditorialTreatmentV2",
         "film_id": film_id,
         "note": f"auto-authored by make_reel.py (style={style['id']})",
+        **({"caption_policy": "kinetic"} if style["id"] == "dataviz" else {}),
         "aspects": args.aspects.split(","),
         "fps": 30,
         "brand": {**style["palette"], "finish": style["finish"]},
