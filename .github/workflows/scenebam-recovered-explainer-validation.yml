@@ -74,7 +74,7 @@ jobs:
       - name: Render saved Devin engine in portrait and square
         working-directory: engine_sources/explainer-locks
         run: |
-          python tools/recovery_video_proof.py --style "${{ matrix.style }}" --aspects 9x16,1x1 --fps 15 --workers 2
+          python tools/recovery_video_proof.py --style "${{ matrix.style }}" --aspects 9x16,1x1 --fps 24 --workers 2
       - name: Preserve authentic recovery MP4 and frame evidence
         if: always()
         uses: actions/upload-artifact@v4
