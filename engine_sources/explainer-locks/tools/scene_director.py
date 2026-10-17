@@ -574,9 +574,24 @@ def time_subject_arrivals(beat: dict) -> None:
         # Anchors are guaranteed verbatim tokens in the narration, not
         # semantic guesses: e.g. 'driver' enters on DRIVER, not 'The'.
         word = narration[m.start():m.end()].split()[0]
+        # The native compiler schedules operations in authoring order, NOT
+        # necessarily word order. If a recurring noun's DRAW follows a later
+        # source object, a plain word anchor can silently bind to its SECOND
+        # occurrence (e.g. first "Pollen" appears at 0.1s, yet its sprite
+        # was arriving at 3.3s). The documented native word_index contract
+        # pins the initial drawing to the EXACT first source occurrence.
+        first_index = len(narration[:m.start()].split())
+        narration_words = narration.split()
+        exact_source_index = (
+            first_index < len(narration_words) and
+            re.sub(r"[^a-z0-9%]", "", word.lower()) ==
+            re.sub(r"[^a-z0-9%]", "", narration_words[first_index].lower())
+        )
         for op in il.get("program") or []:
             if op.get("op") == "DRAW" and op.get("target") == ent.get("id"):
                 op["at"] = {"word": word}
+                if exact_source_index:
+                    op.setdefault("params", {})["word_index"] = first_index
                 op["duration_ms"] = max(280, min(560, int(op.get("duration_ms", 480))))
                 # The compiler's old scheduling put EVERY new object on stage
                 # inside the lead-in, long before its source noun was spoken.
