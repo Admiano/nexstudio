@@ -13,7 +13,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from scene_director import direct_film
+from scene_director import direct_film, plan_film, _mature_sketch_action
 
 
 def source_beat(person=False):
@@ -49,6 +49,42 @@ class UnauthorizedSketchCharacterRegression(unittest.TestCase):
         self.assertEqual(report["style"], "sketch")
         self.assertEqual(report["scenes"][0]["actor_actions"], [])
         self.assertEqual(report["sketch_visual_coverage_failures"], [])
+
+    def test_native_acting_outweighs_reductive_step_widget(self):
+        # General source graph test: no one-off topic branch or extra character.
+        narration = "First the pump sends water to the tank, then the tank feeds a house."
+        beat = {
+            "beat_id": "b01", "narration": narration,
+            "illustration": {
+                "form": "PROCESS_PIPELINE",
+                "entities": [
+                    {"id": "pump", "kind": "object", "glyph": "PUMP",
+                     "asset_ref": "icon.local.pump", "phrase": "pump"},
+                    {"id": "tank", "kind": "object", "glyph": "TANK",
+                     "asset_ref": "icon.local.tank", "phrase": "tank"},
+                ],
+                "relations": [
+                    {"type": "flows_to", "source": "pump", "target": "tank"},
+                ],
+                "program": [
+                    {"op": "DRAW", "target": "pump", "at": {"word": "pump"},
+                     "duration_ms": 280},
+                    {"op": "CONNECT", "target": "pump->tank",
+                     "at": {"word": "sends"}, "duration_ms": 480},
+                ],
+            },
+        }
+        self.assertTrue(_mature_sketch_action(beat))
+        self.assertNotEqual(plan_film("sketch", [beat])[0].family,
+                            "spoken_process")
+        # Without the complete original illustrated action graph, the native
+        # scene repertoire remains available rather than being disabled.
+        stripped = dict(beat, illustration={
+            **beat["illustration"], "relations": [], "program": []
+        })
+        self.assertFalse(_mature_sketch_action(stripped))
+        self.assertEqual(plan_film("sketch", [stripped])[0].family,
+                         "spoken_process")
 
     def test_no_old_actor_binding_from_director(self):
         source = (ROOT / "tools" / "scene_director.py").read_text()
