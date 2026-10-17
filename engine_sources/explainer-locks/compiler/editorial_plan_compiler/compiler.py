@@ -222,6 +222,14 @@ class BeatCompiler:
                                          collage=film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD'),
                                          stagger_ms=stagger_ms or MOTION_PROFILES[film.brand.finish]['stagger_ms'], motion=MOTION_PROFILES[film.brand.finish],
                                          finish=film.brand.finish)
+        # Data Viz uses narration-linked on-canvas typography, with NO burned
+        # lower third. The old illustration solver nevertheless reserved the
+        # lower-third caption footprint for all its labelled chart axes,
+        # squashing the graph and leaving conspicuous wasted safe-frame space.
+        # Restore the entire *authored evidence zone* to genuine illustration;
+        # font floors, overall safe frame and inter-object checks remain intact.
+        if film.director_style == 'dataviz' and film.caption_policy == 'kinetic':
+            self.solver.caption_floor = float(self.H)
 
     # ------------------------------------------------------------------ helpers
     @staticmethod
