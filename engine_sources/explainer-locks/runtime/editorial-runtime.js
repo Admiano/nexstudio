@@ -2873,9 +2873,11 @@
         // DRAW establishes the empty gauge, while the narration-bound GROW
         // cue reveals both the fill AND exact spoken result. Do not pre-show
         // a number which the speaker has not reached yet.
-        const measureCue = node.ops.find((op) => op.op === 'GROW');
         rT.setAttribute('fill-opacity', '0');
         node.extra.setGrow = (k, lt) => {
+          // Glyph construction runs before native ops are attached. Read the
+          // cue at frame evaluation, once the compiled animation exists.
+          const measureCue = (node.ops || []).find((op) => op.op === 'GROW');
           const progress = measureCue
             ? clamp(prog(lt, measureCue.start_ms, measureCue.end_ms), 0, 1)
             : clamp(k, 0, 1);
