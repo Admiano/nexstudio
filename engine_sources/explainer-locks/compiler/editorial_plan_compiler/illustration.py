@@ -406,11 +406,14 @@ class IllustrationSolver:
         elif il.form == 'PROCESS_PIPELINE' and len(top) == 3 and sum(
                 (e.params or {}).get('narrative_role') == 'transferred_payload'
                 for e in top) == 1 and all(
+                r.type in ('flows_to', 'connects') for r in il.relations) and any(
                 r.type == 'flows_to' for r in il.relations):
-            # A source -> named object -> recipient story is one visual arc.
-            # Generic collage-hub placement gave the sender a giant headline
-            # and starved its actual receiver. This semantic composition stays
-            # field-native in each aspect and never changes other styles.
+            # A typed cargo handoff may be physically ATTACHED to the source
+            # ('connects': pollen -> bee) before it travels to its receiver
+            # ('flows_to'). Both are source-backed relationships, not a
+            # reason to reject the handoff layout and shrink the cargo label.
+            # This preserves the original source graph and authoring ops.
+            # Other relation types still use the normal native layout.
             cells = self._source_handoff_cells(top, zone)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
             cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
