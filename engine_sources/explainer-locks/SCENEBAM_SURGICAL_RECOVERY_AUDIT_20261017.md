@@ -1,0 +1,56 @@
+# SceneBam surgical recovery audit — evidence baseline (2026-10-17)
+
+**Status:** Phase A source inspection checkpoint, NOT visual quality certification or restoration completion. Do not merge or deploy. This report describes confirmed source facts and separates them from render-quality hypotheses.
+
+## Git authority and scope
+
+- Repository: Admiano/nexstudio (public); default branch main. No production changes made.
+- Source recovery: draft PR #87, recovery/devin-dataviz-sketch-20261014, SHA 4bbba956bac7978327f317b8a4613967d2f4a41d.
+- Director expansion: draft PR #88, quality/dv-sketch-director-20261015, head SHA b81db2326d75c9465120999a2a28e7123dfc74e5 at audit.
+- The quality branch is 360 commits ahead of recovery base, zero behind, with 30 changed files, primarily under engine_sources/explainer-locks.
+- Independent Whiteboard assets and implementation exist under engine_sources/whiteboard-board-scenes, whiteboard-v3-runtime and original engine_sources/WHITEBOARD_ENGINE_SOURCE.zip. Do not confuse these assets with the new Sketch actor adapter.
+- The recovery PR explicitly states the complete last Devin working filesystem was NOT recovered; missing sound.py, test_sound.py and render_reel.js from an observed 31-file Devin view were unresolved. Treat completeness as unverified.
+- Existing native asset symlink: explainer-locks/assets -> ../editorial-motion-v2/assets. Recovery identified 176 Peep parts and 172 registered illustration entries. Must verify every asset's actual runtime utilization separately.
+- Workflow evidence at head b81db23 on Oct 17: seven completed-successful runs, including authored validation, native three-aspect, 16x9 previews, diverse-story, Bayes/Andrew, repertoire, and other-family regression. Passing CI is not independent visual QA.
+
+## Before / after regression matrix
+
+| Component | Best previous source evidenced | Current inspected source | Confirmed change / regression risk | Recovery action |
+| --- | --- | --- | --- | --- |
+| Sketch assets | PR #87 native IllustrationRegistry, licensed mono/colour icon assets and preserved editorial-motion-v2 asset symlink | tools/make_reel.py still uses the registry, but now also supplies params.visual_class=person/document/population and creates PILL fallback for unmatched concepts | **Confirmed** new procedural person and text-carrier paths. Whether specific original assets were lost, bypassed or visibly inferior is pending individual render/registry trace | Preserve registry; prohibit unapproved synthetic people; compare selected asset IDs in baseline/current JSON and sampled frames; never auto-classify a text pill as an illustration |
+| Sketch animations | Recovery's existing DRAW, GROW, CONNECT, TRAVEL, SWAP, carry and authored-illustration schedule | New sketch_actor_states.py emits synthetic SETTLE actor actions; runtime/editorial-runtime.js paints source-person SVG limbs and rotates them according to state vocabulary | **Confirmed** separate stand-in animation implementation, not the existing Whiteboard cast/motion bridge. Native transfer operations remain in code; visual superiority not yet certified | Fail closed on person use until Whiteboard adapter is validated; preserve legacy choreography; test source-to-canvas action timing |
+| Whiteboard character | whiteboard-board-scenes/sb_cast.py and sb_activity.py; v3_board_renderer.py; tools/nexstick motion bridge, clip select and vaults documented in PROVENANCE.md | No imports or supported adapter found from scene_director.py / sketch_actor_states.py to Whiteboard; new runtime draws its own source-person and source-actor-leg | **Confirmed unsupported identity substitution** in director-era Sketch. Whiteboard provenance says its reconstructed renderer is not byte-identical to original | Map genuine cast identity, original source package, existing licenses, pose/gesture and motion outputs; do not substitute newly drawn figures; block when safe integration is unavailable |
+| Data Viz graphics | Recovery make_reel.dataviz_units used BAR, CHART_LINE, DONUT, COUNTER and native measurement contracts | New repertoire adds DATA_BARS, DATA_TABLE, VS_CARDS, TIMELINE, PROGRESS, FLOW_STEPS; compiler retains the original authoring | **Confirmed** increased opportunity for weaker generic/GUI-like chosen families. No proof every new family is visually worse. Chart numerical contracts are still present | Benchmark each selected family vs native asset's relevant counterpart on same original narration and values; prefer better realized native treatment |
+| Data animation | Source-quantity word anchored GROW/INK/COUNT and scene-specific renderer progress | New repertoire _narrated_stage_ops and director patterns may replace existing beat illustration programs | **Confirmed** director can replace the original illustration on eligible scene choices. Timing quality requires MP4 timecode inspection | Audit selected-family vs original-op dispatch; preserve number-word timing and visible buildup; source-validate scales, actual units and point locations |
+| Kinetic typography | Kinetic typography authority v3, per-word cascade, stress, multiple unit roles | Director restore_kinetic_hierarchy splits one hero sentence into two clauses; compiler adds Data Viz voice_story overrides; native canvas positions partly repurposed | **Confirmed** broad text-block restructuring; not a deletion of native per-word engine. Inadequate hierarchy/repetition is a reported visual finding not yet independently measured here | Treat original words and provider boundaries as authority; vary supported/singular/punch hierarchy and positions; compare plan typography blocks plus rendered words at timecodes |
+| Scene layouts | Native three-aspect authority v2 and IllustrationSolver composition | direct_scene_positions chooses TEXT_LEFT/RIGHT for landscape and TEXT_TOP/BOTTOM for portrait/square, or EVIDENCE_WIDE. Beam penalizes repeated layout rather than comprehensively evaluating focal mass | **Confirmed** limited positional repertoire despite source-dependent preferences; new overrides supersede selected native zones | Benchmark original layout against candidate with focal occupation, readability and overlap checks; maintain safe native fallback; expand only if renderer and visual QA support it |
+| Camera / transitions | Runtime contains existing EASE/spring, pathBlur, camera motion, content-life, transition and presentation patterns | Director sets pattern based on selected family; runtime additionally uses Sketch shot aperture for typed transfers | **Confirmed** new higher-level control changes which existing patterns are invoked; NOT proven that original camera helpers were removed | Compare runtime animation traces and selected camera/transition patterns per identical film on baseline/current; do not replace sophisticated movement with opacity-only cues |
+| Audio synchronization | PR #87 proof uses one uninterrupted eSpeak track with explicitly **approximate** word alignment; original compiler anchors operations to BeatClock | stress_bayes_andrew.py synthesizes Andrew intact, uses true provider boundaries when available; otherwise labels approximation. Director sets voice_sync on word ops | **Confirmed** intact voice source and honest provenance supported. Actual pixel/audio correspondence is not established by plan timing alone | Verify original MP4/audio SHA, exact or estimated boundary provenance, frame at 24/52/78% and critical word/scene entry timings |
+| Continuity | Recovery sketch carry and Data Viz continuity; original animation object IDs | Director _bridge and _subset can replace an existing illustration with new evidence. make_reel.sketch_action_stages builds typed cargo route and later operations. | **Confirmed** rewriting at selection stage exists; loss of continuity is film-dependent and still needs matching-plan evidence | Validate entity IDs, carry sources, outgoing handoff state and replacement semantics across adjacent beats using real frames and compiler JSON |
+
+## Immediate hard policy findings
+
+1. sketch_actor_states.py describes itself as an *original, small 2D scene adapter*. It is not an integration with the Whiteboard actor.
+2. runtime/editorial-runtime.js creates a data-drawing='source-person' SVG from new ellipse/body/arm/leg paths and has its own action-state rotation. This is the unauthorized character path to prohibit.
+3. make_reel.sketch_entities assigns reviewed person labels to params.visual_class='person' and prioritizes the procedural character above asset_ref. This is a confirmed entry point.
+4. scene_director._sketch_has_meaningful_visual considers any visual_class sufficient, even before verifying real recognizable artwork; it also accepts simple rings/squiggles. This quality proxy is not sufficient evidence of illustration success.
+5. The historical baseline scores approximately Sketch 73 and Data Viz 72 are user-reported estimates, not rerun scores. Oct 15 QUALITY_90_COMMERCIAL_CHECKLIST.md documents provisional 68 Sketch / 65 Data Viz and even lower earlier checkpoints. No fresh scored review has been completed as part of this audit.
+
+## Release-blocking gaps / evidence still needed
+
+- Native MP4 frame-by-frame baseline/current comparison, full motion at multiple timestamps and transcription-alignment validation; not available from source browsing alone.
+- Confirm the strongest exact Devin files / missing pieces against editor snapshots and original archives without assuming the PR #87 recovery is complete.
+- Whiteboard character interoperability: storyboard-cast still poses, paper-cast/NexStick motion bridge, sprite payload, safe licensing and runtime composition all need an executable shared contract. No supported Sketch bridge has yet been verified.
+- General script tests for actor transfer, object cause/effect, new abstract topics, difficult probability, irregular time series and all 3 ratios; existing CI scenarios do not prove broad commercial excellence.
+- Authorship/semantic gates, legibility, chart scale, focal occupancy, continuity, and physical-contact checks must not be weakened for green CI.
+- No current visual-readiness score or 90+ assertion can be justified from the inspection conducted here.
+
+## Next surgical sequence
+
+1. Block unauthorized 2D human generation in both authoring and renderer entrypoints; do not change existing Whiteboard or recovered assets. Record supported-character gap rather than invent a substitute.
+2. Benchmark identical narration through PR #87 and the candidate, compare native plan ops/asset IDs and extracted matched timestamps. Preserve pass/fail artifacts.
+3. Restore superior original chart/illustration choreography where an incoming repertoire path is weaker. Preserve tested improvements: actual time spacing, exact values, typed cargo handoff, captionless on-canvas Data Viz.
+4. Fix typography placement and word exposure, framing, and semantic event alignment against continuous audio.
+5. Inspect at least five independent films × three aspects per engine before releasing numerical visual score, with before/after contact sheets and verified MP4s.
+
+**Safety:** No changes to main or Oracle; no merge/deploy. All historical sources retained.
