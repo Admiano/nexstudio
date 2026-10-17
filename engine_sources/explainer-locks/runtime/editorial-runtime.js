@@ -4362,8 +4362,17 @@
         // the destination is just emerging/disappearing. For a narrative
         // connector, *both* subjects must be legibly present or it is orphaned.
         // This hysteresis-free predicate works for seeking in either direction.
-        if (ctx.directorStyle === 'sketch' &&
-            Math.min(presenceA, presenceB) < 0.70) opacity = 0;
+        if (ctx.directorStyle === 'sketch') {
+          const paintedA = Number(endA.g.style.opacity);
+          const paintedB = Number(endB.g.style.opacity);
+          // A body fading out at an actual scene handoff can still have
+          // sourceReveal=1: prior "presence" didn't include ex.opacity.
+          // Gate connectors by the exact rendered endpoint alpha as well,
+          // including transition masks, not just by their source stage.
+          if (Math.min(presenceA, presenceB) < 0.70 ||
+              !Number.isFinite(paintedA) || !Number.isFinite(paintedB) ||
+              Math.min(paintedA, paintedB) < 0.28) opacity = 0;
+        }
       }
       if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to' &&
           (endA && endA.ent.params && endA.ent.params.narrative_role === 'transferred_payload' ||
