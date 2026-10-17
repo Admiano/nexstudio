@@ -3004,6 +3004,18 @@
   }
 
   function buildIllustration(il, plan, beatRoot, opts) {
+    // A raw treatment or older compiler can bypass scene_director.py. Stop
+    // unauthorized source-person drawings at the LAST renderer boundary too.
+    // The real Whiteboard/NexStick actor has not been bridged into Sketch:
+    // do not fall back to a home-made vector human or gesture rig.
+    if (plan.director_style === 'sketch' && (il.entities || []).some(e => {
+      const p = e.params || {};
+      return p.visual_class === 'person' || !!p.actor_identity ||
+        !!p.actor_state;
+    })) {
+      throw new Error('SCENEBAM_WHITEBOARD_CHARACTER_INTEGRATION_REQUIRED: ' +
+        'procedural Sketch person refused; native Whiteboard cast adapter unverified');
+    }
     const W = plan.canvas.w, H = plan.canvas.h;
     const sw = Math.max(2.5, Math.min(W, H) * 0.0046);
     // A typed Sketch transfer is directed as shots, not a stationary
