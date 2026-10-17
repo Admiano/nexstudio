@@ -39,13 +39,15 @@ jobs:
         working-directory: engine_sources/explainer-locks
         run: |
           set -e
+          # Run new no-substitute / native-motion tests before legacy actor
+          # tests; keep legacy assertion failures visible and unmodified.
+          python tools/test_sketch_whiteboard_only_policy.py -q
           python tools/test_dataviz_authoring.py -q
-          python tools/test_sketch_authoring.py -q
           python tools/test_scene_director.py -q
           python tools/test_scene_repertoire.py -q
-          python tools/test_sketch_actor_states.py -q
           python tools/test_audio_locked_scene_direction.py -q
-          python tools/test_sketch_whiteboard_only_policy.py -q
+          python tools/test_sketch_authoring.py -q
+          python tools/test_sketch_actor_states.py -q
 
   video:
     runs-on: ubuntu-latest
