@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - recovery/devin-dataviz-sketch-20261014
+      - recovery/devin-first-sketch-dataviz-20261017
   workflow_dispatch:
 
 permissions:
@@ -41,3 +42,50 @@ jobs:
       - name: Sketch authoring and preview tests
         working-directory: engine_sources/explainer-locks
         run: python tools/test_sketch_authoring.py -v
+
+  recovered-native-render-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        style: [sketch, dataviz]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original rendering and fixture voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y ffmpeg espeak-ng
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Render saved Devin engine in portrait and square
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/recovery_video_proof.py --style "${{ matrix.style }}" --aspects 9x16,1x1 --fps 15 --workers 2
+      - name: Preserve authentic recovery MP4 and frame evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: devin-native-recovery-${{ matrix.style }}-portrait-square
+          path: |
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/contact_*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/proof.json
+          if-no-files-found: warn
+          retention-days: 14
