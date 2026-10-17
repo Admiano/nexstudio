@@ -165,6 +165,7 @@ def treatment_schema() -> Dict[str, Any]:
             'mood': _enum(c.FILM_MOODS),
             'show': {'anyOf': [show, {'type': 'null'}]},
             'note': {'type': 'string'},
+            'caption_policy': _enum(('burned', 'kinetic', 'none')),
         }, ['schema', 'film_id', 'beats']),
     }
 
