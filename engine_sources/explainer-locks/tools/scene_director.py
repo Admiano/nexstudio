@@ -113,6 +113,41 @@ def _subset_eligible(prev: dict, current: dict) -> bool:
     return bool(_terms(prev["narration"]) & _terms(narration))
 
 
+def _mature_sketch_action(beat: dict) -> bool:
+    """A real native acted relationship outranks replacement by text widgets.
+
+    This is a conservative evidence gate, not a hardcoded subject/story list:
+    require at least TWO independently picturable source objects and a real
+    relational physical operation addressed to the source graph. Two word
+    pills connected by a line are not a mature illustrated performance.
+    """
+    il = beat.get("illustration") or {}
+    entities = il.get("entities") or []
+    if len(entities) < 2:
+        return False
+    picturable = {
+        e.get("id") for e in entities
+        if e.get("asset_ref") or e.get("media_ref") or
+        e.get("glyph") in ("PUMP", "TANK", "VESSEL") or
+        (e.get("params") or {}).get("visual_class") in (
+            "document", "list", "package", "population")
+    }
+    if len(picturable) < 2:
+        return False
+    relations = {
+        (r.get("source"), r.get("target"))
+        for r in (il.get("relations") or [])
+        if r.get("source") in picturable and r.get("target") in picturable
+    }
+    if not relations:
+        return False
+    ops = il.get("program") or []
+    return any(
+        op.get("op") in ("CONNECT", "TRAVEL", "SWAP", "EMIT")
+        for op in ops
+    )
+
+
 def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
                    count: int) -> list[Opportunity]:
     ill = beat.get("illustration") or {}
@@ -166,8 +201,18 @@ def _opportunities(style: str, beat: dict, prev: dict | None, index: int,
     # source supplies all their entities, values and narrative conditions.
     # No fabricated nouns, numbered scenes, or per-topic exception tables.
     from scene_repertoire import candidates as executable_candidates
+    native_acted_story = style == "sketch" and _mature_sketch_action(beat)
+    # A label-only step diagram, versus card or magnifier must NEVER replace
+    # the original acted story when the legacy author already supplies
+    # multiple drawable entities connected by meaningful native motion.
+    # Retain the candidate on weaker/unillustrated source scenes, where it
+    # can genuinely improve explanation. This decision is script-agnostic.
+    reductive_overrides = {
+        "spoken_process", "verbal_versus", "editorial_magnification"
+    }
     ans.extend(Opportunity(family, score, evidence)
-               for family, score, evidence in executable_candidates(style, beat))
+               for family, score, evidence in executable_candidates(style, beat)
+               if not (native_acted_story and family in reductive_overrides))
     return ans
 
 
