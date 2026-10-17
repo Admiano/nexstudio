@@ -1,0 +1,111 @@
+name: SceneBam surgical recovery source and native video proof
+on:
+  push:
+    branches:
+      - recovery/scenebam-surgical-audit-20261017
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: surgical-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original authoring dependencies
+        run: |
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+      - name: Verify unchanged native JS and modified Python compile
+        run: |
+          python -m py_compile engine_sources/explainer-locks/tools/{scene_director,make_reel,sketch_actor_states,test_sketch_whiteboard_only_policy}.py
+          node --check engine_sources/explainer-locks/runtime/editorial-runtime.js
+      - name: Run all original authoring tests and hard character policy
+        working-directory: engine_sources/explainer-locks
+        run: |
+          set -e
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+          python tools/test_scene_director.py -q
+          python tools/test_scene_repertoire.py -q
+          python tools/test_sketch_actor_states.py -q
+          python tools/test_audio_locked_scene_direction.py -q
+          python tools/test_sketch_whiteboard_only_policy.py -q
+
+  video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - {style: sketch, scenario: default}
+          - {style: sketch, scenario: water}
+          - {style: sketch, scenario: transform}
+          - {style: sketch, scenario: attachment}
+          - {style: sketch, scenario: contrast}
+          - {style: dataviz, scenario: default}
+          - {style: dataviz, scenario: comparison}
+          - {style: dataviz, scenario: share}
+          - {style: dataviz, scenario: irregular}
+          - {style: dataviz, scenario: fivepoint}
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      STYLE: ${{ matrix.style }}
+      SCENARIO: ${{ matrix.scenario }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install actual native renderer and voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Native three-aspect scene render with one uninterrupted voice
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/recovery_video_proof.py --style "$STYLE" --scenario "$SCENARIO" --aspects 16x9,9x16,1x1 --fps 24 --workers 2
+      - name: Preserve real videos, plans, audio, reports, and native frame proofs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surgical-${{ matrix.style }}-${{ matrix.scenario }}-native-3-aspect
+          path: |
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.json
+            engine_sources/explainer-locks/fixtures/recovery-proof-*/voice.mp3
+            engine_sources/explainer-locks/fixtures/recovery-proof-*/voice.wav
+            engine_sources/explainer-locks/fixtures/recovery-proof-*/alignment.json
+            engine_sources/explainer-locks/fixtures/recovery-proof-*/treatment.json
+          if-no-files-found: warn
+          retention-days: 21
