@@ -2869,7 +2869,19 @@
         lT.textContent = params.left ? String(params.left) : '';
         const rT = svgEl('text', { x: f2(track.x + track.w), y: f2(b.y + pad + labelFs * 0.8), 'text-anchor': 'end', 'font-family': plan.fonts.families.data, 'font-size': f2(labelFs), 'font-weight': '700', fill: accent }, body);
         rT.textContent = params.right ? String(params.right) : `${Math.round(lvl * 100)}%`;
-        node.extra.setGrow = (k) => { fill.style.transform = `scaleX(${f3(Math.max(0.001, EASE.settle(clamp(k * 1.15, 0, 1))))})`; };
+        // The source measurement is a payoff, not the first-frame headline.
+        // DRAW establishes the empty gauge, while the narration-bound GROW
+        // cue reveals both the fill AND exact spoken result. Do not pre-show
+        // a number which the speaker has not reached yet.
+        const measureCue = node.ops.find((op) => op.op === 'GROW');
+        rT.setAttribute('fill-opacity', '0');
+        node.extra.setGrow = (k, lt) => {
+          const progress = measureCue
+            ? clamp(prog(lt, measureCue.start_ms, measureCue.end_ms), 0, 1)
+            : clamp(k, 0, 1);
+          fill.style.transform = `scaleX(${f3(Math.max(0.001, EASE.settle(clamp(progress * 1.15, 0, 1))))})`;
+          rT.setAttribute('fill-opacity', f3(clamp((progress - 0.62) / 0.30, 0, 1)));
+        };
         node.strike = strikeFor(b);
         break;
       }
