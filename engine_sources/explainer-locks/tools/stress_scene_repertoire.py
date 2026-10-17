@@ -9,6 +9,8 @@ source/authoring quality; no automatic claim of commercial readiness.
 import argparse
 import asyncio
 import hashlib
+from PIL import Image
+import numpy as np
 import json
 import subprocess
 import sys
@@ -127,6 +129,9 @@ def main():
         if args.style=="dataviz":
             assert compiled["captions_policy"]=="kinetic" and compiled["captions"]==[]
         actor_snapshots = []
+        # A cue with correct metadata but zero painted movement is NOT a
+        # performance. Frame samples will be decoded from the rendered MP4.
+        actor_motion_probes = []
         if args.style=="sketch":
             # Render must use the same spoken-clock cues from the accepted
             # compilation. Audit repeated verbs, actor identity, no overlaps,
@@ -163,6 +168,15 @@ def main():
                         actor_snapshots.append((b["start_ms"]+op["start_ms"]+
                                                 min(180,(op["end_ms"]-op["start_ms"])//2),
                                                 identity+"_"+prm["actor_state"]))
+                        if prm["actor_state"] in ("WALK","WAVE","TURN","POINT"):
+                            subject=next((ent for ent in illustrated["entities"]
+                                          if ent["id"]==op["target"]),None)
+                            if subject and subject.get("art_bbox"):
+                                actor_motion_probes.append({
+                                    "state":prm["actor_state"],"actor":identity,
+                                    "bbox":subject["art_bbox"],
+                                    "start_ms":b["start_ms"]+op["start_ms"],
+                                    "end_ms":b["start_ms"]+op["end_ms"]})
                 for cues in by_actor.values():
                     cues.sort(key=lambda o:o["start_ms"])
                     for earlier,later in zip(cues,cues[1:]):
@@ -187,7 +201,37 @@ def main():
             voice_driver.execute(["ffmpeg","-y","-v","error","-ss",
                                   f"{duration_ms*position/1000:.3f}","-i",video,
                                   "-frames:v","1",image])
+        motion_scores={}
         if args.style=="sketch":
+            # Frame-difference proof INSIDE each actor's own geometry. These
+            # are two real MP4 frames from the active action, not synthetic
+            # pose cards or metadata assertions. A dormant character fails.
+            for sample in actor_motion_probes:
+                if sample["state"] in motion_scores:
+                    continue
+                length=sample["end_ms"]-sample["start_ms"]
+                frames=[]
+                for frac,suffix in ((0.38,"a"),(0.68,"b")):
+                    when=(sample["start_ms"]+length*frac)/1000
+                    shot=out/("motion_"+aspect+"_"+sample["state"]+"_"+suffix+".png")
+                    voice_driver.execute(["ffmpeg","-y","-v","error","-ss",
+                                          f"{when:.3f}","-i",video,"-frames:v","1",shot])
+                    frames.append(np.asarray(Image.open(shot).convert("RGB"),dtype=np.float32))
+                bb=sample["bbox"]
+                x=max(0,int(bb["x"]));y=max(0,int(bb["y"]))
+                end_x=min(int(vid["width"]),int(bb["x"]+bb["w"]))
+                end_y=min(int(vid["height"]),int(bb["y"]+bb["h"]))
+                if end_x<=x or end_y<=y:
+                    raise RuntimeError("ACTOR_NO_VISIBLE_BOUNDS")
+                value=float(np.mean(np.abs(frames[0][y:end_y,x:end_x]-
+                                           frames[1][y:end_y,x:end_x])))
+                motion_scores[sample["state"]]=round(value,3)
+                print("ACTOR_PAINTED_MOTION",sample["state"],sample["actor"],
+                      round(value,3),flush=True)
+                if value < 1.0:
+                    raise RuntimeError("ACTOR_MOTION_VISUALLY_INERT:"+sample["state"])
+            if not {"WALK","WAVE","TURN","POINT"}.issubset(motion_scores):
+                raise RuntimeError("REQUIRED_SKETCH_MOVEMENT_NOT_DRAWN")
             # Exact render-frame evidence of the source action, not a fake
             # standalone character image. The MP4's audio remains intact.
             for stamp, name in actor_snapshots[:8]:
@@ -200,7 +244,8 @@ def main():
         recordings[aspect]={
             "filename":video.name,"sha256":hashlib.sha256(video.read_bytes()).hexdigest(),
             "bytes":video.stat().st_size,"size":[vid["width"],vid["height"]],
-            "gate":compiled["gate"]["status"],"page_errors":[]}
+            "gate":compiled["gate"]["status"],"page_errors":[],
+            "painted_actor_motion_rgb_mae":motion_scores}
     report={
         "style":args.style,"script":text,"director_scene_count":len(director["scenes"]),
         "actor_sync_verified_against_supplied_word_clock":args.style=="sketch",
