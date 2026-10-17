@@ -716,6 +716,7 @@ class FilmTreatment:
     mood: Optional[str] = None
     sfx: Optional[str] = None
     show: Optional[Dict[str, Any]] = None  # {format, subject, shades[]} when this film is a numbered-section show
+    caption_policy: Optional[str] = None  # For chosen style only; no renderer-wide typography changes
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -796,9 +797,13 @@ class FilmTreatment:
                   'SHOW_WITHOUT_SECTIONS', 'a show needs every beat assigned a section, with at least two distinct section names')
             _need(len(sectioned) == len(beats), 'SHOW_WITHOUT_SECTIONS', 'a show needs every beat assigned a section')
             show = {'format': fmt, 'subject': subject, 'shades': out_shades}
+        caption_policy = d.get('caption_policy')
+        if caption_policy is not None:
+            _need(caption_policy in ('burned', 'kinetic', 'none'), 'CAPTION_POLICY_INVALID',
+                  str(caption_policy))
         spoken = [b for b in beats if b.dominant_layer != 'QUIET']
         if spoken:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show)
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show, caption_policy)
