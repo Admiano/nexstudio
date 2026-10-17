@@ -628,14 +628,32 @@ def direct_film(style: str, beats: list[dict]) -> dict[str, Any]:
                 if "word" in (cue.get("at") or {}):
                     cue.setdefault("params", {})["voice_sync"] = True
         if style == "sketch":
-            from sketch_actor_states import bind_actor_performances, ensure_source_count_visual
-            # No text-only Sketch scenes. Before failing closed, realize exact
-            # source-spoken counts as a native base-ten drawing (ones/tens/
-            # hundreds). No decorative placeholder or inferred denominator.
+            from sketch_actor_states import ensure_source_count_visual
+            # Whiteboard cast is the ONLY authorized actor source. The earlier
+            # source-person SVG and sketch_actor_states SETTLE adapter are a
+            # separate stand-in, not the real Whiteboard/NexStick runtime.
+            # Fail closed until a source-backed Whiteboard adapter is genuinely
+            # integrated and tested. Never silently draw this generic actor.
+            synthetic_people = [
+                ent.get("id", "<unknown>")
+                for ent in (beat.get("illustration") or {}).get("entities", [])
+                if ((ent.get("params") or {}).get("visual_class") == "person" or
+                    (ent.get("params") or {}).get("actor_identity") or
+                    (ent.get("params") or {}).get("actor_state"))
+            ]
+            if synthetic_people:
+                raise RuntimeError(
+                    "SCENEBAM_WHITEBOARD_CHARACTER_INTEGRATION_REQUIRED: "
+                    "Sketch refused unapproved procedural person(s) "
+                    + ", ".join(synthetic_people)
+                    + "; supply an authenticated native Whiteboard cast bridge "
+                    "before rendering actors. No substitute character allowed."
+                )
+            # Retain non-human source-grounded drawing and data choreography.
             if not _sketch_has_meaningful_visual(beat):
                 ensure_source_count_visual(beat)
             time_subject_arrivals(beat)
-            actor_actions = bind_actor_performances(beat)
+            actor_actions = []
         else:
             actor_actions = []
         entries.append({
