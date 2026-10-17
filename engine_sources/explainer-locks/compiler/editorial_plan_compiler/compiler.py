@@ -295,10 +295,22 @@ class BeatCompiler:
                        'y': max(native_zone['y'], self.safe['y']),
                        'w': zx2 - max(native_zone['x'], self.safe['x']),
                        'h': zy2 - max(native_zone['y'], self.safe['y'])}
+        # Data Viz TREND is a sequential spoken story, not five simultaneous
+        # dashboard paragraphs. Compiler and runtime share the source-word
+        # ownership; only one clause can inhabit the editorial headline slot.
+        # The actual chart owns the remaining native composition, and every
+        # refit still passes the normal text floor and safe-frame checks.
+        voice_story = (self.film.director_style == 'dataviz' and
+                       self.aspect == '16x9' and b.illustration is not None and
+                       any(e.glyph == 'CHART_LINE' for e in b.illustration.entities) and
+                       self.film.caption_policy == 'kinetic')
         blocks: List[Dict[str, Any]] = []
         grown: List[int] = []
         for blk in perf['text_blocks']:
-            bbox = _remap(blk['bbox'], ktp_zone, native_zone)
+            bbox = (_box(native_zone['x'] + native_zone['w'] * 0.04,
+                         native_zone['y'] + native_zone['h'] * 0.06,
+                         native_zone['w'] * 0.92, native_zone['h'] * 0.88)
+                    if voice_story else _remap(blk['bbox'], ktp_zone, native_zone))
             # Edge-crop heroes may reach the safe edge but never leave the safe frame.
             bbox['x'] = max(self.safe['x'], bbox['x'])
             bbox['w'] = min(bbox['w'], self.safe['x'] + self.safe['w'] - bbox['x'])
@@ -315,13 +327,14 @@ class BeatCompiler:
         def _others(k: int) -> List[Dict[str, float]]:
             rg = b.units[blocks[k]['unit_index']].replace_group
             return [bl['bbox'] for j, bl in enumerate(blocks) if j != k and not (rg and b.units[bl['unit_index']].replace_group == rg)]
-        for gi in grown:
+        for gi in ([] if voice_story else grown):
             blocks[gi]['bbox'] = _nudge_clear(blocks[gi]['bbox'], _others(gi), native_zone)
             # If the grown block has nowhere to go, the neighbour it hits may have the slack instead.
             for j, bl in enumerate(blocks):
                 if j != gi and _overlap(bl['bbox'], blocks[gi]['bbox']) > 0:
                     blocks[j]['bbox'] = _nudge_clear(bl['bbox'], _others(j), native_zone)
-        self._stack_in_narration_order(b, blocks, self.safe)
+        if not voice_story:
+            self._stack_in_narration_order(b, blocks, self.safe)
         if comp.get('typography_hints', {}).get('text_align') == 'center':
             # Centred lockup: every block sits on the zone's vertical axis and sets its lines centred.
             lo = max(native_zone['x'], self.safe['x'])
@@ -346,6 +359,12 @@ class BeatCompiler:
         for i in range(len(blocks)):
             for j in range(i + 1, len(blocks)):
                 ui, uj = b.units[blocks[i]['unit_index']], b.units[blocks[j]['unit_index']]
+                if voice_story:
+                    # These authored clauses have disjoint, chronological
+                    # word ranges and the runtime enforces a complete exit
+                    # before the next incoming word. Static box overlap is
+                    # intentional frame-by-frame replacement, not collision.
+                    continue
                 if ui.replace_group and ui.replace_group == uj.replace_group:
                     continue
                 if _overlap(blocks[i]['bbox'], blocks[j]['bbox']) > 0:
@@ -426,6 +445,15 @@ class BeatCompiler:
         next spoken word. Stressed words are flagged for full-ink weight; the rest read tonal
         until the unit is complete."""
         reveal_start = {e['unit_index']: e['start_ms'] for e in reversed(events) if e['unit_index'] >= 0 and e['event'] not in ('HOLD', 'EXIT')}
+        # A single Data Viz beat can narrate several periods beginning with the
+        # same word ("In January ... In February ... In March ...").
+        # Matching each block from word zero moves later clauses into the first
+        # clause's window. Advance along the *intact master voice* monotonically.
+        narrative_cursor = 0
+        sequential = (self.film.caption_policy == 'kinetic' and
+                      self.film.brand.finish == 'EDITORIAL_FLAT') or (
+                      self.film.director_style == 'sketch' and
+                      any(u.replace_group == 'sketch_causal_action' for u in b.units))
         for bl in blocks:
             i = bl['unit_index']
             unit = b.units[i]
@@ -438,12 +466,16 @@ class BeatCompiler:
             start = reveal_start.get(i, clock.landings_ms[i])
             times: List[Optional[int]] = [None] * len(tokens)
             if clock.landing_source[i] == 'WORD' and clock.words:
-                cursor = max(0, find_landing(clock.words, unit.anchor_word or tokens[0], 0) or 0)
+                anchor_from = narrative_cursor if sequential else 0
+                anchor_at = find_landing(clock.words, unit.anchor_word or tokens[0], anchor_from)
+                cursor = max(0, anchor_at if anchor_at is not None else anchor_from)
                 for k, tok in enumerate(tokens):
                     idx = find_landing(clock.words, tok, cursor)
                     if idx is not None and idx >= cursor and (idx - cursor) <= 3:
                         times[k] = clock.words[idx].start_ms
                         cursor = idx + 1
+                if sequential:
+                    narrative_cursor = max(narrative_cursor, cursor)
             # Fill unmatched words evenly between their spoken neighbours.
             if times and times[0] is None:
                 times[0] = start
@@ -665,17 +697,107 @@ class BeatCompiler:
     def compile(self, b: BeatTreatment, clock: BeatClock, beat_offset_ms: int, beat_index: int = 0) -> Dict[str, Any]:
         failures: List[str] = []
         warnings: List[str] = []
+        if (self.film.director_style == 'sketch' and
+                b.features.get('sketch_visual_coverage', 1.0) < 0.5):
+            # A scene of nothing but caption fragments, pills or word cards
+            # is not a Sketch explainer. Keep compiling its source/timing
+            # diagnostics, but fail the native gate so no fake "pass" renders.
+            failures.append('SKETCH_VISUAL_SUBJECT_REQUIRED')
         comp = native.compose(self.aspect, self._native_treatment(b), self._visual_kind(b))
         if b.illustration is not None and not (b.illustration.carry_from and b.illustration.carry_from in self.illustrations):
             _rebalance(comp, self._text_share(b))
+        # Aspect-native data direction. Generic portrait stacks reserve a large
+        # empty textual hold even though the kinetic copy is one phrase at a
+        # time. Reclaim that area for the evidence without shrinking text or
+        # stretching a landscape layout. All coordinates derive from the safe
+        # frame for THIS aspect, and this never affects the other styles.
+        if (self.film.director_style == 'dataviz' and self.aspect == '16x9' and
+                b.illustration and any(e.glyph == 'CHART_LINE'
+                                       for e in b.illustration.entities)):
+            # A chart-led landscape film: one source-exact narrated thought
+            # occupies a full-width headline at a time, while the graph gets
+            # the width of the story. The original side-by-side layout forced
+            # five temporary clauses to reserve simultaneous text space and
+            # made the actual chart smaller than the headline.
+            field = self.safe
+            text_h = field['h'] * 0.29
+            gap = max(15, field['h'] * 0.036)
+            vis_x = max(self.frame['x'], field['x'] + field['w'] * 0.016)
+            vis_right = min(self.frame['x'] + self.frame['w'],
+                            field['x'] + field['w'] * 0.984)
+            vis_y = field['y'] + text_h + gap
+            vis_bottom = min(self.frame['y'] + self.frame['h'], field['y'] + field['h'])
+            comp['text_zone'] = _box(field['x'], field['y'],
+                                     field['w'], text_h)
+            comp['visual_zone'] = _box(vis_x, vis_y, vis_right - vis_x,
+                                       vis_bottom - vis_y)
+        if self.film.director_style == 'dataviz' and self.aspect in ('9x16', '1x1') and b.illustration:
+            # Native profile exposes safe_area as [left, top, right, bottom];
+            # self.safe is the corresponding x/y/w/h box in actual canvas units.
+            field = self.safe
+            text_h = field['h'] * (0.28 if self.aspect == '9x16' else 0.30)
+            gap = max(18, field['h'] * 0.025)
+            vis_x = max(self.frame['x'], field['x'] - 12)
+            vis_w = min(self.W - 2 * vis_x, field['w'] + 24)
+            vis_y = field['y'] + text_h + gap
+            vis_h = field['y'] + field['h'] - vis_y
+            comp['text_zone'] = _box(field['x'], field['y'], field['w'], text_h)
+            comp['visual_zone'] = _box(vis_x, vis_y, vis_w, vis_h)
+        # Script-directed composition is aspect-specific. In portrait and
+        # square films typography may sit ABOVE or BELOW the depicted event;
+        # in landscape it may sit LEFT or RIGHT. Earlier data direction forced
+        # text to the top, leaving every shot with the same visual silhouette.
+        # Make the film planner's selected stage geometry the actual authority.
+        placement = b.director_layout.get(self.aspect) if b.illustration else None
+        if placement and self.film.director_style in ('sketch', 'dataviz'):
+            field = self.safe
+            ratio = self._text_share(b)
+            if self.aspect in ('9x16', '1x1'):
+                ratio = min(.39, max(.28, ratio))
+                gap = max(16.0, field['h'] * .026)
+                th = field['h'] * ratio
+                vh = field['h'] - th - gap
+                text_y = field['y'] if placement == 'TEXT_TOP' else field['y'] + vh + gap
+                visual_y = field['y'] + th + gap if placement == 'TEXT_TOP' else field['y']
+                comp['text_zone'] = _box(field['x'], text_y, field['w'], th)
+                comp['visual_zone'] = _box(max(self.frame['x'], field['x'] - 9),
+                                           visual_y,
+                                           min(self.W - 2 * max(self.frame['x'], field['x'] - 9),
+                                               field['w'] + 18), vh)
+            elif placement == 'EVIDENCE_WIDE':
+                # Five or more observations need horizontal time/category
+                # resolution. A 43%-wide split chart loses evidence labels.
+                # Reserve a full-width mathematical field and a voiced
+                # headline band rather than forcing a left/right card.
+                th = field['h'] * .29
+                gap = max(14., field['h'] * .027)
+                inset = field['w'] * .012
+                comp['text_zone'] = _box(field['x'], field['y'],
+                                         field['w'], th)
+                comp['visual_zone'] = _box(field['x'] + inset,
+                                           field['y'] + th + gap,
+                                           field['w'] - 2*inset,
+                                           field['h'] - th - gap)
+            else:
+                gap = max(16.0, field['w'] * .02)
+                tw = field['w'] * max(.40, min(.46, ratio + .09))
+                vw = field['w'] - tw - gap
+                text_x = field['x'] if placement == 'TEXT_LEFT' else field['x'] + vw + gap
+                visual_x = field['x'] + tw + gap if placement == 'TEXT_LEFT' else field['x']
+                comp['text_zone'] = _box(text_x, field['y'], tw, field['h'])
+                comp['visual_zone'] = _box(visual_x, field['y'], vw, field['h'])
+            comp['director_position'] = placement
         if self.carried_illustration and b.illustration is None:
             comp['visual_zone'] = dict(self.carried_illustration['zone'])  # persisted argument keeps its stage
         elif b.illustration is not None and b.illustration.carry_from and b.illustration.carry_from in self.illustrations:
             # Float beats keep their own composition: the carried entity travels
             # stage-to-stage (that IS the momentum), while locking the whole zone
             # to the source beat would starve this beat's text split.
-            if self.film.brand.finish != 'FLOAT_FIELD':
+            if self.film.brand.finish != 'FLOAT_FIELD' and not placement:
                 comp['visual_zone'] = dict(self.illustrations[b.illustration.carry_from]['zone'])
+            # In director-managed scenes, the source actor has explicit carry
+            # motion between native composition boxes. Reusing the old zone
+            # here would intersect this beat's text and squeeze it to nothing.
         if self.show_map is not None and b.illustration is not None:
             _SHOW_WIDGETS = {'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY'}
             if {e.glyph for e in b.illustration.entities} & _SHOW_WIDGETS:
@@ -1224,6 +1346,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
         film_failures += [f'{aspect}:{f}' for f in fails]
         film_warnings += [f"{aspect}:{bt['beat_id']}:{w}" for bt in beats for w in bt['gate']['warnings']]
         ow, oh = OUTPUT[aspect]
+        caption_policy = film.caption_policy or ('none' if show_map is not None else
+                          ('kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned'))
         plans[aspect] = {
             'schema': PLAN_SCHEMA, 'compiler': COMPILER_VERSION, 'film_id': film.film_id, 'aspect': aspect, 'fps': film.fps,
             'canvas': {'w': W, 'h': H}, 'output': {'w': ow, 'h': oh, 'scale': round(ow / W, 4)},
@@ -1237,8 +1361,8 @@ def compile_film(treatment: Dict[str, Any], work_dir: Path, base_dir: Optional[P
                                                                                           'speech_end_ms': w.speech_end_ms, 'budget_met': c.budget_met} for w, c in zip(timeline.windows, clocks)]},
             'music': aspect_music, 'mix': MIX, 'atmosphere': atmosphere,
             'surfaces': {'grain': community_surface('surface', 'grain-fine'), 'paper': community_surface('texture', 'paper006-color')},
-            'beats': beats, 'captions': [] if show_map is not None else _captions(beats),
-            'captions_policy': 'none' if show_map is not None else ('kinetic' if film.brand.finish in ('PRODUCT_COLLAGE', 'FLOAT_FIELD', 'CENTER_DECK') else 'burned'),
+            'beats': beats, 'captions': _captions(beats) if caption_policy == 'burned' else [],
+            'captions_policy': caption_policy, 'director_style': film.director_style,
             'show': ({'format': show_map['format'], 'subject': show_map['subject'],
                       'sections': [{'idx': i, 'name': n} for i, n in enumerate(show_map['sections'])],
                       'bands': show_bands(aspect)} if show_map is not None else None),

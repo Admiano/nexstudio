@@ -33,6 +33,31 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertEqual({op["at"]["word"] for op in beat["illustration"]["program"] if "word" in op["at"]},
                          {"900", "1,200"})
 
+    def test_before_measure_remains_visible_until_next_claim(self):
+        beat = authored("Rent rose from 900 dollars to 1,200 dollars.")
+        bars = beat["illustration"]["entities"]
+        fade = [o for o in beat["illustration"]["program"] if o["op"] == "DIM"]
+        self.assertEqual(1, len(fade))
+        self.assertEqual(bars[0]["id"], fade[0]["target"])
+        self.assertEqual(1.0, fade[0]["from"],
+                         "A future change must not hide the first bar before it is spoken")
+        self.assertEqual(0.66, fade[0]["to"])
+        self.assertEqual("1,200", fade[0]["at"]["word"])
+
+    def test_source_verbs_produce_only_truthful_comparison_direction(self):
+        higher = authored("Rent rose from 900 dollars to 1,200 dollars.")
+        bars = higher["illustration"]["entities"]
+        self.assertEqual(bars[1]["params"]["change_direction"], "up")
+        lower = authored("Rent fell from 1,200 dollars to 900 dollars.")
+        self.assertEqual(lower["illustration"]["entities"][1]["params"]["change_direction"], "down")
+        neutral = authored("Rent moved from 900 dollars to 1,200 dollars.")
+        self.assertNotIn("change_direction", neutral["illustration"]["entities"][1]["params"])
+        contradictory = authored("Rent rose from 1,200 dollars to 900 dollars.")
+        self.assertNotIn("change_direction", contradictory["illustration"]["entities"][1]["params"])
+        higher["illustration"]["entities"][1]["params"]["change_direction"] = "down"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(higher)
+
     def test_long_claim_keeps_every_word_and_measure(self):
         text = "Imagine a neighborhood bookstore's weekly sales rising from 40 books to 60 books over the summer."
         beat = authored(text)
@@ -75,18 +100,137 @@ class DataVizAuthoringTests(unittest.TestCase):
         self.assertEqual(authored("Three residents out of ten residents prefer walking.")["data_claim"]["kind"],
                          "SHARE")
 
-    def test_trend_only_for_supplied_evenly_spaced_dates(self):
+    def test_trend_for_monotone_dates_with_honest_temporal_distance(self):
         text = "In 2021 sales were 10, in 2022 they were 20, and in 2023 they were 30."
         beat = authored(text)
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
         self.assertEqual([q["value"] for q in beat["data_claim"]["quantities"]], ["10", "20", "30"])
         self.assertEqual(beat["illustration"]["entities"][0]["params"]["points"], [1 / 3, 2 / 3, 1])
-        uneven = text.replace("2022", "2024")
-        self.assertNotIn("CHART_LINE", [e["glyph"] for e in authored(uneven).get("illustration", {}).get("entities", [])])
+        uneven = text.replace("2022", "2024").replace("2023", "2026")
+        nonuniform = authored(uneven)
+        chart = next(e for e in nonuniform["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["x_positions"], [0.0, 3 / 5, 1.0])
+        self.assertEqual([p["label"] for p in nonuniform["illustration"]["entities"][1:]],
+                         ["2021", "2024", "2026"])
+        # Backward chronology never draws a misleading left-to-right line.
+        self.assertNotIn("CHART_LINE", [e["glyph"] for e in authored(
+            "In 2024 sales were 10; in 2021 they were 20; in 2025 they were 30."
+        ).get("illustration", {}).get("entities", [])])
         no_dates = authored("The cups held 10, 20 and 30.")
         self.assertNotIn("CHART_LINE", [e["glyph"] for e in no_dates.get("illustration", {}).get("entities", [])])
         mixed = authored("In 2021 books were 10; in 2022 chairs were 20; in 2023 shoes were 30.")
         self.assertNotIn("CHART_LINE", [e["glyph"] for e in mixed.get("illustration", {}).get("entities", [])])
+
+    def test_chart_rejects_fabricated_or_out_of_order_x_distances(self):
+        import copy
+        chart_beat = authored("In 2021 sales were 10, in 2024 they were 20, and in 2026 they were 30.")
+        self.assertEqual(chart_beat["data_claim"]["kind"], "TREND")
+        for invalid in ([0, 1, 1], [0.1, 0.5, 1], [0, 0.8, 0.7],
+                        [0, float("nan"), 1], [0, 1]):
+            with self.subTest(invalid=invalid):
+                candidate = copy.deepcopy(chart_beat)
+                candidate["illustration"]["entities"][0]["params"]["x_positions"] = invalid
+                with self.assertRaises(TreatmentError):
+                    BeatTreatment.parse(candidate)
+
+    def test_irregular_chart_cues_use_source_time_spacing_in_all_aspects(self):
+        source = "In 2021 sales were 10; in 2024 they were 40; and in 2026 they were 20."
+        beat = authored(source)
+        xs = beat["illustration"]["entities"][0]["params"]["x_positions"]
+        for w, h in ((500, 240), (400, 400), (220, 500)):
+            _beat, _parsed, clock, _ents, ops = self.schedule(source, w, h)
+            cue = [o for o in ops if o["op"] == "GROW"]
+            lengths = [math.hypot(w * (xs[i + 1] - xs[i]),
+                                  h * 0.9 * (v - u))
+                       for i, (u, v) in enumerate(zip([.25, 1.0], [1.0, .5]))]
+            self.assertAlmostEqual(cue[1]["to"], lengths[0] / sum(lengths))
+            self.assertEqual([op["to"] for op in (cue[0], cue[-1])], [0, 1])
+            self.assertTrue(all(op["end_ms"] == clock.words[
+                op["params"]["word_index"] + op["params"]["word_span"] - 1].end_ms
+                for op in cue))
+
+    def test_five_and_six_observation_trends_keep_each_source_value(self):
+        for years, values in (
+            ([2021, 2022, 2024, 2025, 2026], [10, 40, 20, 35, 30]),
+            ([2020, 2021, 2022, 2024, 2025, 2026], [5, 10, 30, 15, 25, 20]),
+        ):
+            text = " ".join(f"In {year} orchard visits were {value}."
+                            for year, value in zip(years, values))
+            with self.subTest(years=years):
+                beat = authored(text)
+                self.assertEqual(beat["data_claim"]["kind"], "TREND")
+                picture = beat["illustration"]
+                chart = next(e for e in picture["entities"] if e["glyph"] == "CHART_LINE")
+                self.assertEqual(chart["params"]["value_labels"], list(map(str, values)))
+                self.assertEqual(chart["params"]["x_positions"], [
+                    (year - years[0]) / (years[-1] - years[0]) for year in years])
+                self.assertEqual(len(picture["entities"]), len(years) + 1)
+                self.assertEqual(len([op for op in picture["program"] if op["op"] == "GROW"]), len(years))
+                self.assertLessEqual(len(picture["program"]), 10)
+                BeatTreatment.parse(beat)
+
+    def test_source_chronology_uses_full_editorial_plot_area(self):
+        # Source-validated chronological evidence must be an actual visual
+        # argument, not a chart confined to a dashboard-sized thumbnail.
+        text = "In 2021 orchard visits were 10. In 2022 they were 40. In 2024 they were 20. In 2025 they were 35. In 2026 they were 30."
+        scene = BeatTreatment.parse(authored(text)).illustration
+        for aspect, canvas, zone in (
+            ("16x9", (1280, 720), {"x": 89, "y": 235, "w": 1030, "h": 376}),
+            ("9x16", (720, 1280), {"x": 40, "y": 396, "w": 588, "h": 739}),
+            ("1x1", (1080, 1080), {"x": 75, "y": 380, "w": 930, "h": 540}),
+        ):
+            with self.subTest(aspect=aspect):
+                solver = IllustrationSolver(aspect, canvas, IllustrationRegistry(), {}, {},
+                                            "#ffb000", collage=True, finish="PAPER")
+                entities, errors = solver.layout(scene, zone, "b01")
+                self.assertFalse(errors, errors)
+                graph = next(e for e in entities if e["glyph"] == "CHART_LINE")
+                self.assertGreater(graph["bbox"]["h"], zone["h"] * 0.65)
+                labels = [e for e in entities if e["glyph"] == "PILL"]
+                self.assertEqual(len(labels), 5)
+                xs = [e["bbox"]["x"] + e["bbox"]["w"] / 2 for e in labels]
+                self.assertTrue(all(l < r for l, r in zip(xs, xs[1:])))
+                self.assertLess(graph["bbox"]["y"] + graph["bbox"]["h"],
+                                min(e["bbox"]["y"] for e in labels))
+
+    def test_trend_annotations_are_source_values_not_pill_buttons(self):
+        beat = authored("In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
+        self.assertEqual(beat["data_claim"]["kind"], "TREND")
+        entities = beat["illustration"]["entities"]
+        chart = next(e for e in entities if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["value_labels"], ["10", "20", "15"])
+        datums = [e for e in entities if e["glyph"] == "PILL"]
+        self.assertEqual([e["label"] for e in datums], ["Jan", "Feb", "Mar"])
+        self.assertTrue(all(e["params"].get("plain_datum") is True for e in datums))
+        self.assertEqual(len(datums), len(chart["params"]["points"]))
+
+    def test_metric_label_is_source_exact_and_optional(self):
+        source = authored(
+            "In January, park visits were 10. In February, they reached 20. In March, they reached 15.")
+        chart = next(e for e in source["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        self.assertEqual(chart["params"]["metric_label"], "park visits")
+        contradiction = deepcopy(source)
+        changed = next(e for e in contradiction["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        changed["params"]["metric_label"] = "daily revenue"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(contradiction)
+        fabricated = deepcopy(source)
+        changed = next(e for e in fabricated["illustration"]["entities"] if e["glyph"] == "CHART_LINE")
+        changed["params"]["metric_label"] = "these are all the different visits"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(fabricated)
+
+    def test_invalid_annotation_sizes_fail_closed(self):
+        beat = authored("In 2021 sales were 10, in 2022 they were 20, and in 2023 they were 30.")
+        chart = beat["illustration"]["entities"][0]
+        chart["params"]["value_labels"] = ["10"]
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(beat)
+        chart["params"]["value_labels"] = ["10", "20", "30"]
+        badge = next(e for e in beat["illustration"]["entities"] if e["glyph"] == "PILL")
+        badge["params"]["plain_datum"] = "yes"
+        with self.assertRaises(TreatmentError):
+            BeatTreatment.parse(beat)
 
     def test_non_numeric_fallback_and_spoken_steps(self):
         steps = authored("First inspect the pump, then replace the valve.")
@@ -169,7 +313,10 @@ class DataVizAuthoringTests(unittest.TestCase):
             for o in growth:
                 i = o["params"]["word_index"] + o["params"]["word_span"] - 1
                 self.assertEqual(o["end_ms"], clock.words[i].end_ms)
-            markers = [o for o in ops if o["op"] == "DIM" and o["target"].startswith("point")]
+            early_periods = [o for o in ops if o["op"] == "DIM" and o["target"].startswith("point")]
+            self.assertEqual(len(early_periods), 3)
+            self.assertTrue(all(o["start_ms"] <= clock.words[0].end_ms for o in early_periods))
+            markers = [o for o in ops if o["op"] == "SETTLE" and o["target"].startswith("point")]
             self.assertEqual([o["end_ms"] for o in markers], [o["end_ms"] for o in growth])
 
     def test_dated_sentences_form_one_supplied_trend(self):
@@ -181,7 +328,7 @@ class DataVizAuthoringTests(unittest.TestCase):
         beat = make_reel.dataviz_beat(groups[0], 0, 1, [])
         self.assertEqual(beat["data_claim"]["kind"], "TREND")
         self.assertEqual([e["label"] for e in beat["illustration"]["entities"][1:]],
-                         ["Jan 10", "Feb 20", "Mar 15"])
+                         ["Jan", "Feb", "Mar"])
         self.assertEqual(" ".join(u["text"] for u in beat["display_units"]), text)
         self.assertLessEqual(len(beat["display_units"]), 5)
         BeatTreatment.parse(beat)

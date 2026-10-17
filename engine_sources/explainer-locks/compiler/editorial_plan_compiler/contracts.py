@@ -8,6 +8,7 @@ route layout, motif, figure or sound; wording is payload.
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -28,9 +29,9 @@ REVEAL_MODES = ('WORD_CASCADE', 'BLOCK')
 # Illustration program: a per-beat visual argument. Forms are topologies, glyphs are drawable
 # primitives, ops are timed state changes. None of these names is derived from wording.
 ILLUSTRATION_FORMS = ('OBJECT_STAGE', 'PROCESS_PIPELINE', 'RELATIONSHIP', 'STATE_TRANSFORMATION', 'COMPARISON', 'DATA_VISUAL', 'CALLOUT_LENS', 'SIGNAL')
-GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
+GLYPHS = ('VESSEL', 'NODE', 'CARD', 'LENS', 'CHART_LINE', 'RING', 'PILL', 'PUMP', 'TANK', 'PROHIBIT', 'BRACKET', 'BAR', 'ICON', 'MEDIA',
           'ARROW', 'MARK_CIRCLE', 'UNDERLINE', 'BURST', 'CALLOUT', 'STICKY', 'DONUT', 'FRAME', 'TILE', 'CHIP', 'BADGE', 'COUNTER',
-          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'SQUIGGLE', 'MAGNIFY')
+          'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'VS_CARDS', 'LOGO_GRID', 'FLOW_STEPS', 'PROGRESS', 'POPULATION_GRID', 'BASE10_TALLY', 'SQUIGGLE', 'MAGNIFY')
 # Housings whose only job is to carry a mark; staged without one they read as generated filler.
 CARRIER_GLYPHS = ('TILE', 'BADGE', 'CHIP')
 # Housings whose label is set inside the body, so a word alone is content.
@@ -134,6 +135,13 @@ def check_labels(units: List['DisplayUnit'], illus: 'IllustrationDirective', bea
     unit_words = [_norm_words(u.text) for u in units]
     for e in illus.entities:
         if not e.label:
+            continue
+        # A photographed/illustrated SOURCE noun can have its visible caption
+        # suppressed when a voice-timed headline is already saying it. The
+        # source label remains mandatory to license the pictorial class.
+        if (e.glyph == 'TILE' and e.params.get('caption_suppressed') is True
+                and e.params.get('visual_class') in
+                    ('person', 'document', 'list', 'population', 'package')):
             continue
         words = _norm_words(e.label)
         if not words:
@@ -252,18 +260,72 @@ class IllustrationEntity:
             _need(asset_ref is not None or concept is not None, 'ICON_WITHOUT_ASSET_REF', eid, beat_id)
         if glyph in CARRIER_GLYPHS:
             # A housing is never staged empty: the tile / disc / row exists to carry a mark or a word.
-            carries = asset_ref is not None or concept is not None or (label is not None and glyph in INSIDE_LABEL_GLYPHS)
+            # Registered procedural art is a real drawable housed illustration,
+            # not an empty tile or a guessed icon. Its name remains source text.
+            visual = (d.get('params') or {}).get('visual_class')
+            carries = asset_ref is not None or concept is not None or (
+                label is not None and glyph in INSIDE_LABEL_GLYPHS) or (
+                label is not None and glyph == 'TILE' and visual in ('person', 'document', 'list', 'population', 'package'))
             _need(carries, 'CHASSIS_EMPTY', f'{eid}: {glyph} carries nothing (no asset_ref, no concept, no inside label)', beat_id)
         if glyph == 'MEDIA':
             _need(media_ref is not None, 'MEDIA_GLYPH_WITHOUT_MEDIA_REF', eid, beat_id)
         params = dict(d.get('params') or {})
+        if 'caption_suppressed' in params:
+            _need(params['caption_suppressed'] is True and
+                  params.get('visual_class') in
+                  ('person', 'document', 'list', 'population', 'package')
+                  and label is not None and glyph == 'TILE'
+                  and asset_ref is None and concept is None,
+                  'SOURCE_CAPTION_SUPPRESSION_INVALID',
+                  f'{eid}: only a source-labelled procedural drawing can suppress its duplicate caption',
+                  beat_id)
+        if 'visual_class' in params:
+            _need(params['visual_class'] in ('person', 'document', 'list', 'population', 'package') and
+                  glyph == 'TILE' and kind == 'object' and label is not None
+                  and asset_ref is None and concept is None,
+                  'ILLUSTRATED_CLASS_INVALID',
+                  f'{eid}: author-approved procedural class needs a named source object', beat_id)
+        if 'narrative_role' in params:
+            _need(params['narrative_role'] == 'transferred_payload' and kind == 'object'
+                  and glyph in ('PILL', 'CARD', 'TILE', 'ICON', 'CHIP', 'BADGE'),
+                  'SEMANTIC_PAYLOAD_ROLE_INVALID',
+                  f'{eid}: transported role must belong to a drawable object', beat_id)
         if 'chassis' in params:
             _need(glyph == 'MEDIA', 'CHASSIS_ON_NON_MEDIA', f'{eid}: chassis wraps MEDIA only', beat_id)
             _need(str(params['chassis']) in CHASSIS, 'CHASSIS_UNKNOWN', f"{eid}:{params['chassis']}", beat_id)
+        if 'change_direction' in params:
+            _need(glyph == 'BAR' and params['change_direction'] in ('up', 'down'),
+                  'DATA_CHANGE_DIRECTION_INVALID', f'{eid}: direction must be up/down on a BAR', beat_id)
         if glyph == 'CHART_LINE':
             pts = params.get('points')
             _need(isinstance(pts, list) and len(pts) >= 2, 'CHART_POINTS_MISSING', f'{eid}: CHART_LINE needs >=2 points in 0..1', beat_id)
             params['points'] = [_unit(p) for p in pts]
+            if 'x_positions' in params:
+                xs = params['x_positions']
+                _need(isinstance(xs, list) and len(xs) == len(pts) and
+                      all(isinstance(x, (float, int)) and not isinstance(x, bool)
+                          and math.isfinite(float(x)) and 0 <= x <= 1 for x in xs) and
+                      abs(xs[0]) < 1e-9 and abs(xs[-1] - 1) < 1e-9 and
+                      all(a < b for a, b in zip(xs, xs[1:])),
+                      'CHART_TIME_POSITION_INVALID',
+                      f'{eid}: x positions need strict chronological 0..1 spacing', beat_id)
+                params['x_positions'] = [float(x) for x in xs]
+            if 'value_labels' in params:
+                labels = params['value_labels']
+                _need(isinstance(labels, list) and len(labels) == len(pts) and
+                      all(isinstance(v, str) and bool(v.strip()) and len(v) <= 24 for v in labels),
+                      'CHART_LABELS_INVALID', f'{eid}: every chart point needs a source value label', beat_id)
+                params['value_labels'] = [' '.join(v.split()) for v in labels]
+            if 'metric_label' in params:
+                metric = params['metric_label']
+                _need(isinstance(metric, str) and len(_norm_words(metric)) in (1, 2, 3)
+                      and len(metric) <= 48 and bool(re.fullmatch(r'[A-Za-z0-9 -]+', metric)),
+                      'CHART_METRIC_LABEL_INVALID',
+                      f'{eid}: metric must be 1-3 source words, up to 48 characters', beat_id)
+                params['metric_label'] = ' '.join(metric.split())
+        if glyph == 'PILL' and 'plain_datum' in params:
+            _need(params['plain_datum'] is True and label is not None,
+                  'PLAIN_DATUM_INVALID', f'{eid}: plain datum needs a label and boolean true', beat_id)
         if 'level' in params:
             params['level'] = _unit(params['level'])
         if 'count' in params:
@@ -366,6 +428,27 @@ class IllustrationEntity:
             params['steps'] = [{'label': ' '.join(str(s.get('label') or '').split())[:24] if isinstance(s, dict) else ' '.join(str(s).split())[:24]}
                                for s in steps]
             _need(all(s['label'] for s in params['steps']), 'FLOW_STEPS_LABEL', f'{eid}: every step needs a label', beat_id)
+        if glyph == 'BASE10_TALLY':
+            # Exact place-value illustration: hundreds, tens and ones, NOT a
+            # rounded cloud of dots misleadingly representing source count.
+            count = params.get('value')
+            _need(isinstance(count,int) and not isinstance(count,bool) and 1 <= count <= 999,
+                  'BASE10_TALLY_SOURCE_COUNT_INVALID', f'{eid}: tally requires exact 1-999 spoken integer', beat_id)
+            params['value'] = count
+        if glyph == 'POPULATION_GRID':
+            # One cell must represent an exact integer number of source units.
+            # A misleading rounded dot count is worse than a faithful donut.
+            total = params.get('total')
+            part = params.get('part')
+            _need(isinstance(total, int) and not isinstance(total, bool) and total >= 100
+                  and isinstance(part, int) and not isinstance(part, bool)
+                  and 0 < part <= total and total % 100 == 0
+                  and (part * 100) % total == 0,
+                  'POPULATION_GRID_REQUIRES_EXACT_HUNDRED',
+                  f'{eid}: part/total must fill an exact number of 100 cells', beat_id)
+            params['total'], params['part'] = total, part
+            params['level'] = part / total
+            params['count'] = part
         if glyph == 'PROGRESS':
             _need('level' in params, 'PROGRESS_WITHOUT_LEVEL', f'{eid}: PROGRESS needs params.level (0..1)', beat_id)
         if glyph == 'SQUIGGLE':
@@ -483,6 +566,15 @@ class IllustrationDirective:
         ops = [IllustrationOp.parse(o, idset, rels, n_units, beat_id) for o in (d.get('program') or [])]
         _need(bool(ops), 'ILLUSTRATION_WITHOUT_PROGRAM', 'an illustration must change state at least once while the beat speaks', beat_id)
         _need(len(ops) <= 10, 'ILLUSTRATION_PROGRAM_TOO_LONG', 'more than ten ops in one beat', beat_id)
+        bars = [e for e in ents if e.glyph == 'BAR']
+        changes = [e for e in bars if 'change_direction' in e.params]
+        if changes:
+            _need(len(bars) == 2 and len(changes) == 1 and changes[0].id == bars[-1].id,
+                  'DATA_CHANGE_PAIR_INVALID', 'only the second of two bars can direct a comparison', beat_id)
+            before, after = float(bars[0].params.get('value', 0)), float(bars[1].params.get('value', 0))
+            direction = changes[0].params['change_direction']
+            _need((direction == 'up' and after > before) or (direction == 'down' and after < before),
+                  'DATA_CHANGE_SIGN_MISMATCH', 'spoken directional comparison contradicts supplied values', beat_id)
         for o in ops:
             if 'point_index' in o.params:
                 e = next((e for e in ents if e.id == o.target), None)
@@ -613,6 +705,9 @@ class BeatTreatment:
     min_duration_ms: int = 0
     cut: Optional[str] = None  # authored hard cut out of this beat; every other cut is a camera move
     section: Optional[str] = None  # show grammar: numbered-section name this beat plays under
+    # Film director chooses the layout PER ASPECT, not from a fixed first-two-lines template.
+    # The compiler validates every orientation and keeps other style families unchanged.
+    director_layout: Dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'BeatTreatment':
@@ -642,6 +737,17 @@ class BeatTreatment:
         if illus is not None:
             _need(media is None and data is None, 'ILLUSTRATION_WITH_MEDIA_OR_DATA', 'media and data belong inside the illustration as MEDIA/CHART entities', bid)
             check_labels(units, illus, bid)
+            # The metric header is a source noun phrase, not a claim generated
+            # from a chart label or an unsupplied unit. Reject invented charts.
+            source_tokens = _norm_words(narration)
+            for ent in illus.entities:
+                metric = ent.params.get('metric_label') if ent.glyph == 'CHART_LINE' else None
+                if metric:
+                    tokens = _norm_words(metric)
+                    _need(any(source_tokens[i:i + len(tokens)] == tokens
+                              for i in range(len(source_tokens) - len(tokens) + 1)),
+                          'CHART_METRIC_NOT_IN_SOURCE',
+                          f'{ent.id}: chart metric {metric!r} was not spoken', bid)
         if layer == 'FIGURE':
             _need(figure is not None, 'FIGURE_LAYER_WITHOUT_FIGURE', 'FIGURE dominant layer requires a figure directive', bid)
         if layer == 'EVIDENCE':
@@ -660,8 +766,14 @@ class BeatTreatment:
         if sec is not None:
             section = ' '.join(str(sec).split()).upper()[:SHOW_SECTION_MAX_CHARS]
             _need(bool(SECTION_WORD_RE.match(section)), 'SHOW_SECTION_INVALID', f'{section!r}: 1-{SHOW_SECTION_MAX_CHARS} chars, uppercase word', bid)
+        layout = dict(d.get('director_layout') or {})
+        valid = {'1x1': ('TEXT_TOP', 'TEXT_BOTTOM'),
+                 '9x16': ('TEXT_TOP', 'TEXT_BOTTOM'),
+                 '16x9': ('TEXT_LEFT', 'TEXT_RIGHT', 'EVIDENCE_WIDE')}
+        _need(all(aspect in valid and orient in valid[aspect] for aspect, orient in layout.items()),
+              'DIRECTOR_LAYOUT_INVALID', f'{bid}: invalid aspect/side {layout}', bid)
         return cls(bid, bt, pattern, layer, narration, units, figure, media, data, illus,
-                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, section)
+                   _unit(d.get('energy', 0.55)), _unit(d.get('complexity', 0.45)), feats, int(d.get('min_duration_ms') or 0), cut, section, layout)
 
     @property
     def has_visual(self) -> bool:
@@ -716,6 +828,8 @@ class FilmTreatment:
     mood: Optional[str] = None
     sfx: Optional[str] = None
     show: Optional[Dict[str, Any]] = None  # {format, subject, shades[]} when this film is a numbered-section show
+    caption_policy: Optional[str] = None  # Explicit treatment-level policy for on-canvas type
+    director_style: Optional[str] = None  # Scope native creative rules to one authorized family
 
     @classmethod
     def parse(cls, d: Dict[str, Any]) -> 'FilmTreatment':
@@ -801,4 +915,12 @@ class FilmTreatment:
             share = sum(b.has_visual for b in spoken) / len(spoken)
             _need(share + 1e-9 >= typo.min_visual_share, 'FILM_VISUAL_DENSITY_LOW',
                   f'{share:.2f} of beats carry a visual argument; the film demands {typo.min_visual_share:.2f}. Text-only is not editorial.')
-        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show)
+        caption_policy = d.get('caption_policy')
+        if caption_policy is not None:
+            _need(caption_policy in ('burned', 'kinetic', 'none'), 'CAPTION_POLICY_UNKNOWN', str(caption_policy))
+        director_style = d.get('director_style')
+        if director_style is not None:
+            _need(director_style in ('dataviz', 'sketch'), 'DIRECTOR_STYLE_UNKNOWN', str(director_style))
+        if director_style == 'dataviz':
+            _need(caption_policy == 'kinetic', 'DATAVIZ_CAPTION_POLICY_INVALID', 'Data Viz requires on-canvas type')
+        return cls(fid, beats, aspects, library, brand, voice, fps, typo, mood, sfx, show, caption_policy, director_style)

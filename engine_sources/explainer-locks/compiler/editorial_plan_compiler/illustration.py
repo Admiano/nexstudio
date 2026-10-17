@@ -34,12 +34,12 @@ EXTRA_REGISTRIES = [Path(__file__).resolve().parents[2] / 'assets' / 'community'
 PREFLIGHT_PATH = Path(__file__).resolve().parents[2] / 'assets' / 'community' / 'preflight.json'
 
 # Drawable aspect (w/h) of each glyph inside its cell; MEDIA takes the asset's own ratio.
-GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8,
+GLYPH_ASPECT = {'VESSEL': 0.72, 'NODE': 1.0, 'CARD': 1.28, 'LENS': 1.0, 'CHART_LINE': 1.55, 'RING': 1.0, 'PILL': 2.8, 'PUMP': 1.1, 'TANK': 0.78,
                 'PROHIBIT': 1.0, 'BRACKET': 1.7, 'BAR': 0.46, 'ICON': 1.0,
                 'ARROW': 2.1, 'MARK_CIRCLE': 1.0, 'UNDERLINE': 5.5, 'BURST': 1.0, 'CALLOUT': 1.7, 'STICKY': 1.05,
                 'DONUT': 1.0, 'FRAME': 1.35, 'TILE': 1.0, 'CHIP': 2.9, 'BADGE': 1.0, 'COUNTER': 1.5,
                 'DATA_BARS': 1.6, 'DATA_TABLE': 1.5, 'TIMELINE': 1.7, 'VS_CARDS': 2.0, 'LOGO_GRID': 1.45, 'FLOW_STEPS': 2.6,
-                'PROGRESS': 5.0, 'SQUIGGLE': 5.5, 'MAGNIFY': 1.0}
+                'PROGRESS': 5.0, 'POPULATION_GRID': 1.25, 'BASE10_TALLY': 1.6, 'SQUIGGLE': 5.5, 'MAGNIFY': 1.0}
 # Glyphs that carry their label inside the shape rather than in a strip below it.
 LABEL_CARRIERS = ('PILL', 'CARD', 'CALLOUT', 'STICKY', 'CHIP')
 SIZE_WEIGHT = {'hero': 1.0, 'support': 0.64, 'minor': 0.42}
@@ -319,8 +319,12 @@ class IllustrationSolver:
 
         For an ICON the drawn artwork (not its viewBox padding) is what fills the cell; the returned bbox is
         the viewBox the runtime maps, so the art lands exactly where the solver measured it."""
-        label_h = zone['h'] * LABEL_H_FRAC if e.label and e.glyph not in LABEL_CARRIERS else 0.0
-        if e.label:
+        # Preserve the semantic noun for audited procedural artwork while
+        # keeping the frame clean when narration already types the same noun.
+        # Do not reserve a non-existent caption strip below the real drawing.
+        caption_visible = bool(e.label and not e.params.get('caption_suppressed'))
+        label_h = zone['h'] * LABEL_H_FRAC if caption_visible and e.glyph not in LABEL_CARRIERS else 0.0
+        if caption_visible:
             cell = dict(cell)
             cell['h'] = max(0.0, min(cell['y'] + cell['h'], self.caption_floor) - cell['y'])
         body = _box(cell['x'], cell['y'], cell['w'], cell['h'] - label_h)
@@ -333,8 +337,35 @@ class IllustrationSolver:
             ar = self._entity_ar(e, beat_id)
             vb_ar = ar * (ab['h'] / ab['w']) if ab['w'] else ar
             bbox = _fit_aspect(body, vb_ar, scale)
+        elif e.glyph == 'CHART_LINE' and (self.finish == 'EDITORIAL_FLAT' or
+                                             (e.params or {}).get('x_positions')):
+            # Evidence journalism: use the whole source-authoritative chart
+            # area, not the default icon-aspect thumbnail. Never scale the
+            # data value itself; only the available spatial field changes.
+            inset = min(body['w'], body['h']) * 0.012
+            bbox = _box(body['x'] + inset, body['y'] + inset,
+                        body['w'] - 2 * inset, body['h'] - 2 * inset)
         else:
             bbox = _fit_aspect(body, self._entity_ar(e, beat_id), scale)
+        if e.params.get('editorial_field') is True and e.glyph in (
+                'DATA_BARS', 'DATA_TABLE', 'TIMELINE', 'FLOW_STEPS', 'VS_CARDS', 'POPULATION_GRID'):
+            # Render high-information diagrams across the full evidence field,
+            # not inside the tiny aspect-locked icon bounding box. This is a
+            # presentation-only constraint and never changes numerical scale.
+            inset = min(body['w'], body['h']) * 0.035
+            bbox = _box(body['x'] + inset, body['y'] + inset,
+                        body['w'] - 2 * inset, body['h'] - 2 * inset)
+        if e.glyph == 'PILL' and e.params.get('plain_datum') is True:
+            # Time-axis categories are native TEXT labels, not physical pill
+            # objects. Aspect-fitting a fake 2.8:1 pill makes the four-digit
+            # period type box too short as soon as a chart has 4+ points.
+            # Borrow the actual available axis strip, retaining its centre and
+            # the legal label font floor, without widening into neighbours.
+            text_height = min(body['h'], max(body['h'] * 0.45,
+                               FLOOR_FRACTION['label'] * min(self.canvas) * 2.4))
+            bbox = _box(body['x'] + body['w'] * 0.02,
+                        body['y'] + (body['h'] - text_height) / 2,
+                        body['w'] * 0.96, text_height)
         if e.glyph in LABEL_CARRIERS and e.label:
             # A label carrier widens (up to 5:1) until its label sits at the floor size on one line.
             floor = FLOOR_FRACTION['label'] * min(self.canvas)
@@ -366,6 +397,21 @@ class IllustrationSolver:
         cells: Dict[str, Dict[str, float]]
         if il.form == 'RELATIONSHIP' and len(top) >= 4:
             cells = self._hub_layout(il, top, zone)
+        elif il.form == 'RELATIONSHIP' and len(top) == 2 and all(e.size == 'hero' for e in top):
+            # Equally weighted, narrated two-party connections are not a
+            # "hero + satellite" collage. Make both endpoints readable,
+            # especially in 9:16 where a giant server obscures the database.
+            cells = self._cells(zone, top, zone['h'] > zone['w'] * 1.15,
+                                CONNECTOR_GAP_FRAC)
+        elif il.form == 'PROCESS_PIPELINE' and len(top) == 3 and sum(
+                (e.params or {}).get('narrative_role') == 'transferred_payload'
+                for e in top) == 1 and all(
+                r.type == 'flows_to' for r in il.relations):
+            # A source -> named object -> recipient story is one visual arc.
+            # Generic collage-hub placement gave the sender a giant headline
+            # and starved its actual receiver. This semantic composition stays
+            # field-native in each aspect and never changes other styles.
+            cells = self._source_handoff_cells(top, zone)
         elif self.collage and il.form in COLLAGE_FORMS and len(top) >= 2 and any(e.size == 'hero' for e in top):
             cells = (self._float_hub_layout(top, zone, beat_id) if self.finish == 'FLOAT_FIELD'
                      else self._collage_layout(il, top, zone))
@@ -390,6 +436,50 @@ class IllustrationSolver:
                 b = chart['bbox']
                 chart['bbox'] = _box(left, b['y'], right - left, b['h'])
                 chart['art_bbox'] = dict(chart['bbox'])
+                # Period labels must sit under their real source-dated x
+                # coordinates. Evenly spaced tiles under a non-uniform chart
+                # silently misstate chronology. Reposition chart annotations
+                # and their internal text boxes together to preserve fit.
+                xs = chart['params'].get('x_positions')
+                if xs:
+                    for item, x in zip(labels, xs):
+                        old = item['bbox']
+                        shift = left + x * (right - left) - _centre(old)[0]
+                        for key in ('bbox', 'art_bbox'):
+                            box = item.get(key)
+                            if box:
+                                item[key] = _box(box['x'] + shift, box['y'], box['w'], box['h'])
+                        if item.get('label'):
+                            box = item['label']['bbox']
+                            item['label']['bbox'] = _box(box['x'] + shift, box['y'], box['w'], box['h'])
+                    # The x positions may be temporally irregular. An axis
+                    # label with the original even-grid cell width can collide
+                    # with its actual neighbour after repositioning. Derive
+                    # each cell width from its closest real chronological
+                    # neighbour, then refit and *enforce* the font floor.
+                    centres = [left + x * (right - left) for x in xs]
+                    gutter = max(3.0, zone['w'] * 0.009)
+                    for i, item in enumerate(labels):
+                        gaps = ([centres[i] - centres[i-1]] if i else []) + (
+                            [centres[i+1] - centres[i]] if i+1 < len(centres) else [])
+                        cap = max(0.0, min(gaps) - gutter) if gaps else item['bbox']['w']
+                        old = item['bbox']
+                        if cap >= old['w']:
+                            continue
+                        w = max(0.0, cap)
+                        item['bbox'] = _box(centres[i] - w/2, old['y'], w, old['h'])
+                        item['art_bbox'] = dict(item['bbox'])
+                        annotation = item.get('label')
+                        if annotation:
+                            inner = annotation['bbox']
+                            inner_w = min(inner['w'], w * 0.76)
+                            annotation['bbox'] = _box(centres[i] - inner_w/2, inner['y'],
+                                                      inner_w, inner['h'])
+                            updated = fit_text(annotation['text'], annotation['bbox'],
+                                               'label', 'SemiBold', self.canvas, max_lines=1)
+                            annotation['fit'] = asdict(updated)
+                            if updated.status != 'FIT':
+                                failures.append(f"ENTITY_LABEL_{updated.status}:{item['id']}")
         for e in il.entities:
             if e.id in contained:
                 host = placed[contained[e.id]]['art_bbox']
@@ -447,7 +537,12 @@ class IllustrationSolver:
                     bbox = _fit_aspect(zone, self._entity_ar(e, beat_id), 1.0)
                 else:
                     hx, hy = _centre(host)
-                    d = max(host['w'], host['h']) * 1.2
+                    # A long label carrier can be much wider than the native
+                    # illustration zone is tall. An unbounded circular overlay
+                    # spills into captions and fails even a truthful prohibition.
+                    # Cap to the SMALLER zone dimension before solving neighbours.
+                    d = min(max(host['w'], host['h']) * 1.2,
+                            zone['w'] * 0.86, zone['h'] * 0.86)
                     neighbours = [p['art_bbox'] for k, p in placed.items() if k != e.id and k != host_id]
                     # The host's own caption is a neighbour too: a ring may not cut through it. The
                     # caption steps down to clear the ring when the zone allows; otherwise the ring shrinks.
@@ -775,6 +870,38 @@ class IllustrationSolver:
             cells.update(self._wrap_cells(row, sats, False))
         return cells
 
+    def _source_handoff_cells(self, top: List[IllustrationEntity],
+                              zone: Dict[str, float]) -> Dict[str, Dict[str, float]]:
+        """Balanced three-role visual argument from the actual relation order.
+
+        Equal importance to the two spoken participants, with a smaller
+        movable payload between them. No fabricated symbols or fixed script.
+        Landscape reads left-to-right; portrait top-to-bottom. Native solver
+        still enforces label floors and safe areas on each resulting cell.
+        """
+        payload = next(e for e in top if
+                       (e.params or {}).get('narrative_role') == 'transferred_payload')
+        others = [e for e in top if e is not payload]
+        ordered = [others[0], payload, others[1]]
+        # Near-square visual stages belong to full-size horizontally staged
+        # human performances even when the output is a portrait film.
+        # Only truly narrow visual fields stack the participants; no actor
+        # name or one-off demonstration script determines the geometry.
+        horizontal = zone['w'] >= zone['h'] * 0.84
+        span = zone['w'] if horizontal else zone['h']
+        gap = span * 0.045
+        available = span - 2 * gap
+        weights = (0.37, 0.26, 0.37)
+        cells: Dict[str, Dict[str, float]] = {}
+        cursor = zone['x'] if horizontal else zone['y']
+        for e, weight in zip(ordered, weights):
+            length = available * weight
+            cells[e.id] = (_box(cursor, zone['y'], length, zone['h'])
+                           if horizontal else
+                           _box(zone['x'], cursor, zone['w'], length))
+            cursor += length + gap
+        return cells
+
     def _data_layout(self, top: List[IllustrationEntity], zone: Dict[str, float], vertical: bool, label_space: bool = False) -> Dict[str, Dict[str, float]]:
         if all(e.glyph == 'BAR' for e in top):
             return self._cells(zone, top, False)
@@ -785,10 +912,10 @@ class IllustrationSolver:
         others = [e for e in top if e is not chart]
         if not others:
             return {chart.id: dict(zone)}
-        strip = zone['h'] * 0.22
+        strip = zone['h'] * 0.19
         bottom = min(zone['y'] + zone['h'], self.caption_floor) if label_space else zone['y'] + zone['h']
         row_y = bottom - strip
-        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], row_y - zone['y'] - zone['h'] * 0.04)}
+        cells = {chart.id: _box(zone['x'], zone['y'], zone['w'], row_y - zone['y'] - zone['h'] * 0.025)}
         row = _box(zone['x'], row_y, zone['w'], strip)
         cells.update(self._cells(row, others, False))
         return cells
@@ -978,20 +1105,49 @@ class IllustrationSolver:
             start = max(LEAD_IN_MS // 2, start)
             end = start + op.duration_ms
             if end > latest_end:
-                end = latest_end
-                start = max(LEAD_IN_MS // 2, end - op.duration_ms)
+                if op.params.get('voice_sync') and 'word' in op.at:
+                    # The intact narration is the clock. A late measurement
+                    # must NOT animate while the speaker is still presenting
+                    # a different earlier number. Trim the effect's tail
+                    # into the actual voice window instead of shifting its
+                    # source-word start backward.
+                    end = min(end, max(start + 120,
+                                       clock.duration_ms - min(clock.exit_ms // 3, 90)))
+                    end = min(end, clock.duration_ms)
+                    if end - start < 120:
+                        failures.append(f'AUDIO_CUE_TOO_LATE:{op.op}:{op.target}')
+                else:
+                    end = latest_end
+                    start = max(LEAD_IN_MS // 2, end - op.duration_ms)
             value_from, value_to = op.value_from, op.value_to
             if 'point_index' in op.params:
                 e = next(e for e in ents if e['id'] == op.target)
                 points, b = e['params']['points'], e['bbox']
-                distances = [math.hypot(b['w'] / (len(points) - 1), (v - u) * b['h'] * 0.9)
-                             for u, v in zip(points, points[1:])]
+                xs = e['params'].get('x_positions') or [
+                    j / (len(points) - 1) for j in range(len(points))]
+                distances = [math.hypot(b['w'] * (xb - xa), (v - u) * b['h'] * 0.9)
+                             for xa, xb, u, v in zip(xs, xs[1:], points, points[1:])]
                 i = op.params['point_index']
                 value_from = sum(distances[:max(0, i - 1)]) / sum(distances)
                 value_to = sum(distances[:i]) / sum(distances)
             ops.append({'op': op.op, 'target': op.target, 'start_ms': int(start), 'end_ms': int(end), 'from': value_from, 'to': value_to,
                         'params': op.params, 'state_change': op.op in STATE_CHANGE_OPS, 'anchor': op.at})
         ops.sort(key=lambda o: (o['start_ms'], o['end_ms']))
+        # Character performance is an exclusive state machine per actor.
+        # "walks then waves" must never run two incompatible gestures
+        # simultaneously. End WALK at the *actual next narrated cue* and
+        # let the next gesture anticipate rather than playing a hidden tail.
+        actor_ops = {}
+        for command in ops:
+            if command['op'] == 'SETTLE' and command['params'].get('actor_action'):
+                actor_ops.setdefault(command['target'], []).append(command)
+        for seq in actor_ops.values():
+            for previous, following in zip(seq, seq[1:]):
+                if previous['end_ms'] > following['start_ms']:
+                    previous['end_ms'] = max(previous['start_ms'] + 1,
+                                             following['start_ms'] - 1)
+                    previous['params'] = {**previous['params'],
+                                           'ended_for_next_voice_action': True}
         # Entrance: every entity is on stage before its first op, in layout order, before the first landing.
         # The stage must never stand empty while voice is already running: the first furniture always enters
         # inside the lead-in, and the rest of the scene staggers after it.
@@ -1008,12 +1164,54 @@ class IllustrationSolver:
             first_op = min((o['start_ms'] for o in ops if o['target'] == e['id'] or o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id'])), default=None)
             if first_op is not None:
                 t = min(t, first_op - 160)
+            if (e.get('params') or {}).get('voice_cued'):
+                # By default historical scenes establish all of their props
+                # during the opening lead-in. A director-authored voice cue
+                # instead owns each named person's/subject's entrance. The
+                # first DRAW is the same source-word event that animates the
+                # artwork; start arriving just before that word is heard.
+                authored_draws = [op for op in ops
+                                  if op['target'] == e['id']
+                                  and op['op'] == 'DRAW'
+                                  and 'word' in op.get('anchor', {})]
+                if authored_draws:
+                    cue = min(authored_draws, key=lambda op: op['start_ms'])
+                    lead = min(100, max(40, int(cue['end_ms']-cue['start_ms'])//5))
+                    t = max(LEAD_IN_MS // 5, cue['start_ms'] - lead)
             # A body a connector lands on has finished arriving before the stroke completes.
             joined = [o['end_ms'] for o in ops if o['op'] == 'CONNECT'
                       and (o['target'].startswith(e['id'] + '->') or o['target'].endswith('->' + e['id']))]
-            if joined:
+            if joined and not (e.get('params') or {}).get('voice_cued'):
+                # Historical diagrams still establish all endpoints before a
+                # connector. A source-named actor, however, must enter when
+                # the narrator names it rather than being pulled onstage
+                # early by an unrelated outgoing rail.
                 t = min(t, min(joined) - ENTER_MS)
             enter[e['id']] = max(LEAD_IN_MS // 5, int(t))
+        # A source-authored CONNECT is one continuous physical action from its
+        # spoken verb to the arrival of the last named endpoint. Previously
+        # it completed *before* a later noun was introduced, or we had to
+        # reveal every object early. Preserve the verb's original start_ms;
+        # only extend the travelling stroke to the audible destination.
+        by_id = {e['id']: e for e in ents}
+        for conn in ops:
+            if conn['op'] != 'CONNECT' or '->' not in conn['target']:
+                continue
+            source, target = conn['target'].split('->', 1)
+            if source not in enter or target not in enter:
+                continue
+            if not any((by_id[e].get('params') or {}).get('voice_cued')
+                       for e in (source, target)):
+                continue
+            required = max(enter[source] + (0 if source in carried_ids else ENTER_MS),
+                           enter[target] + (0 if target in carried_ids else ENTER_MS))
+            if conn['end_ms'] < required:
+                if required > clock.duration_ms:
+                    failures.append(f'VOICE_CONNECT_OUTLASTS_AUDIO:{conn["target"]}')
+                else:
+                    conn['end_ms'] = required
+                    conn['params'] = {**conn['params'],
+                                      'voice_link_waits_for_endpoint': True}
         for o in ops:
             if o['end_ms'] - o['start_ms'] < 120:
                 failures.append(f"OP_SQUEEZED:{o['op']}:{o['target']}")

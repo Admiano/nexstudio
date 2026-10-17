@@ -1,0 +1,85 @@
+name: SceneBam elite scene repertoire native proof
+on:
+  push:
+    branches: [quality/dv-sketch-director-20261015]
+    paths:
+      - ".github/workflows/scenebam-scene-richness-proofs.yml"
+      - "engine_sources/explainer-locks/tools/stress_scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/test_scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/test_sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/test_audio_locked_scene_direction.py"
+      - "engine_sources/explainer-locks/compiler/editorial_plan_compiler/illustration.py"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/test_scene_director.py"
+      - "engine_sources/explainer-locks/styles.json"
+      - "engine_sources/explainer-locks/compiler/**"
+      - "engine_sources/explainer-locks/runtime/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-visual-proof:
+    name: "Native ${{ matrix.style }} scene variety, Microsoft Andrew, square"
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        style: [dataviz, sketch]
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      STYLE: ${{ matrix.style }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original native engine and neural voice dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG edge-tts
+          npm ci --prefix engine_sources/explainer-locks
+          python -m py_compile engine_sources/explainer-locks/tools/stress_scene_repertoire.py
+      - name: Exercise native repertoire, semantic vetoes and contracts
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/test_scene_repertoire.py -q
+          python tools/test_sketch_actor_states.py -q
+          python tools/test_scene_director.py -q
+          python tools/test_audio_locked_scene_direction.py -q
+      - name: Render real multi-scene film using Microsoft Andrew
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/stress_scene_repertoire.py --style "$STYLE" --fps 24 --workers 2
+      - name: Preserve video, real frames and compiler evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenebam-scene-variety-${{ matrix.style }}-andrew-square
+          path: |
+            engine_sources/explainer-locks/out/repertoire-stress/**/*.mp4
+            engine_sources/explainer-locks/out/repertoire-stress/**/proof_*.png
+            engine_sources/explainer-locks/out/repertoire-stress/**/actor_*.png
+            engine_sources/explainer-locks/out/repertoire-stress/**/motion_*.png
+            engine_sources/explainer-locks/out/repertoire-stress/**/contact_*.png
+            engine_sources/explainer-locks/out/repertoire-stress/**/plan_*.json
+            engine_sources/explainer-locks/out/repertoire-stress/**/render_*.json
+            engine_sources/explainer-locks/out/repertoire-stress/**/gate_report.json
+            engine_sources/explainer-locks/out/repertoire-stress/**/repertoire_report.json
+          if-no-files-found: warn
+          retention-days: 21

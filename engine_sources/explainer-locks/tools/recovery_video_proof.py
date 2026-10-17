@@ -20,8 +20,28 @@ sys.path.insert(0, str(ROOT / "tools"))
 from make_reel import build_treatment, style_of
 
 SCRIPTS = {
-    "dataviz": "In January, park visits were 10. In February, they reached 20. In March, they reached 15.",
-    "sketch": "A phone sends a message to a server. The server connects to a database.",
+    "dataviz": {
+        "default": "In January, park visits were 10. In February, they reached 20. In March, they reached 15.",
+        "comparison": "Rent rose from 900 dollars to 1,200 dollars.",
+        "share": "A survey found 30 percent prefer buses.",
+        "decrease": "Rent fell from 1,200 dollars to 900 dollars.",
+        "counter": "Twenty-five trains arrived this morning.",
+        "irregular": "In 2021 orchard sales were 10. In 2024 they reached 40. In 2026 they reached 20.",
+        "fivepoint": "In 2021 orchard visits were 10. In 2022 orchard visits were 40. In 2024 orchard visits were 20. In 2025 orchard visits were 35. In 2026 orchard visits were 30.",
+    },
+    "sketch": {
+        "default": "A phone sends a message to a server. The server connects to a database.",
+        "water": "A pump sends water to a tank. The tank feeds a house.",
+        "transform": "A note becomes a list.",
+        "attachment": "Pollen sticks to the bee. The bee carries pollen to another flower.",
+        "contrast": "A pencil is lighter than a brick.",
+        "connection": "The server connects to a database.",
+        "dispatch": "A device sends an instruction to a printer.",
+        "invoice": "A courier delivers an invoice to a customer.",
+        "worksheet": "A teacher forwards a worksheet to a student.",
+        "ticket": "A baker delivers a ticket to a driver.",
+        "contract": "A student forwards a contract to a manager.",
+    },
 }
 
 def run(command, *, cwd=None):
@@ -40,19 +60,22 @@ def duration_ms(audio: Path) -> int:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--style", choices=sorted(SCRIPTS), required=True)
+    ap.add_argument("--scenario", default="default", help="Named source-grounded story in SCRIPTS[style]")
     ap.add_argument("--aspects", default="16x9,9x16,1x1")
     ap.add_argument("--fps", type=int, default=24)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--out", default=str(ROOT / "out" / "recovery-video-proof"))
     args = ap.parse_args()
 
-    stem = "recovery-proof-" + args.style
+    if args.scenario not in SCRIPTS[args.style]:
+        ap.error(f"Unknown {args.style} scenario: {args.scenario}")
+    stem = "recovery-proof-" + args.style + ("" if args.scenario == "default" else "-" + args.scenario)
     fixture = ROOT / "fixtures" / stem
     fixture.mkdir(parents=True, exist_ok=True)
     output = Path(args.out).resolve() / stem
     output.mkdir(parents=True, exist_ok=True)
 
-    script = SCRIPTS[args.style]
+    script = SCRIPTS[args.style][args.scenario]
     raw_voice = fixture / "voice.wav"
     voice = fixture / "voice.mp3"
     # One intact narration track, never sliced into beats.
@@ -86,6 +109,47 @@ def main():
         cwd=ROOT / "compiler")
     for aspect in [a.strip() for a in args.aspects.split(",") if a.strip()]:
         plan = output / ("plan_" + aspect + ".json")
+        if args.style == "dataviz":
+            authored = json.loads(plan.read_text())
+            assert authored['director_style'] == 'dataviz', 'Data Viz direction missing'
+            assert authored["captions_policy"] == "kinetic", "No duplicate lower thirds"
+            assert authored["captions"] == [], "Compiled karaoke captions forbidden"
+            assert all(b["typography"]["blocks"] for b in authored["beats"]), "Missing native text"
+            for beat in authored["beats"]:
+                # Composition may place an emphasised later claim ABOVE its
+                # setup, or on the opposite side. Array/spatial order is not
+                # narration order. Inspect original source-unit indices when
+                # checking that speech timing never rewinds or repeats.
+                in_voice_order = sorted(beat["typography"]["blocks"],
+                                        key=lambda block: block["unit_index"])
+                phrases = [block["words"] for block in in_voice_order if block.get("words")]
+                for earlier, later in zip(phrases, phrases[1:]):
+                    assert later[0]["start_ms"] >= earlier[-1]["start_ms"], (
+                        "Data Viz sentence timing restarted at an earlier identical word",
+                        earlier[-1], later[0])
+        if args.style == 'sketch':
+            authored = json.loads(plan.read_text())
+            assert authored['director_style'] == 'sketch', 'Sketch direction missing'
+            for beat in authored['beats']:
+                typed = beat['typography']
+                replacement = {e['unit_index'] for e in typed['events']
+                               if e['event'] == 'PHRASE_REPLACE'}
+                actual = {b['unit_index'] for b in typed['blocks']}
+                assert replacement <= actual, (
+                    'Sketch generated a replacement event without actual drawable text',
+                    replacement - actual)
+                for block in typed['blocks']:
+                    partner = block.get('replace_partner')
+                    if partner is None:
+                        continue
+                    next_block = next((b for b in typed['blocks']
+                                       if b['unit_index'] == partner), None)
+                    assert next_block is not None, 'Sketch replacement partner missing'
+                    a, b = sorted((block, next_block), key=lambda x: x['unit_index'])
+                    if a.get('words') and b.get('words'):
+                        assert b['words'][0]['start_ms'] >= a['words'][-1]['start_ms'], (
+                            'Sketch clause rewinds to an earlier repeated word',
+                            a['words'][-1], b['words'][0])
         run(["node", ROOT / "tools" / "render_reel.js", plan, output,
              "--fps", args.fps, "--workers", args.workers, "--preset", "ultrafast",
              "--web-crf", "29"])

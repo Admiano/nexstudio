@@ -9,6 +9,10 @@ on:
       - recovery/devin-dataviz-sketch-20261014
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -34,10 +38,16 @@ jobs:
         run: |
           python -m py_compile \
             engine_sources/explainer-locks/compiler/editorial_plan_compiler/{schemas,illustration,compiler,contracts,timing}.py \
-            engine_sources/explainer-locks/tools/{make_reel,regression_pack,test_dataviz_authoring,test_sketch_authoring}.py
+            engine_sources/explainer-locks/tools/{make_reel,scene_director,test_scene_director,regression_pack,test_dataviz_authoring,test_sketch_authoring}.py
       - name: Data Viz authoring tests
         working-directory: engine_sources/explainer-locks
         run: python tools/test_dataviz_authoring.py -v
       - name: Sketch authoring and preview tests
         working-directory: engine_sources/explainer-locks
         run: python tools/test_sketch_authoring.py -v
+      - name: Scene director general-purpose authoring and source safety tests
+        working-directory: engine_sources/explainer-locks
+        run: python tools/test_scene_director.py -v
+      - name: Director opt-in and commercial safety tests
+        working-directory: engine_sources/explainer-locks
+        run: python tools/test_quality_director.py -v

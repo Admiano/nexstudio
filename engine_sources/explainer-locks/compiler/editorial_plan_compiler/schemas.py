@@ -165,6 +165,8 @@ def treatment_schema() -> Dict[str, Any]:
             'mood': _enum(c.FILM_MOODS),
             'show': {'anyOf': [show, {'type': 'null'}]},
             'note': {'type': 'string'},
+            'caption_policy': _enum(('burned', 'kinetic', 'none')),
+            'director_style': _enum(('dataviz', 'sketch')),
         }, ['schema', 'film_id', 'beats']),
     }
 
@@ -361,7 +363,8 @@ def plan_schema() -> Dict[str, Any]:
             'surfaces': _obj({'grain': NULLABLE_OBJ, 'paper': NULLABLE_OBJ}, []),
             'beats': {'type': 'array', 'items': beat, 'minItems': 1},
             'captions': {'type': 'array', 'items': caption},
-            'captions_policy': _enum(('burned', 'kinetic')),
+            'captions_policy': _enum(('burned', 'kinetic', 'none')),
+            'director_style': {'anyOf': [_enum(('dataviz', 'sketch')), {'type': 'null'}]},
             'show': {'anyOf': [show_plan, {'type': 'null'}]},
             'gate': gate, 'provenance': provenance,
         }, ['schema', 'compiler', 'film_id', 'aspect', 'fps', 'canvas', 'output', 'brand', 'typography', 'fonts', 'duration_ms', 'voice', 'music', 'beats', 'captions', 'gate', 'provenance']),

@@ -422,8 +422,34 @@
     if (typeof b.exit_ms === 'number' && lt >= b.exit_ms) {
       const p = EASE.inCubic(prog(lt, b.exit_ms, b.exit_ms + 300));
       clip = [p * 100, 0, 0, 0];
+      // Sketch statement handoffs are complete dissolves, never half-visible
+      // sentences escaping through the top edge during the next clause.
+      // Data Viz uses its own voice-sequenced exit and is unaffected.
+      if (ctx.directorStyle === 'sketch') {
+        const early = EASE.outCubic(prog(lt, b.exit_ms - 100, b.exit_ms + 150));
+        opacity *= 1 - early;
+      }
       ty -= p * em * 0.5;
       if (p >= 1) opacity = 0;
+    }
+
+    // Voice-sequenced data stories: a statement gives way to the next spoken
+    // clause. Suppress visual accumulation without altering the continuous voice.
+    // Applies ONLY to on-canvas Data Viz (not existing collage or other styles).
+    if (ctx.voiceSequence && typeof node.directorExitMs === 'number') {
+      const chartLed = ctx.directorStyle === 'dataviz' &&
+        beat.illustration && beat.illustration.entities &&
+        beat.illustration.entities.some(e => e.glyph === 'CHART_LINE') &&
+        beat.composition.visual_zone.w >= ctx.canvas.w * 0.65;
+      // A single editorial headline slot is genuinely exclusive: clear the
+      // previous spoken clause BEFORE the next words enter. The older
+      // side-by-side data styles keep their established soft crossfade.
+      const fade = EASE.inOutCubic(prog(lt,
+        node.directorExitMs - (chartLed ? 230 : 190),
+        node.directorExitMs + (chartLed ? -12 : 90)));
+      opacity *= 1 - fade;
+      ty -= fade * em * 0.12;
+      if (fade >= 1) w.visibility = 'hidden';
     }
 
     // --- beat exit / transition carrier
@@ -629,9 +655,20 @@
     return { layer, layers };
   }
 
-  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll) {
+  function applyBackgroundState(bgNode, lt, beat, stageFade, preRoll, directorStyle) {
     if (stageFade != null) bgNode.layer.style.opacity = stageFade.toFixed(4);
     if (!bgNode.layers.length) return;
+    let chartArrival = null;
+    if (directorStyle === 'dataviz' && beat.illustration) {
+      const bars = (beat.illustration.entities || []).filter((e) => e.glyph === 'BAR');
+      if (bars.length === 2) {
+        const ids = new Set(bars.map((e) => e.id));
+        const times = (beat.illustration.ops || [])
+          .filter((o) => o.op === 'GROW' && ids.has(o.target))
+          .map((o) => o.start_ms);
+        if (times.length === 2) chartArrival = Math.min(...times);
+      }
+    }
     const settle = (beat.ensemble.events || []).find((e) => e.channel === 'BACKGROUND' && e.event === 'STAGE_SETTLE');
     const ss = settle ? settle.start_ms : 0, se = settle ? settle.end_ms : 0;
     // The ensemble's settled-hold window owns the ambient pass: parallax engages only inside it.
@@ -646,6 +683,10 @@
       const ls = ss + L.i * 40, le = Math.min(se + L.i * 40, ls + 170);
       const p = EASE.outCubic(prog(ltFx, ls, Math.max(le, ls + 1)));
       let scale = 1, tx = 0, ty = 0, opacity = (spec.opacity == null ? 1 : spec.opacity) * p;
+      // The data stage materializes with the first narrated number. Don't
+      // show an empty white evidence panel before there is evidence in it.
+      if (chartArrival != null && (spec.kind === 'panel' || spec.kind === 'hairline'))
+        opacity *= EASE.outCubic(prog(lt, chartArrival - 420, chartArrival + 120));
       if (spec.kind === 'panel' || spec.kind === 'plane' || spec.kind === 'spotlight') scale = lerp(0.985, 1, EASE.settle(p));
       if (spec.kind === 'dotgrid' || spec.kind === 'plane') {
         const amb = ambientDrift(lt, `bg-${beat.beat_id}-${L.i}`, holdStart, spec.kind === 'dotgrid' ? 2.8 : 1.6);
@@ -1313,6 +1354,53 @@
     };
 
     switch (ent.glyph) {
+      case 'PUMP': {
+        // Source-named native pump: consistent stroke geometry, with a rotor
+        // driven by authored outbound FLOW rather than ambient looping.
+        const c = centre(b), r = Math.min(b.w, b.h) * 0.23;
+        const shell = {x: b.x + b.w * 0.13, y: b.y + b.h * 0.14,
+                       w: b.w * 0.74, h: b.h * 0.72};
+        const casing = svgEl('rect', { ...line, x: f2(shell.x), y: f2(shell.y),
+          width: f2(shell.w), height: f2(shell.h), rx: f2(r * 0.38),
+          fill: paper }, g);
+        node.outline.push(drawable(casing, 2 * (shell.w + shell.h)));
+        const rotor = svgEl('g', {}, g);
+        const rim = svgEl('circle', { ...line, cx: f2(c.x), cy: f2(c.y), r: f2(r) }, rotor);
+        node.outline.push(drawable(rim, 2 * Math.PI * r));
+        for (let i = 0; i < 3; i++) {
+          const a = i * Math.PI * 2 / 3;
+          const blade = svgEl('path', { ...line, d: polyPath([
+            [c.x + Math.cos(a) * r * 0.18, c.y + Math.sin(a) * r * 0.18],
+            [c.x + Math.cos(a) * r * 0.72, c.y + Math.sin(a) * r * 0.72],
+          ]), 'stroke-width': sw * 1.25 }, rotor);
+          node.outline.push(drawable(blade, r * 0.54));
+        }
+        node.extra.pumpRotor = { group: rotor, cx: c.x, cy: c.y };
+        break;
+      }
+      case 'TANK': {
+        // Native cylindrical container, never a substitute brand icon. A
+        // restrained water level changes ONLY when a spoken flow enters it.
+        const x0 = b.x + b.w * 0.17, x1 = b.x + b.w * 0.83;
+        const y0 = b.y + b.h * 0.17, y1 = b.y + b.h * 0.88;
+        const ry = Math.max(sw * 2, b.h * 0.075);
+        const shell = `M${f2(x0)} ${f2(y0)}A${f2((x1-x0)/2)} ${f2(ry)} 0 0 1 ${f2(x1)} ${f2(y0)}L${f2(x1)} ${f2(y1)}A${f2((x1-x0)/2)} ${f2(ry)} 0 0 1 ${f2(x0)} ${f2(y1)}Z`;
+        const clipId = `em2tank-${ent.id}-${Math.round(x0)}-${Math.round(y0)}`.replace(/[^a-z0-9-]/gi, '');
+        const defs = svgEl('defs', {}, g);
+        const clip = svgEl('clipPath', { id: clipId }, defs);
+        svgEl('path', { d: shell }, clip);
+        const fill = svgEl('rect', {
+          x: f2(x0), y: f2(y1), width: f2(x1-x0), height: 0,
+          fill: accent, 'fill-opacity': 0.22, 'clip-path': `url(#${clipId})`,
+        }, g);
+        const outline = svgEl('path', { ...line, d: shell }, g);
+        const rim = svgEl('ellipse', { ...line, cx: f2((x0+x1)/2),
+          cy: f2(y0), rx: f2((x1-x0)/2), ry: f2(ry) }, g);
+        node.outline.push(drawable(outline, b.h * 1.7 + (x1-x0) * 2));
+        node.outline.push(drawable(rim, Math.PI * (x1-x0) + ry));
+        node.extra.tankWater = {fill, y0, y1};
+        break;
+      }
       case 'VESSEL': {
         const top = b.w, bot = b.w * 0.78, lip = b.h * 0.035;
         const x0 = b.x + (b.w - top) / 2, x1 = b.x + (b.w - bot) / 2, r = b.w * 0.14;
@@ -1350,6 +1438,73 @@
       }
       case 'CARD':
       case 'PILL': {
+        // A measured datum is a label, not an interactive button. Its existing
+        // fitted HTML text is revealed by the native op; omit the pill housing.
+        if (ent.glyph === 'PILL' && ent.params && ent.params.plain_datum === true) break;
+        // Unpictured concepts remain typography, never faux app controls.
+        // Source-typed cargo gains open editorial corner rules so a moving
+        // invoice/worksheet reads as one persistent item, without drawing an
+        // unsourced document icon or a clickable-looking button.
+        if (ent.glyph === 'PILL' && plan.director_style === 'sketch') {
+          if (params.narrative_role === 'transferred_payload') {
+            const x0 = b.x, x1 = b.x + b.w, y0 = b.y, y1 = b.y + b.h;
+            // An opaque source-named editorial slip masks its OWN travel
+            // rail, so a trajectory cannot strike through the spoken payload
+            // name. This is an abstract visual carrier, not a fabricated
+            // portrait, device or icon for the underlying object.
+            svgEl('rect', {
+              x: f2(x0), y: f2(y0), width: f2(b.w), height: f2(b.h),
+              rx: f2(sw * 0.9), fill: paper, 'fill-opacity': 0.97,
+              'data-action': 'named-transfer-carrier',
+            }, g);
+            const corner = Math.min(b.w, b.h) * 0.18;
+            const stroke = svgEl('path', { ...line,
+              d: [
+                ['M', x0 + corner, y0], ['L', x0, y0], ['L', x0, y0 + corner],
+                ['M', x1 - corner, y0], ['L', x1, y0], ['L', x1, y0 + corner],
+                ['M', x0, y1 - corner], ['L', x0, y1], ['L', x0 + corner, y1],
+                ['M', x1 - corner, y1], ['L', x1, y1], ['L', x1, y1 - corner],
+              ].map(parts => parts[0] + parts.slice(1).map(f2).join(' ')).join(' '),
+              'stroke-width': sw * 0.65, 'stroke-opacity': 0.78 }, g);
+            node.outline.push(drawable(stroke, corner * 8));
+          } else {
+            // Unknown source actors stay literal typography, but acquire
+            // an illustrated editorial *baseline* that integrates them with
+            // the action instead of making them bare words at opposite edges.
+            // Only graph endpoints qualify; this is not a guessed object.
+            const participating = il.relations.some(rel =>
+              rel.type === 'flows_to' &&
+              (rel.source === ent.id || rel.target === ent.id));
+            if (participating) {
+              const baseY = b.y + b.h * 0.81;
+              const fromX = b.x + b.w * 0.13;
+              const toX = b.x + b.w * 0.87;
+              const measure = Math.max(sw * 1.6, b.w * 0.015);
+              const strokes = [
+                [[fromX, baseY], [toX, baseY]],
+                [[fromX + measure, baseY + sw * 1.45],
+                 [toX - measure * 1.4, baseY + sw * 1.45]]
+              ];
+              for (let i = 0; i < strokes.length; i++) {
+                const stroke = svgEl('path', { ...line,
+                  d: polyPath(strokes[i]), stroke: i === 0 ? accent : ink,
+                  'stroke-opacity': i === 0 ? 0.94 : 0.22,
+                  'stroke-width': sw * (i === 0 ? 1.45 : 0.64),
+                }, g);
+                node.outline.push(drawable(stroke, polyLength(strokes[i])));
+              }
+              // Printed registration marks finish the visual grammar. They
+              // denote the artwork field, not an unspoken participant.
+              for (const x of [fromX, toX]) {
+                svgEl('line', { ...line,
+                  x1: f2(x), x2: f2(x),
+                  y1: f2(baseY - sw * 1.1), y2: f2(baseY + sw * 2),
+                  'stroke-width': sw * 0.6, 'stroke-opacity': 0.32 }, g);
+              }
+            }
+          }
+          break;
+        }
         const r = ent.glyph === 'PILL' ? b.h / 2 : Math.min(b.w, b.h) * 0.09;
         const inner = { x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw };
         svgEl('path', { d: roundRectPath(inner, r), fill: paper }, g);
@@ -1401,16 +1556,155 @@
         break;
       }
       case 'CHART_LINE': {
-        const pts = (params.points || [0.2, 0.8]).map((v, i, arr) => [b.x + (i / (arr.length - 1)) * b.w, b.y + b.h - clamp(v, 0, 1) * b.h * 0.9]);
-        svgEl('path', { ...line, d: polyPath([[b.x, b.y + b.h], [b.x + b.w, b.y + b.h]]), 'stroke-width': sw * 0.7, 'stroke-opacity': 0.45 }, g);
-        const p = svgEl('path', { ...line, d: polyPath(pts), 'stroke-width': sw * 1.2 }, g);
-        const dot = svgEl('circle', { cx: pts[0][0], cy: pts[0][1], r: sw * 1.4, fill: ink }, g);
+        const chartLed = plan.director_style === 'dataviz' &&
+          plan.aspect === '16x9' && b.w >= plan.canvas.w * 0.65;
+        // Larger annotation floor needs real vertical breathing room: this
+        // alters no values or relative source chronology, only plot padding.
+        // Measured labels live fully ABOVE their vertices. The chart owns
+        // sufficient headroom for its largest evidence numeral, derived from
+        // its real field dimensions rather than a fixed pixel cutout. Without
+        // this the high-valued peak would collide with the active number.
+        const maxLabelSize = Math.min(56, b.h * 0.155, b.w * 0.11);
+        const labelHeadroom = plan.director_style === 'dataviz'
+          ? clamp((maxLabelSize * 1.8 + sw * 2) / b.h, 0.16, 0.36)
+          : 0.10;
+        const plotHeight = 1 - labelHeadroom;
+        const pts = (params.points || [0.2, 0.8]).map((v, i, arr) =>
+          [b.x + (params.x_positions ? params.x_positions[i] : i / (arr.length - 1)) * b.w,
+           b.y + b.h - clamp(v, 0, 1) * b.h * plotHeight]);
+        // Hairline guides make the graph readable without introducing invented
+        // axis units. Values and their scale come exclusively from source data.
+        for (const pct of [0, 0.5, 1]) {
+          const yy = b.y + b.h - pct * b.h * plotHeight;
+          svgEl('path', { ...line, d: polyPath([[b.x, yy], [b.x + b.w, yy]]),
+            stroke: ink, 'stroke-width': pct === 0 ? sw * 0.62 : sw * 0.44,
+            'stroke-opacity': pct === 0 ? 0.35 : 0.10 }, g);
+        }
+        // Data Viz builds a living evidence field under the ACTUALLY drawn
+        // measurements, not an all-at-once decorative gradient. The shaded
+        // region and the vertical tracker never outrun the narrated value;
+        // source x-categories remain precisely aligned with native vertices.
+        const dataArea = plan.director_style === 'dataviz'
+          ? svgEl('path', { fill: accent, 'fill-opacity': 0, 'data-action': 'source-trend-area' }, g)
+          : null;
+        const dataTracker = plan.director_style === 'dataviz'
+          ? svgEl('line', { x1: pts[0][0], y1: pts[0][1], x2: pts[0][0],
+              y2: f2(b.y + b.h), stroke: accent, 'stroke-width': f2(sw * 0.55),
+              'stroke-opacity': 0, 'stroke-dasharray': f2(sw * 1.4) + ' ' + f2(sw * 2.4),
+              'data-action': 'measured-x-guide' }, g) : null;
+        const valueLabels = (params.value_labels || []).map((value, i) => {
+          // Measured numbers are editorial evidence, never icon captions.
+          // Scale each number against its nearest actual chronological
+          // neighbour, the numeric text length and the chart's real height.
+          // This handles 3-6 irregular source observations in every aspect
+          // without a preset script, year range or unit. The datum itself
+          // remains exact, and its reveal still belongs to its GROW cue.
+          const neighbours = [
+            i > 0 ? pts[i][0] - pts[i - 1][0] : Infinity,
+            i + 1 < pts.length ? pts[i + 1][0] - pts[i][0] : Infinity
+          ];
+          const gap = Math.min(...neighbours);
+          const textLength = Math.max(2, String(value).length);
+          const size = Math.max(sw * 2.8, Math.min(
+            56, b.h * 0.155, b.w * 0.11,
+            (Number.isFinite(gap) ? gap : b.w) * 1.25 /
+              (textLength * 0.67)));
+          const labelY = pts[i][1] - Math.max(sw * 5, size * 0.57 + 4);
+          const label = svgEl('text', {
+            x: f2(pts[i][0]), y: f2(labelY),
+            'text-anchor': 'middle', fill: ink, 'fill-opacity': 0,
+            'font-size': f2(size), 'letter-spacing': '-0.035em',
+            'font-family': plan.fonts.families.data || plan.fonts.families.text,
+            'font-weight': 800, 'font-variant-numeric': 'tabular-nums',
+            'data-source-value': String(i),
+          }, g);
+          label.textContent = value;
+          return label;
+        });
+        const p = svgEl('path', { ...line, d: polyPath(pts),
+          stroke: plan.director_style === 'dataviz' ? accent : ink,
+          'stroke-width': sw * (plan.director_style === 'dataviz' ? 1.9 : 1.2) }, g);
+        // One active value leads the gaze. Keep the underlying line neutral;
+        // a restrained accent tracker distinguishes the current spoken datum.
+        const halo = svgEl('circle', { cx: pts[0][0], cy: pts[0][1],
+          r: sw * 3.2, fill: 'none', stroke: accent,
+          'stroke-opacity': 0.24, 'stroke-width': sw * 0.8 }, g);
+        const dot = svgEl('circle', { cx: pts[0][0], cy: pts[0][1], r: sw * 1.8,
+          fill: accent, stroke: plan.brand.paper, 'stroke-width': sw * 0.6 }, g);
+        // The point sequence has real, source-bound GROW anchors. A path can
+        // have uneven segment lengths, so equal-distance fractions are NOT
+        // reliable reveal times for individual measured values.
+        const pointCues = new Map(il.ops
+          .filter(o => o.op === 'GROW' && o.target === ent.id &&
+            o.params && Number.isInteger(o.params.point_index))
+          .map(o => [o.params.point_index, o]));
+        const cumulativeLengths = [0];
+        for (let i = 1; i < pts.length; i++) {
+          const dx = pts[i][0] - pts[i - 1][0];
+          const dy = pts[i][1] - pts[i - 1][1];
+          cumulativeLengths.push(cumulativeLengths[i - 1] + Math.hypot(dx, dy));
+        }
+        const pathLength = Math.max(1, cumulativeLengths[cumulativeLengths.length - 1]);
         node.outline.push(drawable(p, polyLength(pts)));
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
+          node.extra.pathFraction = k;
           node.outline[0].set(k);
           const q = pointAlong(pts, k);
-          dot.setAttribute('cx', f2(q.x));
-          dot.setAttribute('cy', f2(q.y));
+          if (dataArea && dataTracker) {
+            const baseY = b.y + b.h, pathAt = k * pathLength;
+            const measured = [pts[0]];
+            for (let i = 1; i < pts.length; i++) {
+              if (cumulativeLengths[i] <= pathAt + 0.05) measured.push(pts[i]);
+              else break;
+            }
+            if (k > 0.001) measured.push([q.x, q.y]);
+            const areaPath = k > 0.001
+              ? 'M' + f2(pts[0][0]) + ' ' + f2(baseY) + 'L' +
+                measured.map(q2 => f2(q2[0]) + ' ' + f2(q2[1])).join('L') +
+                'L' + f2(q.x) + ' ' + f2(baseY) + 'Z'
+              : '';
+            dataArea.setAttribute('d', areaPath);
+            dataArea.style.fillOpacity = k > 0.001 ? (0.13 + 0.05 * EASE.outCubic(k)).toFixed(3) : '0';
+            dataTracker.setAttribute('x1', f2(q.x));
+            dataTracker.setAttribute('x2', f2(q.x));
+            dataTracker.setAttribute('y1', f2(q.y));
+            dataTracker.style.strokeOpacity = k > 0.001 ? '0.42' : '0';
+          }
+          for (const el of [dot, halo]) {
+            el.setAttribute('cx', f2(q.x));
+            el.setAttribute('cy', f2(q.y));
+          }
+          const visible = k > 0.004;
+          dot.style.opacity = visible ? '1' : '0';
+          halo.style.opacity = visible ? '1' : '0';
+          valueLabels.forEach((label, i) => {
+            const cue = pointCues.get(i);
+            const nextCue = pointCues.get(i + 1);
+            const threshold = cumulativeLengths[i] / pathLength;
+            const nextThreshold = i + 1 < cumulativeLengths.length ?
+              cumulativeLengths[i + 1] / pathLength : 2;
+            // Prefer the exact spoken source number: the second measure must
+            // not appear just because the line traversed half its total length.
+            const reached = cue ? lt >= cue.start_ms : (visible && k + 0.005 >= threshold);
+            const isCurrent = reached && (cue
+              ? (!nextCue || lt < nextCue.start_ms)
+              : k < nextThreshold - 0.005);
+            label.style.fillOpacity = reached ? (isCurrent ? '1' : '0.60') : '0';
+            label.setAttribute('fill', isCurrent ? accent : ink);
+          });
+        };
+        // A single first observation is a genuine point even though the
+        // connecting line has no length yet. Reveal it when its exact number
+        // is spoken; without this, January stays empty until February's value.
+        node.extra.setFirstPointVisible = (firstSpoken) => {
+          if (firstSpoken && (node.extra.pathFraction || 0) < 0.004) {
+            dot.style.opacity = '1';
+            halo.style.opacity = '1';
+            if (valueLabels[0]) {
+              valueLabels[0].style.fillOpacity = '1';
+              valueLabels[0].setAttribute('fill', accent);
+            }
+          }
         };
         break;
       }
@@ -1420,12 +1714,21 @@
         const base = svgEl('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: ink, rx: sw, 'data-grow': 'bar' }, g);
         const inkEl = svgEl('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: accent, 'fill-opacity': 0, rx: sw }, g);
         node.inkEls.push(inkEl);
-        svgEl('path', { ...line, d: polyPath([[b.x - sw, b.y + b.h], [b.x + b.w + sw, b.y + b.h]]), 'stroke-width': sw * 0.7 }, g);
+        node.extra.barAxis = svgEl('path', { ...line,
+          d: polyPath([[b.x - sw, b.y + b.h], [b.x + b.w + sw, b.y + b.h]]),
+          'stroke-width': sw * 0.7 }, g);
+        node.extra.barBody = base;
+        node.extra.barInk = inkEl;
         node.extra.setGrow = (k) => {
           const kk = clamp(k, 0, 1), h = Math.max(sw, kk * b.h);
           node.extra.growK = kk;
           for (const r of [base, inkEl]) { r.setAttribute('y', f2(b.y + b.h - h)); r.setAttribute('height', f2(h)); }
-          ghost.setAttribute('stroke-opacity', (clamp((1 - kk) * 1.6, 0, 1) * 0.42).toFixed(4));
+          // A future bar is not a labelled placeholder: a dashed wireframe
+          // reveals the second datum before the narrator has introduced it.
+          // Data Viz reserves the real empty canvas; older styles unchanged.
+          ghost.setAttribute('stroke-opacity',
+            plan.director_style === 'dataviz' ? '0' :
+            (clamp((1 - kk) * 1.6, 0, 1) * 0.42).toFixed(4));
         };
         // COUNT reads as the value ticking up; the readout rides the bar's own top edge and only
         // exists when a COUNT op drives it — a bare count param is just the datum's value.
@@ -1540,6 +1843,63 @@
         node.extra.rotateDeg = -2.4;
         break;
       }
+      case 'BASE10_TALLY': {
+        // Exact source numeral, expressed as hundreds/tens/ones drawn ink.
+        // It never approximates 594 objects with six arbitrary icons: five
+        // HUNDREDS, nine TENS and four ONES are mathematically exact.
+        const body = chassisBody(node, g);
+        const value = Math.max(1, Math.min(999, Number(params.value) || 1));
+        const digits = [Math.floor(value/100), Math.floor(value/10)%10, value%10];
+        const labels = ['100s', '10s', '1s'];
+        const gap = b.w * .045, colW = (b.w-gap*2)/3;
+        const groups = [];
+        digits.forEach((digit, ix) => {
+          const x = b.x + ix*(colW+gap);
+          const g2 = svgEl('g', { 'data-place': labels[ix] }, body);
+          const head = svgEl('text', {
+            x:f2(x+colW*.5), y:f2(b.y+b.h*.13),
+            'text-anchor':'middle', 'font-family':plan.fonts.families.data,
+            'font-size':f2(Math.min(colW*.20,b.h*.095)),
+            'font-weight':'600', fill:ink, 'fill-opacity':.68
+          },g2);head.textContent=labels[ix];
+          const tile=Math.min(colW*.24,b.h*.095),sep=tile*1.12;
+          const originX=x+colW*.5-sep*1.0,originY=b.y+b.h*.30;
+          const marks=[];
+          for(let i=0;i<digit;i++){
+            const cx=originX+(i%3)*sep,cy=originY+Math.floor(i/3)*sep*1.12;
+            const glyph = ix===0
+              ? svgEl('rect',{x:f2(cx-tile*.43),y:f2(cy-tile*.43),
+                  width:f2(tile*.86),height:f2(tile*.86),rx:f2(tile*.08),
+                  stroke:ink,'stroke-width':f2(sw*.75),fill:'none'},g2)
+              : ix===1
+              ? svgEl('path',{d:polyPath([[cx-tile*.27,cy+tile*.35],
+                   [cx+tile*.27,cy-tile*.35]]),stroke:ink,'stroke-width':f2(sw*1.25),
+                   'stroke-linecap':'round',fill:'none'},g2)
+              : svgEl('circle',{cx:f2(cx),cy:f2(cy),r:f2(tile*.25),fill:accent},g2);
+            marks.push(glyph);
+          }
+          groups.push(marks);
+        });
+        const count = svgEl('text',{
+          x:f2(b.x+b.w*.5),y:f2(b.y+b.h*.89),
+          'text-anchor':'middle','font-family':plan.fonts.families.data,
+          'font-size':f2(Math.min(b.w*.11,b.h*.15)),
+          'font-weight':'800',fill:ink,'font-variant-numeric':'tabular-nums'
+        },body);count.textContent=value.toLocaleString('en-US');
+        node.extra.setGrow=(k)=>{
+          groups.forEach((marks,ix)=>{
+            marks.forEach((mark,j)=>{
+              const idx=ix*9+j;
+              const fraction=EASE.outCubic(clamp((k-(idx/27)*.58)*3.8,0,1));
+              mark.setAttribute('opacity',f3(fraction));
+            });
+          });
+          count.setAttribute('opacity',f3(EASE.outCubic(clamp(k*1.9-.32,0,1))));
+        };
+        node.extra.setGrow(0);
+        node.strike=strikeFor(b);
+        break;
+      }
       case 'DONUT': {
         // A progress ring: paper track + an arc that GROW sweeps, with an optional COUNT readout.
         const c = centre(b), R = Math.min(b.w, b.h) / 2 - sw * 1.6;
@@ -1585,28 +1945,358 @@
         break;
       }
       case 'TILE': {
-        // The product-collage atom: a glossy rounded-square app tile carrying a registry icon.
+        // The illustration director keeps the original registry mark and frame
+        // but treats the tile as flat drawn paper, not a shiny app button.
+        // The collage and other five families retain their enamel treatment.
+        const isIllustrated = plan.director_style === 'sketch';
         const dark = params.tone === 'dark';
         const r = Math.min(b.w, b.h) * 0.24;
         const shape = roundRectPath({ x: b.x + sw / 2, y: b.y + sw / 2, w: b.w - sw, h: b.h - sw }, r) + 'Z';
         const body = chassisBody(node, g);
-        // One geometry for fill, gloss and rim: the gloss is clipped to the body and the rim is
-        // stroked last, so the outline is one continuous weight around every corner.
-        const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
-        node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
-        if (!dark) {
-          // Gloss: a light slope across the top half so the tile reads as enamel, not paper.
-          const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
-          svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
-          svgEl('path', {
-            d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
-            fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
-          }, body);
+        if (isIllustrated) {
+          // Sketch pictures are ART, never buttons. The licensed literal
+          // drawing floats directly in the paper field with a restrained
+          // hand-inked grounding arc and a signature baseline. No enclosing
+          // rounded app tile or screenshot-like shadow survives.
+          const c = centre(b), floor = b.y + b.h * 0.96;
+          const arc = [
+            [b.x + b.w * 0.18, floor],
+            [c.x, floor + sw * 1.2],
+            [b.x + b.w * 0.82, floor],
+          ];
+          const ground = svgEl('path', { ...line, d: polyPath(arc),
+            stroke: ink, 'stroke-width': sw * 0.75,
+            'stroke-opacity': 0.27 }, body);
+          node.outline.push(drawable(ground, polyLength(arc)));
+          const accentDash = svgEl('path', { ...line,
+            d: polyPath([[c.x - b.w * 0.16, floor + sw * 3],
+                         [c.x + b.w * 0.16, floor + sw * 3]]),
+            stroke: accent, 'stroke-width': sw * 1.25 }, body);
+          node.outline.push(drawable(accentDash, b.w * 0.32));
+        } else {
+          // Other product-style families retain the existing physical frame.
+          const base = svgEl('path', { d: shape, fill: dark ? housing.dark : housing.light }, body);
+          node.extra.shadow = { el: base, oy: b.h * 0.07, blur: b.h * 0.13, alpha: 0.28 };
+          if (!dark) {
+            const clipId = `em2gloss-${ent.id}-${++iconInstance}`.replace(/[^a-z0-9-]/gi, '');
+            svgEl('path', { d: shape }, svgEl('clipPath', { id: clipId }, svgEl('defs', {}, body)));
+            svgEl('path', {
+              d: `M${f2(b.x)} ${f2(b.y)}H${f2(b.x + b.w)}V${f2(b.y + b.h * 0.46)}Q${f2(b.x + b.w * 0.5)} ${f2(b.y + b.h * 0.62)} ${f2(b.x)} ${f2(b.y + b.h * 0.46)}Z`,
+              fill: '#ffffff', 'fill-opacity': 0.5, 'clip-path': `url(#${clipId})`,
+            }, body);
+          }
+          svgEl('path', { d: shape, fill: 'none', stroke: ink,
+            'stroke-width': sw * 0.55, 'stroke-opacity': 0.55 }, body);
+          node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
         }
-        svgEl('path', { d: shape, fill: 'none', stroke: ink, 'stroke-width': f2(sw * 0.55), 'stroke-opacity': 0.55 }, body);
-        node.inkEls.push(svgEl('path', { d: shape, fill: accent, 'fill-opacity': 0 }, g));
+        // Artist-authored, role-neutral procedural ink illustration. Source
+        // nouns are typed by a reviewed ontology; an unknown or ambiguous
+        // noun NEVER gets a guessed person or document. The art itself is
+        // generic (no invented age, gender, uniforms, branded paperwork).
+        if (isIllustrated && params.visual_class === 'population') {
+          // A representative group, NOT one dot per narrated person. We do
+          // not round 10,000 people to six marks or imply a false proportion.
+          // Exact counts remain native, spoken-source timed display units.
+          const u = Math.min(b.w, b.h);
+          const group = svgEl('g', { 'data-drawing': 'source-population' }, g);
+          const headR = u * 0.044;
+          const stroke = sw * 1.25;
+          for (let i = 0; i < 6; i++) {
+            const col = i % 3, row = Math.floor(i / 3);
+            const cx = b.x + b.w * (0.28 + 0.22 * col);
+            const hy = b.y + b.h * (0.18 + row * 0.38);
+            const head = svgEl('circle', { cx: f2(cx), cy: f2(hy),
+              r: f2(headR), fill: paper, stroke: ink, 'stroke-width': f2(stroke) }, group);
+            node.outline.push(drawable(head, 2 * Math.PI * headR));
+            const shoulderY = hy + headR * 1.68;
+            const waistY = shoulderY + u * 0.12;
+            const bodyPath = `M${f2(cx-headR*.89)} ${f2(shoulderY)}
+              Q${f2(cx)} ${f2(shoulderY-u*.022)}
+               ${f2(cx+headR*.89)} ${f2(shoulderY)}
+              L${f2(cx+headR*.76)} ${f2(waistY)}
+              L${f2(cx-headR*.76)} ${f2(waistY)}Z`;
+            const torso = svgEl('path', { d: bodyPath, fill: mixColor(paper, accent, .075),
+              stroke: ink, 'stroke-width': f2(stroke), 'stroke-linejoin': 'round' }, group);
+            node.outline.push(drawable(torso, u * .47));
+            const limbSegments = [
+              [[cx-headR*.8,shoulderY+headR*.3],[cx-headR*1.42,waistY-u*.008]],
+              [[cx+headR*.8,shoulderY+headR*.3],[cx+headR*1.42,waistY-u*.008]],
+              [[cx-headR*.35,waistY],[cx-headR*.43,waistY+u*.075]],
+              [[cx+headR*.35,waistY],[cx+headR*.43,waistY+u*.075]],
+            ];
+            for (const pts of limbSegments) {
+              const limb = svgEl('path', { ...line, d: polyPath(pts),
+                'stroke-width': f2(stroke*1.02), 'stroke-linecap': 'round' }, group);
+              node.outline.push(drawable(limb, polyLength(pts)));
+            }
+          }
+        } else if (isIllustrated && params.visual_class === 'package') {
+          // Source-mentioned package: a spatially legible editorial parcel,
+          // not an arbitrary word in a UI pill or an invented branded item.
+          const u = Math.min(b.w, b.h), cx = b.x + b.w * 0.51;
+          const cy = b.y + b.h * 0.51, bw = u * 0.58, bh = u * 0.43;
+          const depth = u * 0.13;
+          const x = cx - bw * 0.5, y = cy - bh * 0.38;
+          const group = svgEl('g', {'data-drawing': 'source-parcel'}, g);
+          const panels = [
+            {pts:[[x,y],[x+depth,y-depth],[x+bw+depth,y-depth],[x+bw,y]],
+             fill:mixColor(paper,accent,0.16)},
+            {pts:[[x+bw,y],[x+bw+depth,y-depth],[x+bw+depth,y+bh-depth],[x+bw,y+bh]],
+             fill:mixColor(paper,ink,0.15)},
+            {pts:[[x,y],[x+bw,y],[x+bw,y+bh],[x,y+bh]],
+             fill:mixColor(paper,accent,0.055)}
+          ];
+          panels.forEach(panel=>{
+            const pts=panel.pts;
+            const p=svgEl('path',{d:polyPath([...pts,pts[0]]),fill:panel.fill,
+              stroke:ink,'stroke-width':f2(sw*1.4),
+              'stroke-linejoin':'round'},group);
+            node.outline.push(drawable(p,polyLength([...pts,pts[0]])));
+          });
+          const tape = svgEl('path',{
+            d:polyPath([[cx-u*.10,y-u*.003],[cx+depth*.47,y-depth*.98],
+              [cx+depth*.47,y+bh-depth*.98]]),
+            fill:'none',stroke:accent,'stroke-width':f2(sw*1.85),
+            'stroke-linecap':'round','stroke-linejoin':'round'},group);
+          node.outline.push(drawable(tape,u*.53));
+        } else if (isIllustrated && params.visual_class === 'person') {
+          const u = Math.min(b.w, b.h);
+          const cx = b.x + b.w * 0.5, top = b.y + b.h * 0.045;
+          const headR = u * 0.108, headY = top + u * 0.17;
+          const shoulderY = top + u * 0.36;
+          const hipY = top + u * 0.66, footY = top + u * 0.91;
+          const shoulder = u * 0.195, hip = u * 0.137;
+          const portrait = svgEl('g', { 'data-drawing': 'source-person' }, g);
+          // A soft disc reads as the artist's print register; it contains no
+          // factual claim about who the person is.
+          svgEl('circle', { cx: f2(cx), cy: f2(top + u * 0.44),
+            r: f2(u * 0.40), fill: accent, 'fill-opacity': '0.075' }, portrait);
+          const face = svgEl('g', { 'data-drawing': 'source-actor-gaze' }, portrait);
+          const head = svgEl('ellipse', { cx: f2(cx), cy: f2(headY),
+            rx: f2(headR * 0.94), ry: f2(headR * 1.08),
+            fill: paper, stroke: ink, 'stroke-width': f2(sw * 1.6) }, face);
+          node.outline.push(drawable(head, 2 * Math.PI * headR));
+          // Minimal but genuinely expressive human features, never a
+          // guessed demographic: neutral gaze, brows and a small listening
+          // expression. Stroke structure is consistent with the full figure.
+          const eyeY = headY - headR * .065;
+          for (const side of [-1, 1]) {
+            svgEl('circle', { cx:f2(cx + side * headR*.37),
+              cy:f2(eyeY), r:f2(Math.max(1.6,sw*.55)),
+              fill:ink,'data-drawing':'source-eye' },face);
+            svgEl('path',{ d:polyPath([[cx+side*headR*.24,eyeY-headR*.25],
+              [cx+side*headR*.50,eyeY-headR*.28]]),
+              fill:'none', stroke:ink, 'stroke-width':sw*.52,
+              'stroke-linecap':'round' },face);
+          }
+          const expression = svgEl('path', { d:
+            `M${f2(cx-headR*.23)} ${f2(headY+headR*.45)}
+              Q${f2(cx)} ${f2(headY+headR*.60)}
+               ${f2(cx+headR*.23)} ${f2(headY+headR*.45)}`,
+            fill:'none',stroke:ink,'stroke-width':sw*.52,
+            'stroke-linecap':'round' },face);
+          node.outline.push(drawable(expression,headR*.50));
+          // Jacket-free universal anatomical block: shoulder/torso is a
+          // recognizable editorial silhouette without any costume inference.
+          const torso = svgEl('path', { fill: mixColor(paper, accent, 0.10), stroke: ink,
+            'stroke-width': f2(sw * 1.65), 'stroke-linejoin': 'round',
+            d: `M${f2(cx - shoulder)} ${f2(shoulderY + u * .075)}
+                Q${f2(cx - shoulder * .89)} ${f2(shoulderY)}
+                  ${f2(cx - u * .085)} ${f2(shoulderY - u * .025)}
+                L${f2(cx + u * .085)} ${f2(shoulderY - u * .025)}
+                Q${f2(cx + shoulder * .89)} ${f2(shoulderY)}
+                  ${f2(cx + shoulder)} ${f2(shoulderY + u * .075)}
+                L${f2(cx + hip)} ${f2(hipY)}
+                Q${f2(cx)} ${f2(hipY + u * .04)}
+                  ${f2(cx - hip)} ${f2(hipY)}Z` }, portrait);
+          node.outline.push(drawable(torso, u * 2.1));
+          const garment = svgEl('path', { fill:'none', stroke:ink,
+            'stroke-width':sw*.65, 'stroke-opacity':.38,
+            d:`M${f2(cx-u*.085)} ${f2(shoulderY-u*.022)}
+               Q${f2(cx)} ${f2(shoulderY+u*.10)}
+                ${f2(cx+u*.085)} ${f2(shoulderY-u*.022)}
+               M${f2(cx-u*.11)} ${f2(hipY-u*.075)}
+               Q${f2(cx)} ${f2(hipY-u*.052)}
+                ${f2(cx+u*.11)} ${f2(hipY-u*.075)}` },portrait);
+          node.outline.push(drawable(garment, u*.54));
+          const limbs = [
+            // Legs are grounded in an actual baseline and remain modest in
+            // height across square, landscape and portrait.
+            [[cx - u*.082, hipY + u*.016], [cx - u*.105, footY]],
+            [[cx + u*.082, hipY + u*.016], [cx + u*.105, footY]],
+          ];
+          const actorLegs = [];
+          for (const pts of limbs) {
+            const leg = svgEl('g', { 'data-drawing': 'source-actor-leg' }, portrait);
+            const limb = svgEl('path', { ...line, d: polyPath(pts),
+              'stroke-width': sw * 1.7, 'stroke-linecap': 'round' }, leg);
+            node.outline.push(drawable(limb, polyLength(pts)));
+            // The planted shoe BELONGS to this moving leg. In the recovered
+            // actor it was painted onto the torso group while the shin swung
+            // independently, making the feet visibly detach during walking.
+            const side = pts[1][0] < cx ? -1 : 1;
+            svgEl('ellipse', { cx: f2(pts[1][0] + side * u * .025),
+              cy: f2(pts[1][1] + sw * .45), rx: f2(u * .069),
+              ry: f2(Math.max(sw * .86, u * .019)), fill: ink,
+              'data-drawing': 'source-actor-foot' }, leg);
+            actorLegs.push({ group: leg, hip: pts[0] });
+          }
+          const connected = (il.relations || []).filter(rel =>
+            rel.type === 'flows_to' &&
+            (rel.source === ent.id || rel.target === ent.id));
+          const related = connected[0];
+          const linked = related && il.entities.find(item =>
+            item.id === (related.source === ent.id ? related.target : related.source));
+          const toward = linked && linked.bbox
+            ? Math.sign(centre(linked.bbox).x - cx) : 1;
+          const rightSide = toward >= 0 ? 1 : -1;
+          // Rounded limbs, small hands and grounded feet make a body feel
+          // deliberately drawn rather than a wire-frame icon. No profession,
+          // age, race, uniform or other unsupported trait is inferred.
+
+          const actionArm = svgEl('g', { 'data-drawing': 'source-gesture' }, portrait);
+          const armBase = [cx + shoulder * rightSide, shoulderY + u * .09];
+          const armEnd = [cx + u * .30 * rightSide, top + u * .54];
+          const handD = `M${f2(armBase[0])} ${f2(armBase[1])}
+              Q${f2(cx + u*.31*rightSide)} ${f2(top + u*.38)}
+                ${f2(armEnd[0])} ${f2(armEnd[1])}`;
+          const gesture = svgEl('path', { fill: 'none', d: handD,
+            stroke: ink, 'stroke-width': f2(sw * 1.85),
+            'stroke-linecap': 'round' }, actionArm);
+          node.outline.push(drawable(gesture, u * .31));
+          svgEl('ellipse', { cx:f2(armEnd[0]), cy:f2(armEnd[1]),
+            rx:f2(sw*.96), ry:f2(sw*.88), fill:paper,
+            stroke:ink,'stroke-width':f2(sw*.85)},actionArm);
+          // A real vocabulary of 2D acting poses, not one shoulder rotation
+          // relabelled WALK, OFFER, POINT and WAVE. Details are all children
+          // of the articulated arm and therefore follow the actual hand.
+          const handPoint = svgEl('path', {
+            'data-performance':'point-finger',
+            d:polyPath([[armEnd[0],armEnd[1]],
+                        [armEnd[0]+rightSide*u*.074,armEnd[1]-u*.023]]),
+            stroke:ink,'stroke-width':f2(sw*.78),
+            'stroke-linecap':'round',fill:'none',opacity:'0'},actionArm);
+          const handPalm = svgEl('path', {
+            'data-performance':'open-palm',
+            d:`M${f2(armEnd[0]-rightSide*u*.018)} ${f2(armEnd[1]+u*.016)}
+              Q${f2(armEnd[0]+rightSide*u*.06)} ${f2(armEnd[1]+u*.006)}
+              ${f2(armEnd[0]+rightSide*u*.077)} ${f2(armEnd[1]-u*.066)}`,
+            stroke:ink,'stroke-width':f2(sw*.78),
+            'stroke-linecap':'round',fill:'none',opacity:'0'},actionArm);
+          const waveLines = svgEl('g', {
+            'data-performance':'wave-lines',opacity:'0' },actionArm);
+          for (const spread of [-1,1]) {
+            const waves=svgEl('path',{
+              d:polyPath([[armEnd[0]+rightSide*u*.067,armEnd[1]+spread*u*.018],
+                          [armEnd[0]+rightSide*u*.098,armEnd[1]+spread*u*.062]]),
+              stroke:accent,'stroke-width':f2(sw*1.2),fill:'none',
+              'stroke-linecap':'round'},waveLines);
+            node.outline.push(drawable(waves,u*.058));
+          }
+          const quietArmGroup = svgEl('g', { 'data-drawing':'source-counter-arm' }, portrait);
+          const quietShoulder = [cx - shoulder * rightSide, shoulderY + u * .09];
+          const quietArm = svgEl('path', { fill: 'none',
+            d: `M${f2(quietShoulder[0])} ${f2(quietShoulder[1])}
+                Q${f2(cx - u*.28*rightSide)} ${f2(top + u*.53)}
+                  ${f2(cx - u*.185*rightSide)} ${f2(top + u*.65)}`,
+            stroke: ink, 'stroke-width': f2(sw * 1.65),
+            'stroke-linecap': 'round' }, quietArmGroup);
+          node.outline.push(drawable(quietArm, u * .36));
+          const restingHand = [cx-u*.185*rightSide,top+u*.65];
+          svgEl('ellipse',{cx:f2(restingHand[0]),cy:f2(restingHand[1]),
+            rx:f2(sw*.86),ry:f2(sw*.74),fill:paper,
+            stroke:ink,'stroke-width':f2(sw*.75)},quietArmGroup);
+          const baseline = svgEl('path', { ...line,
+            d: polyPath([[cx - u*.21, footY + sw * 1.7],
+                         [cx + u*.21, footY + sw * 1.7]]),
+            stroke: accent, 'stroke-width': f2(sw * 1.15) }, portrait);
+          node.outline.push(drawable(baseline, u*.42));
+          // A source-relationship gesture uses the same semantic ops as
+          // the written label. Never animate by hardcoded string matching.
+          node.extra.semanticArm = {
+            group: actionArm, shoulder: armBase, hand: armEnd, sign: rightSide,
+            face, headPivot: [cx, headY],
+            isReceiving: connected.some(rel => rel.target === ent.id),
+            isSending: connected.some(rel => rel.source === ent.id),
+            legs: actorLegs, counterArm: quietArmGroup,
+            counterShoulder: quietShoulder,
+            handPoint, handPalm, waveLines,
+            identity: params.actor_identity || ent.id,
+            state: params.actor_state || 'IDLE',
+            portrait, motionUnit: u,
+          };
+        } else if (isIllustrated && params.visual_class === 'document') {
+          const u = Math.min(b.w, b.h), cx = b.x + b.w / 2;
+          const top = b.y + b.h * .10, dh = u * .72, dw = u * .56;
+          const x0 = cx - dw*.50, y0 = top, fold = u * .125;
+          const sheet = svgEl('g', { 'data-drawing': 'source-document' }, g);
+          // Real paper edges and folded corner, but no fabricated word or
+          // seal. All interior marks are purely conventional document ruling.
+          const back = svgEl('path', { d:
+            `M${f2(x0 - u*.045)} ${f2(y0 + u*.055)}
+              L${f2(x0 + dw - u*.045)} ${f2(y0 + u*.055)}
+              L${f2(x0 + dw - u*.045)} ${f2(y0 + dh + u*.055)}
+              L${f2(x0 - u*.045)} ${f2(y0 + dh + u*.055)}Z`,
+            fill: accent, 'fill-opacity': .14, stroke: ink,
+            'stroke-width': sw * 1.03 }, sheet);
+          node.outline.push(drawable(back, 2*(dw+dh)));
+          const frontD = `M${f2(x0)} ${f2(y0)}
+            L${f2(x0+dw-fold)} ${f2(y0)}
+            L${f2(x0+dw)} ${f2(y0+fold)}
+            L${f2(x0+dw)} ${f2(y0+dh)}
+            L${f2(x0)} ${f2(y0+dh)}Z`;
+          const front = svgEl('path', { d: frontD, fill: paper, stroke: ink,
+            'stroke-width': f2(sw*1.48), 'stroke-linejoin':'round' }, sheet);
+          node.outline.push(drawable(front, 2*(dw+dh)));
+          const foldLine = svgEl('path', { ...line,
+            d: polyPath([[x0+dw-fold,y0],[x0+dw-fold,y0+fold],
+                         [x0+dw,y0+fold]]), 'stroke-width': sw*1.15 }, sheet);
+          node.outline.push(drawable(foldLine, fold*3));
+          const bands = [0.27,0.39,0.51,0.63];
+          for(let i=0;i<bands.length;i++){
+            const yy=y0+dh*bands[i], x=x0+dw*.16;
+            const xx=x0+dw*(i===3?.60:i===0?.46:.82);
+            const bar=svgEl('path',{ ...line,d:polyPath([[x,yy],[xx,yy]]),
+              'stroke-width':sw*(i===0?1.65:1.0),
+              stroke:i===0?accent:ink,
+              'stroke-opacity':i===0?'1':'0.38' },sheet);
+            node.outline.push(drawable(bar,xx-x));
+          }
+          // For delivered documents the same entire sheet, not a temporary
+          // coloured dot, travels under the voice authority.
+        } else if (isIllustrated && params.visual_class === 'list') {
+          // The destination is a source-named list-like *structure*, not
+          // an arbitrary box labelled "list". Repeated rows are illustrative
+          // grammar, NOT a claim about the actual number of source entries.
+          const u = Math.min(b.w,b.h),cx=b.x+b.w*.50;
+          const ww=u*.68,hh=u*.70,x=cx-ww/2,y=b.y+b.h*.12;
+          const sheet=svgEl('g',{'data-drawing':'source-list'},g);
+          const page=svgEl('path',{fill:paper,stroke:ink,
+            'stroke-width':sw*1.45,'stroke-linejoin':'round',
+            d:`M${f2(x)} ${f2(y)} L${f2(x+ww)} ${f2(y)}
+               L${f2(x+ww)} ${f2(y+hh)}
+               L${f2(x)} ${f2(y+hh)}Z`},sheet);
+          node.outline.push(drawable(page,2*(ww+hh)));
+          const header=svgEl('path',{...line,
+            d:polyPath([[x+ww*.15,y+hh*.17],[x+ww*.69,y+hh*.17]]),
+            stroke:accent,'stroke-width':sw*1.5},sheet);
+          node.outline.push(drawable(header,ww*.54));
+          const rows=[];
+          for(let i=0;i<3;i++){
+            const yy=y+hh*(.36+i*.20);
+            const item=svgEl('g',{'data-item-structure':String(i)},sheet);
+            svgEl('circle',{cx:f2(x+ww*.18),cy:f2(yy),
+              r:f2(sw*.92),fill:accent},item);
+            const rule=svgEl('path',{...line,
+              d:polyPath([[x+ww*.29,yy],[x+ww*(i===2?.63:.79),yy]]),
+              'stroke-width':sw*1.05,'stroke-opacity':.58},item);
+            node.outline.push(drawable(rule,ww*.55));
+            rows.push(item);
+          }
+          node.extra.sourceListRows=rows;
+        }
         const word = params.word ? String(params.word) : '';
-        const fg = dark ? paper : ink;
+        const fg = (dark && !isIllustrated) ? paper : ink;
         // The name sits above the accent fill so an inked tile keeps it, in the paper colour.
         const wordHost = svgEl('g', {}, g);
         node.extra.wordHost = wordHost;
@@ -1627,9 +2317,19 @@
         } else if (ent.asset) {
           const host = svgEl('g', {}, g);
           host.style.color = fg;
+          if (isIllustrated) {
+            // Registry icons can carry hardwired brand colours (blue ticket,
+            // green tree, etc.). Sketch is a deliberate ONE-INK illustrated
+            // film. Keep the literal correct shape, but neutralise embedded
+            // catalogue hues so source-matched graphics coexist with our
+            // authored humans and paper art. Do not colourize screenshots,
+            // photographs, other director styles, or genuine brand marks.
+            host.style.filter = 'grayscale(1) contrast(1.25)';
+            host.dataset.treatment = 'ink-catalogue';
+          }
           node.inkEls.push(host);
           node.extra.iconHost = host;
-          const pad = b.w * 0.17;
+          const pad = b.w * (isIllustrated ? 0.085 : 0.17);
           if (word) {
             // Composite: the mark takes the upper body, the concept's own name is set beneath it.
             const ih = b.h * 0.5;
@@ -1792,11 +2492,25 @@
       case 'DATA_BARS': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.035) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const series = (params.series || []).slice(0, 8), n = Math.max(1, series.length);
         const pad = Math.min(b.w, b.h) * 0.09, labelH = b.h * 0.115;
-        const plot = { x: b.x + pad, y: b.y + pad * 1.1, w: b.w - pad * 2, h: b.h - pad * 2 - labelH };
+        // Reserve a proper value-readout band so the tallest source bar never
+        // collides with the top editorial rule or has its number cropped.
+        const plot = { x: b.x + pad, y: b.y + pad * 1.78,
+                       w: b.w - pad * 2, h: b.h - pad * 2.78 - labelH };
         const base = plot.y + plot.h, maxV = Math.max(1e-9, ...series.map((s) => Math.abs(Number(s.value) || 0)));
         svgEl('path', { d: `M${f2(plot.x - pad * 0.3)} ${f2(base)} L${f2(plot.x + plot.w + pad * 0.3)} ${f2(base)}`, stroke: cardFg, 'stroke-width': sw * 0.42, 'stroke-opacity': 0.5 }, body);
         const bw = Math.min(plot.h * 0.62, (plot.w - plot.w * 0.05 * (n - 1)) / n), gap = (plot.w - bw * n) / Math.max(1, n - 1);
@@ -1804,7 +2518,7 @@
         const maxLbl = Math.max(4, ...series.map((s) => String(s.label || '').slice(0, 16).length));
         const fsV = Math.min(plot.h * 0.2, b.w / (n * 2.9)), fsL = Math.min(labelH * 0.8, bw * 0.24, ((plot.w / n) * 0.92) / (maxLbl * 0.55));
         series.forEach((s, i) => {
-          const x = plot.x + i * (bw + gap), h = Math.max(plot.h * 0.11, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
+          const x = plot.x + i * (bw + gap), h = Math.max(params.editorial_field ? 0 : plot.h * 0.11, (Math.abs(Number(s.value) || 0) / maxV) * plot.h);
           const pop = s.tone === 'accent';
           const bar = svgEl('path', { d: roundRectPath({ x, y: base - h, w: bw, h }, Math.min(bw * 0.14, 7)) + 'Z', fill: pop ? accent : cardFg, 'fill-opacity': 1 }, body);
           bar.style.transformOrigin = `${f2(x + bw / 2)}px ${f2(base)}px`;
@@ -1815,12 +2529,18 @@
           nm.textContent = lbl;
           bars.push(bar); caps.push(cap); names.push(nm);
         });
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           bars.forEach((bar, i) => {
-            const kk = clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.62 / n)) * (n * 1.35), 0, 1);
+            // The bar mentioned NOW is the focal evidence. Earlier bars remain
+            // as dimmed context; future quantities stay entirely invisible.
+            const contextual = spokenStage >= 0 && i < spokenStage ? 0.50 : 1;
             bar.style.transform = `scaleY(${f3(Math.max(0.001, EASE.settle(kk)))})`;
-            caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1)) : '0');
-            names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1)));
+            bar.style.opacity = f3(kk > 0 ? contextual : 0);
+            caps[i].setAttribute('fill-opacity', kk > 0.86 ? f3(clamp((kk - 0.86) * 7, 0, 1) * contextual) : '0');
+            names[i].setAttribute('fill-opacity', f3(0.66 * clamp(kk * 1.4, 0, 1) * contextual));
           });
         };
         node.strike = strikeFor(b);
@@ -1829,8 +2549,19 @@
       case 'DATA_TABLE': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const header = (params.header || []).map(String), rows = (params.rows || []).slice(0, 6);
         const cols = Math.max(1, Math.max(header.length, ...rows.map((r) => r.length)));
         const pad = Math.min(b.w, b.h) * 0.07, tbl = { x: b.x + pad, y: b.y + pad, w: b.w - pad * 2, h: b.h - pad * 2 };
@@ -1851,10 +2582,14 @@
         };
         if (header.length) emitRow(header, 0, true);
         rows.forEach((r, i) => emitRow(r, i + (header.length ? 1 : 0), false));
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           rowEls.forEach((g2, i) => {
-            const kk = clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
-            g2.setAttribute('opacity', f3(kk));
+            const row = Math.max(0, i - (header.length ? 1 : 0));
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(row, lt) : clamp((k - i * (0.55 / nR)) * (nR * 1.5), 0, 1);
+            const contextual = spokenStage >= 0 && row < spokenStage ? 0.49 : 1;
+            g2.setAttribute('opacity', f3(kk * contextual));
             g2.setAttribute('transform', `translate(0 ${f2((1 - EASE.settle(kk)) * rh * 0.55)})`);
           });
         };
@@ -1864,15 +2599,27 @@
       case 'TIMELINE': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.03) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
-        node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
+        if (!params.editorial_field) node.extra.shadow = { el: body, oy: b.h * 0.05, blur: b.h * 0.1, alpha: 0.24 };
         const evs = (params.events || []).slice(0, 6), n = Math.max(1, evs.length);
         const horiz = params.axis === 'v' ? false : params.axis === 'h' ? true : b.w >= b.h;
         const pad = Math.min(b.w, b.h) * 0.12;
         const spine = horiz ? { x: b.x + pad, y: b.y + b.h / 2, len: b.w - pad * 2 } : { x: b.x + b.w / 2, y: b.y + pad, len: b.h - pad * 2 };
         const spineP = svgEl('path', { d: horiz ? `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x + spine.len)} ${f2(spine.y)}` : `M${f2(spine.x)} ${f2(spine.y)} L${f2(spine.x)} ${f2(spine.y + spine.len)}`, stroke: cardFg, 'stroke-width': sw * 0.45, 'stroke-opacity': 0.55, 'stroke-linecap': 'round' }, body);
         const items = [];
-        const fs = Math.min(b.w, b.h) * 0.105;
+        const fs = Math.min(Math.min(b.w, b.h) * 0.095,
+                            b.w / Math.max(3.2, n * 4.8));
         evs.forEach((ev, i) => {
           const u = n === 1 ? 0.5 : i / (n - 1);
           const sx = horiz ? spine.x + u * spine.len : spine.x, sy = horiz ? spine.y : spine.y + u * spine.len;
@@ -1881,7 +2628,10 @@
           svgEl('path', { d: horiz ? `M${f2(sx)} ${f2(sy)} L${f2(sx)} ${f2(sy + side * tick)}` : `M${f2(sx)} ${f2(sy)} L${f2(sx + side * tick)} ${f2(sy)}`, stroke: cardFg, 'stroke-width': sw * 0.4, 'stroke-opacity': 0.6 }, g2);
           svgEl('circle', { cx: f2(sx), cy: f2(sy), r: f2(Math.min(b.w, b.h) * 0.026), fill: i === n - 1 ? accent : face, stroke: cardFg, 'stroke-width': sw * 0.4 }, g2);
           const lx = horiz ? sx : sx + side * (tick + fs * 0.6), ly = horiz ? sy + side * (tick + fs * 1.2) : sy;
-          const anch = horiz ? 'middle' : (side > 0 ? 'start' : 'end');
+          // At the ends of a horizontal time axis the captions grow
+          // inward, instead of extending outside the frame.
+          const anch = horiz ? (i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle')
+                             : (side > 0 ? 'start' : 'end');
           const t1 = svgEl('text', { x: f2(lx), y: f2(ly), 'text-anchor': anch, 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
           t1.textContent = String(ev.label).slice(0, 16);
           if (ev.sub) {
@@ -1891,10 +2641,13 @@
           items.push(g2);
         });
         const dots = items;
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
+          const spokenStage = node.extra.stageCues
+            ? node.extra.stageCues.reduce((last, cue, i) => lt >= cue.start_ms ? i : last, -1) : -1;
           dots.forEach((g2, i) => {
-            const kk = clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
-            g2.setAttribute('opacity', f3(kk));
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * (0.55 / n)) * (n * 1.5), 0, 1);
+            const contextual = spokenStage >= 0 && i < spokenStage ? 0.46 : 1;
+            g2.setAttribute('opacity', f3(kk * contextual));
           });
         };
         node.strike = strikeFor(b);
@@ -1909,14 +2662,19 @@
         cards.forEach((cd, i) => {
           const cb = { x: b.x + i * (cw + gap), y: b.y, w: cw, h: b.h };
           const g2 = svgEl('g', {}, body);
-          const card = svgEl('path', { d: roundRectPath(cb, Math.min(cb.w, cb.h) * 0.06) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.55, 'stroke-opacity': 0.24 }, g2);
+          const card = svgEl('path', { d: roundRectPath(cb, Math.min(cb.w, cb.h) * 0.06) + 'Z',
+            fill: params.editorial_field ? paper : face,
+            'fill-opacity': params.editorial_field ? 0.10 : 1,
+            stroke: ink, 'stroke-width': sw * 0.55,
+            'stroke-opacity': params.editorial_field ? 0.55 : 0.24 }, g2);
           const markS = Math.min(cb.w, cb.h) * 0.42;
           const mb = { x: cb.x + (cb.w - markS) / 2, y: cb.y + cb.h * 0.12, w: markS, h: markS };
           svgEl('path', { d: roundRectPath(mb, markS * 0.2) + 'Z', fill: i === 0 ? accent : cardFg, 'fill-opacity': i === 0 ? 1 : 0.85 }, g2);
           wordMark(node, g2, mb, String(cd.mark || cd.title || ''), 'monogram', i === 0 ? cardFg : face, plan);
-          const fsT = Math.min(cb.h * 0.22, cb.w / 5.4);
+          const titleText = String(cd.title || '').slice(0, 20);
+          const fsT = Math.min(cb.h * 0.16, (cb.w * 0.85) / Math.max(4, titleText.length * 0.58));
           const t = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.66), 'text-anchor': 'middle', 'font-family': plan.fonts.families.display, 'font-weight': '800', 'font-size': f2(fsT), fill: cardFg, 'letter-spacing': '-0.02em' }, g2);
-          t.textContent = String(cd.title).slice(0, 14);
+          t.textContent = titleText;
           if (cd.sub) {
             const s = svgEl('text', { x: f2(cb.x + cb.w / 2), y: f2(cb.y + cb.h * 0.84), 'text-anchor': 'middle', 'font-family': plan.fonts.families.data, 'font-size': f2(fsT * 0.62), 'font-weight': '500', fill: cardFg, 'fill-opacity': 0.66 }, g2);
             s.textContent = String(cd.sub).slice(0, 22);
@@ -1928,14 +2686,14 @@
         svgEl('circle', { cx: f2(b.x + b.w / 2), cy: f2(b.y + b.h / 2), r: f2(vr), fill: cardFg }, vg);
         const vt = svgEl('text', { x: f2(b.x + b.w / 2), y: f2(b.y + b.h / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.display, 'font-weight': '900', 'font-size': f2(vr * 0.8), fill: face, 'font-style': 'italic' }, vg);
         vt.textContent = vs;
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           parts.forEach((p, i) => {
-            const kk = clamp((k - i * 0.28) * 2.4, 0, 1), e = EASE.settle(kk);
+            const kk = node.extra.stageFraction ? node.extra.stageFraction(i, lt) : clamp((k - i * 0.28) * 2.4, 0, 1), e = EASE.settle(kk);
             p.g.setAttribute('transform', `translate(${f2(p.fromX * (1 - e))} 0) scale(${f3(Math.max(0.001, e))})`);
             p.g.setAttribute('opacity', f3(kk));
             p.g.style.transformOrigin = `${f2(b.x + (i + 0.5) * b.w * 0.46)}px ${f2(b.y + b.h / 2)}px`;
           });
-          const vk = clamp((k - 0.3) * 2.8, 0, 1), e = EASE.settle(vk);
+          const vk = node.extra.stageFraction ? node.extra.stageFraction(1, lt) : clamp((k - 0.3) * 2.8, 0, 1), e = EASE.settle(vk);
           vg.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
           vg.setAttribute('opacity', f3(vk));
           vg.style.transformOrigin = `${f2(b.x + b.w / 2)}px ${f2(b.y + b.h / 2)}px`;
@@ -1993,15 +2751,22 @@
           const last = i === n - 1;
           svgEl('path', { d: roundRectPath(sb, Math.min(sb.w, sb.h) * 0.24) + 'Z', fill: last ? accent : face, stroke: ink, 'stroke-width': sw * 0.45, 'stroke-opacity': last ? 0 : 0.22 }, g2);
           const sText = (s && typeof s === 'object') ? (s.label || '') : String(s);
-          const fs = Math.min(sh * 0.58, sw2 / Math.max(4, sText.length) * 1.6);
-          const nb2 = { x: sb.x + sh * 0.12, y: sb.y + sh * 0.12, w: sh * 0.76, h: sh * 0.76 };
-          const nfs = Math.min(sh * 0.52, sw2 * 0.2);
-          if (sh * 0.76 > 8) {
+          // Reserve a dedicated ordinal column; letters must NEVER render
+          // behind the numbered badge. Fits both horizontal and vertical rails.
+          const badgeSize = Math.min(sh * 0.52, sw2 * 0.19);
+          const nb2 = { x: sb.x + sw2 * 0.045,
+                        y: sb.y + (sh - badgeSize) / 2,
+                        w: badgeSize, h: badgeSize };
+          const nfs = badgeSize * 0.65;
+          const contentX = nb2.x + nb2.w + sw2 * 0.04;
+          const contentW = Math.max(12, sb.x + sw2 * 0.98 - contentX);
+          const fs = Math.min(sh * 0.35, contentW / Math.max(4, sText.length * 0.56));
+          if (badgeSize > 8) {
             svgEl('path', { d: roundRectPath(nb2, Math.min(nb2.w, nb2.h) * 0.3) + 'Z', fill: cardFg }, g2);
             const nt = svgEl('text', { x: f2(nb2.x + nb2.w / 2), y: f2(nb2.y + nb2.h / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(nfs), fill: last ? accent : face }, g2);
             nt.textContent = String(i + 1);
           }
-          const t = svgEl('text', { x: f2(sb.x + sw2 / 2), y: f2(sb.y + sh / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
+          const t = svgEl('text', { x: f2(contentX + contentW / 2), y: f2(sb.y + sh / 2), 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs), fill: cardFg }, g2);
           t.textContent = sText.slice(0, 18);
           parts.push({ g: g2, i, cx: sb.x + sw2 / 2, cy: sb.y + sh / 2 });
           if (i < n - 1) {
@@ -2012,17 +2777,68 @@
             parts.push({ arrow: drawable(ap, polyLength(m) * 1.7), i });
           }
         });
-        node.extra.setGrow = (k) => {
+        node.extra.setGrow = (k, lt) => {
           parts.forEach((p) => {
             if (p.g) {
-              const kk = clamp((k - p.i * (0.55 / n)) * (n * 1.4), 0, 1), e = EASE.settle(kk);
+              const kk = node.extra.stageFraction ? node.extra.stageFraction(p.i, lt) : clamp((k - p.i * (0.55 / n)) * (n * 1.4), 0, 1), e = EASE.settle(kk);
               p.g.setAttribute('opacity', f3(kk));
               p.g.setAttribute('transform', `scale(${f3(Math.max(0.001, e))})`);
               p.g.style.transformOrigin = `${f2(p.cx)}px ${f2(p.cy)}px`;
             } else {
-              const kk = clamp((k - (p.i + 0.55) * (0.55 / n)) * (n * 1.4), 0, 1);
+              const kk = node.extra.stageFraction ? node.extra.stageFraction(p.i + 1, lt) : clamp((k - (p.i + 0.55) * (0.55 / n)) * (n * 1.4), 0, 1);
               p.arrow.set(kk);
             }
+          });
+        };
+        node.strike = strikeFor(b);
+        break;
+      }
+      case 'POPULATION_GRID': {
+        // A 100-cell population field is offered only when source part/whole
+        // amounts are an EXACT count of 100 units. No invented dot rounding.
+        // This is a distinct world/population scene, not a counter or donut.
+        const body = chassisBody(node, g);
+        const total = Number(params.total), part = Number(params.part);
+        const selectedCount = Math.round(part * 100 / total);
+        const cols = 10, rows = 10;
+        const u = Math.min(b.w / 13, b.h / 13.5);
+        const stepX = u * 1.17, stepY = u * 1.19, radius = u * 0.20;
+        const x0 = b.x + (b.w - (cols - 1) * stepX - u) / 2;
+        const y0 = b.y + (b.h - (rows - 1) * stepY - u) / 2 - u * 0.3;
+        const dots = [];
+        for (let i = 0; i < rows * cols; i++) {
+          const col = i % cols, row = Math.floor(i / cols);
+          const x = x0 + col * stepX, y = y0 + row * stepY;
+          const bar = { x: x + u * 0.12, y: y + u * 0.12, w: u * 0.76, h: u * 0.76 };
+          svgEl('path', {
+            d: roundRectPath(bar, radius) + 'Z',
+            fill: ink, 'fill-opacity': 0.095,
+            stroke: ink, 'stroke-opacity': 0.24,
+            'stroke-width': f2(sw * 0.36),
+          }, body);
+          if (i < selectedCount) {
+            const highlight = svgEl('path', {
+              d: roundRectPath(bar, radius) + 'Z',
+              fill: accent, 'fill-opacity': 0,
+              stroke: ink, 'stroke-opacity': 0.18,
+              'stroke-width': f2(sw * 0.34),
+            }, body);
+            dots.push(highlight);
+          }
+        }
+        const fs = Math.min(b.w * 0.064, b.h * 0.069);
+        const label = svgEl('text', {
+          x: f2(b.x + b.w / 2), y: f2(b.y + b.h * 0.94),
+          'text-anchor': 'middle', 'font-family': plan.fonts.families.data,
+          'font-size': f2(fs), 'font-weight': '700',
+          fill: ink, 'font-variant-numeric': 'tabular-nums',
+        }, body);
+        label.textContent = part.toLocaleString('en-US') + ' / ' + total.toLocaleString('en-US');
+        node.extra.setGrow = (k) => {
+          dots.forEach((dot, i) => {
+            const q = selectedCount === 1 ? k :
+              clamp((k - i * (0.64 / selectedCount)) * (selectedCount * 1.15), 0, 1);
+            dot.setAttribute('fill-opacity', f3(EASE.settle(clamp(q, 0, 1))));
           });
         };
         node.strike = strikeFor(b);
@@ -2031,7 +2847,18 @@
       case 'PROGRESS': {
         const body = chassisBody(node, g);
         const cardFg = '#181b21', face = mixColor(paper, '#ffffff', 0.55);
+        if (!params.editorial_field) {
         svgEl('path', { d: roundRectPath(b, Math.min(b.w, b.h) * 0.1) + 'Z', fill: face, stroke: ink, 'stroke-width': sw * 0.5, 'stroke-opacity': 0.22 }, body);
+        } else {
+          // Source-driven premium evidence on open paper, not a card widget.
+          const stroke = svgEl('path', {
+            d: `M${f2(b.x)} ${f2(b.y + b.h * 0.015)}
+                  L${f2(b.x + b.w)} ${f2(b.y + b.h * 0.015)}`,
+            stroke: accent, 'stroke-width': f2(sw * 0.8),
+            'stroke-linecap': 'round', fill: 'none'
+          }, body);
+          node.outline.push(drawable(stroke, b.w));
+        }
         const pad = Math.min(b.w, b.h) * 0.16, labelFs = b.h * 0.4;
         const track = { x: b.x + pad, y: b.y + b.h * 0.62, w: b.w - pad * 2, h: b.h * 0.22 };
         svgEl('path', { d: roundRectPath(track, track.h / 2) + 'Z', fill: cardFg, 'fill-opacity': 0.14 }, body);
@@ -2042,7 +2869,21 @@
         lT.textContent = params.left ? String(params.left) : '';
         const rT = svgEl('text', { x: f2(track.x + track.w), y: f2(b.y + pad + labelFs * 0.8), 'text-anchor': 'end', 'font-family': plan.fonts.families.data, 'font-size': f2(labelFs), 'font-weight': '700', fill: accent }, body);
         rT.textContent = params.right ? String(params.right) : `${Math.round(lvl * 100)}%`;
-        node.extra.setGrow = (k) => { fill.style.transform = `scaleX(${f3(Math.max(0.001, EASE.settle(clamp(k * 1.15, 0, 1))))})`; };
+        // The source measurement is a payoff, not the first-frame headline.
+        // DRAW establishes the empty gauge, while the narration-bound GROW
+        // cue reveals both the fill AND exact spoken result. Do not pre-show
+        // a number which the speaker has not reached yet.
+        rT.setAttribute('fill-opacity', '0');
+        node.extra.setGrow = (k, lt) => {
+          // Glyph construction runs before native ops are attached. Read the
+          // cue at frame evaluation, once the compiled animation exists.
+          const measureCue = (node.ops || []).find((op) => op.op === 'GROW');
+          const progress = measureCue
+            ? clamp(prog(lt, measureCue.start_ms, measureCue.end_ms), 0, 1)
+            : clamp(k, 0, 1);
+          fill.style.transform = `scaleX(${f3(Math.max(0.001, EASE.settle(clamp(progress * 1.15, 0, 1))))})`;
+          rT.setAttribute('fill-opacity', f3(clamp((progress - 0.62) / 0.30, 0, 1)));
+        };
         node.strike = strikeFor(b);
         break;
       }
@@ -2081,8 +2922,17 @@
         const lens = svgEl('g', {}, g);
         const lIn = svgEl('g', {}, lens);
         svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: face, 'fill-opacity': 0.94 }, lens);
-        const t2 = svgEl('text', { x: 0, y: 0, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs * zoom), fill: accent, 'clip-path': `url(#${clipId})` }, lIn);
+        const t2 = svgEl('text', { x: 0, y: 0, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-family': plan.fonts.families.data, 'font-weight': '700', 'font-size': f2(fs * zoom), fill: ink, 'clip-path': `url(#${clipId})` }, lIn);
         t2.textContent = t.textContent;
+        // A source-exact focal label remains readable within the travelling
+        // lens; the underlying zoom still animates as a separate scale layer.
+        const focusText = String(params.text || '').slice(0, 36);
+        const focusFs = Math.min(R * 0.40, R * 1.55 / Math.max(5, focusText.length * 0.57));
+        const focusLabel = svgEl('text', { x: 0, y: 0,
+          'text-anchor': 'middle', 'dominant-baseline': 'central',
+          'font-family': plan.fonts.families.data, 'font-weight': '800',
+          'font-size': f2(focusFs), fill: ink }, lens);
+        focusLabel.textContent = focusText;
         svgEl('circle', { cx: 0, cy: 0, r: f2(R), fill: 'none', stroke: ink, 'stroke-width': sw * 0.7 }, lens);
         svgEl('path', { d: `M${f2(R * 0.7)} ${f2(R * 0.7)} L${f2(R * 1.42)} ${f2(R * 1.42)}`, stroke: ink, 'stroke-width': sw * 1.1, 'stroke-linecap': 'round' }, lens);
         node.extra.magLens = lens;
@@ -2156,7 +3006,50 @@
   function buildIllustration(il, plan, beatRoot, opts) {
     const W = plan.canvas.w, H = plan.canvas.h;
     const sw = Math.max(2.5, Math.min(W, H) * 0.0046);
-    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, beatRoot);
+    // A typed Sketch transfer is directed as shots, not a stationary
+    // diagram. A clipped illustration viewport includes its native labels,
+    // while the kinetic spoken text remains fixed on the main beat root.
+    const sourceTransfer = plan.director_style === 'sketch' &&
+      il.entities.some(e => e.params && e.params.narrative_role === 'transferred_payload') &&
+      il.relations.filter(r => r.type === 'flows_to').length >= 2 &&
+      !il.entities.some(e => e.glyph === 'MEDIA');
+    let artRoot = beatRoot, shot = null;
+    if (sourceTransfer) {
+      const bounds = [];
+      for (const ent of il.entities) {
+        bounds.push(ent.bbox);
+        // Source-typed figures and sheets act the sentence rather than
+        // carrying its words as large duplicate captions. Unknown concepts
+        // retain labels and therefore still belong inside the shot bounds.
+        const illustrated = ent.params &&
+          ['person', 'document'].includes(ent.params.visual_class);
+        if (ent.label && ent.label.bbox && !illustrated)
+          bounds.push(ent.label.bbox);
+      }
+      // The full authored visual zone is the Sketch camera's aperture.
+      // A tight union of source boxes was accidentally clipping enlarged
+      // human acting in portrait before it could occupy the native field.
+      // The text zone remains outside this clip; source geometry alone
+      // determines the lens, without per-script camera coordinates.
+      const pad = Math.min(W, H) * 0.011;
+      const field = il.zone;
+      const x0 = field ? Math.max(0, field.x - pad)
+        : Math.max(0, Math.min(...bounds.map(b => b.x)) - pad);
+      const x1 = field ? Math.min(W, field.x + field.w + pad)
+        : Math.min(W, Math.max(...bounds.map(b => b.x + b.w)) + pad);
+      const y0 = field ? Math.max(0, field.y - pad)
+        : Math.max(0, Math.min(...bounds.map(b => b.y)) - pad);
+      const y1 = field ? Math.min(H, field.y + field.h + pad)
+        : Math.min(H, Math.max(...bounds.map(b => b.y + b.h)) + pad);
+      const viewport = el('div', {
+        position: 'absolute', inset: '0', zIndex: '10', pointerEvents: 'none',
+        clipPath: `inset(${f2(y0)}px ${f2(W - x1)}px ${f2(H - y1)}px ${f2(x0)}px)`
+      }, beatRoot);
+      artRoot = el('div', { position: 'absolute', inset: '0',
+        willChange: 'transform', transformOrigin: '0 0' }, viewport);
+      shot = { root: artRoot, viewport: { x: x0, y: y0, w: x1-x0, h: y1-y0 } };
+    }
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, artRoot);
     Object.assign(svg.style, { position: 'absolute', left: '0', top: '0', zIndex: '10', overflow: 'visible', willChange: 'transform' });
     svg.classList.add('em2-illustration');
     const ink = plan.brand.ink, accent = il.accent || ink;
@@ -2176,8 +3069,28 @@
       const g = svgEl('g', { 'data-entity': ent.id }, entLayer);
       g.style.willChange = 'transform, opacity';
       const glyph = buildGlyph(ent, il, plan, g, sw, opts);
+      // Each diagram component is owned by a specific spoken evidence cue.
+      // Do not reveal the next row/bar/actor through a generic scene-wide
+      // progress fraction. The program comes from the single master audio.
+      const sequential = (opsFor.get(ent.id) || []).filter(o => o.op === 'GROW')
+        .sort((a,b) => a.start_ms - b.start_ms);
+      if (plan.director_style === 'dataviz' && sequential.length >= 2) {
+        glyph.extra.stageCues = sequential;
+        glyph.extra.stageFraction = (index, time) => {
+          const cue = sequential[index];
+          if (!cue) return 0;
+          return EASE.outCubic(prog(time, cue.start_ms, Math.max(cue.start_ms + 120, cue.end_ms)));
+        };
+      }
       if (glyph.ready) ready.push(glyph.ready);
-      const label = buildLabel(ent, plan, beatRoot);
+      // Keep semantic/source labels in the compiled plan. For a genuine
+      // illustrated delivery, the source-timed on-screen sentence already
+      // names the pictured people and document: second giant labels make
+      // an otherwise physical action resemble a labelled node diagram.
+      // Unknown/abstract actors keep their indispensable noun labels.
+      const physicalActor = sourceTransfer && ent.params &&
+        ['person', 'document'].includes(ent.params.visual_class);
+      const label = physicalActor ? null : buildLabel(ent, plan, artRoot);
       let media = null;
       if (ent.glyph === 'MEDIA') {
         media = buildMedia({ ...ent.media, bbox: ent.bbox, enter_ms: ent.enter_ms, enter_duration_ms: ent.enter_duration_ms }, plan, beatRoot, opts.assetUrl);
@@ -2189,6 +3102,107 @@
       const settledAt = ent.enter_ms + (ent.enter_duration_ms || 0);
       const blur = motionBlurFilter(opts.fx.defs, `${opts.fx.scope}-mb-${ent.id}`);
       ents.set(ent.id, { ent, g, glyph, label, media, bb: bboxOf(ent.bbox), ops: opsFor.get(ent.id) || [], state: ent.state_in || {}, settledAt, blur });
+    }
+    // A source-typed three-party delivery is a single handoff, not two
+    // independent dotted connection diagrams. Its travel line is drawn on
+    // real sender/payload/recipient geometry, behind all three source nodes.
+    // No invented entities, pictograms or unspoken destination are added.
+    const handoffs = [];
+    if (plan.director_style === 'sketch') {
+      for (const cargo of ents.values()) {
+        if (!cargo.ent.params || cargo.ent.params.narrative_role !== 'transferred_payload') continue;
+        const incoming = il.relations.find((rel) =>
+          rel.type === 'flows_to' && rel.target === cargo.ent.id);
+        const outgoing = il.relations.find((rel) =>
+          rel.type === 'flows_to' && rel.source === cargo.ent.id);
+        if (!incoming || !outgoing) continue;
+        const sender = ents.get(incoming.source), recipient = ents.get(outgoing.target);
+        const receive = (opsFor.get(incoming.id) || []).find((o) => o.op === 'CONNECT');
+        const delivery = (opsFor.get(outgoing.id) || []).find((o) => o.op === 'CONNECT');
+        if (!sender || !recipient || !receive || !delivery ||
+            delivery.start_ms <= receive.start_ms) continue;
+        const geo = sketchHandoffGeometry(sender, cargo, recipient, sw);
+        const route = svgEl('path', {
+          d: 'M' + f2(geo.origin.x) + ' ' + f2(geo.origin.y) +
+            ' Q' + f2((geo.origin.x + geo.stop.x) / 2) + ' ' +
+              f2((geo.origin.y + geo.stop.y) / 2 - geo.bow * 2) +
+            ' ' + f2(geo.stop.x) + ' ' + f2(geo.stop.y),
+          fill: 'none', stroke: accent, 'stroke-width': f2(sw * 1.25),
+          'stroke-linecap': 'round', 'data-action': 'source-handoff-trajectory',
+        }, relLayer);
+        const approx = Math.hypot(geo.stop.x - geo.origin.x,
+          geo.stop.y - geo.origin.y) * 1.03;
+        route.style.strokeDasharray = f2(approx + sw * 3);
+        const receipt = svgEl('circle', {
+          cx: f2(geo.receipt.x), cy: f2(geo.receipt.y),
+          r: f2(geo.handoff ? sw * 3.0 :
+            Math.min(recipient.bb.w, recipient.bb.h) * 0.5 + sw * 1.5),
+          fill: 'none', stroke: accent, 'stroke-width': f2(sw * 0.9),
+          'data-action': 'source-receiver-receipt',
+        }, relLayer);
+        receipt.style.opacity = '0';
+        // Editorial role annotations come from the relation itself; they do
+        // not purport to be literal pictograms of unspecified people.
+        for (const [actor, role] of [[sender, 'FROM'], [recipient, 'TO']]) {
+          // The spoken action already identifies recognizable human
+          // participants. Role labels are only needed for an abstract node.
+          if (actor.ent.params && actor.ent.params.visual_class === 'person') continue;
+          const t = svgEl('text', {
+            x: f2(actor.bb.x + actor.bb.w / 2),
+            y: f2(actor.bb.y - sw * 4.0),
+            'text-anchor': 'middle', fill: ink,
+            'font-size': f2(Math.max(sw * 2.9, 14)),
+            'font-weight': 650,
+            'font-family': plan.fonts.families.text,
+            'letter-spacing': f2(sw * 0.30),
+            'data-action': 'source-transfer-role',
+          }, relLayer);
+          t.textContent = role;
+          t.style.opacity = '0';
+          handoffs.push({ roleLabel: t, actor, cue: role === 'FROM' ? receive : delivery });
+        }
+        handoffs.push({ cargo, sender, recipient, receive, delivery, route, receipt, length: approx, geo });
+      }
+    }
+    // A directional comparison is an authored argument, never decorative
+    // chart furniture. The two literal measured values and an explicitly
+    // supported up/down verb must agree before the compiler emits this cue.
+    let comparisonCue = null;
+    if (plan.director_style === 'dataviz') {
+      const bars = il.entities.filter((ent) => ent.glyph === 'BAR');
+      if (bars.length === 2 && bars[1].params && bars[1].params.change_direction) {
+        const first = bars[0], second = bars[1];
+        const left = bboxOf(first.bbox), right = bboxOf(second.bbox);
+        const direction = second.params.change_direction;
+        const start = {
+          x: left.x + left.w + sw * 2.7,
+          y: left.y + left.h * (1 - first.params.level),
+        };
+        const finish = {
+          x: right.x - sw * 2.7,
+          y: right.y + right.h * (1 - second.params.level),
+        };
+        if (finish.x > start.x + sw * 5) {
+          const pts = [[start.x, start.y], [(start.x + finish.x) / 2, (start.y + finish.y) / 2], [finish.x, finish.y]];
+          const trace = svgEl('path', {
+            d: polyPath(pts), stroke: accent, 'stroke-width': sw * 1.15,
+            fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+            'data-action': direction === 'up' ? 'measured-rise' : 'measured-fall',
+          }, relLayer);
+          const len = polyLength(pts);
+          const drawn = drawable(trace, len);
+          drawn.set(0);
+          const angle = Math.atan2(finish.y - start.y, finish.x - start.x) * 180 / Math.PI;
+          const head = svgEl('path', {
+            d: polyPath([[-sw * 3, -sw * 2], [0, 0], [-sw * 3, sw * 2]]),
+            stroke: accent, 'stroke-width': sw * 1.15, 'stroke-linecap': 'round',
+            'stroke-linejoin': 'round', fill: 'none',
+            transform: `translate(${f2(finish.x)} ${f2(finish.y)}) rotate(${f2(angle)})`,
+          }, relLayer);
+          head.style.opacity = '0';
+          comparisonCue = { target: second.id, drawn, head };
+        }
+      }
     }
     for (const rel of il.relations) {
       const r = { rel, ops: opsFor.get(rel.id) || [], state: rel.state_in || {}, path: null, arrow: null, bar: null, trace: null, strike: null, len: 0 };
@@ -2223,6 +3237,64 @@
         r.trace = svgEl('path', { ...line, d: polyPath(rel.path), stroke: accent, 'stroke-width': sw * 1.3, 'stroke-opacity': 0 }, g);
         r.trace.style.strokeDasharray = `${f2(r.len * 0.18)} ${f2(r.len)}`;
         r.trace.dataset.draw = 'trace';
+        // A semantic flow actually transfers a small payload along the link.
+        // It appears ONLY when the source text authored flows_to.
+        if (rel.type === 'flows_to' && plan.director_style === 'sketch') {
+          r.flowToken = svgEl('circle', {
+            r: f2(sw * 1.85), fill: accent, stroke: plan.brand.paper,
+            'stroke-width': f2(sw * 0.7), 'data-action': 'transfer',
+          }, g);
+          r.flowToken.style.visibility = 'hidden';
+          const destination = rel.path[rel.path.length - 1];
+          r.arrivalRipple = svgEl('circle', { cx: destination[0], cy: destination[1],
+            r: f2(sw * 1.3), fill: 'none', stroke: accent,
+            'stroke-width': f2(sw * 1.35), 'stroke-opacity': 0 }, g);
+        }
+        if (rel.type === 'transforms_into' && plan.director_style === 'sketch') {
+          // Semantic reconfiguration: these are strokes of the existing source
+          // illustration migrating into its named successor, NOT a new object
+          // or a connector. The recipient glyph supplies the finishing shape.
+          const source = ents.get(rel.source), target = ents.get(rel.target);
+          if (source && target) {
+            const morphGroup = svgEl('g', { 'data-action': 'semantic-reconfigure' }, relLayer);
+            const from = source.bb, to = target.bb;
+            r.morphStrokes = Array.from({ length: 3 }, (_, i) => {
+              const row = (i + 1) / 4;
+              const a = [from.x + from.w * 0.24, from.y + from.h * (0.19 + row * 0.40)];
+              const b = [from.x + from.w * (0.45 + (2 - i) * 0.07), a[1]];
+              const c = [to.x + to.w * 0.24, to.y + to.h * (0.12 + row * 0.68)];
+              const d = [to.x + to.w * 0.72, c[1]];
+              const line = svgEl('line', {
+                x1: f2(a[0]), y1: f2(a[1]), x2: f2(b[0]), y2: f2(b[1]),
+                stroke: accent, 'stroke-width': f2(sw * 1.16),
+                'stroke-linecap': 'round', 'stroke-opacity': 0,
+                'data-morph-stroke': String(i),
+              }, morphGroup);
+              return { line, a, b, c, d };
+            });
+          }
+        }
+        if (rel.type === 'compares' && plan.director_style === 'sketch') {
+          // Contrast is a paired, source-bound inspection. Both existing
+          // endpoints respond to the narrated comparison simultaneously;
+          // unlike a transfer, nothing travels from one subject to the other.
+          r.comparisonAck = [rel.path[0], rel.path[rel.path.length - 1]].map((p, i) =>
+            svgEl('circle', {
+              cx: f2(p[0]), cy: f2(p[1]), r: f2(sw * 1.6),
+              fill: 'none', stroke: accent, 'stroke-width': f2(sw * (i ? 1.0 : 1.35)),
+              'stroke-opacity': 0, 'data-action': 'comparison-counterfocus',
+            }, g));
+        }
+        if (rel.type === 'connects' && plan.director_style === 'sketch') {
+          // A connection is bidirectional as a relationship, NOT a narrated
+          // payload transfer. Both known endpoints acknowledge the link.
+          r.connectionAck = [rel.path[0], rel.path[rel.path.length - 1]].map((q) =>
+            svgEl('circle', {
+              cx: f2(q[0]), cy: f2(q[1]), r: f2(sw * 1.5),
+              fill: 'none', stroke: accent, 'stroke-width': f2(sw * 1.15),
+              'stroke-opacity': 0, 'data-action': 'connection-ack',
+            }, g));
+        }
         const m = pointAlong(rel.path, 0.5), k = clamp(r.len * 0.16, sw * 3.2, sw * 6);
         const sp = svgEl('path', { ...line, d: polyPath([[m.x - k, m.y + k], [m.x + k, m.y - k]]), 'stroke-width': sw * 1.35 }, g);
         r.strike = drawable(sp, k * 2.83, 'strike');
@@ -2244,7 +3316,8 @@
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R, fill: ink, 'fill-opacity': 0.045 }, ghost);
       svgEl('circle', { cx: gc.x, cy: gc.y, r: R * 0.74, fill: 'none', stroke: ink, 'stroke-opacity': 0.05, 'stroke-width': sw }, ghost);
     }
-    return { il, svg, ents, rels, sw, accent, ghost, ready: Promise.all(ready) };
+    return { il, svg, ents, rels, sw, accent, ghost, comparisonCue, handoffs, shot,
+      ready: Promise.all(ready) };
   }
 
   // Value of a driven property at beat-local time lt.
@@ -2359,6 +3432,95 @@
     sh.el.style.filter = `drop-shadow(${f2(sh.oy * lean)}px ${f2(sh.oy * lift)}px ${f2(sh.blur * lift)}px rgba(${rgb},${(sh.alpha / lift).toFixed(3)}))`;
   }
 
+  // Derive destination timing from the actual spoken source phrase, not from
+  // noun whitelists or an arbitrary time offset after a visual connector.
+  function sketchSpokenEntity(beat, entity, after) {
+    const tokens = String(entity && entity.ent && entity.ent.label && entity.ent.label.text || '')
+      .toLowerCase().match(/[a-z0-9]+/g) || [];
+    const words = beat.words || [];
+    if (!tokens.length) return null;
+    const norm = (text) => String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (let i = 0; i + tokens.length <= words.length; i++) {
+      if (words[i].start_ms < after) continue;
+      if (tokens.every((t, j) => norm(words[i + j].text) === t))
+        return { start_ms: words[i].start_ms,
+                 end_ms: words[i + tokens.length - 1].end_ms };
+    }
+    return null;
+  }
+
+  // The same source-bound geometry drives the flying object, its ink trail and
+  // its reception marker. Coordinates derive from native layout, not noun lists
+  // or one showcase script. All regions stay inside their illustration field.
+  function sketchReachPoint(node) {
+    // A physically authored human figure can offer/reach. Use the final
+    // gesture endpoint in exactly the same local coordinate system as its
+    // animated arm (no guessed person-specific pose or script exception).
+    const arm = node.glyph && node.glyph.extra && node.glyph.extra.semanticArm;
+    if (!arm || !arm.hand || !arm.shoulder) return null;
+    const angle = -arm.sign * 27 * Math.PI / 180;
+    const dx = arm.hand[0] - arm.shoulder[0];
+    const dy = arm.hand[1] - arm.shoulder[1];
+    return {
+      x: arm.shoulder[0] + Math.cos(angle) * dx - Math.sin(angle) * dy,
+      y: arm.shoulder[1] + Math.sin(angle) * dx + Math.cos(angle) * dy
+    };
+  }
+
+  function sketchHandoffGeometry(sender, cargo, recipient, sw) {
+    const from = centre(sender.bb), home = centre(cargo.bb), to = centre(recipient.bb);
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const horizontal = Math.abs(dx) >= Math.abs(dy);
+    const axis = horizontal ? 'x' : 'y';
+    const sign = Math.sign(horizontal ? dx : dy) || 1;
+    const fromHand = sketchReachPoint(sender), toHand = sketchReachPoint(recipient);
+    const margin = sw * 3.2;
+    let origin, stop, receipt;
+    if (fromHand && toHand) {
+      // In a human-to-human story the paper actually meets the receiver's
+      // extended hand, rather than stopping between the people while the
+      // "delivery" animation pretends otherwise. Cargo stays visible and its
+      // outer edge clears the hand by a small ink gap.
+      // Use the *drawn* cargo silhouette, not the empty outer layout
+      // carrier. A procedural sheet occupies 56% of its source box and ends
+      // at 88% transfer scale. Using half the entire carrier leaves the
+      // document visibly floating away from the recipient's hand.
+      const drawnHalfWidth = cargo.ent.params &&
+        cargo.ent.params.visual_class === 'document'
+        ? Math.min(cargo.bb.w, cargo.bb.h) * 0.56 * 0.5 * 0.88
+        : cargo.bb.w * 0.31;
+      const pad = drawnHalfWidth + sw * 0.85;
+      origin = { x: fromHand.x, y: fromHand.y };
+      stop = { x: toHand.x, y: toHand.y };
+      origin[axis] += sign * pad;
+      stop[axis] -= sign * pad;
+      receipt = toHand;
+    } else {
+      // For a documented sender/recipient without an illustrated body, use
+      // the actual native geometry. No synthetic hand gets invented.
+      origin = {
+        x: home.x + (from.x - home.x) * 0.74,
+        y: home.y + (from.y - home.y) * 0.74,
+      };
+      stop = horizontal
+        ? { x: to.x - sign * ((recipient.bb.w + cargo.bb.w) / 2 + margin), y: to.y }
+        : { x: to.x, y: to.y - sign * ((recipient.bb.h + cargo.bb.h) / 2 + margin) };
+      receipt = to;
+    }
+    const travel = Math.hypot(stop.x - origin.x, stop.y - origin.y);
+    const bow = Math.min(cargo.bb.h * 0.12, travel * 0.06);
+    return { from, home, to, stop, origin, receipt, bow, handoff: !!(fromHand && toHand) };
+  }
+
+  function sketchTransformClock(beat, target, cue) {
+    const begin = cue.start_ms;
+    const named = sketchSpokenEntity(beat, target, begin);
+    const targetStart = named ? named.start_ms : cue.end_ms;
+    const finish = Math.max(cue.end_ms,
+      named ? Math.min(beat.duration_ms, named.end_ms) : begin);
+    return { begin, finish: Math.max(finish, begin + 120), targetStart };
+  }
+
   function applyIllustrationState(ill, lt, beat, ctx) {
     const paper = ctx.brand.paper, ink = ctx.brand.ink, accent = ill.accent;
     const ex = ctx.exitState({ block: { role: 'illustration' } }, lt);
@@ -2375,6 +3537,8 @@
     for (const node of ill.ents.values()) {
       const ent = node.ent, g = node.g, gl = node.glyph;
       const preEntry = lt < ent.enter_ms;
+      node.payloadAbsorbed = false; // seek-safe: no state from a later frame leaks back
+      node.payloadFade = 1;
       g.style.visibility = 'visible';
       const pose = bodyPose(node, lt, ctx.motion);
       const pEnt = pose.pEnt;
@@ -2384,6 +3548,56 @@
       // the benchmark's app-tile arrival; 'settle' is the editorial 94%→100% landing. Opacity
       // is never sprung: it ramps ahead of the body and cannot cross 1.
       let opacity = (pop ? Math.min(1, EASE.outCubic(pEnt) * 1.6) : EASE.outQuint(pEnt)) * dim;
+      // Semantic story staging: a receiver does not visually arrive before
+      // the voice has introduced that source-named receiver. This changes the
+      // information flow of the film, rather than merely decorating a diagram.
+      // If exact speech evidence is absent, preserve the original entrance.
+      let sourceReveal = 1;
+      if (ctx.directorStyle === 'sketch') {
+        // Sketch visuals must be drawn with their literal spoken nouns.
+        // The old early-furniture entry rendered a whole actor/object before
+        // its narrator-owned DRAW command, leaving only static words to move.
+        // Applied equally to people and source-grounded physical objects.
+        const sourceDraw = node.ops.find(o => o.op === 'DRAW' &&
+          o.anchor && typeof o.anchor.word === 'string');
+        const pictured = ent.params && (ent.params.visual_class || ent.asset) ||
+          ['PUMP','TANK','VESSEL','POPULATION_GRID'].includes(ent.glyph);
+        if (pictured && sourceDraw) {
+          sourceReveal = EASE.outCubic(prog(lt,
+            sourceDraw.start_ms - 80, sourceDraw.end_ms));
+        }
+        const incomingHandoff = (ill.handoffs || []).find(h =>
+          h.cargo && h.recipient === node);
+        if (incomingHandoff) {
+          const named = sketchSpokenEntity(beat, node, 0);
+          if (named) {
+            const revealEnd = Math.min(beat.duration_ms,
+              Math.max(named.end_ms, named.start_ms + 180));
+            sourceReveal *= EASE.outCubic(prog(lt, named.start_ms, revealEnd));
+          }
+        }
+      } else if (ctx.directorStyle === 'dataviz') {
+        // A dataset must not be visible before its FIRST spoken datum. The
+        // old scene-wide DRAW could expose all chart furniture when the voice
+        // was still stating the introduction. The graphical stage itself now
+        // enters at the first exact source GROW cue; its bars, rows, points
+        // and comparison sides retain their own individual spoken-stage gates.
+        const itemized = ['DATA_BARS','DATA_TABLE','TIMELINE','FLOW_STEPS',
+                          'VS_CARDS','POPULATION_GRID','PROGRESS'];
+        if (itemized.includes(ent.glyph)) {
+          const firstSource = node.ops.filter(o => o.op === 'GROW' &&
+            Number.isFinite(o.start_ms) &&
+            (o.params && Number.isInteger(o.params.stage_index) ||
+             ent.glyph === 'PROGRESS' || ent.glyph === 'POPULATION_GRID'))
+            .sort((a,b) => a.start_ms - b.start_ms)[0];
+          if (firstSource) {
+            sourceReveal = EASE.outCubic(prog(
+              lt, firstSource.start_ms - 65,
+              Math.max(firstSource.start_ms + 130, firstSource.end_ms - 95)));
+          }
+        }
+      }
+      opacity *= sourceReveal;
       let scale = pose.scale;
       let ty = pose.ty;
       // Idle life once this entity's own program has fully run: a drift whose amplitude shrinks
@@ -2394,6 +3608,219 @@
       const breathe = clamp((gap * 0.3) / Math.max(1, Math.max(node.bb.w, node.bb.h) / 2), 0.004, ctx.motion.breathe);
       const amb = ambientDrift(lt, ent.id, node.settledAt, clamp(gap * 0.35, 0, ctx.motion.idle_amp != null ? ctx.motion.idle_amp : 1.4), breathe);
       let tx = amb.dx; ty += amb.dy; scale *= amb.s;
+      if (ctx.directorStyle === 'sketch') {
+        // Source-authored COMPARISON is not a dotted SEND animation. The two
+        // pictured subjects separate slightly along their actual shared
+        // axis on the spoken connective, then settle opposite one another.
+        // No ranking, numeric size or weight is inferred from the movement.
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.type !== 'compares' ||
+              (rel.rel.source !== ent.id && rel.rel.target !== ent.id)) continue;
+          const cue = rel.ops.find(op => op.op === 'CONNECT');
+          if (!cue) continue;
+          const counterpart = ill.ents.get(rel.rel.source === ent.id
+            ? rel.rel.target : rel.rel.source);
+          if (!counterpart) continue;
+          const from = centre(node.bb), to = centre(counterpart.bb);
+          const dx = from.x - to.x, dy = from.y - to.y;
+          const length = Math.hypot(dx, dy) || 1;
+          const distance = Math.min(node.bb.w, node.bb.h, ill.sw * 10) * 0.055;
+          const contrast = EASE.outCubic(prog(lt, cue.start_ms, cue.end_ms + 250));
+          tx += dx / length * distance * contrast;
+          ty += dy / length * distance * contrast;
+          scale *= 1 + 0.027 * EASE.pulse(prog(lt,
+            cue.start_ms - 50, cue.end_ms + 380));
+        }
+      }
+      let semanticLabelFade = ctx.directorStyle === 'sketch' ? sourceReveal : 1;
+      if (ctx.directorStyle === 'sketch') {
+        // Two authored flow edges through a named, portable object express
+        // source -> payload -> recipient. Move that SAME existing illustration
+        // through the narrated transfer, rather than letting a dot race past
+        // three stationary icons. No extra object or unspoken travel is made.
+        // Fluids, machinery and static concepts deliberately do not qualify.
+        const portable = ent.params && ent.params.narrative_role === 'transferred_payload';
+        if (portable) {
+          const links = [...ill.rels.values()].filter((r) => r.rel.type === 'flows_to');
+          const incoming = links.find((r) => r.rel.target === ent.id);
+          const outgoing = links.find((r) => r.rel.source === ent.id);
+          const receive = incoming && incoming.ops.find((op) => op.op === 'CONNECT');
+          const deliver = outgoing && outgoing.ops.find((op) => op.op === 'CONNECT');
+          const sender = incoming && ill.ents.get(incoming.rel.source);
+          const recipient = outgoing && ill.ents.get(outgoing.rel.target);
+          if (receive && deliver && sender && recipient &&
+              deliver.start_ms > receive.start_ms) {
+            const geometry = sketchHandoffGeometry(sender, node, recipient, ill.sw);
+            const self = geometry.home, origin = geometry.from;
+            const firstEnd = Math.max(receive.end_ms,
+              Math.min(deliver.start_ms, receive.start_ms +
+                Math.max(120, receive.end_ms - receive.start_ms)));
+            const receiverWord = sketchSpokenEntity(beat, recipient, deliver.start_ms);
+            const lastEnd = Math.max(deliver.end_ms,
+              receiverWord ? receiverWord.start_ms : deliver.start_ms + 120);
+            const emerge = EASE.inOutCubic(prog(lt, receive.start_ms, firstEnd));
+            const delivered = EASE.inOutCubic(prog(lt, deliver.start_ms, lastEnd));
+            // Settle at the same geometrically bounded endpoint as the
+            // drawn source-authoritative route. The voice controls arrival.
+            tx += (geometry.origin.x - self.x) * (1 - emerge) +
+              (geometry.stop.x - self.x) * delivered;
+            ty += (geometry.origin.y - self.y) * (1 - emerge) +
+              (geometry.stop.y - self.y) * delivered -
+              Math.sin(Math.PI * delivered) * geometry.bow;
+            scale *= (0.57 + 0.43 * emerge) * (1 - 0.12 * delivered);
+            const visible = EASE.outCubic(prog(lt, receive.start_ms - 40, receive.start_ms + 150));
+            opacity *= visible;
+            semanticLabelFade *= visible;
+            node.payloadAbsorbed = false;
+            node.payloadFade = 1;
+            g.dataset.actionPerformance = 'source-payload-delivered';
+          }
+        }
+        // A source-authored transformation is not a static dotted link.
+        // Carry the existing subject toward its stated new form while that
+        // destination acquires visual presence. No new objects or claims.
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'transforms_into') continue;
+          if (relation.rel.source !== ent.id && relation.rel.target !== ent.id) continue;
+          const cue = relation.ops.find((op) => op.op === 'CONNECT');
+          if (!cue) continue;
+          const receiver = ill.ents.get(relation.rel.target);
+          if (!receiver) continue;
+          const { begin, finish, targetStart } =
+            sketchTransformClock(beat, receiver, cue);
+          const p = EASE.inOutCubic(prog(lt, begin, finish));
+          if (relation.rel.source === ent.id) {
+            const from = centre(node.bb), to = centre(receiver.bb);
+            tx += (to.x - from.x) * 0.70 * p;
+            ty += (to.y - from.y) * 0.70 * p;
+            scale *= 1 - p * 0.18;
+            // Preserve the source until the new named form is about to be
+            // spoken, then make room for it as the ink strokes reconfigure.
+            const fade = 1 - EASE.inOutCubic(prog(lt,
+              targetStart - 250, targetStart + 70));
+            opacity *= fade;
+            semanticLabelFade *= fade;
+          } else {
+            const emerge = EASE.outCubic(prog(lt, targetStart - 140, targetStart + 220));
+            opacity *= emerge;
+            semanticLabelFade *= emerge;
+            scale *= 0.88 + 0.12 * emerge;
+          }
+          break;
+        }
+        // A carrier participates in the transfer. Transporting only pollen
+        // while its bee remains parked misrepresents "the bee carries pollen".
+        // Follow the *same authored* attached payload's outgoing flow cue, so
+        // we do not move unrelated subjects or invent a new action.
+        for (const attachment of ill.rels.values()) {
+          if (attachment.rel.type !== 'connects' || attachment.rel.source !== ent.id) continue;
+          const stick = attachment.ops.find((op) => op.op === 'CONNECT' &&
+            /^(?:sticks?|attaches?)$/i.test(String(op.anchor && op.anchor.word || '')));
+          if (!stick) continue;
+          const cargo = ill.ents.get(attachment.rel.target);
+          if (!cargo) continue;
+          const delivery = [...ill.rels.values()].find((rel) =>
+            rel.rel.type === 'flows_to' && rel.rel.source === cargo.ent.id &&
+            rel.ops.some((op) => op.op === 'CONNECT' && op.start_ms > stick.start_ms));
+          if (!delivery) continue;
+          const carry = delivery.ops.find((op) => op.op === 'CONNECT' && op.start_ms > stick.start_ms);
+          const recipient = ill.ents.get(delivery.rel.target);
+          if (!carry || !recipient) continue;
+          // The source explicitly says the carrier moves with its payload.
+          // Give the flight enough of the spoken clause to be readable, and
+          // bring the same named carrier up to the recipient (not just 64%).
+          const namedArrival = sketchSpokenEntity(beat, recipient, carry.start_ms);
+          const travelEnd = Math.min(beat.duration_ms, Math.max(carry.end_ms,
+            namedArrival ? namedArrival.start_ms : carry.end_ms));
+          const p = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
+          const from = centre(node.bb), to = centre(recipient.bb);
+          // Stop the moving carrier at the intended recipient's silhouette,
+          // not inside its icon card. A bee visits the flower without becoming
+          // indistinguishable from it; the same geometry serves packages,
+          // vehicles and other expressly narrated carrier chains.
+          const dx = to.x - from.x, dy = to.y - from.y;
+          const edgeX = (node.bb.w + recipient.bb.w) / 2 + ill.sw * 1.3;
+          const edgeY = (node.bb.h + recipient.bb.h) / 2 + ill.sw * 1.3;
+          const travelX = Math.sign(dx) * Math.max(0, Math.abs(dx) - edgeX);
+          const travelY = Math.sign(dy) * Math.max(0, Math.abs(dy) - edgeY);
+          tx += travelX * p;
+          ty += travelY * p -
+            Math.sin(Math.PI * p) * node.bb.h * 0.12;
+          scale *= (1 - 0.21 * p) * (1 + Math.sin(Math.PI * p) * 0.045);
+          break;
+        }
+        // Attach-and-carry has a distinct physical grammar from "connects":
+        // the source-mentioned payload moves toward its named host when it
+        // sticks/attaches, and only departs when a later "carries" or "sends"
+        // action explicitly transports it to its next named recipient.
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'connects' || relation.rel.target !== ent.id) continue;
+          const attachment = relation.ops.find((op) => op.op === 'CONNECT' &&
+            /^(?:sticks?|attaches?)$/i.test(String(op.anchor && op.anchor.word || '')));
+          if (!attachment) continue;
+          const host = ill.ents.get(relation.rel.source);
+          if (!host) continue;
+          const from = centre(node.bb), to = centre(host.bb);
+          const cling = EASE.inOutCubic(prog(lt, attachment.start_ms, attachment.end_ms));
+          const attached = { x: (to.x - from.x) * 0.78,
+                             y: (to.y - from.y) * 0.78 };
+          let offsetX = attached.x * cling, offsetY = attached.y * cling;
+          for (const nextLink of ill.rels.values()) {
+            if (nextLink.rel.type !== 'flows_to' || nextLink.rel.source !== ent.id) continue;
+            const carry = nextLink.ops.find((op) => op.op === 'CONNECT' &&
+              op.start_ms > attachment.start_ms);
+            const destination = ill.ents.get(nextLink.rel.target);
+            if (!carry || !destination) continue;
+            const namedArrival = sketchSpokenEntity(beat, destination, carry.start_ms);
+            const travelEnd = Math.min(beat.duration_ms, Math.max(carry.end_ms,
+              namedArrival ? namedArrival.start_ms : carry.end_ms));
+            const arrive = EASE.inOutCubic(prog(lt, carry.start_ms, travelEnd));
+            const target = centre(destination.bb);
+            // Match the named carrier's destination. The carried noun stays
+            // physically close to the subject instead of racing ahead of it.
+            // Cargo keeps its attached position relative to the SAME named
+            // carrier while approaching the recipient, instead of cutting its
+            // own shortcut and separating from the carrier in mid-flight.
+            const home = centre(host.bb);
+            const moveX = Math.sign(target.x - home.x) *
+              Math.max(0, Math.abs(target.x - home.x) -
+                (host.bb.w + destination.bb.w) / 2 - ill.sw * 1.3);
+            const moveY = Math.sign(target.y - home.y) *
+              Math.max(0, Math.abs(target.y - home.y) -
+                (host.bb.h + destination.bb.h) / 2 - ill.sw * 1.3);
+            const cargoEndX = home.x + moveX + (from.x + attached.x - home.x) - from.x;
+            const cargoEndY = home.y + moveY + (from.y + attached.y - home.y) - from.y;
+            offsetX = lerp(attached.x * cling, cargoEndX, arrive);
+            offsetY = lerp(attached.y * cling, cargoEndY, arrive);
+            break;
+          }
+          tx += offsetX; ty += offsetY;
+          scale *= 1 - cling * 0.075;
+          break;
+        }
+      }
+
+      // A spoken delivery makes the receiving object react, rather than just
+      // decorating the connecting line. Applies only to source-authored flow.
+      if (ctx.directorStyle === 'sketch') {
+        for (const relation of ill.rels.values()) {
+          if (relation.rel.type !== 'flows_to' || relation.rel.target !== ent.id) continue;
+          const cue = relation.ops.find((op) => op.op === 'CONNECT');
+          if (!cue) continue;
+          const payload = ill.ents.get(relation.rel.source);
+          const portableCargo = payload && payload.ent.params &&
+            payload.ent.params.narrative_role === 'transferred_payload';
+          const receiverWord = portableCargo
+            ? sketchSpokenEntity(beat, node, cue.start_ms) : null;
+          const arrival = receiverWord ? receiverWord.start_ms : cue.end_ms;
+          const cueDuration = Math.max(120, cue.end_ms - cue.start_ms);
+          const receive = EASE.pulse(prog(lt, arrival - cueDuration * 0.3,
+            arrival + cueDuration * 1.3));
+          scale *= 1 + receive * 0.075;
+          ty -= receive * Math.min(10, node.bb.h * 0.045);
+          break;
+        }
+      }
       // Directional entrance: a pop-entrance body also travels in from an
       // off-position seeded by its id — arrivals read as trajectories, not a
       // row of identical scale-ups.
@@ -2445,20 +3872,233 @@
       const inkLevel = clamp(Math.max(inkP.v, swap.v >= 0.5 ? swap.v : 0), 0, 1);
       for (const e of gl.inkEls) {
         if (e === gl.extra.wordHost) {
-          const onDark = (ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent));
-          for (const t of e.querySelectorAll('text')) t.setAttribute('fill', onDark ? paper : ink);
+          const sketchInk = ctx.directorStyle === 'sketch' && ent.glyph === 'TILE';
+          const onDark = (ent.params && ent.params.tone === 'dark') ||
+            (!sketchInk && inkLevel > 0.5 && (inkP.accent || swap.accent));
+          for (const t of e.querySelectorAll('text'))
+            t.setAttribute('fill', onDark ? paper : ink);
         } else if (e === gl.extra.iconHost) {
-          const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') && ((ent.params && ent.params.tone === 'dark') || (inkLevel > 0.5 && (inkP.accent || swap.accent)));
-          // Brand marks paint in their brand hex on light bodies; enamel tiles keep a light glyph on dark bodies and accent fills.
+          const sketchInk = ctx.directorStyle === 'sketch' && ent.glyph === 'TILE';
+          const onDark = (ent.glyph === 'TILE' || ent.glyph === 'BADGE') &&
+            ((ent.params && ent.params.tone === 'dark') ||
+              (!sketchInk && inkLevel > 0.5 && (inkP.accent || swap.accent)));
+          // In drawn-paper Sketch the source icon itself receives emphasis,
+          // instead of turning every framed illustration into a blue button.
           if (e.dataset.brandHex) e.style.color = onDark ? paper : e.dataset.brandHex;
+          else if (sketchInk && !onDark)
+            e.style.color = (inkLevel > 0.5 && (inkP.accent || swap.accent)) ? accent : ink;
           else if (ent.glyph === 'TILE' || ent.glyph === 'BADGE') e.style.color = onDark ? paper : ink;
           else e.style.color = inkLevel > 0.5 ? (inkP.accent || swap.accent ? accent : ink) : ink;
         }
         else { e.setAttribute('fill', inkP.accent || swap.accent ? accent : ink); e.setAttribute('fill-opacity', inkLevel.toFixed(4)); }
       }
       if (gl.extra.setFill) { const f = propAt(node, 'fill', lt); gl.extra.setFill(f.v, f.accent); }
-      if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v);
-      else if (ent.glyph !== 'BAR' && ent.glyph !== 'CHART_LINE') { const gr = propAt(node, 'grow', lt).v; if (gr !== 1) scale *= gr; }
+      // Semantic physical performances are time-bound to the source-authored
+      // action connecting these bodies. Unspoken items remain perfectly still.
+      if (gl.extra.pumpRotor) {
+        let turn = 0;
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.source !== ent.id || rel.rel.type !== 'flows_to') continue;
+          const cue = rel.ops.find((op) => op.op === 'CONNECT');
+          if (cue) turn = Math.max(turn, 180 * EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms)));
+        }
+        const rotor = gl.extra.pumpRotor;
+        rotor.group.setAttribute('transform', `rotate(${f2(turn)} ${f2(rotor.cx)} ${f2(rotor.cy)})`);
+      }
+      if (gl.extra.sourceListRows && ctx.directorStyle === 'sketch') {
+        const entry = node.ops.find(o => o.op === 'DRAW');
+        const p = entry ? prog(lt,entry.start_ms,entry.end_ms) : 1;
+        gl.extra.sourceListRows.forEach((row,i,all) => {
+          // Reveal sequential visual structure across the native DRAW cue.
+          // The illustration contains no invented written content.
+          row.style.opacity = EASE.outCubic(clamp(p * all.length - i,0,1)).toFixed(4);
+        });
+      }
+      if (gl.extra.semanticArm && ctx.directorStyle === 'sketch') {
+        // Human drawings respond to authored motion semantics. A sender
+        // offers on the first outbound CONNECT, a receiver reaches on the
+        // incoming CONNECT. No script verbs or hand-placed keyframe seconds.
+        const arm = gl.extra.semanticArm;
+        const relation = [...ill.rels.values()].find(r =>
+          r.rel.type === 'flows_to' &&
+          (arm.isSending && r.rel.source === ent.id ||
+           arm.isReceiving && r.rel.target === ent.id));
+        const cue = relation && relation.ops.find(o => o.op === 'CONNECT');
+        const lift = cue ? EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms)) : 0;
+        const angle = -arm.sign * 27 * lift;
+        arm.group.setAttribute('transform',
+          `rotate(${f2(angle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+        // The source-directed actor visually attends to the other participant
+        // as the annotated hand moves. It is not an autonomous idle head bob:
+        // the same narrated CONNECT cue gates the head's subtle turn.
+        if (arm.face) arm.face.setAttribute('transform',
+          `rotate(${f2(arm.sign * 9 * lift)} ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
+        // Sketchbook-inspired IDLE -> action -> settle actor state.
+        // We adapt the state grammar, NOT its 3D physics or rig. Never make
+        // an actor gesture for a verb not attached to its exact source noun.
+        const actorCues = node.ops.filter(o => o.op === 'SETTLE' &&
+          o.params && o.params.actor_action === true)
+          .sort((a,b) => a.start_ms - b.start_ms);
+        // Select the LAST action whose spoken verb has arrived. Future
+        // gestures must never be previewed early; the old .find() always
+        // performed the first action, even while narrating a second one.
+        const actorCue = actorCues.filter(o => lt >= o.start_ms).slice(-1)[0];
+        if (actorCue) {
+          // Sketchbook-style semantic state lifecycle: IDLE -> spoken action
+          // -> IDLE. A gait/gesture must not continue long after the narrator
+          // moves on to the next thought. Fully deterministic at any seek time.
+          const progress = clamp(prog(lt, actorCue.start_ms, actorCue.end_ms), 0, 1);
+          const act = (actorCue.params && actorCue.params.actor_state) ||
+            arm.state;
+          const locomotion = act === 'WALK' || act === 'RUN';
+          // Sketchbook-style separate start, active, end phases. All phases
+          // derive from the actual voice word cue, and are seek-deterministic.
+          // A leg never instantly swings from idle at the first voiced phoneme.
+          const attackEnd = locomotion ? 0.18 : 0.24;
+          const releaseStart = locomotion ? 0.79 : 0.75;
+          const phaseIn = EASE.inOutCubic(clamp(progress / attackEnd, 0, 1));
+          const phaseOut = 1 - EASE.inOutCubic(
+            clamp((progress - releaseStart) / (1 - releaseStart), 0, 1));
+          const pulse = phaseIn * phaseOut;
+          const delta = Math.max(0, lt - actorCue.start_ms);
+          // Sketchbook-style controller: one explicit anticipation, action
+          // and deceleration sequence. Locomotion has a physical travelled
+          // distance and a counter-swinging arm; gestures stay at their
+          // original world position. No autonomous looping or motion guessed
+          // from the script's general subject.
+
+          const armAngle = ({
+            OFFER: -29, RECEIVE: -19, INSPECT: -12,
+            PRESENT: -38, POINT: -46, AGREE: -7,
+            LISTEN: -5, TURN: 0, WALK: 0, RUN: 0, JUMP: 0,
+            WAVE: -58, WRITE: 24, LIFT: -54, STOP: -43,
+            CONNECT: -42, REPAIR: 20, TEST: -34,
+            ASK: -25, SHRUG: 12, CLAP: -36
+          })[act] || 0;
+          const actionOscillation = (act === 'WAVE'
+            ? Math.sin(delta / 95) * 11 * pulse :
+              act === 'WRITE' ? Math.sin(delta / 115) * 6 * pulse : 0);
+          const gaitSwing = locomotion
+            ? Math.sin(Math.max(0, delta - (actorCue.end_ms -
+              actorCue.start_ms) * attackEnd) /
+              (act === 'RUN' ? 76 : 125)) * (act === 'RUN' ? 16 : 11) * pulse
+            : 0;
+          const gestureAngle = -arm.sign * 27 * lift +
+            arm.sign * (armAngle * pulse + actionOscillation + gaitSwing);
+          if (arm.counterArm) {
+            const opposite = -gaitSwing * .86 +
+              (act === 'PRESENT' ? -18 : act === 'AGREE' ? 5 :
+               act === 'JUMP' ? -28 : act === 'STOP' ? -16 :
+               act === 'CONNECT' ? -11 : act === 'REPAIR' ? 14 :
+               act === 'TEST' ? -12 : act === 'ASK' ? -22 :
+               act === 'SHRUG' ? 24 : act === 'CLAP' ? -39 : 0) * pulse;
+            arm.counterArm.setAttribute('transform',
+              `rotate(${f2(arm.sign * opposite)}
+                ${f2(arm.counterShoulder[0])} ${f2(arm.counterShoulder[1])})`);
+          }
+          arm.group.setAttribute('transform',
+            `rotate(${f2(gestureAngle)} ${f2(arm.shoulder[0])} ${f2(arm.shoulder[1])})`);
+          // Separate finger, palm and emphatic-motion details are gated to
+          // their own spoken state. No visual hint appears before the word.
+          if (arm.handPoint) arm.handPoint.setAttribute('opacity', f3(
+            (act === 'POINT' || act === 'CONNECT' || act === 'INSPECT' ||
+             act === 'TEST') ? pulse : 0));
+          if (arm.handPalm) arm.handPalm.setAttribute('opacity', f3(
+            (act === 'OFFER' || act === 'RECEIVE' || act === 'PRESENT' ||
+             act === 'WAVE' || act === 'SHRUG' || act === 'ASK') ? pulse : 0));
+          if (arm.waveLines) arm.waveLines.setAttribute('opacity', f3(
+            (act === 'WAVE' || act === 'CLAP') ?
+            pulse * (.55 + .45 * Math.abs(Math.sin(delta / 90))) : 0));
+          const focusAngle = (act === 'INSPECT' ? 9 :
+            act === 'AGREE' ? Math.sin(delta / 90) * 8 :
+            act === 'PRESENT' ? -5 : act === 'POINT' ? -9 :
+            act === 'LISTEN' ? 7 : act === 'TURN' ? 15 :
+            act === 'RECEIVE' ? -4 :
+            act === 'WRITE' ? 11 :
+            act === 'LIFT' ? -6 :
+            act === 'WAVE' ? -5 :
+            act === 'STOP' ? 3 : act === 'CONNECT' ? -7 :
+            act === 'REPAIR' ? 9 : act === 'TEST' ? 11 :
+            act === 'ASK' ? -10 : act === 'SHRUG' ? -6 :
+            act === 'CLAP' ? -3 : 0);
+          if (arm.face) arm.face.setAttribute('transform',
+            `rotate(${f2(arm.sign * 9 * lift + focusAngle * pulse)}
+              ${f2(arm.headPivot[0])} ${f2(arm.headPivot[1])})`);
+          if (arm.legs) {
+            arm.legs.forEach((leg,i) => {
+              // Opposed left/right hip swing during the active gait only.
+              // Ease both into a neutral, planted stance before releasing to
+              // the next narrated object or sentence.
+              const activeMs = Math.max(0, lt - actorCue.start_ms -
+                (actorCue.end_ms - actorCue.start_ms) * attackEnd);
+              const walkCycle = Math.sin(activeMs / 125 + i*Math.PI) * 15;
+              const runCycle = Math.sin(activeMs / 76 + i*Math.PI) * 23;
+              const gait = (act === 'WALK' ? walkCycle :
+                act === 'RUN' ? runCycle :
+                act === 'JUMP' ? (i===0 ? -11 : 11) : 0) * pulse;
+              leg.group.setAttribute('transform',
+                `rotate(${f2(gait)} ${f2(leg.hip[0])} ${f2(leg.hip[1])})`);
+            });
+          }
+          // Move the whole source actor by a tiny, contained amount, not just
+          // one wrist. The recovered character retains its exact proportions.
+          if (arm.portrait) {
+            const unit = arm.motionUnit || 120;
+            const liftY = act === 'JUMP' ? -unit * 0.078 * pulse :
+              act === 'RUN' ? -unit * 0.013 * Math.abs(Math.sin(delta/76)) * pulse :
+              act === 'WALK' ? -unit * 0.008 * Math.abs(Math.sin(delta/125)) * pulse : 0;
+            // Integrate motion across every earlier voiced locomotion cue.
+            // A character who walks, then waves stays at the walked-to
+            // location; it must not snap home at the second spoken verb.
+            const travelX = actorCues.reduce((sum, cue) => {
+              const state = cue.params && cue.params.actor_state;
+              if (state !== 'WALK' && state !== 'RUN') return sum;
+              const duration = Math.max(1, cue.end_ms - cue.start_ms);
+              const position = clamp((lt - cue.start_ms) / duration, 0, 1);
+              const ease = EASE.inOutCubic(clamp((position - .07) / .79, 0, 1));
+              return sum + (state === 'RUN' ? unit * .16 : unit * .095) * ease;
+            }, 0) * arm.sign;
+            // Whole-body displacement and feet share a single transform;
+            // direction follows the already source-grounded nearby actor.
+            arm.portrait.setAttribute('transform',
+              `translate(${f2(travelX)} ${f2(liftY)})`);
+          }
+        } else {
+          // Addressable first frames and random seek positions start at IDLE.
+          // No inherited transform from a previously rendered time sample.
+          if (arm.handPoint) arm.handPoint.setAttribute('opacity', '0');
+          if (arm.handPalm) arm.handPalm.setAttribute('opacity', '0');
+          if (arm.waveLines) arm.waveLines.setAttribute('opacity', '0');
+          if (arm.counterArm) arm.counterArm.removeAttribute('transform');
+          if (arm.legs) arm.legs.forEach(leg => leg.group.removeAttribute('transform'));
+          if (arm.portrait) arm.portrait.removeAttribute('transform');
+        }
+      }
+      if (gl.extra.tankWater) {
+        let level = 0;
+        for (const rel of ill.rels.values()) {
+          if (rel.rel.target !== ent.id || rel.rel.type !== 'flows_to') continue;
+          const cue = rel.ops.find((op) => op.op === 'CONNECT');
+          if (cue) level = Math.max(level, EASE.inOutCubic(prog(lt, cue.start_ms, cue.end_ms + 260)));
+        }
+        const tank = gl.extra.tankWater;
+        const h = (tank.y1 - tank.y0) * 0.48 * level;
+        tank.fill.setAttribute('y', f2(tank.y1 - h));
+        tank.fill.setAttribute('height', f2(h));
+      }
+      if (gl.extra.setGrow) gl.extra.setGrow(propAt(node, 'grow', lt).v, lt);
+      if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
+        const dataCue = node.ops.find((o) => o.op === 'GROW');
+        const reveal = dataCue ? EASE.outCubic(prog(lt, dataCue.start_ms - 190, dataCue.start_ms + 120)) : 0;
+        for (const el of [gl.extra.barAxis, gl.extra.barBody, gl.extra.barInk]) {
+          if (el) el.style.opacity = reveal.toFixed(4);
+        }
+      }
+      if (gl.extra.setFirstPointVisible) {
+        const firstObservation = node.ops.find((op) => op.op === 'GROW' && op.params && op.params.point_index === 0);
+        gl.extra.setFirstPointVisible(Boolean(firstObservation && lt >= firstObservation.start_ms));
+      }
+      else if (!gl.extra.setGrow && ent.glyph !== 'BAR' && ent.glyph !== 'CHART_LINE') { const gr = propAt(node, 'grow', lt).v; if (gr !== 1) scale *= gr; }
       if (gl.count.length > 1) {
         const c = propAt(node, 'count', lt).v;
         gl.count.forEach((item, i) => {
@@ -2533,7 +4173,7 @@
       if (gl.extra.shadow) castShadow(gl.extra.shadow, pose.cx + tx, pose.cy, ctx.canvas, pEnt, ctx.shadowRgb);
       // Connectors read these: a link is only as present as the bodies it joins, and it follows
       // them — the live offset of the body's centre from its laid-out box.
-      node.presence = preEntry ? 0 : dim;
+      node.presence = preEntry ? 0 : dim * sourceReveal;
       node.offset = { dx: pose.carry.dx + tx, dy: pose.carry.dy + ty };
       if (node.label) {
         const ls = node.label.wrap.style;
@@ -2541,13 +4181,23 @@
         // Secondary motion: the label trails its body's arrival by the profile's lag, then rides
         // the same carry path so it never sits at the destination while the body is travelling.
         const lagged = ctx.motion.label_lag_ms > 0 && pEnt < 1 ? bodyPose(node, lt - ctx.motion.label_lag_ms, ctx.motion) : pose;
-        const labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1);
+        let labelOpacity = (pop ? Math.min(1, EASE.outCubic(lagged.pEnt) * 1.6) : EASE.outQuint(lagged.pEnt)) * dim * (ex ? ex.opacity : 1) * semanticLabelFade * sourceReveal;
+        // An actual measured bar carries its value and "before / after"
+        // label, so neither may appear until the voice reaches that datum.
+        if (ctx.directorStyle === 'dataviz' && ent.glyph === 'BAR') {
+          const op = node.ops.find((x) => x.op === 'GROW');
+          labelOpacity *= op
+            ? EASE.outCubic(prog(lt, op.start_ms - 50, op.start_ms + 210))
+            : 0;
+        }
         // A chassis label belongs to its housing: it fades in with the DRAW, not ahead of it.
         ls.opacity = clamp(gl.extra.chassis ? labelOpacity * clamp(draw, 0, 1) : labelOpacity, 0, 1).toFixed(4);
         const shift = carryLabelShift(node, pose.carry);
         const lScale = lagged.scale * amb.s;
         ls.transform = `translate(${f2(shift.x + tx)}px, ${f2(ty - pose.ty + lagged.ty + shift.y)}px) scale(${lScale.toFixed(4)})`;
-        node.label.text.style.color = node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
+        node.label.text.style.color = (ctx.directorStyle === 'sketch' && ent.glyph === 'PILL')
+          ? ((inkLevel > 0.5 && (inkP.accent || swap.accent)) ? accent : ink)
+          : node.label.inside && (inkLevel > 0.5 || ent.glyph === 'CHIP') ? paper : ink;
       }
       if (node.media) {
         applyMediaState(node.media, lt, beat, ctx, {
@@ -2563,6 +4213,128 @@
         if (node.label) node.label.wrap.style.visibility = 'hidden';
         if (node.media) node.media.frame.style.visibility = 'hidden';
       }
+    }
+    // Three directed camera shots follow authored causal events: a closer
+    // initial introduction to the sender, a clean overview while the named
+    // thing travels, then a closer receipt at the spoken destination.
+    // Zoom affects illustration AND labels as one group; headline timing and
+    // source narration do not move. The viewport clips off-stage art instead
+    // of allowing a zoomed subject to collide with the spoken sentence.
+    if (ill.shot) {
+      const h = (ill.handoffs || []).find(item => item.cargo && item.sender && item.recipient);
+      const viewport = ill.shot.viewport;
+      if (h) {
+        const mid = { x:viewport.x+viewport.w/2, y:viewport.y+viewport.h/2 };
+        const init = centre(h.sender.bb);
+        const finish = centre(h.recipient.bb);
+        const enter = EASE.inOutCubic(prog(lt, h.receive.start_ms,
+          Math.max(h.receive.end_ms, h.delivery.start_ms)));
+        const arriveWord = sketchSpokenEntity(beat, h.recipient, h.delivery.start_ms);
+        const arrival = arriveWord ? arriveWord.start_ms : h.delivery.end_ms;
+        const ending = EASE.inOutCubic(prog(lt, arrival,
+          Math.max(arrival + 140, h.delivery.end_ms)));
+        // Frame source-known performers against the available visual zone.
+        // A tall phone canvas deserves a real illustrated close-up rather
+        // than a tiny actor floating in a large empty area. Recalculate for
+        // any authored human scale, aspect and story, and let the narrated
+        // transfer pull back to a full two-party overview.
+        const actorHeight = Math.max(h.sender.bb.h, h.recipient.bb.h, 1);
+        const closeScale = clamp(viewport.h * 0.59 / actorHeight, 1.30, 2.08);
+        // Shot safety is geometry-led, not a hardcoded 2.08x camera crop.
+        // Fit the ACTUAL painted actor and any source-owned caption inside
+        // the viewport, including in portrait. A dramatic close-up that cuts
+        // off the face/hands/label is worse than a fully legible medium shot.
+        const subjectFit = (node) => {
+          const b = node.bb, l = node.label && node.ent.label &&
+            node.ent.label.bbox;
+          const x0 = l ? Math.min(b.x,l.x) : b.x;
+          const y0 = l ? Math.min(b.y,l.y) : b.y;
+          const x1 = l ? Math.max(b.x+b.w,l.x+l.w) : b.x+b.w;
+          const y1 = l ? Math.max(b.y+b.h,l.y+l.h) : b.y+b.h;
+          const safeW = viewport.w * 0.93, safeH = viewport.h * 0.93;
+          return Math.max(1, Math.min(closeScale,
+            safeW / Math.max(1,x1-x0),
+            safeH / Math.max(1,y1-y0)));
+        };
+        const openingScale = subjectFit(h.sender), overviewScale = 1.005,
+          endingScale = subjectFit(h.recipient);
+        const scale = lerp(lerp(openingScale, overviewScale, enter),
+          endingScale, ending);
+        const focalX = lerp(lerp(init.x, mid.x, enter), finish.x, ending);
+        const focalY = lerp(lerp(init.y, mid.y, enter), finish.y, ending);
+        let dx = mid.x - scale * focalX;
+        let dy = mid.y - scale * focalY;
+        // The centre of the hand-drawn person is NOT the centre of their
+        // native label. Clamp the lens against both painted body and
+        // source-name box, or the close shot cuts the person's name in half.
+        // While framing the overall exchange the authored spatial layout
+        // stays untouched. Only close shots receive focal safety limits.
+        const subject = ending > 0.30 ? h.recipient :
+          enter < 0.70 ? h.sender : null;
+        if (subject) {
+          const b = subject.bb;
+          const label = subject.label && subject.ent.label &&
+            subject.ent.label.bbox;
+          const ext = label ? {
+            x: Math.min(b.x, label.x), y: Math.min(b.y, label.y),
+            w: Math.max(b.x + b.w, label.x + label.w) - Math.min(b.x, label.x),
+            h: Math.max(b.y + b.h, label.y + label.h) - Math.min(b.y, label.y),
+          } : b;
+          const safe = Math.max(5, Math.min(viewport.w, viewport.h) * 0.012);
+          const minX = viewport.x + safe - scale * ext.x;
+          const maxX = viewport.x + viewport.w - safe - scale * (ext.x + ext.w);
+          const minY = viewport.y + safe - scale * ext.y;
+          const maxY = viewport.y + viewport.h - safe - scale * (ext.y + ext.h);
+          if (minX <= maxX) dx = clamp(dx, minX, maxX);
+          if (minY <= maxY) dy = clamp(dy, minY, maxY);
+        }
+        ill.shot.root.style.transform =
+          `translate(${f2(dx)}px, ${f2(dy)}px) scale(${scale.toFixed(5)})`;
+      } else ill.shot.root.style.transform = 'none';
+    }
+    // The single source->cargo->recipient performance is evaluated directly
+    // from narration cues. It is seek-safe and contains no per-script timing.
+    for (const handoff of ill.handoffs || []) {
+      if (handoff.roleLabel) {
+        const named = sketchSpokenEntity(beat, handoff.actor, 0);
+        const begin = named ? named.start_ms : handoff.cue.start_ms;
+        const finish = named ? Math.min(beat.duration_ms, Math.max(named.end_ms,
+          named.start_ms + 180)) : handoff.cue.end_ms;
+        const entered = EASE.outCubic(prog(lt, begin, finish));
+        handoff.roleLabel.style.opacity = (0.55 * entered).toFixed(4);
+        continue;
+      }
+      const { delivery, route, receipt, geo } = handoff;
+      const named = sketchSpokenEntity(beat, handoff.recipient, delivery.start_ms);
+      const finish = Math.max(delivery.end_ms,
+        named ? named.start_ms : delivery.start_ms + 120);
+      const progress = EASE.inOutCubic(prog(lt, delivery.start_ms, finish));
+      const inkProgress = progress;
+      const total = handoff.length + ill.sw * 3;
+      route.style.strokeDashoffset = f2(total * (1 - inkProgress));
+      // A genuinely illustrated hand-to-hand exchange should read through
+      // body performance and the physically travelling source document, not
+      // a neon chart line. Keep a quiet movement trace for drawn hands;
+      // abstract transfers retain the more legible editorial trajectory.
+      route.style.opacity = (geo.handoff
+        ? (0.025 + inkProgress * 0.075) : (0.20 + inkProgress * 0.48)).toFixed(4);
+      if (lt < delivery.start_ms) route.style.opacity = '0';
+      const response = EASE.pulse(prog(lt, finish - 0.15 * (finish - delivery.start_ms),
+        finish + Math.max(120, delivery.end_ms - delivery.start_ms)));
+      receipt.style.opacity = (0.48 * response).toFixed(4);
+      const baseRadius = geo.handoff ? ill.sw * 3.0 :
+        Math.min(handoff.recipient.bb.w, handoff.recipient.bb.h) * 0.48 + ill.sw * 1.7;
+      receipt.setAttribute('r', f2(baseRadius * (1 + response * 1.15)));
+    }
+    // A source-verified change arrow follows the second actual bar value.
+    // It cannot show while only the baseline has been mentioned.
+    if (ill.comparisonCue) {
+      const cue = ill.comparisonCue;
+      const second = ill.ents.get(cue.target);
+      const op = second && second.ops.find((item) => item.op === 'GROW');
+      const k = op ? EASE.inOutCubic(prog(lt, op.start_ms, op.end_ms)) : 0;
+      cue.drawn.set(k);
+      cue.head.style.opacity = (k >= 0.99 ? 0.90 : 0).toFixed(3);
     }
     for (const r of ill.rels.values()) {
       if (!r.path) continue;
@@ -2582,12 +4354,118 @@
       // A link between an absent or dimmed body and anything else is a stray line: it inherits
       // the weaker endpoint's presence.
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
-      if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
+      if (endA && endB) {
+        const presenceA = endA.presence == null ? 1 : endA.presence;
+        const presenceB = endB.presence == null ? 1 : endB.presence;
+        opacity *= Math.min(presenceA, presenceB);
+        // Tiny residual line fragments are still visually detectable while
+        // the destination is just emerging/disappearing. For a narrative
+        // connector, *both* subjects must be legibly present or it is orphaned.
+        // This hysteresis-free predicate works for seeking in either direction.
+        if (ctx.directorStyle === 'sketch') {
+          const paintedA = Number(endA.g.style.opacity);
+          const paintedB = Number(endB.g.style.opacity);
+          // A body fading out at an actual scene handoff can still have
+          // sourceReveal=1: prior "presence" didn't include ex.opacity.
+          // Gate connectors by the exact rendered endpoint alpha as well,
+          // including transition masks, not just by their source stage.
+          if (Math.min(presenceA, presenceB) < 0.70 ||
+              !Number.isFinite(paintedA) || !Number.isFinite(paintedB) ||
+              Math.min(paintedA, paintedB) < 0.28) opacity = 0;
+        }
+      }
+      if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to' &&
+          (endA && endA.ent.params && endA.ent.params.narrative_role === 'transferred_payload' ||
+           endB && endB.ent.params && endB.ent.params.narrative_role === 'transferred_payload')) {
+        // Typed handoffs have a single authoritatively drawn travel route;
+        // suppress old doubled dotted connectors, not unrelated flow links.
+        opacity = 0;
+      }
+      if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to') {
+        // A transfer edge belongs to its source-authored payload. Once that
+        // payload is absorbed by the receiving body, neither incoming nor
+        // outgoing temporary connector may survive as an orphan line. Keep
+        // the exact same ease as the departing body for deterministic scrubs.
+        if (endA) opacity *= endA.payloadFade == null ? 1 : endA.payloadFade;
+        if (endB) opacity *= endB.payloadFade == null ? 1 : endB.payloadFade;
+      }
+      // Sketch transformations are performed by the moving source and the
+      // emerging destination. The connector remains semantic for the compiler
+      // but does not visually masquerade as a transfer or static relationship.
+      if (ctx.directorStyle === 'sketch' && rel.type === 'transforms_into') opacity = 0;
       s.opacity = opacity.toFixed(4);
       // Re-tension: the link follows its bodies. A similarity transform maps the laid-out
       // endpoints onto the bodies' live centres, so a carried or drifting body never leaves
       // its connector behind.
       r.g.setAttribute('transform', retension(rel.path, endA && endA.offset, endB && endB.offset));
+      if (r.morphStrokes) {
+        const cue = r.ops.find((op) => op.op === 'CONNECT');
+        const receiver = ill.ents.get(rel.target);
+        if (cue && receiver) {
+          const { begin, finish } = sketchTransformClock(beat, receiver, cue);
+          r.morphStrokes.forEach((stroke, i) => {
+            const p = EASE.inOutCubic(prog(lt, begin + 80 * i, finish - 45 * (2 - i)));
+            const coords = [
+              ['x1', stroke.a[0], stroke.c[0]],
+              ['y1', stroke.a[1], stroke.c[1]],
+              ['x2', stroke.b[0], stroke.d[0]],
+              ['y2', stroke.b[1], stroke.d[1]],
+            ];
+            coords.forEach(([attribute, from, to]) =>
+              stroke.line.setAttribute(attribute, f2(lerp(from, to, p))));
+            const visible = lt >= begin + 80 * i && lt <= finish
+              ? 0.60 * EASE.pulse(prog(lt, begin + 80 * i, finish))
+              : 0;
+            stroke.line.style.strokeOpacity = visible.toFixed(3);
+          });
+        } else {
+          r.morphStrokes.forEach((item) => { item.line.style.strokeOpacity = '0'; });
+        }
+      }
+      if (r.flowToken) {
+        const action = r.ops.find((op) => op.op === 'CONNECT');
+        const start = action ? action.start_ms : rel.enter_ms;
+        const end = action ? Math.max(start + 520, action.end_ms + 160) : rel.enter_ms + 700;
+        // A real source-named payload performs the transit itself. Do not
+        // add an unexplained anonymous blue token that duplicates its trip.
+        const movingCargo = [endA, endB].some((n) =>
+          n && n.ent.params && n.ent.params.narrative_role === 'transferred_payload');
+        const moving = !movingCargo && lt >= start && lt <= end && opacity > 0.08;
+        const p = EASE.inOutCubic(prog(lt, start, end));
+        const at = pointAlong(rel.path, p);
+        r.flowToken.setAttribute('cx', f2(at.x));
+        r.flowToken.setAttribute('cy', f2(at.y));
+        r.flowToken.style.visibility = moving ? 'visible' : 'hidden';
+        r.flowToken.style.opacity = (Math.min(1, prog(lt, start, start + 100) * 2, (1 - prog(lt, end - 140, end)) * 2)).toFixed(3);
+        if (r.arrivalRipple) {
+          const rp = prog(lt, end - 130, end + 430);
+          const living = !movingCargo && lt >= end - 130 && lt <= end + 430 && opacity > 0.08;
+          r.arrivalRipple.setAttribute('r', f2(ill.sw * (1.4 + rp * 5.6)));
+          r.arrivalRipple.style.strokeOpacity = living ? (0.52 * (1 - rp)).toFixed(3) : '0';
+        }
+      }
+      if (r.comparisonAck) {
+        const cue = r.ops.find(op => op.op === 'CONNECT');
+        const start = cue ? cue.start_ms : rel.enter_ms;
+        const end = cue ? Math.max(start + 620, cue.end_ms + 320) : start + 660;
+        const focus = prog(lt, start, end);
+        const active = lt >= start && lt <= end && opacity > 0.08;
+        r.comparisonAck.forEach((mark, i) => {
+          const p = EASE.outCubic(focus);
+          mark.setAttribute('r', f2(ill.sw * (1.6 + p * 5.6 + i * 0.9)));
+          mark.style.strokeOpacity = active ? (0.54 * (1 - p)).toFixed(3) : '0';
+        });
+      }
+      if (r.connectionAck) {
+        const cue = r.ops.find(op => op.op === 'CONNECT');
+        const begin = cue ? cue.end_ms - 110 : rel.enter_ms + rel.enter_duration_ms - 110;
+        const ack = prog(lt, begin, begin + 520);
+        const active = lt >= begin && lt <= begin + 520 && opacity > 0.08;
+        r.connectionAck.forEach((mark) => {
+          mark.setAttribute('r', f2(ill.sw * (1.65 + 5.2 * EASE.outCubic(ack))));
+          mark.style.strokeOpacity = active ? (0.62 * (1 - EASE.outCubic(ack))).toFixed(3) : '0';
+        });
+      }
       // Under a wipe the endpoints belong to the sweep: a dot or arrowhead shows only while
       // the traveling window covers its end of the path, and is erased with the tail.
       let head = con >= 0.985 ? 1 : 0;
@@ -2602,6 +4480,13 @@
       if (r.dots) {
         r.dots[0].style.opacity = String(head0);
         r.dots[1].style.opacity = String(head);
+        // An absorbed intermediate payload is no longer a visible endpoint.
+        // Keep the directed path as the source-known sender -> receiver flow,
+        // but remove doubled junction dots at the invisible cargo position.
+        if (ctx.directorStyle === 'sketch') {
+          if (endA && endA.payloadAbsorbed) r.dots[0].style.opacity = '0';
+          if (endB && endB.payloadAbsorbed) r.dots[1].style.opacity = '0';
+        }
         const dstroke = propAt(r, 'ink', lt);
         const dc = dstroke.v > 0.5 && dstroke.accent ? accent : ink;
         r.dots.forEach((d) => d.setAttribute('fill', dc));
@@ -2719,13 +4604,154 @@
     // Show beats rebrand the film per section: chrome ink/accent/bg come from the
     // section shade's own palette — every builder below draws against `bplan`.
     const bplan = beat.chrome ? { ...plan, brand: { ...plan.brand, ink: beat.chrome.ink, accent: beat.chrome.accent, paper: beat.chrome.bg } } : plan;
-    const bg = buildBackground(beat, bplan, root);
+    // SceneBam's data journalism director rejects the old "chart in a
+    // rounded app card" backdrop. The *same authored* safe zones and evidence
+    // remain, but the image is now a full editorial field: no fake dashboard
+    // chrome, no beveled sheet, no visual widget competing with the figures.
+    const stageBeat = plan.director_style === 'dataviz' && beat.composition &&
+      beat.composition.background
+      ? { ...beat, composition: { ...beat.composition,
+          background: { ...beat.composition.background,
+            layers: (beat.composition.background.layers || []).filter(layer =>
+              !['panel', 'hairline', 'plane', 'depth'].includes(layer.kind)) } } }
+      : beat;
+    const bg = buildBackground(stageBeat, bplan, root);
+    if (plan.director_style === 'dataviz' && beat.composition) {
+      const field = beat.composition.visual_zone;
+      // A quiet register separates source narration from visual evidence.
+      // It is background typography/ruling, never an unspoken data claim.
+      el('div', { position: 'absolute',
+        left: px(field.x - Math.max(12, plan.canvas.w * 0.015)),
+        top: px(field.y + field.h * 0.045),
+        width: '1px', height: px(field.h * 0.86),
+        background: rgbaOf(bplan.brand.ink, 0.13),
+        pointerEvents: 'none' }, root);
+    }
     const media = beat.media ? buildMedia(beat.media, bplan, root, opts.assetUrl) : null;
     if (media) media.blur = motionBlurFilter(fx.defs, `${fx.scope}-mb-media`);
     const figure = beat.figure ? buildFigure(beat.figure, bplan, root, opts.peepsUrl) : null;
     const data = beat.data ? buildData(beat.data, bplan, root) : null;
     const illustration = beat.illustration ? buildIllustration(beat.illustration, bplan, root, { ...opts, fx }) : null;
-    const texts = beat.typography.blocks.map((b, i) => Object.assign(buildTextBlock(b, bplan, root), { blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`) }));
+    const voiceSequence = plan.director_style === 'dataviz' && plan.captions_policy === 'kinetic';
+    const textBlocks = beat.typography.blocks;
+    const texts = textBlocks.map((b, i) => {
+      // Display one message in the same hero position, rather than stacking
+      // three permanent transcription lines beside the chart.
+      const zone = beat.composition.text_zone;
+      const stage = voiceSequence && textBlocks.length > 1
+        ? { ...b, bbox: { ...b.bbox, y: Math.max(zone.y, zone.y + (zone.h - b.bbox.h) * 0.42) } }
+        : b;
+      const node = Object.assign(buildTextBlock(stage, bplan, root), {
+        blur: motionBlurFilter(fx.defs, `${fx.scope}-mb-text-${i}`)
+      });
+      if (voiceSequence && textBlocks[i + 1] && textBlocks[i + 1].words && textBlocks[i + 1].words.length) {
+        node.directorExitMs = textBlocks[i + 1].words[0].start_ms;
+      }
+      return node;
+    });
+
+    // A source-backed current figure fills the unused lower-left field.
+    // It is a figure, not a duplicated caption. All three aspects receive
+    // their own text-zone safe placement; other styles remain unchanged.
+    const dataFocus = (() => {
+      if (plan.director_style !== 'dataviz' ||
+          !beat.illustration || !beat.composition || !beat.composition.text_zone) return null;
+      const chart = (beat.illustration.entities || []).find((e) => e.glyph === 'CHART_LINE');
+      if (!chart || !chart.params || !Array.isArray(chart.params.value_labels)) return null;
+      const labels = chart.params.value_labels;
+      const points = (beat.illustration.entities || []).filter((e) =>
+        /^point\d+$/.test(e.id) && e.label && e.label.text);
+      const cues = (beat.illustration.ops || []).filter((o) => o.op === 'GROW' &&
+        o.target === chart.id && Number.isInteger(o.params && o.params.point_index))
+        .sort((a, b) => a.start_ms - b.start_ms);
+      if (labels.length < 2 || labels.length !== points.length ||
+          cues.length !== labels.length || cues.some((cue, i) =>
+            cue.params.point_index !== i || !Number.isFinite(cue.start_ms))) return null;
+      const zone = beat.composition.text_zone;
+      const compact = plan.aspect !== '16x9';
+      const focusTop = zone.y + zone.h * (compact ? 0.61 : 0.63);
+      const focusHeight = zone.h * (compact ? 0.36 : 0.32);
+      // The spoken measure is the hero, not the surrounding dashboard:
+      // optically larger tabular numerals, still bounded by the verified
+      // source-safe text band for every native aspect.
+      const focusValueSize = Math.min(compact ? 142 : 160,
+        compact ? Math.max(66, zone.h * 0.31) : Math.max(92, zone.h * 0.27));
+      const focusLabelSize = Math.max(14, Math.min(22, zone.h * 0.055));
+      const largestTextHeight = Math.max(0, ...textBlocks.map((block) => block.bbox.h));
+      const textBottom = textBlocks.length > 1 && voiceSequence
+        ? zone.y + (zone.h - largestTextHeight) * 0.42 + largestTextHeight
+        : Math.max(zone.y, ...textBlocks.map((block) => block.bbox.y + block.bbox.h));
+      // Do not display the additional figure where it would overlap the
+      // displayed sentence or breach the native text safe area.
+      if (focusTop < textBottom + 12 || focusTop + focusHeight > zone.y + zone.h + 2) return null;
+      const wrap = el('div', {
+        position: 'absolute', left: px(zone.x + 8), top: px(focusTop),
+        width: px(zone.w * 0.88), height: px(focusHeight), zIndex: '12',
+        pointerEvents: 'none', opacity: '0', transform: 'translateY(10px)',
+        willChange: 'opacity, transform',
+      }, root);
+      wrap.dataset.director = 'data-focus';
+      const period = el('div', {
+        fontFamily: '"' + plan.fonts.families.text + '"', fontWeight: '650',
+        fontSize: px(focusLabelSize), lineHeight: '1.1',
+        letterSpacing: '0.12em', color: bplan.brand.ink,
+        opacity: '0.56', textTransform: 'uppercase',
+      }, wrap);
+      const value = el('div', {
+        fontFamily: '"' + (plan.fonts.families.data || plan.fonts.families.text) + '"',
+        fontWeight: '750', fontSize: px(focusValueSize),
+        lineHeight: '1.0', letterSpacing: '-0.055em',
+        color: bplan.brand.accent || bplan.brand.ink,
+        fontVariantNumeric: 'tabular-nums',
+      }, wrap);
+      // A measured period is independently spoken before its number. Reveal
+      // that source-named period immediately, then hand the same focal field
+      // to the number ONLY at its actual GROW word. No previewed measurements,
+      // invented categories, or second caption stream.
+      const spoken = beat.words || [];
+      const months = new Set(['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec']);
+      const cleanPeriod = (value) => String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+      const periodCues = cues.map((cue, i) => {
+        const term = cleanPeriod(points[i].label.text);
+        if (!term) return null;
+        const after = i ? cues[i - 1].start_ms : -1;
+        const candidates = spoken.filter((word) => {
+          const literal = cleanPeriod(word.text);
+          const matches = literal === term || (months.has(term) && literal.startsWith(term));
+          return matches && word.start_ms > after && word.start_ms < cue.start_ms;
+        });
+        return candidates.length ? candidates[candidates.length - 1].start_ms : null;
+      });
+      // An author-supplied metric is guaranteed verbatim by the contract.
+      // Give the repeated month/number handoffs a semantic subject, but only
+      // after the exact metric words have been spoken. This is a topic label,
+      // not another burned voice caption or a fabricated measurement.
+      const metricWords = String(chart.params.metric_label || '').toLowerCase()
+        .split(/\s+/).filter(Boolean);
+      const voiceWords = spoken.map((w) => cleanPeriod(w.text));
+      const metricIndex = metricWords.length
+        ? voiceWords.findIndex((_, i) =>
+            metricWords.every((w, j) => voiceWords[i + j] === w)) : -1;
+      const canFitMetric = metricIndex >= 0 &&
+        focusTop + focusHeight + 25 <= zone.y + zone.h;
+      const metricEl = canFitMetric ? el('div', {
+        position: 'absolute', left: 0, top: px(focusHeight + 4),
+        maxWidth: px(zone.w * 0.88), overflow: 'hidden',
+        whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+        fontFamily: '"' + plan.fonts.families.text + '"',
+        fontWeight: '650', fontSize: px(Math.min(17, focusLabelSize * 0.84)),
+        lineHeight: '1.1', letterSpacing: '0.095em',
+        textTransform: 'uppercase', color: bplan.brand.ink,
+        opacity: '0', willChange: 'opacity, transform',
+      }, wrap) : null;
+      if (metricEl) metricEl.textContent = chart.params.metric_label;
+      const metricCue = metricIndex >= 0
+        ? spoken[metricIndex + metricWords.length - 1].start_ms : null;
+      return { wrap, period, value, cues, points, labels, periodCues,
+        metricEl, metricCue, valueSize: focusValueSize,
+        activeColor: bplan.brand.accent || bplan.brand.ink,
+        idleColor: bplan.brand.ink };
+    })();
     const camBlur = motionBlurFilter(fx.defs, `${fx.scope}-mb-camera`);
     const tz = bboxOf(beat.composition.text_zone);
     const tr = beat.transition || { mode: 'SETTLE_CUT' };
@@ -2747,6 +4773,8 @@
       motion: { ...DEFAULT_MOTION, ...(plan.motion || {}) },
       transition: tr,
       tonalInk: (plan.typography && plan.typography.tonal_ink) || 1,
+      voiceSequence,
+      directorStyle: plan.director_style || null,
       groove: (plan.music && plan.music.groove) || null,
       reconfigureOffset(node) {
         // Pre-reconfiguration state: blocks sit 30% closer to the text-zone centre along their dominant axis.
@@ -2790,7 +4818,7 @@
       },
     };
     const ready = Promise.all([figure ? figure.ready : null, media ? mediaReady(media) : null, illustration ? illustration.ready : null]);
-    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, ctx, ready, index: beatIndex };
+    return { beat, root: outer, cam: root, camBlur, bg, media, figure, data, illustration, texts, dataFocus, ctx, ready, index: beatIndex };
   }
 
   // Film-level camera. Every cut is a matched move the compiler chose from the beats on either
@@ -2860,10 +4888,58 @@
   let _showChrome = null;  // one film per page — applyBeat repaints the masthead
   function applyBeat(bn, lt, stageFade, preRoll) {
     if (_showChrome) _showChrome.setBeat(bn.beat, lt);
-    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll);
+    applyBackgroundState(bn.bg, lt, bn.beat, stageFade, preRoll, bn.ctx.directorStyle);
     if (bn.media) applyMediaState(bn.media, lt, bn.beat, bn.ctx);
     if (bn.figure) applyFigureState(bn.figure, lt, bn.beat, bn.ctx);
     if (bn.data) applyDataState(bn.data, lt, bn.beat, bn.ctx);
+    if (bn.dataFocus) {
+      const f = bn.dataFocus;
+      if (f.metricEl && f.metricCue != null) {
+        const entered = EASE.outCubic(prog(lt, f.metricCue, f.metricCue + 300));
+        f.metricEl.style.opacity = (entered * 0.65).toFixed(4);
+        f.metricEl.style.transform = 'translateY(' + f2((1 - entered) * 8) + 'px)';
+      }
+      let active = -1, pending = -1;
+      for (let i = 0; i < f.cues.length; i++) {
+        if (f.periodCues[i] != null && lt >= f.periodCues[i]) pending = i;
+        if (lt >= f.cues[i].start_ms) { active = i; pending = -1; }
+      }
+      // A period first enters when its actual noun is spoken; the quantity
+      // stays concealed until its own word. This replaces the obsolete JAN 10
+      // when the voice has already advanced to February but not said 20.
+      if (pending >= 0 && pending > active) {
+        const begin = f.periodCues[pending];
+        const enter = EASE.outCubic(prog(lt, begin, begin + 245));
+        // A year is an axis category, NOT the measurement. Never display it
+        // at the same huge size as the next yet-unspoken value.
+        f.period.textContent = f.points[pending].label.text.toUpperCase();
+        f.value.textContent = '';
+        f.value.style.color = f.idleColor;
+        f.value.style.fontSize = px(f.valueSize);
+        f.wrap.dataset.activeDatum = 'period-' + pending;
+        f.wrap.style.opacity = (enter * (stageFade == null ? 1 : stageFade)).toFixed(4);
+        f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
+      } else if (active < 0) {
+        f.wrap.style.opacity = '0';
+        f.wrap.dataset.activeDatum = 'none';
+      } else {
+        const cue = f.cues[active];
+        const nextPeriod = f.periodCues[active + 1];
+        const enter = EASE.outCubic(prog(lt, cue.start_ms - 45, cue.start_ms + 245));
+        const exit = nextPeriod != null
+          ? 1 - EASE.inCubic(prog(lt, nextPeriod - 120, nextPeriod + 45))
+          : 1;
+        const level = Math.max(0, Math.min(enter, exit)) * (stageFade == null ? 1 : stageFade);
+        f.period.textContent = f.points[active].label.text;
+        f.value.textContent = f.labels[active];
+        f.value.style.fontSize = px(f.valueSize);
+        f.value.style.color = f.activeColor;
+        f.wrap.dataset.activeDatum = 'value-' + active;
+        f.wrap.style.opacity = level.toFixed(4);
+        f.wrap.style.transform = 'translateY(' + f2((1 - enter) * 12) + 'px)';
+      }
+    }
+
     if (bn.illustration) applyIllustrationState(bn.illustration, lt, bn.beat, bn.ctx);
     for (const t of bn.texts) applyTextState(t, lt, bn.beat, bn.ctx);
   }
@@ -3088,7 +5164,20 @@
           const readout = gl.extra.countText || body.querySelector('text') ||
             (gl.extra.wordHost && gl.extra.wordHost.querySelector('text'));
           const inside = node.label && node.label.inside;
-          if (!carried && !readout && !inside) flag('EMPTY_CHASSIS', beatId, node.ent.id, `${node.ent.glyph} body on stage with nothing inside`);
+          // Procedural illustration is not an empty shell: inspect the
+          // actual drawn strokes inside its registered source-art group.
+          // Checking only iconHost misclassifies every native hand-drawn
+          // character and physical document as EMPTY_CHASSIS, hiding real
+          // audit issues in the rendered video manifests.
+          // Procedural art is the sibling of the legacy chassis group
+          // (both live in the entity root), not a descendant of that
+          // empty legacy housing. Inspect the whole native entity for
+          // registered, truly painted subject shapes.
+          const drawn = [...g.querySelectorAll('[data-drawing]')].some(group =>
+            group.querySelector(GRAPHIC));
+          if (!carried && !readout && !inside && !drawn)
+            flag('EMPTY_CHASSIS', beatId, node.ent.id,
+              `${node.ent.glyph} body on stage with nothing inside`);
           if (host && carried) {
             const geom = iconGeometry(node);
             if (geom && geom.fill < ICON_FILL_MIN) flag('ICON_UNDERFILL', beatId, node.ent.id, `mark covers ${(geom.fill * 100).toFixed(0)}% of its box`);

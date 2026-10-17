@@ -483,10 +483,35 @@ _DATA_PERIODS = (
 )
 _DATA_PERIOD_ABBREVIATIONS = {period: period[:3].title()
                               for cycle in _DATA_PERIODS for period in cycle.split()}
+
+
+def dataviz_period_positions(measures):
+    """Normalised, *source-grounded* timeline distance, or None if ambiguous.
+
+    Never imply uniform spacing for genuinely uneven time intervals. Mixed
+    months/years, repeated periods and backwards periods fail closed.
+    """
+    terms = [q.get("period", "").lower() for q in measures]
+    if not terms or any(not p for p in terms):
+        return None
+    if all(re.fullmatch(r"\d{4}", p) for p in terms):
+        ticks = [int(p) for p in terms]
+    else:
+        cycle = next((s.split() for s in _DATA_PERIODS
+                      if all(p in s.split() for p in terms)), None)
+        if cycle is None:
+            return None
+        ticks = [cycle.index(p) for p in terms]
+    if len(ticks) < 2 or any(b <= a for a, b in zip(ticks, ticks[1:])):
+        return None
+    span = ticks[-1] - ticks[0]
+    return [(v - ticks[0]) / span for v in ticks]
 _DATA_LABEL_STOP = STOPWORDS | {
     "from", "to", "versus", "vs", "rose", "grew", "fell", "increased", "decreased",
     "produced", "generated", "cost", "costs", "used", "uses", "reached", "remained",
     "percent", "dollars", "pounds", "euros", "minus", "negative",
+    "but", "yet", "however", "nevertheless", "still", "only", "just",
+    "merely", "those", "these", "them", "therefore", "instead",
 } | set(_DATA_SMALL) | set(_DATA_SCALES)
 
 
@@ -578,6 +603,15 @@ def dataviz_claim(narration, g):
                 label = " ".join(w for w in tail if w.lower() not in _DATA_LABEL_STOP)
                 measure = tail[0].lower() if not unit else ""
         if not label:
+            # Source-exact predicate after a quantity: "99 of those are
+            # genuine" names genuine observations, not a category "But".
+            # The predicate is read from spoken text, never inferred.
+            predicate = re.match(
+                r"\s+of\s+(?:those|these|them)\s+(?:are|were|is)\s+([a-z]+(?:-[a-z]+)?)\b",
+                after, re.I)
+            if predicate and predicate.group(1).lower() not in _DATA_LABEL_STOP:
+                label = predicate.group(1)
+        if not label:
             clause = re.split(r"\b(?:and|while|versus|vs)\b|[,.;:]", before, flags=re.I)[-1]
             label = " ".join(w for w in re.findall(r"[a-z]+", clause, re.I)
                              if w.lower() not in _DATA_LABEL_STOP)[-24:]
@@ -611,17 +645,13 @@ def dataviz_claim(narration, g):
         elif len(measured) == 2 and compatible and re.search(r"\b(from|versus|vs|compared|than|while|now|before|after)\b", narration, re.I):
             kind = "COMPARISON"
         elif len(measured) >= 3 and compatible and all(q["period"] for q in measured):
-            periods = [q["period"].lower() for q in measured]
-            indices = ([int(p) for p in periods] if all(p.isdigit() for p in periods) else
-                       next(([s.split().index(p) for p in periods] for s in _DATA_PERIODS
-                             if all(p in s.split() for p in periods)), []))
-            gaps = [b - a for a, b in zip(indices, indices[1:])]
+            positions = dataviz_period_positions(measured)
             labels = [set(w for w in re.findall(r"[a-z]+", q["label"].lower())
                           if w not in _DATA_LABEL_STOP and w not in _DATA_PERIOD_ABBREVIATIONS)
                       for q in measured]
             subjects = [label for label in labels if label]
             same_subject = not subjects or bool(set.intersection(*subjects))
-            if gaps and len(set(gaps)) == 1 and gaps[0] > 0 and same_subject:
+            if positions is not None and same_subject:
                 kind = "TREND"
     return {"kind": kind, "quantities": measured, "source_quantities": quantities}
 
@@ -692,6 +722,24 @@ def dataviz_units(g, claim=None):
                        if re.search(r"\d", w["text"]) or
                        any(q["word_start"] <= k < q["word_end"] for q in qs)],
         })
+    # A six-measure source series may contain more than the native five
+    # typographic clauses. Merge neighbouring short phrases, never delete
+    # narration or invent shorter paraphrases. The audio-aligned word-cascade
+    # still owns every word inside the merged display unit.
+    while len(units) > MAX_UNITS_PER_BEAT:
+        choices = [(int(units[i]["role"] == "hero") +
+                    int(units[i + 1]["role"] == "hero"),
+                    len(units[i]["text"].split()) + len(units[i + 1]["text"].split()), i)
+                   for i in range(len(units) - 1)]
+        _, _, i = min(choices)
+        first, second = units[i], units[i + 1]
+        units[i:i + 2] = [{
+            **first,
+            "text": clean(first["text"] + " " + second["text"]),
+            "role": "hero" if "hero" in (first["role"], second["role"]) else "support",
+            "stress": first["stress"] + second["stress"],
+            "can_promote": first["can_promote"] or second["can_promote"],
+        }]
     return units
 
 
@@ -757,9 +805,27 @@ def dataviz_beat(g, bi, n, media):
                 break
             label = ("Before" if i == 0 else "After") if before_after else q["label"].split()[-1] if q["label"] else ""
             measure = q["label"].split()[-1] if not q["unit"] and q["label"] else ""
-            eid = draw(q, "BAR", {"level": level, "value": float(values[i])}, clean(label + " " + dataviz_value(q) + " " + measure)
+            params = {"level": level, "value": float(values[i])}
+            if before_after and i == 1 and len(qs) == 2:
+                # Only add a direction cue if the speaker explicitly describes
+                # a change AND the two supplied values confirm that direction.
+                # Neutral comparisons never acquire a made-up rise/fall.
+                risen = re.search(r"\b(rose|risen|grew|increased|climbed|jumped|went up)\b", narration, re.I)
+                fallen = re.search(r"\b(fell|dropped|declined|decreased|went down)\b", narration, re.I)
+                if risen and values[1] > values[0]:
+                    params["change_direction"] = "up"
+                elif fallen and values[1] < values[0]:
+                    params["change_direction"] = "down"
+            eid = draw(q, "BAR", params, clean(label + " " + dataviz_value(q) + " " + measure)
                        if before_after else clean(label + " " + dataviz_value(q)))
             land(q, "GROW", eid, value_to=level)
+            # Source-bound attention: each observed bar changes to the
+            # editorial accent only when its value is spoken.
+            land(q, "INK", eid)
+            if i == 1:
+                previous = next((e["id"] for e in entities if e["glyph"] == "BAR"), None)
+                if previous and previous != eid:
+                    land(q, "DIM", previous, value_from=1, value_to=0.66)
     elif kind == "SHARE" and not any(q["qualifier"] or q["signed"] for q in qs):
         share = values[0] / (100 if len(qs) == 1 else values[1])
         if 0 < share <= 1:
@@ -773,19 +839,48 @@ def dataviz_beat(g, bi, n, media):
                 land(qs[0], "COUNT", eid)
             else:
                 beat["data"] = {"kind": "STAT", "value": dataviz_value(qs[0]), "label": qs[0]["label"]}
-    elif kind == "TREND" and len(qs) <= 4 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
+    elif kind == "TREND" and len(qs) <= 6 and all(v >= 0 for v in values) and max(values) > 0 and not any(q["qualifier"] or q["signed"] for q in qs):
         eid = "trend"
-        entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE", "size": "hero",
-                         "params": {"points": [float(v / max(values)) for v in values]}})
-        land(qs[0], "DIM", eid)
+        # A short source-exact metric title is useful when the chart becomes
+        # numerical: "park visits" is not inferred from "January" or "10".
+        # Fail closed on missing / long / non-verbatim candidate. The on-canvas
+        # director times this label to the spoken phrase, not the opening frame.
+        metric = clean(qs[0].get("label", ""))
+        metric_words = re.findall(r"[a-z0-9]+", metric.lower())
+        sentence_words = re.findall(r"[a-z0-9]+", narration.lower())
+        is_source_metric = (1 <= len(metric_words) <= 3 and
+            any(sentence_words[k:k + len(metric_words)] == metric_words
+                for k in range(len(sentence_words) - len(metric_words) + 1)))
+        chart_params = {"points": [float(v / max(values)) for v in values],
+                        "value_labels": [dataviz_value(q) for q in qs],
+                        "x_positions": dataviz_period_positions(qs)}
+        if is_source_metric:
+            chart_params["metric_label"] = metric
+        entities.append({"id": eid, "kind": "evidence", "glyph": "CHART_LINE",
+                         "size": "hero", "params": chart_params})
+        # Stage the empty axis while the premise is spoken; actual measured
+        # values still draw ONLY when their corresponding quantities are said.
+        ops.append({"op": "DRAW", "target": eid,
+                    "at": {"word": g[0]["text"]}, "duration_ms": 300})
+        # The chart's framework and the source-mentioned time categories are
+        # visible from the opening statement; measured values remain gated to
+        # their exact spoken words. No transcript caption layer is introduced.
         for i, q in enumerate(qs):
-            land(q, "GROW", eid, params={"point_index": i})
             pid = f"point{i + 1}"
             entities.append({"id": pid, "kind": "evidence", "glyph": "PILL", "size": "support",
-                             "params": {"value": float(values[i])},
-                             "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"])
-                                            + " " + dataviz_value(q))})
-            land(q, "DIM", pid)
+                             "params": {"value": float(values[i]), "plain_datum": True},
+                             "label": clean(_DATA_PERIOD_ABBREVIATIONS.get(q["period"].lower(), q["period"]))})
+            # Three observations can afford extra punctual SETTLE cues.
+            # For a longer (up to six-point) source series, the period is
+            # already typeset in its own native cell and the chart's
+            # measurement is governed by GROW. Extra DIM/SETTLE ops would
+            # exhaust the native ten-op budget without conveying new facts.
+            if len(qs) <= 3:
+                ops.append({"op": "DIM", "target": pid,
+                            "at": {"offset_ms": 0}, "duration_ms": 300})
+            land(q, "GROW", eid, params={"point_index": i})
+            if len(qs) <= 3:
+                land(q, "SETTLE", pid)
     elif kind == "STAT" and values[0] > 0 and values[0] == int(values[0]) and "." not in qs[0]["value"] and not (qs[0]["qualifier"] or qs[0]["signed"]):
         q, unit = qs[0], qs[0]["unit"]
         params = {"count": int(values[0]), "caption": q["label"], "tone": "dark"}
@@ -814,7 +909,7 @@ def dataviz_groups(words):
     i = 0
     while i < len(groups):
         candidates = []
-        for group in groups[i:i + 5]:
+        for group in groups[i:i + 6]:
             claim = dataviz_claim(" ".join(w["text"] for w in group), group)
             if not claim["quantities"] or not all(q["period"] for q in claim["quantities"]):
                 break
@@ -822,7 +917,7 @@ def dataviz_groups(words):
         for count in range(len(candidates), 1, -1):
             combined = [w for group in candidates[:count] for w in group]
             claim = dataviz_claim(" ".join(w["text"] for w in combined), combined)
-            if claim["kind"] == "TREND" and len(combined) <= 28:
+            if claim["kind"] == "TREND" and len(combined) <= MAX_UNITS_PER_BEAT * 8:
                 groups[i:i + count] = [combined]
                 break
         i += 1
@@ -864,6 +959,7 @@ def dataviz_continuity(beats):
 
 _SKETCH_ACTION = re.compile(
     r"\b(sends?|feeds?|flows?|transfers?|carr(?:y|ies|ied)|"
+    r"deliver(?:s|ed)?|ship(?:s|ped)?|forward(?:s|ed)?|pass(?:es|ed)?|route(?:s|d)?|"
     r"sticks? to|attaches? to|helps?|makes?|produces?|leads? to|"
     r"connects? to|links? to|improves?|reduces?|increases?|enables?|"
     r"becomes?|changes? into)\b", re.I
@@ -888,6 +984,15 @@ def sketch_units(gwords: list[dict[str, Any]]) -> list[dict[str, Any]]:
     cut = next((i for i in cuts if keys[i] in qualifiers), None)
     if cut is None:
         cut = next((i for i in cuts if keys[i] in action_words), None)
+    # A short source-linked two-action scene has an intact first sentence and
+    # an intact second one. Never strand its second subject ("The bee") inside
+    # the first on-screen thought merely to cut at a later verb.
+    sentence_cut = next((i + 1 for i, w in enumerate(gwords[:-1])
+                         if i >= 2 and len(gwords) - i - 1 >= 3
+                         and CLAUSE_END.search(w["text"])
+                         and any(keys[j] in action_words for j in range(i + 1, len(gwords)))), None)
+    if sentence_cut is not None and action_words and len(gwords) <= 20:
+        cut = sentence_cut
     spans = [gwords[:cut], gwords[cut:]] if cut is not None else [gwords]
     units = []
     for i, span in enumerate(spans):
@@ -937,10 +1042,17 @@ def sketch_groups(words):
     elif len(groups) == 2:
         text_a = " ".join(w["text"] for w in groups[0]).lower()
         text_b = " ".join(w["text"] for w in groups[1]).lower()
-        # Attachment -> transfer is one continuous visual argument.
+        # Short, explicitly source-linked action chains stay in one moving
+        # visual argument rather than cutting a few milliseconds after the
+        # second action; no artificial duration is added to the voice.
+        attachment_then_carry = (
+            re.search(r"\b(sticks? to|attaches? to)\b", text_a)
+            and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b))
+        transfer_then_feed = (
+            re.search(r"\b(sends?|transfers?|flows?)\b", text_a)
+            and re.search(r"\b(feeds?|delivers?)\b", text_b))
         if (len(groups[0] + groups[1]) <= 20
-                and re.search(r"\b(sticks? to|attaches? to)\b", text_a)
-                and re.search(r"\b(carries|carry|transfers|transfer)\b", text_b)
+                and (attachment_then_carry or transfer_then_feed)
                 and nouns(groups[0]) & nouns(groups[1])):
             groups = [groups[0] + groups[1]]
     return groups
@@ -956,6 +1068,7 @@ _SKETCH_FALSE_FRIEND_ASSETS = {
     "icon.icon-park-color.shade",        # umbrella, not cast shade
     "icon.icon-park-color.label",        # bookmark, not a physical label
     "icon.icon-park-color.instruction",  # code editor, not an instruction sent to a device
+    "icon.icon-park-color.customer",     # chat-head symbol, not a person receiving an item
 }
 
 
@@ -980,7 +1093,10 @@ def sketch_noun_phrases(text):
     qualifiers = {"another", "different"}
     modifiers = {"better", "lower", "unknown", "paper"}
     verbs = {"sends", "send", "feeds", "feed", "flows", "flow", "transfers",
-             "transfer", "carries", "carry", "carried", "sticks", "stick",
+             "transfer", "carries", "carry", "carried", "delivers", "deliver",
+             "delivered", "ships", "ship", "shipped", "forwards", "forward",
+             "forwarded", "passes", "pass", "passed", "routes", "route", "routed",
+             "sticks", "stick",
              "attaches", "attach", "connects", "connect", "helps", "help",
              "makes", "make", "produces", "produce", "improves", "improve",
              "reduces", "reduce", "increases", "increase", "enables", "enable",
@@ -1075,7 +1191,8 @@ def sketch_asset(phrase, text):
                 return ref
     ref = BANK.get(key, {}).get("mono")
     suffix = (ref or "").rsplit(".", 1)[-1]
-    if ref in _SKETCH_ASSETS and (suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
+    if ref in _SKETCH_ASSETS and ref not in _SKETCH_FALSE_FRIEND_ASSETS and (
+            suffix in slugs or (phrase == "bicycle" and suffix == "bike")):
         return ref
     return None
 
@@ -1083,6 +1200,57 @@ def sketch_asset(phrase, text):
 def sketch_entities(gwords, media):
     text = clean(" ".join(w["text"] for w in gwords))
     candidates = sketch_noun_phrases(text)
+    # Source-anchored collective humans must survive either spaCy or the tiny
+    # fallback noun parser. They are a reviewed drawable class, not a guess
+    # from the film topic or the numeral itself. Prefer actual source order,
+    # and never invent a named profession or individual.
+    collectives = STYLES.get("sketch_visual_classes", {}).get("population", [])
+    mentioned = [(match.start(), noun)
+                 for noun in collectives
+                 for match in re.finditer(r"\b" + re.escape(noun) + r"\b", text, re.I)]
+    if mentioned:
+        # The same plural group can appear as '10,000 people' in a noun chunk;
+        # dedupe it onto the literal source noun instead of drawing a second
+        # unrelated pseudo-actor alongside the population.
+        canon = []
+        for candidate in candidates:
+            original = candidate.lower().strip()
+            group = next((noun for _, noun in mentioned
+                          if re.fullmatch(r"(?:(?:the|some|these|those|only|just|all|around|about|\d[\d,]*)\s+)*" +
+                                          re.escape(noun), original, re.I)), None)
+            canon.append(group or candidate)
+        existing = set(canon)
+        for _, noun in sorted(mentioned):
+            if noun not in existing:
+                canon.append(noun)
+                existing.add(noun)
+        # All names in this pass must be spoken. Avoid promoting a second
+        # occurrence to a different object; source order determines staging.
+        candidates = sorted(dict.fromkeys(canon),
+                            key=lambda s: text.lower().find(s.lower()))
+    # Prefer exact, artist-reviewed visible subjects over incidental
+    # adjectives/adverbs. The fallback noun parser often picks "waiting",
+    # "same" or "safety" instead of an explicitly spoken role or document.
+    # This is entirely source-bound: no model guesses an unspoken actor.
+    reviewed = STYLES.get("sketch_visual_classes", {})
+    native_mentions = []
+    for drawing_class, nouns in reviewed.items():
+        for noun in nouns:
+            match = re.search(r"\b" + re.escape(noun) + r"\b", text, re.I)
+            if match:
+                native_mentions.append((match.start(), noun))
+    # The original native physical glyphs are equally strong evidence of
+    # a visual subject; do not let the noun parser suppress an explicitly
+    # mentioned pump or tank in favor of a vague modifier.
+    for source_name in ("pump", "tank", "note"):
+        match = re.search(r"\b" + re.escape(source_name) + r"\b", text, re.I)
+        if match:
+            native_mentions.append((match.start(), source_name))
+    # Use recognized source nouns first, but maintain first-spoken order;
+    # remaining source terms are available for transport/payload semantics.
+    if native_mentions:
+        visual_priority = [noun for _, noun in sorted(native_mentions)]
+        candidates = list(dict.fromkeys(visual_priority + candidates))
     # Unrecognised nouns keep their source label rather than a guessed depiction.
     if not candidates:
         candidates = [w["text"] for w in gwords if word_key(w["text"]) in BANK]
@@ -1104,13 +1272,48 @@ def sketch_entities(gwords, media):
             continue
         if not re.search(rf"\b{re.escape(phrase)}\b", text, re.I):
             continue
+        # The fallback parser sometimes selects a modifier directly before
+        # a recognized physical noun ("sealed parcel", "same parcel",
+        # "waiting customer", "water tank"). That modifier is NOT a separate
+        # scene object. The source-grounded object carries the claim instead.
+        # This is syntactic and source-dependent, not a list of subject scripts.
+        source_objects = {noun for _, noun in native_mentions}
+        if phrase not in source_objects and source_objects:
+            next_known = "|".join(re.escape(noun) for noun in
+                                  sorted(source_objects, key=len, reverse=True))
+            if re.search(r"\b" + re.escape(phrase) +
+                         r"\s+(?:" + next_known + r")\b", text, re.I):
+                continue
         seen.add(entity_id)
         ref = sketch_asset(phrase, text)
+        # When no licensed catalog symbol matches, use only narrowly defined
+        # native procedural objects whose literal meaning equals the source
+        # noun. Unrecognized nouns continue to have an honest word carrier.
+        primitive = {"pump": "PUMP", "tank": "TANK", "note": "CARD"}.get(phrase)
+        # An artist-reviewed taxonomy is visual metadata, NOT an action regex
+        # or a video-script exception. Draw a generic person only when the
+        # source explicitly names a human role, or a document only when a
+        # physical/documentary artifact is explicitly named. Ambiguous words
+        # retain literal typography rather than a misleading picture.
+        visual_classes = STYLES.get("sketch_visual_classes", {})
+        drawing_class = next((kind for kind, nouns in visual_classes.items()
+                              if phrase in nouns), None)
         ent = {"id": entity_id, "kind": "object",
-               "glyph": "TILE" if ref else "PILL", "size": "hero" if not entities else "support",
+               "glyph": "TILE" if ref or (drawing_class and not primitive)
+                       else (primitive or "PILL"),
+               "size": "hero" if not entities else "support",
                "label": phrase, "phrase": phrase}
-        if ref:
+        if drawing_class in ("population", "person"):
+            # Reviewed illustrated actors must win over static registry
+            # icons for source-named humans; otherwise the same nurse/driver
+            # may turn into an inert icon and lose all character performance.
+            # The existing person art is role-neutral and invents no outfit,
+            # demographic or extra participant.
+            ent["params"] = {"visual_class": drawing_class}
+        elif ref:
             ent["asset_ref"] = ref
+        elif drawing_class and not primitive:
+            ent["params"] = {"visual_class": drawing_class}
         entities.append(ent)
         if len(entities) == 4:
             break
@@ -1165,16 +1368,25 @@ def sketch_action_stages(narration: str, entities: list[dict[str, Any]]):
             between = clause[actions[i-1].end():action.start()] if i else ""
             inherited = bool(i and re.search(r"\band\s*$", between, re.I))
             source = clause_subject[-1] if inherited and clause_subject else subjects[-1]
-            target = objects[-1] if re.search(r"\bto\b", after, re.I) else objects[0]
+            # Explicit "X sends Y to Z" binds Z as the recipient and Y as the
+            # transferred payload. A fallback that chooses the first object can
+            # silently lose the Y -> Z leg in a multi-clause process.
+            to_dest = re.search(r"\bto\s+(?:(?:a|an|the|another)\s+)?", after, re.I)
+            destinations = [e for e in objects if to_dest and mentioned(e, after[to_dest.end():])]
+            target = destinations[0] if destinations else (
+                objects[-1] if to_dest else objects[0])
             if source is target:
                 continue
             destination = re.search(rf"\b{re.escape(target['phrase'])}\b", after, re.I)
+            before_destination = (after[:to_dest.start()] if destinations else
+                                  after[:destination.start()] if destination else "")
             payload = [e for e in entities if e is not source and e is not target
-                       and mentioned(e, after[:destination.start()])] if destination else []
+                       and mentioned(e, before_destination)]
             cue = action.group().lower()
             if cue.startswith(("becom", "chang")):
                 relation = "transforms_into"
-            elif cue.startswith(("send", "feed", "flow", "transfer", "carr", "make", "produc")):
+            elif cue.startswith(("send", "feed", "flow", "transfer", "carr", "make", "produc",
+                                 "deliver", "ship", "forward", "pass", "rout")):
                 relation = "flows_to"
             else:
                 relation = "connects"
@@ -1194,17 +1406,70 @@ def sketch_beat(gwords, bi, n, previous, media):
             ent["label"] = ent["label"].split()[-1]
     is_interface = bool(_SKETCH_INTERFACE.search(narration))
     stages = sketch_action_stages(narration, entities) if not is_interface else []
+    # A false fallback noun ("imagine", "inside", "yet") must not steal
+    # 70% of the art zone from a source-proven picture. Without an authored
+    # process or explicit comparison, picturable source entities are the stage;
+    # other source words remain in the complete narrator-linked display text.
+    # Relationship stages retain ALL endpoints and payloads for graph integrity.
+    explicit_comparison = re.search(
+        r"\b(?:versus|vs\.?|compared (?:to|with)|than|whereas)\b",
+        narration, re.I)
+    if not stages and not is_interface and not explicit_comparison:
+        # A real native drawn PUMP/TANK/VESSEL is physical evidence, just as
+        # an illustrated TILE is. Never discard it simply because this beat
+        # has no explicit two-endpoint action grammar.
+        visual_entities = [e for e in entities if e.get("kind") == "evidence"
+                           or e["glyph"] in ("PUMP", "TANK", "VESSEL")
+                           or (e["glyph"] == "TILE" and (
+                               e.get("asset_ref") or
+                               e.get("params", {}).get("visual_class")))]
+        if visual_entities:
+            entities = visual_entities
+            for ei, ent in enumerate(entities):
+                if ent.get("kind") != "evidence":
+                    ent["size"] = "hero" if ei == 0 else "support"
+    # Transport is an explicit source-graph role, not a fixed catalogue of
+    # nouns ("message", "file", ...). An invoice, specimen or future user noun
+    # has exactly the same sender/payload/recipient semantics. The renderer
+    # only performs transit when BOTH source->payload and payload->recipient
+    # are authored and timed; unknown relationships still fail closed.
+    for actor, cargo, recipient, relation, _cue in stages:
+        if relation == "flows_to" and actor is not recipient:
+            for item in cargo:
+                item.setdefault("params", {})["narrative_role"] = "transferred_payload"
+    if stages and len(units) == 2 and all(CLAUSE_END.search(u["text"]) for u in units):
+        # Alternating HERO treatments give each causal action commercial-sized
+        # typography in one deliberate stage. Replacement is keyed to the
+        # second spoken clause, with no invented timing or duplicate captions.
+        for ui, unit in enumerate(units):
+            unit.update(role="hero", can_promote=True, replace_group="sketch_causal_action",
+                        semantic_role="setup" if ui == 0 else "punch")
+            unit["emphasis"] = 0.92
     if stages:
-        links: list[tuple[dict[str, Any], dict[str, Any], str, str]] = []
+        # Store every edge by its stable authored entity IDs, not object
+        # identity. A physical payload must traverse BOTH source -> payload and
+        # payload -> destination; losing its second leg changes the claim.
+        links_by_id: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any], str, str]] = {}
         for source, payload, target, relation, anchor in stages:
-            chain = [source] + payload + [target]
-            new_links = 0
+            chain = [source, *payload, target]
+            added = 0
             for j, (left, right) in enumerate(zip(chain, chain[1:])):
-                if any(link[0] is left and link[1] is right for link in links):
-                    continue
-                links.append((left, right, relation,
-                              anchor if new_links == 0 else chain[j]["phrase"].split()[0]))
-                new_links += 1
+                key = (left["id"], right["id"])
+                if key not in links_by_id:
+                    # When a previous verb established an attachment, the next
+                    # action's FIRST NEW connection starts on its own verb
+                    # ("carries"), not on an already-mentioned payload noun.
+                    link_anchor = anchor if added == 0 else left["phrase"].split()[0]
+                    links_by_id[key] = (left, right, relation, link_anchor)
+                    added += 1
+        links = list(links_by_id.values())
+        for source, payload, target, _, _ in stages:
+            if payload:
+                chain = [source, *payload, target]
+                missing = [(a["id"], b["id"]) for a, b in zip(chain, chain[1:])
+                           if (a["id"], b["id"]) not in links_by_id]
+                if missing:
+                    raise ValueError(f"Sketch payload transport lost authored links: {missing}")
         if links:
             form = ("PROCESS_PIPELINE" if any(r == "flows_to" for _, _, r, _ in links)
                     else "STATE_TRANSFORMATION" if any(r == "transforms_into" for _, _, r, _ in links)
@@ -1217,12 +1482,24 @@ def sketch_beat(gwords, bi, n, previous, media):
                     if e["id"] not in order:
                         order.append(e["id"])
             entities.sort(key=lambda e: order.index(e["id"]) if e["id"] in order else len(order))
+            # A two-party connection has two equally important endpoints.
+            # Treating its first noun as a massive hero creates an oversized
+            # server and tiny database in portrait, obscuring their relationship.
+            balanced_pair = form == "RELATIONSHIP" and len(entities) == 2
             for e in entities:
                 if e["kind"] != "evidence":
-                    e["size"] = "support"
-            links[0][0]["size"] = "hero"
-            if len(entities) == 2 and form != "RELATIONSHIP":
-                links[-1][1]["size"] = "hero"
+                    e["size"] = "hero" if balanced_pair else "support"
+            if not balanced_pair:
+                links[0][0]["size"] = "hero"
+                if len(entities) == 2:
+                    links[-1][1]["size"] = "hero"
+                # A three-party typed handoff gives sender and receiver equal
+                # narrative standing. The cargo is the moving middle layer;
+                # it must not make the receiving participant a tiny footnote.
+                typed = [e for e in entities
+                         if e.get("params", {}).get("narrative_role") == "transferred_payload"]
+                if len(entities) == 3 and len(typed) == 1 and links[-1][1] is not typed[0]:
+                    links[-1][1]["size"] = "hero"
             shared = {e["id"] for e in entities} & previous
             relations = [{"type": r, "source": a["id"], "target": b["id"], "style": "dash"}
                          for a, b, r, _ in links]
@@ -1233,13 +1510,27 @@ def sketch_beat(gwords, bi, n, previous, media):
                                 "at": {"word": anchor}, "duration_ms": 360})
             if len(program) > 10:
                 raise ValueError("Sketch scene exceeds the native source-bound action budget")
-            for _, _, target, _, anchor in stages:
+            for _, cargo, target, relation, anchor in stages:
                 if len(program) == 10:
                     break
+                # The receiver cannot turn into the accent before being
+                # introduced by the voice. A timed transfer starts at its
+                # action verb, but its payoff belongs to the spoken recipient.
+                # Other non-transfer relations retain the established cue.
+                arrival_anchor = (target["phrase"].split()[-1]
+                                  if relation == "flows_to" and any(
+                                      x.get("params", {}).get("narrative_role") == "transferred_payload"
+                                      for x in cargo) else anchor)
                 program.append({"op": "INK", "target": target["id"],
-                                "at": {"word": anchor}, "duration_ms": 300})
+                                "at": {"word": arrival_anchor}, "duration_ms": 300})
             illustration = {"form": form, "entities": entities, "relations": relations,
                             "program": program,
+                            # True source-typed arrivals use recipient response.
+                            # Generic after-action EMIT can fire before the
+                            # receiver's spoken onset and falsely announce delivery.
+                            **({"confirmation": False} if any(
+                                e.get("params", {}).get("narrative_role") == "transferred_payload"
+                                for e in entities) else {}),
                             **({"carry": {"from_beat": f"b{bi:02d}", "entities": sorted(shared)}}
                                if shared else {})}
             return {
@@ -1571,8 +1862,36 @@ def build_treatment(args, style, words, media_files, film_id):
             "display_units": units,
             "illustration": illustration,
         })
+    director_report = None
     if style["id"] == "dataviz":
+        # Central production authoring arbitration: numerical DATA and a full
+        # illustration are alternative treatments, not simultaneous layers.
+        # The former Bayes stress harness had to repair this test-by-test.
+        for beat in beats:
+            if beat.get("data") is not None and beat.get("illustration") is not None:
+                beat.pop("illustration")
+                beat["dominant_layer"] = "DATA"
         dataviz_continuity(beats)
+    if style["id"] in ("sketch", "dataviz"):
+        from scene_director import direct_film
+        director_report = direct_film(style["id"], beats)
+        # A source removed by arbitration cannot feed downstream carry, and a
+        # remapped evidence bridge must not keep an unrelated prior persist.
+        for i, beat in enumerate(beats):
+            illustration = beat.get("illustration") or {}
+            if i:
+                carry = illustration.get("carry") or {}
+                previous = beats[i-1]
+                if carry and (carry.get("from_beat") != previous["beat_id"] or
+                              not previous.get("illustration") or
+                              not set(carry.get("entities", [])).issubset({
+                                  e["id"] for e in previous["illustration"]["entities"]})):
+                    illustration.pop("carry", None)
+            if i + 1 < len(beats) and illustration.get("persist_to"):
+                target = beats[i+1]
+                actual = (target.get("illustration") or {}).get("carry") or {}
+                if actual.get("from_beat") != beat["beat_id"]:
+                    illustration.pop("persist_to", None)
     media_library = []
     for mi, p in enumerate(media_files):
         p = Path(p)
@@ -1587,9 +1906,12 @@ def build_treatment(args, style, words, media_files, film_id):
     return {
         "schema": "NexStudioEditorialTreatmentV2",
         "film_id": film_id,
-        "note": f"auto-authored by make_reel.py (style={style['id']})",
+        "note": f"auto-authored by make_reel.py (style={style['id']}); film_scene_director_v1={director_report is not None}",
+        **({"director_report": director_report} if director_report is not None else {}),
         "aspects": args.aspects.split(","),
         "fps": 30,
+        **({"caption_policy": "kinetic"} if style["id"] == "dataviz" else {}),
+        **({"director_style": style["id"]} if style["id"] in ("dataviz", "sketch") else {}),
         "brand": {**style["palette"], "finish": style["finish"]},
         "typography": {"reveal": style["reveal"], "tonal_ink": 0.42, "min_visual_share": 0.6},
         "voice": {"source": "MASTER", "audio_path": "voice.mp3",

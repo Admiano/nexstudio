@@ -131,6 +131,32 @@ def author(script, style="sketch"):
 
 
 class SketchAuthoringTests(unittest.TestCase):
+    def test_causal_sentences_get_distinct_readable_replacement_stages(self):
+        script = "Pollen sticks to the bee. The bee carries pollen to another flower."
+        film = author(script)
+        self.assertEqual(len(film["beats"]), 1)
+        units = film["beats"][0]["display_units"]
+        self.assertEqual([u["text"] for u in units], [
+            "Pollen sticks to the bee.",
+            "The bee carries pollen to another flower.",
+        ])
+        self.assertEqual([u["role"] for u in units], ["hero", "hero"])
+        self.assertEqual([u["replace_group"] for u in units],
+                         ["sketch_causal_action", "sketch_causal_action"])
+        self.assertEqual(" ".join(u["text"] for u in units), script)
+        parsed = FilmTreatment.parse(film)
+        native_units = [u.ktp_unit() for u in parsed.beats[0].units]
+        performance = ktp.compile_performance(
+            "SETUP", "16x9", 5500, native_units,
+            shot_role="HYBRID", object_present=True,
+        )
+        self.assertEqual(performance["motif"], "REPLACEMENT_LOCKUP")
+        self.assertEqual(
+            {block["unit_index"] for block in performance["text_blocks"]},
+            {0, 1},
+            "Both spoken sentences must produce renderable typography blocks",
+        )
+
     def test_short_spoken_claims_share_context_and_keep_every_word(self):
         for sentences in (
             ("A pump sends water.", "The water enters a tank.", "The tank feeds a house."),
@@ -149,6 +175,45 @@ class SketchAuthoringTests(unittest.TestCase):
                 self.assertEqual(sentences[0], " ".join(w["text"] for w in groups[0]))
                 self.assertEqual(" ".join(sentences[1:]), " ".join(w["text"] for w in groups[1]))
                 self.assertEqual(stream, [w for g in groups for w in g])
+
+    def test_source_linked_transfer_chain_keeps_one_visual_story(self):
+        text = "A pump sends water to a tank. The tank feeds a house."
+        stream = [{"text": w, "start_ms": i * 280, "end_ms": i * 280 + 210}
+                  for i, w in enumerate(text.split())]
+        groups = make_reel.sketch_groups(stream)
+        self.assertEqual(len(groups), 1, "Dependent source actions need continuous visual causality")
+        self.assertEqual(" ".join(w["text"] for group in groups for w in group), text)
+        beat = make_reel.sketch_beat(groups[0], 0, 1, set(), [])
+        self.assertEqual(beat["narration"], text)
+        self.assertGreaterEqual(len(beat["illustration"]["relations"]), 2)
+        print("ACTION_DIAG", [(x["id"],x.get("phrase")) for x in beat["illustration"]["entities"]],
+              [(a["id"],[p["id"] for p in payload],t["id"],relation,anchor)
+               for a,payload,t,relation,anchor in make_reel.sketch_action_stages(text, beat["illustration"]["entities"])], flush=True)
+        edges = {(x["source"], x["target"]) for x in beat["illustration"]["relations"]}
+        self.assertIn(("sk_pump", "sk_water"), edges)
+        self.assertIn(("sk_water", "sk_tank"), edges, "The narrated water must reach the tank")
+        self.assertIn(("sk_tank", "sk_house"), edges)
+        named = {e.get("phrase"): e["glyph"] for e in beat["illustration"]["entities"]}
+        self.assertEqual(named.get("pump"), "PUMP")
+        self.assertEqual(named.get("tank"), "TANK")
+        # A water transfer is a mechanical action, not anonymous pill text.
+        self.assertEqual(named.get("water"), "TILE")
+        FilmTreatment.parse(author(text))
+
+    def test_two_node_connection_remains_visually_balanced_in_portrait(self):
+        film = author("The server connects to a database.")
+        beat = FilmTreatment.parse(film).beats[0]
+        self.assertEqual(beat.illustration.form, "RELATIONSHIP")
+        self.assertEqual([entity.size for entity in beat.illustration.entities], ["hero", "hero"])
+        portrait = IllustrationSolver(
+            "9x16", (1080, 1920), IllustrationRegistry(), {}, {},
+            "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
+        zone = {"x": 96, "y": 680, "w": 888, "h": 790}
+        entities, failures = portrait.layout(beat.illustration, zone, beat.beat_id)
+        self.assertFalse(failures)
+        areas = [e["art_bbox"]["w"] * e["art_bbox"]["h"] for e in entities]
+        self.assertEqual(len(areas), 2)
+        self.assertLess(max(areas) / max(1, min(areas)), 1.6)
 
     def test_native_solver_accepts_authored_forms_without_empty_satellites(self):
         solver = IllustrationSolver("16x9", (1920, 1080), IllustrationRegistry(), {}, {},
@@ -202,6 +267,163 @@ class SketchAuthoringTests(unittest.TestCase):
                          beats[1]["illustration"]["carry"])
         self.assertFalse(any(p["op"] == "DRAW" for p in beats[1]["illustration"]["program"]))
 
+    def test_transported_source_survives_and_premature_confirmation_is_disabled(self):
+        for sentence in (
+            "A courier delivers an invoice to a customer.",
+            "A teacher forwards a worksheet to a student.",
+            "A device sends an instruction to a printer.",
+        ):
+            with self.subTest(sentence=sentence):
+                illustration = author(sentence)["beats"][0]["illustration"]
+                cargo = [e for e in illustration["entities"]
+                         if e.get("params", {}).get("narrative_role") == "transferred_payload"]
+                self.assertEqual(len(cargo), 1)
+                self.assertIs(illustration["confirmation"], False)
+                self.assertFalse(any(e.get("asset_ref", "").startswith("icon.icon-park-color.")
+                                     for e in illustration["entities"]))
+                FilmTreatment.parse(author(sentence))
+
+    def test_receiver_is_not_emphasised_at_transfer_verb(self):
+        for sentence, recipient in (
+            ("A courier delivers an invoice to a customer.", "customer"),
+            ("A teacher forwards a worksheet to a student.", "student"),
+            ("A device sends an instruction to a printer.", "printer"),
+        ):
+            with self.subTest(sentence=sentence):
+                beat = author(sentence)["beats"][0]["illustration"]
+                highlights = [o for o in beat["program"]
+                              if o["op"] == "INK" and o["target"] == f"sk_{recipient}"]
+                self.assertEqual(len(highlights), 1)
+                self.assertEqual(highlights[0]["at"]["word"], recipient)
+                self.assertNotEqual(highlights[0]["at"]["word"],
+                                    sentence.split()[2].rstrip(".,;"))
+
+    def test_native_handoff_composition_is_balanced_and_true_in_three_aspects(self):
+        """An unseen payload may not shrink the source-authoritative receiver."""
+        script = "A courier delivers an invoice to a customer."
+        film = author(script)
+        beat = FilmTreatment.parse(film).beats[0]
+        ents = {e.id: e for e in beat.illustration.entities}
+        self.assertEqual(ents["sk_courier"].size, "hero")
+        self.assertEqual(ents["sk_customer"].size, "hero")
+        self.assertEqual(ents["sk_invoice"].size, "support")
+        for aspect, canvas, zone in (
+            ("16x9", (1280, 720), {"x": 80, "y": 313, "w": 1120, "h": 352}),
+            ("9x16", (720, 1280), {"x": 55, "y": 500, "w": 610, "h": 680}),
+            ("1x1", (1080, 1080), {"x": 80, "y": 460, "w": 920, "h": 540}),
+        ):
+            with self.subTest(aspect=aspect):
+                solver = IllustrationSolver(aspect, canvas, IllustrationRegistry(), {}, {},
+                                            "#2f6fb3", collage=True, finish="PRODUCT_COLLAGE")
+                laid, errors = solver.layout(beat.illustration, zone, beat.beat_id)
+                self.assertFalse(errors, errors)
+                placed = {e["id"]: e for e in laid}
+                self.assertEqual(len(placed), 3)
+                origin = placed["sk_courier"]["bbox"]
+                cargo = placed["sk_invoice"]["bbox"]
+                recipient = placed["sk_customer"]["bbox"]
+                if zone["w"] < zone["h"] * 0.84:
+                    self.assertLess(origin["y"], cargo["y"])
+                    self.assertLess(cargo["y"], recipient["y"])
+                else:
+                    self.assertLess(origin["x"], cargo["x"])
+                    self.assertLess(cargo["x"], recipient["x"])
+                if aspect == "9x16":
+                    # The old portrait stack occupied only 119px of a
+                    # 720px-wide film for each actual human actor. In a
+                    # near-square visual stage the sender/receiver must
+                    # command sufficient visual area to show an action.
+                    self.assertGreater(min(origin["w"], recipient["w"]),
+                                       zone["w"] * 0.24)
+                    self.assertAlmostEqual(origin["w"], recipient["w"],
+                                           delta=zone["w"] * 0.10)
+                if aspect == "16x9":
+                    self.assertLess(abs(origin["w"] - recipient["w"]),
+                                    0.15 * max(origin["w"], recipient["w"]))
+
+    def test_source_named_list_transform_has_drawable_destination_not_word_only(self):
+        film = author("A note becomes a list.")
+        scene = film["beats"][0]["illustration"]
+        target = next(e for e in scene["entities"] if e["phrase"] == "list")
+        self.assertEqual(target["glyph"], "TILE")
+        if target.get("asset_ref"):
+            self.assertEqual(target["asset_ref"].rsplit(".", 1)[-1], "list")
+        else:
+            self.assertEqual(target["params"]["visual_class"], "list")
+        self.assertIn(("sk_note", "sk_list", "transforms_into"),
+                      [(e["source"],e["target"],e["type"])
+                       for e in scene["relations"]])
+        FilmTreatment.parse(film)
+
+    def test_source_checked_visual_classes_produce_real_art_without_type_hallucinations(self):
+        # A class describes the type of picture that can be drawn, not a
+        # language-specific action, source script, or an invented costume.
+        for script, types in (
+            ("A teacher forwards a worksheet to a student.",
+             {"teacher": "person", "worksheet": "document", "student": "person"}),
+            ("A courier delivers an invoice to a customer.",
+             {"courier": "person", "invoice": "document", "customer": "person"}),
+            ("A doctor sends a report to a nurse.",
+             {"doctor": "person", "report": "document", "nurse": "person"}),
+        ):
+            with self.subTest(script=script):
+                scene = author(script)["beats"][0]["illustration"]
+                actual = {e["phrase"]: e for e in scene["entities"]}
+                self.assertEqual(set(actual), set(types))
+                for phrase, expected in types.items():
+                    entity = actual[phrase]
+                    self.assertEqual(entity["glyph"], "TILE")
+                    if entity.get("asset_ref"):
+                        # Prefer a licensed exact-literal illustration over
+                        # a generic artist-drawn class where it exists.
+                        self.assertEqual(entity["asset_ref"].rsplit(".", 1)[-1],
+                                         phrase)
+                    else:
+                        self.assertEqual(entity.get("params", {}).get("visual_class"),
+                                         expected)
+                FilmTreatment.parse(author(script))
+        # A machine sending a digital signal does NOT acquire fake arms or
+        # a made-up paper document. Unknowns fail closed to genuine text.
+        scene = author("A server sends a signal to a router.")["beats"][0]["illustration"]
+        self.assertFalse(any(e.get("params", {}).get("visual_class")
+                             for e in scene["entities"]))
+        FilmTreatment.parse(author("A server sends a signal to a router."))
+
+    def test_typed_transfer_handles_unseen_nouns_and_verbs_without_word_whitelists(self):
+        scenes = (
+            ("A courier delivers an invoice to a customer.", "courier", "invoice", "customer"),
+            ("A lab ships a specimen to a clinic.", "lab", "specimen", "clinic"),
+            ("A teacher forwards a worksheet to a student.", "teacher", "worksheet", "student"),
+            ("A driver passes a ticket to a guard.", "driver", "ticket", "guard"),
+        )
+        for script, actor, cargo, receiver in scenes:
+            with self.subTest(script=script):
+                film = author(script)
+                scene = film["beats"][0]["illustration"]
+                roles = {e["phrase"]: e.get("params", {}).get("narrative_role")
+                         for e in scene["entities"]}
+                self.assertEqual(roles[cargo], "transferred_payload")
+                self.assertIsNone(roles[actor])
+                self.assertIsNone(roles[receiver])
+                edges = {(e["source"], e["target"], e["type"])
+                         for e in scene["relations"]}
+                self.assertIn((f"sk_{actor}", f"sk_{cargo}", "flows_to"), edges)
+                self.assertIn((f"sk_{cargo}", f"sk_{receiver}", "flows_to"), edges)
+                self.assertEqual(len([o for o in scene["program"]
+                                      if o["op"] == "CONNECT"]), 2)
+                FilmTreatment.parse(film)
+
+    def test_no_payload_role_for_simple_connection_or_negated_transfer(self):
+        for script in (
+            "The server connects to a database.",
+            "A pump does not send a signal to a bank.",
+            "A pencil is lighter than a brick.",
+        ):
+            with self.subTest(script=script):
+                scene = author(script)["beats"][0]["illustration"]
+                self.assertFalse(any(e.get("params", {}).get("narrative_role")
+                                     for e in scene["entities"]))
+
     def test_unpictured_flow_payload_uses_source_label_and_connects_before_destination(self):
         for script, noun in (("The database sends a result to the phone.", "result"),
                              ("A device sends an instruction to a printer.", "instruction")):
@@ -253,7 +475,8 @@ class SketchAuthoringTests(unittest.TestCase):
                 self.assertFalse(any(e["glyph"] == "NODE" for e in ill["entities"]))
                 self.assertEqual([{"word": verb}, {"word": move}],
                                  [op["at"] for op in ill["program"] if op["op"] == "CONNECT"])
-                self.assertEqual([("sk_" + carrier, verb), ("sk_" + destination, move)],
+                self.assertEqual([("sk_" + carrier, verb),
+                                  ("sk_" + destination, destination.split("_")[-1])],
                                  [(op["target"], op["at"]["word"])
                                   for op in ill["program"] if op["op"] == "INK"])
                 FilmTreatment.parse(film)

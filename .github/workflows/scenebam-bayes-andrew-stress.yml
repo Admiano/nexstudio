@@ -1,0 +1,96 @@
+name: SceneBam hard topic Sketch vs Data Viz, Microsoft Andrew
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-bayes-andrew-stress.yml"
+      - "engine_sources/explainer-locks/tools/stress_bayes_andrew.py"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/scene_repertoire.py"
+      - "engine_sources/explainer-locks/tools/sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/test_sketch_actor_states.py"
+      - "engine_sources/explainer-locks/tools/test_audio_locked_scene_direction.py"
+      - "engine_sources/explainer-locks/compiler/editorial_plan_compiler/illustration.py"
+      - "engine_sources/explainer-locks/tools/test_scene_repertoire.py"
+      - "engine_sources/explainer-locks/styles.json"
+      - "engine_sources/explainer-locks/runtime/**"
+      - "engine_sources/explainer-locks/tools/test_scene_director.py"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  hard-topic:
+    name: "Native ${{ matrix.style }} 9:16 + 1:1 with Andrew"
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        style: [sketch, dataviz]
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      PYTHONUNBUFFERED: "1"
+      STYLE: ${{ matrix.style }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Native renderer and Andrew TTS dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG edge-tts
+          npm ci --prefix engine_sources/explainer-locks
+          python -m py_compile engine_sources/explainer-locks/tools/stress_bayes_andrew.py
+          python -m py_compile engine_sources/explainer-locks/tools/scene_director.py
+          python -m py_compile engine_sources/explainer-locks/tools/scene_repertoire.py
+          python -m py_compile engine_sources/explainer-locks/tools/sketch_actor_states.py
+          python -m py_compile engine_sources/explainer-locks/tools/make_reel.py
+          command -v google-chrome || command -v google-chrome-stable || command -v chromium
+      - name: Confirm source authoring, not a canned Bayes renderer
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+          python tools/test_scene_director.py -q
+          python tools/test_scene_repertoire.py -q
+          python tools/test_sketch_actor_states.py -q
+          python tools/test_audio_locked_scene_direction.py -q
+      - name: Synthesize Microsoft Andrew and render 2 real aspect videos
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/stress_bayes_andrew.py --style "$STYLE" --fps 24 --workers 2
+      - name: Publish four native stress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenebam-bayes-${{ matrix.style }}-andrew-9x16-1x1
+          path: |
+            engine_sources/explainer-locks/out/bayes-stress/**/*.mp4
+            engine_sources/explainer-locks/out/bayes-stress/**/proof_*.png
+            engine_sources/explainer-locks/out/bayes-stress/**/contact_*.png
+            engine_sources/explainer-locks/out/bayes-stress/**/plan_*.json
+            engine_sources/explainer-locks/out/bayes-stress/**/render_*.json
+            engine_sources/explainer-locks/out/bayes-stress/**/gate_report.json
+            engine_sources/explainer-locks/out/bayes-stress/**/stress_report.json
+          if-no-files-found: warn
+          retention-days: 21

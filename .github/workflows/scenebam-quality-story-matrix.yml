@@ -1,0 +1,122 @@
+name: SceneBam quality diverse-story renders
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-quality-story-matrix.yml"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/recovery_video_proof.py"
+      - "engine_sources/explainer-locks/runtime/**"
+      - "engine_sources/explainer-locks/compiler/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  story:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {style: dataviz, scenario: comparison}
+          - {style: dataviz, scenario: share}
+          - {style: dataviz, scenario: decrease}
+          - {style: dataviz, scenario: counter}
+          - {style: dataviz, scenario: irregular}
+          - {style: dataviz, scenario: fivepoint}
+          - {style: sketch, scenario: water}
+          - {style: sketch, scenario: transform}
+          - {style: sketch, scenario: attachment}
+          - {style: sketch, scenario: contrast}
+          - {style: sketch, scenario: connection}
+          - {style: sketch, scenario: dispatch}
+          - {style: sketch, scenario: invoice}
+          - {style: sketch, scenario: worksheet}
+          - {style: sketch, scenario: ticket}
+          - {style: sketch, scenario: contract}
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - name: Native dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Render actual story (not a mock graphic)
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/recovery_video_proof.py --style ${{ matrix.style }} --scenario ${{ matrix.scenario }} --aspects 16x9 --fps 24 --workers 2
+      - name: Check filmed source and extract PNG
+        working-directory: engine_sources/explainer-locks
+        env:
+          STYLE: ${{ matrix.style }}
+          SCENARIO: ${{ matrix.scenario }}
+        run: |
+          python - <<'PY'
+          import os,json,subprocess
+          from pathlib import Path
+          style,scenario=os.environ["STYLE"],os.environ["SCENARIO"]
+          p=Path("out/recovery-video-proof")/f"recovery-proof-{style}-{scenario}"
+          plan=json.loads((p/"plan_16x9.json").read_text())
+          manifest=json.loads((p/"render_16x9.json").read_text())
+          assert plan["director_style"]==style
+          assert plan["gate"]["status"]=="PASS"
+          assert not manifest.get("page_errors")
+          orphans=[q for q in manifest.get("authorship",{}).get("findings",[])
+                   if q.get("code")=="ORPHAN_CONNECTOR"]
+          assert not orphans,(style,scenario,orphans)
+          if style=="sketch" and scenario in {"invoice","worksheet","ticket","contract"}:
+              # A source-authoritative person or physical sheet must be
+              # ACTUALLY drawn, not a decorative housing with a noun label.
+              # Render inspection sees real SVG pixels and can catch an
+              # implementation that silently returns to text-only nodes.
+              missing=[q for q in manifest.get("authorship",{}).get("findings",[])
+                       if q.get("code") in {"EMPTY_CHASSIS","ICON_UNDERFILL","ICON_OVERFLOW"}]
+              assert not missing,(style,scenario,missing)
+              assert any(e.get("params",{}).get("visual_class")=="person"
+                         for b in plan["beats"] for e in b["illustration"]["entities"])
+          if style=="dataviz":
+              assert not plan["captions"] and plan["captions_policy"]=="kinetic"
+              assert manifest.get("captions_burned",0)==0
+          video=p/f"recovery-proof-{style}-{scenario}_16x9_web.mp4"
+          assert video.stat().st_size>50000
+          subprocess.run(["ffmpeg","-y","-v","error","-ss","2.2","-i",str(video),
+                          "-frames:v","1",str(p/"story-preview.png")],check=True)
+          print(f"PASSED {style}/{scenario}",video.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scenebam-${{ matrix.style }}-${{ matrix.scenario }}
+          path: |
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*16x9*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/story-preview.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/contact_16x9.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_16x9.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_16x9.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+          if-no-files-found: warn
+          retention-days: 21

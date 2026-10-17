@@ -1,0 +1,132 @@
+name: SceneBam quality three-aspect certification
+on:
+  push:
+    branches:
+      - quality/dv-sketch-director-20261015
+    paths:
+      - ".github/workflows/scenebam-quality-aspect-certification.yml"
+      - "engine_sources/explainer-locks/compiler/**"
+      - "engine_sources/explainer-locks/runtime/**"
+      - "engine_sources/explainer-locks/tools/make_reel.py"
+      - "engine_sources/explainer-locks/tools/scene_director.py"
+      - "engine_sources/explainer-locks/tools/recovery_video_proof.py"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  aspect:
+    strategy:
+      fail-fast: false
+      matrix:
+        aspect: ["16x9", "9x16", "1x1"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    env:
+      PYTHONUNBUFFERED: "1"
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            engine_sources/explainer-locks
+            engine_sources/editorial-motion-v2/assets
+            services/studio-family-engines
+          sparse-checkout-cone-mode: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install original artwork and native motion renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq espeak-ng ffmpeg
+          python -m pip install --quiet Pillow numpy soundfile jsonschema CairoSVG
+          npm ci --prefix engine_sources/explainer-locks
+      - name: Run source and authoring checks
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/test_dataviz_authoring.py -q
+          python tools/test_sketch_authoring.py -q
+          python tools/test_quality_director.py -q
+          node --check runtime/editorial-runtime.js
+      - name: Render real Data Viz and Sketch videos
+        working-directory: engine_sources/explainer-locks
+        run: |
+          python tools/recovery_video_proof.py --style dataviz --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          python tools/recovery_video_proof.py --style sketch --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          # Certify the rebuilt source-dated chart and real illustrated
+          # person -> object -> person choreography in every native aspect.
+          python tools/recovery_video_proof.py --style dataviz --scenario fivepoint --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+          python tools/recovery_video_proof.py --style sketch --scenario invoice --aspects ${{ matrix.aspect }} --fps 24 --workers 2
+      - name: Audit compiled plans and extract actual PNG frame
+        working-directory: engine_sources/explainer-locks
+        env:
+          ASPECT: ${{ matrix.aspect }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          a=os.environ["ASPECT"]
+          out=Path("out/recovery-video-proof")
+          png=Path("out/quality-aspect-previews")
+          png.mkdir(exist_ok=True)
+          for style,scenario in (("dataviz","default"), ("sketch","default"),
+                                 ("dataviz","fivepoint"), ("sketch","invoice")):
+              stem=f"recovery-proof-{style}" + ("" if scenario=="default" else f"-{scenario}")
+              parent=out/stem
+              plan=json.loads((parent/f"plan_{a}.json").read_text())
+              render=json.loads((parent/f"render_{a}.json").read_text())
+              assert plan["director_style"]==style,(style,plan.get("director_style"))
+              assert plan.get("gate",{}).get("status")=="PASS",(style,a,plan.get("gate"))
+              assert not render.get("page_errors"),(style,a,render.get("page_errors"))
+              orphans=[q for q in render.get("authorship",{}).get("findings",[])
+                       if q.get("code")=="ORPHAN_CONNECTOR"]
+              assert not orphans,(style,a,orphans)
+              if style=="dataviz":
+                  assert plan["captions_policy"]=="kinetic"
+                  assert plan["captions"]==[]
+                  assert render.get("captions_burned",0)==0
+              if scenario == "fivepoint":
+                  chart=next(e for e in plan["beats"][0]["illustration"]["entities"]
+                             if e["glyph"]=="CHART_LINE")
+                  assert chart["params"]["value_labels"]==["10","40","20","35","30"]
+                  if a == "16x9":
+                      assert plan["beats"][0]["composition"]["visual_zone"]["w"] >= plan["canvas"]["w"]*0.75
+              if scenario == "invoice":
+                  scene=plan["beats"][0]["illustration"]
+                  typed=[e for e in scene["entities"]
+                         if e["params"].get("narrative_role")=="transferred_payload"]
+                  assert len(typed)==1 and typed[0]["id"]=="sk_invoice"
+                  assert sum(e["params"].get("visual_class")=="person"
+                             for e in scene["entities"])==2
+              src=parent/f"{stem}_{a}_web.mp4"
+              assert src.stat().st_size>50_000,(str(src),src.stat().st_size)
+              when=min(4.4,max(0.1,plan["duration_ms"]/1000*0.72))
+              name=f"{style}_{a}" if scenario=="default" else f"{style}_{scenario}_{a}"
+              subprocess.run(["ffmpeg","-y","-v","error","-ss",str(when),"-i",str(src),
+                              "-frames:v","1",str(png/f"{name}.png")],check=True)
+              print(f"{style}/{scenario} {a}: valid MP4 {src.stat().st_size} bytes")
+          PY
+      - name: Upload native videos, frames and audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scenebam-quality-${{ matrix.aspect }}
+          path: |
+            engine_sources/explainer-locks/out/quality-aspect-previews/*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/*.mp4
+            engine_sources/explainer-locks/out/recovery-video-proof/**/contact_*.png
+            engine_sources/explainer-locks/out/recovery-video-proof/**/plan_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/render_*.json
+            engine_sources/explainer-locks/out/recovery-video-proof/**/gate_report.json
+          if-no-files-found: warn
+          retention-days: 21
