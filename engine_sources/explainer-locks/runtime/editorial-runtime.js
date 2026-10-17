@@ -4354,7 +4354,17 @@
       // A link between an absent or dimmed body and anything else is a stray line: it inherits
       // the weaker endpoint's presence.
       const endA = ill.ents.get(rel.source), endB = ill.ents.get(rel.target);
-      if (endA && endB) opacity *= Math.min(endA.presence == null ? 1 : endA.presence, endB.presence == null ? 1 : endB.presence);
+      if (endA && endB) {
+        const presenceA = endA.presence == null ? 1 : endA.presence;
+        const presenceB = endB.presence == null ? 1 : endB.presence;
+        opacity *= Math.min(presenceA, presenceB);
+        // Tiny residual line fragments are still visually detectable while
+        // the destination is just emerging/disappearing. For a narrative
+        // connector, *both* subjects must be legibly present or it is orphaned.
+        // This hysteresis-free predicate works for seeking in either direction.
+        if (ctx.directorStyle === 'sketch' &&
+            Math.min(presenceA, presenceB) < 0.70) opacity = 0;
+      }
       if (ctx.directorStyle === 'sketch' && rel.type === 'flows_to' &&
           (endA && endA.ent.params && endA.ent.params.narrative_role === 'transferred_payload' ||
            endB && endB.ent.params && endB.ent.params.narrative_role === 'transferred_payload')) {
