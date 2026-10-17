@@ -891,7 +891,30 @@ class IllustrationSolver:
         span = zone['w'] if horizontal else zone['h']
         gap = span * 0.045
         available = span - 2 * gap
-        weights = (0.37, 0.26, 0.37)
+        # The transferred source object is frequently the smallest *area*
+        # but owns the most important identity label. Giving it a fixed 26%
+        # share squeezed readable nouns below their font floor in portrait /
+        # square, e.g. the pollen transfer. Size by the EXISTING typesetter's
+        # minimum at the actual canvas and preserve both physical endpoints;
+        # never reduce a font floor or invent a replacement icon to pass.
+        payload_share = 0.26
+        if payload.label and payload.glyph in LABEL_CARRIERS:
+            font_floor = FLOOR_FRACTION['label'] * min(self.canvas)
+            if horizontal:
+                needed = self._label_need(payload, font_floor)
+            else:
+                # In a vertical stack, the pill's one-line text must also
+                # have enough height for the existing native inside box.
+                inner_height = {
+                    'PILL': .60, 'CARD': .30, 'CALLOUT': .52,
+                    'STICKY': .45, 'CHIP': .72
+                }.get(payload.glyph, .60)
+                needed = font_floor * 1.08 / max(
+                    0.05, inner_height * SIZE_SCALE[payload.size])
+            payload_share = min(0.52, max(payload_share,
+                needed * 1.06 / max(1.0, available)))
+        end_share = (1.0 - payload_share) / 2
+        weights = (end_share, payload_share, end_share)
         cells: Dict[str, Dict[str, float]] = {}
         cursor = zone['x'] if horizontal else zone['y']
         for e, weight in zip(ordered, weights):
